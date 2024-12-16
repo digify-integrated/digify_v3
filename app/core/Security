@@ -1,0 +1,112 @@
+<?php
+
+namespace App\Core;
+
+class Security
+{
+    /**
+     * Encrypt data using AES-256-CBC.
+     *
+     * @param string $plainText The plain text to encrypt.
+     * @return string|false The encrypted string or false on failure.
+     */
+    public static function encryptData(string $plainText)
+    {
+        $plainText = trim($plainText);
+        if (empty($plainText)) return false;
+
+        $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+        $ciphertext = openssl_encrypt($plainText, 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
+
+        return $ciphertext ? rawurlencode(base64_encode($iv . $ciphertext)) : false;
+    }
+
+    /**
+     * Decrypt encrypted data using AES-256-CBC.
+     *
+     * @param string $ciphertext The encrypted text to decrypt.
+     * @return string|false The decrypted plain text or false on failure.
+     */
+    public static function decryptData(string $ciphertext)
+    {
+        $decodedData = base64_decode(rawurldecode($ciphertext));
+        if (!$decodedData) return false;
+
+        $iv_length = openssl_cipher_iv_length('aes-256-cbc');
+        if (strlen($decodedData) < $iv_length) return false;
+
+        $iv = substr($decodedData, 0, $iv_length);
+        $ciphertext = substr($decodedData, $iv_length);
+
+        return openssl_decrypt($ciphertext, 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv) ?: false;
+    }
+
+    /**
+     * Obscure an email address.
+     *
+     * @param string $email The email address to obscure.
+     * @return string The obscured email address.
+     */
+    public static function obscureEmail(string $email)
+    {
+        [$username, $domain] = explode('@', $email, 2);
+        $maskedUsername = substr($username, 0, 1) . str_repeat('*', max(0, strlen($username) - 2)) . substr($username, -1);
+
+        return $maskedUsername . '@' . $domain;
+    }
+
+    /**
+     * Obscure a credit card number by masking all but the last 4 digits.
+     *
+     * @param string $cardNumber The credit card number to obscure.
+     * @return string The obscured card number.
+     */
+    public static function obscureCardNumber(string $cardNumber)
+    {
+        $last4Digits = substr($cardNumber, -4);
+        $masked = str_repeat('*', max(0, strlen($cardNumber) - 4));
+
+        return substr(implode(' ', str_split($masked, 4)), 0, -1) . ' ' . $last4Digits;
+    }
+
+    /**
+     * Generate a random file name with a given length range.
+     *
+     * @param int $minLength Minimum length of the file name.
+     * @param int $maxLength Maximum length of the file name.
+     * @return string The generated file name.
+     */
+    public static function generateFileName(int $minLength = 4, int $maxLength = 8)
+    {
+        $validCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $filename = '';
+        $length = random_int($minLength, $maxLength);
+
+        for ($i = 0; $i < $length; $i++) {
+            $filename .= $validCharacters[random_int(0, strlen($validCharacters) - 1)];
+        }
+
+        return $filename;
+    }
+
+    /**
+     * Check if a directory exists, is writable, or create it.
+     *
+     * @param string $directory The directory path.
+     * @return true|string Returns true if the directory is ready, or an error message otherwise.
+     */
+    public static function directoryChecker(string $directory)
+    {
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, 0755, true)) {
+                return 'Error creating directory: ' . (error_get_last()['message'] ?? 'Unknown error');
+            }
+        } elseif (!is_writable($directory)) {
+            return 'Directory exists but is not writable.';
+        }
+
+        return true;
+    }
+}
+
+?>

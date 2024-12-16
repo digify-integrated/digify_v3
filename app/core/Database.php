@@ -1,83 +1,54 @@
 <?php
-// Database.php
+namespace App\Core;
+
+use PDO;
+use PDOException;
+use RuntimeException;
+
 class Database {
-    private $pdo; // PDO instance
-    private $host = DB_HOST;
-    private $dbname = DB_NAME;
-    private $username = DB_USER;
-    private $password = DB_PASSWORD;
-    private $charset = DB_CHARSET;
+    private static $instance = null; // Singleton instance for reusing connections
+    private $connection;
 
-    public function __construct() {
-        // Establish the database connection
-        $this->connect();
-    }
-
-    // Connect to the database
-    private function connect() {
+    private function __construct($host, $dbname, $username, $password) {
+        // Use environment variables for sensitive data (already partially implemented)
         try {
-            // Set DSN (Data Source Name)
-            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}";
+            $options = [
+                PDO::ATTR_EMULATE_PREPARES => false, // Use native prepared statements for security
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Throw exceptions for errors
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // Fetch results as associative arrays by default
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci", // Set proper charset for security
+                PDO::ATTR_PERSISTENT => true // Enable persistent connections for performance
+            ];
 
-            // Create a PDO instance
-            $this->pdo = new PDO($dsn, $this->username, $this->password);
-
-            // Set PDO error mode to exception
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            // Optionally set default fetch mode
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            // Initialize the PDO connection
+            $this->connection = new PDO(
+                "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                $username,
+                $password,
+                $options
+            );
 
         } catch (PDOException $e) {
-            // Handle connection errors
-            die("Database connection failed: " . $e->getMessage());
+            // Log the error securely without exposing sensitive details
+            error_log('Database connection failed: ' . $e->getMessage());
+            throw new RuntimeException('Database connection error.');
         }
     }
 
-    // Query the database (SELECT)
-    public function query($sql, $params = []) {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+    /**
+     * Get the singleton instance of the database connection.
+     */
+    public static function getInstance($host, $dbname, $username, $password) {
+        if (self::$instance === null) {
+            self::$instance = new self($host, $dbname, $username, $password);
+        }
+        return self::$instance;
     }
 
-    // Fetch data from the database (SELECT)
-    public function fetch($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetch();
-    }
-
-    // Fetch all rows (SELECT)
-    public function fetchAll($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetchAll();
-    }
-
-    // Execute an INSERT, UPDATE, DELETE query
-    public function exec($sql, $params = []) {
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
-    }
-
-    // Begin a transaction
-    public function beginTransaction() {
-        return $this->pdo->beginTransaction();
-    }
-
-    // Commit a transaction
-    public function commit() {
-        return $this->pdo->commit();
-    }
-
-    // Rollback a transaction
-    public function rollBack() {
-        return $this->pdo->rollBack();
-    }
-
-    // Get the last insert ID
-    public function lastInsertId() {
-        return $this->pdo->lastInsertId();
+    /**
+     * Get the PDO connection.
+     */
+    public function getConnection() {
+        return $this->connection;
     }
 }
-
-?>

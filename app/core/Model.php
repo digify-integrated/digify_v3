@@ -1,97 +1,110 @@
 <?php
+namespace App\Core;
 
-// Base model class
-class Model {
+use App\Core\Database; // Assuming Database.php is in the same namespace
+use PDO;
 
-    // Property to hold the database connection
+abstract class Model {
     protected $db;
 
-    // Constructor
+    /**
+     * Constructor to initialize the database connection.
+     */
     public function __construct() {
-        // Initialize the database connection
-        $this->db = new Database();
+        $dbInstance = Database::getInstance(
+            DB_HOST, 
+            DB_NAME, 
+            DB_USER, 
+            DB_PASS
+        );
+        $this->db = $dbInstance->getConnection();
     }
 
     /**
-     * Fetch a single record by its ID
-     * @param string $table The table name
-     * @param int $id The ID of the record
-     * @return array|null The record data or null if not found
+     * Execute a raw SQL query and return the result.
+     *
+     * @param string $query The SQL query to execute.
+     * @param array $params Optional parameters for prepared statements.
+     * @return mixed The query result.
      */
-    public function getById($table, $id) {
-        $sql = "SELECT * FROM $table WHERE id = :id LIMIT 1";
-        $params = ['id' => $id];
-        $result = $this->db->fetch($sql, $params);
-        return $result;
-    }
-
-    /**
-     * Fetch all records from a table
-     * @param string $table The table name
-     * @return array The list of records
-     */
-    public function getAll($table) {
-        $sql = "SELECT * FROM $table";
-        $result = $this->db->fetchAll($sql);
-        return $result;
-    }
-
-    /**
-     * Insert a new record into a table
-     * @param string $table The table name
-     * @param array $data The data to insert (associative array of column => value)
-     * @return bool Whether the insert was successful
-     */
-    public function insert($table, $data) {
-        // Prepare the SQL insert query dynamically
-        $columns = implode(", ", array_keys($data));
-        $values = ":" . implode(", :", array_keys($data));
-        
-        $sql = "INSERT INTO $table ($columns) VALUES ($values)";
-        return $this->db->exec($sql, $data);
-    }
-
-    /**
-     * Update a record in a table
-     * @param string $table The table name
-     * @param array $data The data to update (associative array of column => value)
-     * @param int $id The ID of the record to update
-     * @return bool Whether the update was successful
-     */
-    public function update($table, $data, $id) {
-        $set = "";
-        foreach ($data as $column => $value) {
-            $set .= "$column = :$column, ";
+    public function query(string $query, array $params = []) {
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (\PDOException $e) {
+            // Log the error for debugging
+            error_log("Database query error: " . $e->getMessage());
+            return false;
         }
-        $set = rtrim($set, ", ");
-        
-        $data['id'] = $id; // Add the ID to the data array for the WHERE clause
-        
-        $sql = "UPDATE $table SET $set WHERE id = :id";
-        return $this->db->exec($sql, $data);
     }
 
     /**
-     * Delete a record from a table
-     * @param string $table The table name
-     * @param int $id The ID of the record to delete
-     * @return bool Whether the delete was successful
+     * Fetch all rows from a query.
+     *
+     * @param string $query The SQL query to execute.
+     * @param array $params Optional parameters for prepared statements.
+     * @return array|false Array of rows or false on failure.
      */
-    public function delete($table, $id) {
-        $sql = "DELETE FROM $table WHERE id = :id";
-        $params = ['id' => $id];
-        return $this->db->exec($sql, $params);
+    public function fetchAll(string $query, array $params = []) {
+        $stmt = $this->query($query, $params);
+        return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : false;
     }
 
     /**
-     * Count the number of records in a table
-     * @param string $table The table name
-     * @return int The number of records
+     * Fetch a single row from a query.
+     *
+     * @param string $query The SQL query to execute.
+     * @param array $params Optional parameters for prepared statements.
+     * @return array|false A single row or false on failure.
      */
-    public function count($table) {
-        $sql = "SELECT COUNT(*) FROM $table";
-        $result = $this->db->fetch($sql);
-        return $result ? $result['COUNT(*)'] : 0;
+    public function fetch(string $query, array $params = []) {
+        $stmt = $this->query($query, $params);
+        return $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
+    }
+
+    /**
+     * Insert a record into the database.
+     *
+     * @param string $table The name of the table.
+     * @param array $data An associative array of column names and values.
+     * @return bool Whether the insert was successful.
+     */
+    public function insert(string $table, array $data) {
+        $columns = implode(',', array_keys($data));
+        $placeholders = implode(',', array_fill(0, count($data), '?'));
+
+        $query = "INSERT INTO $table ($columns) VALUES ($placeholders)";
+        return $this->query($query, array_values($data));
+    }
+
+    /**
+     * Update a record in the database.
+     *
+     * @param string $table The name of the table.
+     * @param array $data Associative array of column names and values to update.
+     * @param string $where SQL WHERE clause.
+     * @param array $params Parameters for the WHERE clause.
+     * @return bool Whether the update was successful.
+     */
+    public function update(string $table, array $data, string $where, array $params = []) {
+        $setClause = implode(',', array_map(fn($key) => "$key = ?", array_keys($data)));
+        $query = "UPDATE $table SET $setClause WHERE $where";
+
+        return $this->query($query, array_merge(array_values($data), $params));
+    }
+
+    /**
+     * Delete a record from the database.
+     *
+     * @param string $table The name of the table.
+     * @param string $where SQL WHERE clause.
+     * @param array $params Parameters for the WHERE clause.
+     * @return bool Whether the delete was successful.
+     */
+    public function delete(string $table, string $where, array $params = []) {
+        $query = "DELETE FROM $table WHERE $where";
+        return $this->query($query, $params);
     }
 }
 
