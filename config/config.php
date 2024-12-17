@@ -24,36 +24,11 @@ define('DB_CHARSET', 'utf8mb4');                        // Database charset (UTF
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
-# Error Handling Configuration
+# Encryption Configuration
 # -------------------------------------------------------------
 
-define('ERROR_LOG', __DIR__ . '/../logs/app.log');      // Path to store application logs
-define('DISPLAY_ERRORS', DEBUG_MODE);                   // Show errors in development environment
-define('LOG_ERRORS', !DEBUG_MODE);                      // Log errors in production environment
-
-if (DEBUG_MODE) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 0);
-}
-
-if (LOG_ERRORS) {
-    ini_set('log_errors', 1);
-    ini_set('error_log', ERROR_LOG);
-}
-
-# -------------------------------------------------------------
-
-# -------------------------------------------------------------
-# Session Handling Configuration
-# -------------------------------------------------------------
-
-define('SESSION_LIFETIME', 3600);                       // Session lifetime in seconds (1 hour)
-define('SESSION_NAME', 'DIGIFY_SESSION');                // Custom session name
-define('SESSION_SECURE', true);                         // Secure session cookies (use HTTPS)
-define('SESSION_HTTP_ONLY', true);                      // Prevent JavaScript access to session cookies
+define('ENCRYPTION_KEY', '4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R');
+define('SECRET_KEY', '9n6ui[N];T\?{Wju[@zq^7)y>gsz2ltMT');
 
 # -------------------------------------------------------------
 
@@ -85,6 +60,7 @@ define('MAIL_USERNAME', 'your-email@example.com');      // SMTP username
 define('MAIL_PASSWORD', 'your-email-password');         // SMTP password
 define('MAIL_FROM_EMAIL', 'your-email@example.com');    // Email "from" address
 define('MAIL_FROM_NAME', 'Your Name');                  // Name to show in "from" field
+define('MAIL_SMTP_SECURE', 'ssl');                      // Mail SMTP Secure
 
 # -------------------------------------------------------------
 
@@ -94,6 +70,40 @@ define('MAIL_FROM_NAME', 'Your Name');                  // Name to show in "from
 
 define('RECAPTCHA_SITE_KEY', 'your-site-key');          // reCAPTCHA site key
 define('RECAPTCHA_SECRET_KEY', 'your-secret-key');      // reCAPTCHA secret key
+
+# -------------------------------------------------------------
+
+# -------------------------------------------------------------
+# Default User Interface Images
+# -------------------------------------------------------------
+
+define('DEFAULT_AVATAR_IMAGE', './assets/images/default/default-avatar.jpg');
+define('DEFAULT_BG_IMAGE', './assets/images/default/default-bg.jpg');
+define('DEFAULT_LOGIN_LOGO_IMAGE', './assets/images/default/default-logo-placeholder.png');
+define('DEFAULT_MENU_LOGO_IMAGE', './assets/images/default/default-menu-logo.png');
+define('DEFAULT_MODULE_ICON_IMAGE', './assets/images/default/default-module-icon.svg');
+define('DEFAULT_FAVICON_IMAGE', './assets/images/default/default-favicon.svg');
+define('DEFAULT_COMPANY_LOGO', './assets/images/default/default-company-logo.png');
+define('DEFAULT_APP_MODULE_LOGO', './assets/images/default/app-module-logo.png');
+define('DEFAULT_PLACEHOLDER_IMAGE', './assets/images/default/default-image-placeholder.png');
+define('DEFAULT_ID_PLACEHOLDER_FRONT', './assets/images/default/id-placeholder-front.jpg');
+define('DEFAULT_UPLOAD_PLACEHOLDER', './assets/images/default/upload-placeholder.png');
+
+# -------------------------------------------------------------
+
+# -------------------------------------------------------------
+# Security Configuration
+# -------------------------------------------------------------
+define('DEFAULT_PASSWORD', 'P@ssw0rd');
+define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
+define('RESET_PASSWORD_TOKEN_DURATION', 10);
+define('REGISTRATION_VERIFICATION_TOKEN_DURATION', 180);
+define('DEFAULT_PASSWORD_DURATION', 180);
+define('MAX_FAILED_OTP_ATTEMPTS', 5);
+define('DEFAULT_OTP_DURATION', 5);
+define('DEFAULT_SESSION_INACTIVITY', 30);
+define('BASE_LOCK_DURATION', 180);
+define('DEFAULT_PASSWORD_RECOVERY_LINK', 'http:#localhost/digify_v2/password-reset.php?id=');
 
 # -------------------------------------------------------------
 

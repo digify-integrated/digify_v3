@@ -6,4 +6,4 @@
 <script src="./vendor/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="./vendor/jquery-validation/validation/form-validation-rules.js?v=<?php echo rand(); ?>"></script>
 
-<script src="./components/js/global.js?v=<?php echo rand(); ?>"></script>
+<script type="module" src="assets/js/app.js"></script>

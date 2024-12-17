@@ -2,7 +2,6 @@
     require_once './config/config.php'; 
 
     $pageTitle = APP_NAME;
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,14 +13,10 @@
     ?>
 </head>
 
-<?php 
-    require_once './app/Views/Includes/theme-script.php';
-?>
+<?php require_once './app/Views/Includes/theme-script.php'; ?>
 
 <body id="kt_body" class="app-blank bgi-size-cover bgi-attachment-fixed bgi-position-center bgi-no-repeat" data-kt-app-page-loading-enabled="true" data-kt-app-page-loading="on">
-    <?php 
-        require_once './app/Views/Includes/preloader.php';
-    ?>
+    <?php require_once './app/Views/Includes/preloader.php'; ?>
     <div class="d-flex flex-column flex-root" id="kt_app_root" style="background-image: url('./assets/images/backgrounds/login-bg.jpg');">
         <div class="d-flex flex-column flex-column-fluid flex-lg-row align-items-center justify-content-center">
             <div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-5">
@@ -59,10 +54,10 @@
     </div>
 
     <?php 
-        require_once('./app/Views/Includes/error-modal.php');
-        require_once('./app/Views/Includes/required-js.php');        
+        require_once './app/Views/Includes/error-modal.php';
+        require_once './app/Views/Includes/required-js.php';        
     ?>
 
-    <script src="./apps/settings/authentication/js/index.js?v=<?php echo rand(); ?>"></script>
+    <script type="module" src="./assets/js/pages/login.js?v=<?php echo rand(); ?>"></script>
 </body>
 </html>

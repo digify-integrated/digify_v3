@@ -6,15 +6,7 @@ use DateTime;
 
 class SystemHelper
 {
-    # -------------------------------------------------------------
-    /**
-     * Returns a human-readable time difference from a given date.
-     *
-     * @param string $dateTime The date string.
-     * @return string The elapsed time string.
-     */
-    public static function timeElapsedString($dateTime)
-    { 
+    public static function timeElapsedString($dateTime)    { 
         $timestamp = strtotime($dateTime);
         if ($timestamp === false) {
             return 'Invalid date';
@@ -50,18 +42,8 @@ class SystemHelper
     
         return date('M j, Y \a\t h:i:s A', $timestamp);
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Compares the difference between two dates in years and months.
-     *
-     * @param string $startDateTime Start date in 'd F Y' format.
-     * @param string $endDateTime End date in 'd F Y' format.
-     * @return string Time difference in years and months.
-     */
-    public static function yearMonthElapsedComparisonString($startDateTime, $endDateTime)
-    {
+    
+    public static function yearMonthElapsedComparisonString($startDateTime, $endDateTime)    {
         $startDate = DateTime::createFromFormat('d F Y', '01 ' . $startDateTime);
         $endDate = DateTime::createFromFormat('d F Y', '01 ' . $endDateTime);
 
@@ -82,38 +64,39 @@ class SystemHelper
         }
         return 'Error parsing dates';
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Formats and modifies a given date based on the type.
-     *
-     * @param string $format The format to use for the date.
-     * @param string $date The date to format.
-     * @param string|null $modify Optional modification to apply to the date.
-     * @return string The formatted date string.
-     */
-    public static function formatDate($format, $date, $modify = null)
-    {
+    
+    public static function formatDate($format, $date, $modify = null)    {
         $dateTime = new DateTime($date);
         if ($modify) {
             $dateTime->modify($modify);
         }
         return $dateTime->format($format);
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    /**
-     * Returns a default value based on the type.
-     *
-     * @param string $type The type of value to return.
-     * @param string $systemDate The current system date.
-     * @param string $systemTime The current system time.
-     * @return mixed Default value based on the type.
-     */
-    public static function getDefaultReturnValue($type, $systemDate, $systemTime)
-    {
+    public static function formatDuration($lockDuration) {
+        $durationParts = [];
+
+        $timeUnits = [
+            ['year', 60 * 60 * 24 * 30 * 12],
+            ['month', 60 * 60 * 24 * 30],
+            ['day', 60 * 60 * 24],
+            ['hour', 60 * 60],
+            ['minute', 60]
+        ];
+
+        foreach ($timeUnits as list($unit, $seconds)) {
+            $value = floor($lockDuration / $seconds);
+            $lockDuration %= $seconds;
+
+            if ($value > 0) {
+                $durationParts[] = number_format($value) . ' ' . $unit . ($value > 1 ? 's' : '');
+            }
+        }
+
+        return $durationParts;
+    }
+    
+    public static function getDefaultReturnValue($type, $systemDate, $systemTime)    {
         switch ($type) {
             case 'default':
                 return $systemDate;
@@ -133,30 +116,12 @@ class SystemHelper
                 return null;
         }
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Checks if time is needed for a specific type.
-     *
-     * @param string $type The type to check.
-     * @return bool True if time is needed, false otherwise.
-     */
-    private static function needsTime($type)
-    {
+    
+    private static function needsTime($type)    {
         return in_array($type, ['complete', 'encoded', 'date time']);
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Returns a default image based on the provided type.
-     *
-     * @param string $type The type of the image (e.g. 'profile', 'login logo').
-     * @return string The URL of the default image.
-     */
-    public static function getDefaultImage($type)
-    {
+    
+    public static function getDefaultImage($type)    {
         $defaultImages = [
             'profile' => DEFAULT_AVATAR_IMAGE,
             'login background' => DEFAULT_BG_IMAGE,
@@ -172,18 +137,8 @@ class SystemHelper
 
         return $defaultImages[$type] ?? DEFAULT_PLACEHOLDER_IMAGE;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Checks if the provided image exists, otherwise returns a default image.
-     *
-     * @param string $image The image path.
-     * @param string $type The type of the image (used for default).
-     * @return string The image path or default image.
-     */
-    public static function checkImage($image, $type)
-    {
+    
+    public static function checkImage($image, $type)    {
         $image = $image ?? '';
         $imagePath = str_replace('./apps/', '../../../../apps/', $image);
 
@@ -191,17 +146,8 @@ class SystemHelper
             ? self::getDefaultImage($type)
             : $image;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Returns the appropriate icon for a given file extension.
-     *
-     * @param string $type The file extension (e.g. 'jpg', 'pdf').
-     * @return string The file icon path.
-     */
-    public static function getFileExtensionIcon($type)
-    {
+    
+    public static function getFileExtensionIcon($type)    {
         $defaultImages = [
             'ai' => './assets/images/file-icon/img-file-ai.svg',
             'doc' => './assets/images/file-icon/img-file-doc.svg',
@@ -221,34 +167,16 @@ class SystemHelper
 
         return $defaultImages[$type] ?? './assets/images/file-icon/img-file-img.svg';
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    /**
-     * Converts bytes to a human-readable format.
-     *
-     * @param int $bytes The number of bytes.
-     * @param int $precision The number of decimal places (default is 2).
-     * @return string The formatted byte size.
-     */
-    public static function getFormatBytes($bytes, $precision = 2)
-    {
+    public static function getFormatBytes($bytes, $precision = 2)    {
         $units = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
 
         $bytes = max($bytes, 0);
         $pow = floor(log($bytes ?: 1, 1024));
         return round($bytes / (1 << (10 * $pow)), $precision) . ' ' . $units[$pow];
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Generates HTML option elements for months.
-     *
-     * @return string The generated HTML for month options.
-     */
-    public static function generateMonthOptions()
-    {
+    
+    public static function generateMonthOptions()    {
         $months = [
             'January', 'February', 'March', 'April',
             'May', 'June', 'July', 'August',
@@ -259,22 +187,55 @@ class SystemHelper
             return "<option value=\"$month\">$month</option>";
         }, $months));
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    /**
-     * Generates HTML option elements for years.
-     *
-     * @param int $start The start year.
-     * @param int $end The end year.
-     * @return string The generated HTML for year options.
-     */
-    public static function generateYearOptions($start, $end)
-    {
+    
+    public static function generateYearOptions($start, $end)    {
         return implode('', array_map(function($year) {
             return "<option value=\"$year\">$year</option>";
         }, range($start, $end)));
     }
+
+    public static function getPublicIPAddress() {
+        $publicIP = file_get_contents('https://api.ipify.org');
+        return $publicIP ? $publicIP : 'IP Not Available';
+    }
+
+    public static function getLocation($ipAddress) {
+        $locationData = json_decode(file_get_contents("http://ipinfo.io/{$ipAddress}/json"), true);
+        return isset($locationData['city'], $locationData['country']) ? "{$locationData['city']}, {$locationData['country']}" : 'Unknown';
+    }
+
+    public static function sendErrorResponse($title, $message, array $additionalData = []) {
+        $response = [
+            'success' => false,
+            'title' => $title,
+            'message' => $message,
+            'messageType' => 'error',
+        ];
+    
+        if (!empty($additionalData)) {
+            $response = array_merge($response, $additionalData);
+        }
+    
+        echo json_encode($response);
+        exit;
+    }
+
+    public static function sendSuccessResponse($title, $message, array $additionalData = []) {
+        $response = [
+            'success' => false,
+            'title' => $title,
+            'message' => $message,
+            'messageType' => 'success',
+        ];
+    
+        if (!empty($additionalData)) {
+            $response = array_merge($response, $additionalData);
+        }
+    
+        echo json_encode($response);
+        exit;
+    }
+
     # -------------------------------------------------------------
 }
 
