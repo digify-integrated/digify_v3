@@ -3,18 +3,36 @@ namespace App\Models;
 
 use App\Core\Model;
 
-class SecuritySettingModel extends Model {
+class SecuritySetting extends Model {
 
-    // Fetch all items from the database
-    public function getAllItems() {
-        $sql = "SELECT * FROM items";  // Assuming a table named 'items'
-        return $this->fetchAll($sql);
+    # -------------------------------------------------------------
+    #   Get methods
+    # -------------------------------------------------------------
+
+    public function getSecuritySetting($p_security_setting_id) {
+        $sql = 'CALL getSecuritySetting(:p_security_setting_id)';
+        
+        return $this->fetchAll($sql, [
+            'p_security_setting_id' => $p_security_setting_id
+        ]);
     }
 
-    // Get a single item by its ID
-    public function getItemById($id) {
-        $sql = "SELECT * FROM items WHERE id = :id";
-        return $this->fetch($sql, ['id' => $id]);
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Updated methods
+    # -------------------------------------------------------------
+
+    public function updateSecuritySetting($p_security_setting_id, $p_value, $p_last_log_by) {
+        $sql = 'CALL updateSecuritySetting(:p_security_setting_id, :p_value, :p_last_log_by)';
+        
+        return $this->query($sql, [
+            'p_security_setting_id' => $p_security_setting_id,
+            'p_value' => $p_value,
+            'p_last_log_by' => $p_last_log_by
+        ]);
     }
+    
+    # -------------------------------------------------------------
 }
 ?>

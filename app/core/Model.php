@@ -24,7 +24,7 @@ abstract class Model {
             return $stmt;
         }
         catch (\PDOException $e) {
-            error_log("Database query error: " . $e->getMessage());
+            error_log('Database query error: ' . $e->getMessage());
             return false;
         }
     }
@@ -33,7 +33,6 @@ abstract class Model {
         $stmt = $this->query($query, $params);
         if ($stmt) {
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt->closeCursor();
             return $result;
         }
         return false;
@@ -43,7 +42,6 @@ abstract class Model {
         $stmt = $this->query($query, $params);
         if ($stmt) {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            $stmt->closeCursor();
             return $result;
         }
         return false;

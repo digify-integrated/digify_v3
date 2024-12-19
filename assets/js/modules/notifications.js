@@ -9,6 +9,18 @@ export function showNotification(title, message, type, timeOut = 2000) {
     toastr[type](message, title);
 }
 
+export function showErrorDialog(error){
+    const errorDialogElement = document.getElementById('error-dialog');
+
+    if (errorDialogElement) {
+        errorDialogElement.innerHTML = error;
+        $('#system-error-modal').modal('show');
+    }
+    else {
+        console.error('Error dialog element not found.');
+    }    
+}
+
 export function setNotification(title, message, type) {
     sessionStorage.setItem('notificationTitle', title);
     sessionStorage.setItem('notificationMessage', message);

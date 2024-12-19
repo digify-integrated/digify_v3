@@ -38,50 +38,42 @@ $(document).ready(function () {
                 : $element;
             $target.removeClass('is-invalid');
         },
-        submitHandler: async (form) => {
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
             const transaction = 'authenticate';
             const deviceInfo = getDeviceInfo();
-            const formData = new URLSearchParams(new FormData(form));
 
-            formData.append('transaction', transaction);
-            formData.append('device_info', deviceInfo);
-
-            try {
-                disableButton('signin');
-                const response = await fetch('./Modules/Settings/Authentication/Controller/AuthenticationController.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                });
-
-                const data = await response.json();
-                handleResponse(data);
-            } catch (error) {
-                handleError(error);
-            }
+            $.ajax({
+                type: 'POST',
+                url: './app/Controllers/AuthenticationController.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&device_info=' + deviceInfo,
+                dataType: 'JSON',
+                beforeSend: function() {
+                    disableButton('signin');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.redirectLink;
+                    }
+                    else {
+                        if (response.passwordExpired) {
+                            setNotification(response.title, response.message, response.messageType);
+                            window.location.href = response.redirectLink;
+                        }
+                        else {
+                            showNotification(response.title, response.message, response.messageType);
+                            enableButton('signin');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    enableButton('signin');
+                    handleSystemError(xhr, status, error);
+                }
+            });
 
             return false;
         }
     });
 });
-
-const handleResponse = (response) => {
-    if (response.success) {
-        window.location.href = response.redirectLink;
-    } else {
-        if (response.passwordExpired) {
-            showNotification(response.title, response.message, response.messageType);
-            window.location.href = response.redirectLink;
-        } else {
-            showNotification(response.title, response.message, response.messageType);
-            enableButton('signin');
-        }
-    }
-};
-
-const handleError = (error) => {
-    handleSystemError(null, null, error);
-    enableButton('signin');
-};

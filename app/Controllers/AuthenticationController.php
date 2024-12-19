@@ -1,30 +1,41 @@
 <?php
-
 namespace App\Controllers;
 
-use App\Models\AuthenticationModel;
-use App\Models\SecuritySettingModel;
-use App\Models\EmailSettingModel;
-use App\Models\NotificationSettingModel;
+require_once '../../autoload.php';
+
+use App\Models\Authentication;
+use App\Models\SecuritySetting;
+use App\Models\EmailSetting;
+use App\Models\NotificationSetting;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 use PHPMailer\PHPMailer\PHPMailer;
 
 use DateTime;
 
+$controller = new AuthenticationController(
+    new Authentication(),
+    new SecuritySetting(),
+    new EmailSetting(),
+    new NotificationSetting(),
+    new Security(),
+    new SystemHelper()
+);
+$controller->handleRequest();
+
 class AuthenticationController{
-    private $authentication;
-    private $securitySetting;
-    private $emailSetting;
-    private $notificationSetting;
-    private $security;
-    private $systemHelper;
+    protected $authentication;
+    protected $securitySetting;
+    protected $emailSetting;
+    protected $notificationSetting;
+    protected $security;
+    protected $systemHelper;
 
     public function __construct(
-        AuthenticationModel $authentication,
-        SecuritySettingModel $securitySetting,
-        EmailSettingModel $emailSetting,
-        NotificationSettingModel $notificationSetting,        
+        Authentication $authentication,
+        SecuritySetting $securitySetting,
+        EmailSetting $emailSetting,
+        NotificationSetting $notificationSetting,        
         Security $security,
         SystemHelper $systemHelper
     ) {
@@ -68,15 +79,14 @@ class AuthenticationController{
     #   Authenticate Function
     # -------------------------------------------------------------
 
-    public function authenticate()
-    {
+    public function authenticate(){
         $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
         $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
         $deviceInfo = filter_input(INPUT_POST, 'device_info', FILTER_SANITIZE_STRING);
 
         $loginCredentials = $this->authentication->checkLoginCredentialsExist(null, $username);
-
-        if (empty($loginCredentials)) {
+        
+        if ($loginCredentials['total'] === 0) {
             $this->systemHelper->sendErrorResponse('Authentication Failed', 'Invalid credentials. Please check and try again.');
             return;
         }
@@ -85,16 +95,16 @@ class AuthenticationController{
         $location = $this->systemHelper->getLocation($ipAddress);
 
         $loginCredentialsDetails = $this->authentication->getLoginCredentials(null, $username);
-        $userAccountID = $loginCredentialsDetails['user_account_id'];
-        $email = $loginCredentialsDetails['email'];
-        $active = $this->security->decryptData($loginCredentialsDetails['active']);
-        $userPassword = $this->security->decryptData($loginCredentialsDetails['password']);
-        $locked = $this->security->decryptData($loginCredentialsDetails['locked']);
-        $failedLoginAttempts = $this->security->decryptData($loginCredentialsDetails['failed_login_attempts']);
-        $passwordExpiryDate = $this->security->decryptData($loginCredentialsDetails['password_expiry_date']);
-        $accountLockDuration = $this->security->decryptData($loginCredentialsDetails['account_lock_duration']);
-        $lastFailedLoginAttempt = $loginCredentialsDetails['last_failed_login_attempt'];
-        $twoFactorAuth = $this->security->decryptData($loginCredentialsDetails['two_factor_auth']);
+        $userAccountID = $loginCredentialsDetails['user_account_id'] ?? '';
+        $email = $loginCredentialsDetails['email'] ?? '';
+        $active = $this->security->decryptData($loginCredentialsDetails['active'] ?? '');
+        $userPassword = $this->security->decryptData($loginCredentialsDetails['password'] ?? '');
+        $locked = $this->security->decryptData($loginCredentialsDetails['locked'] ?? '');
+        $failedLoginAttempts = $this->security->decryptData($loginCredentialsDetails['failed_login_attempts'] ?? '');
+        $passwordExpiryDate = $this->security->decryptData($loginCredentialsDetails['password_expiry_date'] ?? '');
+        $accountLockDuration = $this->security->decryptData($loginCredentialsDetails['account_lock_duration'] ?? '');
+        $lastFailedLoginAttempt = $loginCredentialsDetails['last_failed_login_attempt'] ?? '';
+        $twoFactorAuth = $this->security->decryptData($loginCredentialsDetails['two_factor_auth'] ?? '');
         $encryptedUserID = $this->security->encryptData($userAccountID);
 
         if ($password !== $userPassword) {
@@ -107,7 +117,7 @@ class AuthenticationController{
         }
 
         if ($this->checkPasswordHasExpired($passwordExpiryDate)) {
-            $this->handlePasswordExpiration($userAccountID, $encryptedUserID);
+            $this->handlePasswordExpiration($userAccountID);
             exit;
         }
     
@@ -146,6 +156,8 @@ class AuthenticationController{
     
         $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData($failedAttempts), $lastFailedLogin);
 
+        $this->systemHelper->sendErrorResponse('Authentication Failed', $this->security->encryptData($failedAttempts));
+
         $securitySettingDetails = $this->securitySetting->getSecuritySetting(1);
         $maxFailedLoginAttempts = $securitySettingDetails['value'] ?? MAX_FAILED_LOGIN_ATTEMPTS;
 
@@ -166,7 +178,7 @@ class AuthenticationController{
         }
     }
 
-    private function handlePasswordExpiration($userAccountID, $encryptedUserID) {
+    private function handlePasswordExpiration($userAccountID) {
         $securitySettingDetails = $this->securitySetting->getSecuritySetting(3);
         $defaultForgotPasswordLink = $securitySettingDetails['value'] ?? DEFAULT_PASSWORD_RECOVERY_LINK;
 
