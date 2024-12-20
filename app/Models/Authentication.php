@@ -12,7 +12,7 @@ class Authentication extends Model {
     public function getLoginCredentials($p_user_account_id, $p_credentials) {
         $sql = 'CALL getLoginCredentials(:p_user_account_id, :p_credentials)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_user_account_id' => $p_user_account_id,
             'p_credentials' => $p_credentials
         ]);

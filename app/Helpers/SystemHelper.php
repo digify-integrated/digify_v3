@@ -75,26 +75,33 @@ class SystemHelper
 
     public static function formatDuration($lockDuration) {
         $durationParts = [];
-
+    
         $timeUnits = [
-            ['year', 60 * 60 * 24 * 30 * 12],
+            ['year', 60 * 60 * 24 * 365],
             ['month', 60 * 60 * 24 * 30],
             ['day', 60 * 60 * 24],
-            ['hour', 60 * 60],
-            ['minute', 60]
+            ['hour', 60 * 60], 
+            ['minute', 60],
+            ['second', 1]
         ];
-
+    
         foreach ($timeUnits as list($unit, $seconds)) {
             $value = floor($lockDuration / $seconds);
+            
             $lockDuration %= $seconds;
-
+    
             if ($value > 0) {
                 $durationParts[] = number_format($value) . ' ' . $unit . ($value > 1 ? 's' : '');
             }
         }
-
+    
+        if (empty($durationParts)) {
+            return ['less than a second'];
+        }
+    
         return $durationParts;
     }
+    
     
     public static function getDefaultReturnValue($type, $systemDate, $systemTime)    {
         switch ($type) {

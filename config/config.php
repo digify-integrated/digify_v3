@@ -1,4 +1,11 @@
 <?php
+# -------------------------------------------------------------
+# Timezone Configuration
+# -------------------------------------------------------------
+
+date_default_timezone_set('Asia/Manila');
+
+# -------------------------------------------------------------
 
 # -------------------------------------------------------------
 # App Configuration
@@ -102,8 +109,8 @@ define('DEFAULT_PASSWORD_DURATION', 180);
 define('MAX_FAILED_OTP_ATTEMPTS', 5);
 define('DEFAULT_OTP_DURATION', 5);
 define('DEFAULT_SESSION_INACTIVITY', 30);
-define('BASE_LOCK_DURATION', 180);
-define('DEFAULT_PASSWORD_RECOVERY_LINK', 'http:#localhost/digify_v2/password-reset.php?id=');
+define('BASE_LOCK_DURATION', 60);
+define('DEFAULT_PASSWORD_RECOVERY_LINK', 'http:localhost/digify_v3/password-reset.php?id=');
 
 # -------------------------------------------------------------
 

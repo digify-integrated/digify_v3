@@ -47,8 +47,7 @@ class AuthenticationController{
         $this->systemHelper = $systemHelper;
     }
 
-    public function handleRequest()
-    {
+    public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = filter_input(INPUT_POST, 'transaction', FILTER_SANITIZE_STRING);
 
@@ -108,9 +107,11 @@ class AuthenticationController{
         $encryptedUserID = $this->security->encryptData($userAccountID);
 
         if ($password !== $userPassword) {
-            $this->handleInvalidCredentials($userAccountID, $failedLoginAttempts);
+            $this->handleInvalidCredentials($userAccountID, $failedLoginAttempts, $accountLockDuration, $lastFailedLoginAttempt);
             return;
         }
+
+        $this->checkAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt);
 
         if ($active === 'No') {
             $this->systemHelper->sendErrorResponse('Account Inactive', 'Your account is inactive. Please contact the administrator for assistance.');
@@ -121,13 +122,6 @@ class AuthenticationController{
             exit;
         }
     
-        if ($locked === 'Yes') {
-            $this->handleAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt);
-            exit;
-        }
-    
-        $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData(0), '');
-    
         if ($twoFactorAuth === 'Yes') {
             $this->handleTwoFactorAuth($userAccountID, $email, $encryptedUserID);
             exit;
@@ -137,7 +131,6 @@ class AuthenticationController{
         $encryptedSessionToken = $this->security->encryptData($sessionToken);
 
         $this->authentication->updateLastConnection($userAccountID, $encryptedSessionToken);
-        
         $this->authentication->insertLoginSession($userAccountID, $location, 'Ok', $deviceInfo, $ipAddress);
 
         $_SESSION['user_account_id'] = $userAccountID;
@@ -150,31 +143,20 @@ class AuthenticationController{
     #   Handle Functions
     # -------------------------------------------------------------
 
-    private function handleInvalidCredentials($userAccountID, $failedAttempts) {
+    private function handleInvalidCredentials($userAccountID, $failedAttempts, $accountLockDuration, $lastFailedLoginAttempt) {
         $failedAttempts = $failedAttempts + 1;
         $lastFailedLogin = date('Y-m-d H:i:s');
     
-        $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData($failedAttempts), $lastFailedLogin);
-
-        $this->systemHelper->sendErrorResponse('Authentication Failed', $this->security->encryptData($failedAttempts));
-
-        $securitySettingDetails = $this->securitySetting->getSecuritySetting(1);
+        $securitySettingDetails = $this->securitySetting->getSecuritySetting( 1);
         $maxFailedLoginAttempts = $securitySettingDetails['value'] ?? MAX_FAILED_LOGIN_ATTEMPTS;
 
-        $userAccountLockDurationSettingDetails = $this->securitySetting->getSecuritySetting(8);
-        $baseLockDuration = $userAccountLockDurationSettingDetails['value'] ?? BASE_LOCK_DURATION;
+        if($failedAttempts <= $maxFailedLoginAttempts ){
+            $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData($failedAttempts), $lastFailedLogin);
 
-        if ($failedAttempts > $maxFailedLoginAttempts) {
-            $lockDuration = pow(2, ($failedAttempts - $maxFailedLoginAttempts)) * $baseLockDuration;
-            $this->authentication->updateAccountLock($userAccountID, $this->security->encryptData('Yes'), $this->security->encryptData($lockDuration));
-
-            $durationParts = $this->systemHelper->formatDuration($lockDuration);
-            $lockMessage = count($durationParts) > 0 ? ' for ' . implode(', ', $durationParts) : '';
-
-            $this->systemHelper->sendErrorResponse('Account Locked', 'Too many failed login attempts. Your account has been locked' . $lockMessage . '.');
-        }
-        else {
             $this->systemHelper->sendErrorResponse('Authentication Failed', 'Invalid credentials. Please check and try again.');
+        }
+        else{
+            $this->handleAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt, $failedAttempts, $maxFailedLoginAttempts, $lastFailedLogin);
         }
     }
 
@@ -198,19 +180,31 @@ class AuthenticationController{
         ]);
     }
 
-    private function handleAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt) {
-        $unlockTime = strtotime("+{$accountLockDuration} minutes", strtotime($lastFailedLoginAttempt));
+    private function handleAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt, $failedAttempts, $maxFailedLoginAttempts, $lastFailedLogin) {
+        $time = time();
+        $lastFailedLoginTimestamp = strtotime($lastFailedLoginAttempt);
+        $unlockTime = $lastFailedLoginTimestamp + $accountLockDuration;
     
-        if (time() < $unlockTime) {
-            $remainingTime = ($unlockTime - time()) / 60;
-            $durationParts = $this->systemHelper->formatDuration(round($remainingTime));
-    
-            $message = 'Your account is locked. Try again in ' . (!empty($durationParts) ? implode(', ', $durationParts) : 'a moment') . '.';
-    
-            $this->systemHelper->sendErrorResponse('Account Locked', $message);
+        if ($time <= $unlockTime) {
+            $remainingTime = $unlockTime - $time;
+            $durationParts = $this->systemHelper->formatDuration($remainingTime);
         }
+        else {
+            $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData($failedAttempts), $lastFailedLogin);
 
-        $this->authentication->updateAccountLock($userAccountID, $this->security->encryptData('No'), $this->security->encryptData(0));
+            $userAccountLockDurationSettingDetails = $this->securitySetting->getSecuritySetting(9);
+            $baseLockDuration = $userAccountLockDurationSettingDetails['value'] ?? BASE_LOCK_DURATION;
+    
+            $lockDuration = $baseLockDuration * pow(1.5, ($failedAttempts - $maxFailedLoginAttempts));
+    
+            $this->authentication->updateAccountLock($userAccountID, $this->security->encryptData('Yes'), $this->security->encryptData($lockDuration));
+    
+            $durationParts = $this->systemHelper->formatDuration($lockDuration);
+        }
+    
+        $message = 'Your account is locked. Try again in ' . (!empty($durationParts) ? implode(', ', $durationParts) : 'a moment') . '.';
+        
+        $this->systemHelper->sendErrorResponse('Account Locked', $message);
     }
 
     private function handleTwoFactorAuth($userAccountID, $email, $encryptedUserID) {
@@ -474,7 +468,7 @@ class AuthenticationController{
         $securitySettingDetails = $this->securitySetting->getSecuritySetting(6);
         $otpDuration = $securitySettingDetails['value'] ?? DEFAULT_OTP_DURATION;
 
-        $notificationSettingDetails = $this->notificationSetting->getEmailNotificationTemplate($notificationSettingID);
+        $notificationSettingDetails = $this->notificationSetting->getNotificationSettingEmailTemplate($notificationSettingID);
         $emailSettingID = $notificationSettingDetails['email_setting_id'] ?? null;
 
         $emailSetting = $this->emailSetting->getEmailSetting($emailSettingID);
@@ -514,7 +508,7 @@ class AuthenticationController{
         $securitySettingDetails = $this->securitySetting->getSecuritySetting(3);
         $defaultForgotPasswordLink = $securitySettingDetails['value'] ?? null;
 
-        $notificationSettingDetails = $this->notificationSetting->getEmailNotificationTemplate($notificationSettingID);
+        $notificationSettingDetails = $this->notificationSetting->getNotificationSettingEmailTemplate($notificationSettingID);
         $emailSettingID = $notificationSettingDetails['email_setting_id'] ?? null;
 
         $emailSetting = $this->emailSetting->getEmailSetting($emailSettingID);
@@ -549,7 +543,7 @@ class AuthenticationController{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Check Functions
+    #   Configure Functions
     # -------------------------------------------------------------
 
     private function configureSMTP($emailSettingID, $mailer, $isHTML = true) {
@@ -567,6 +561,16 @@ class AuthenticationController{
         $mailer->Port = $emailSetting['port'] ?? MAIL_SMTP_PORT;
     }
 
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Check Functions
+    # -------------------------------------------------------------
+
+    private function checkPasswordHasExpired($passwordExpiryDate) {
+        return (new DateTime() > new DateTime($passwordExpiryDate));
+    }
+
     private function checkPasswordHistory($userAccountID, $currentPassword) {
         $total = 0;
         $passwordHistory = $this->authentication->getPasswordHistory($userAccountID);
@@ -582,14 +586,23 @@ class AuthenticationController{
         return $total;
     }
 
-    # -------------------------------------------------------------
+    private function checkAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt) {
+        $time = time();
+        $lastFailedLoginTimestamp = strtotime($lastFailedLoginAttempt);
+        $unlockTime = $lastFailedLoginTimestamp + $accountLockDuration;
+    
+        if ($time <= $unlockTime) {
+            $remainingTime = $unlockTime - $time;
+            $durationParts = $this->systemHelper->formatDuration($remainingTime);
 
-    # -------------------------------------------------------------
-    #   Check Functions
-    # -------------------------------------------------------------
-
-    private function checkPasswordHasExpired($passwordExpiryDate) {
-        return (new DateTime() > new DateTime($passwordExpiryDate));
+            $message = 'Your account is locked. Try again in ' . (!empty($durationParts) ? implode(', ', $durationParts) : 'a moment') . '.';
+        
+            $this->systemHelper->sendErrorResponse('Account Locked', $message);
+        }
+        else{
+            $this->authentication->updateAccountLock($userAccountID, $this->security->encryptData('No'), $this->security->encryptData(0));
+            $this->authentication->updateLoginAttempt($userAccountID, $this->security->encryptData(0), '');
+        }
     }
     
     # -------------------------------------------------------------
