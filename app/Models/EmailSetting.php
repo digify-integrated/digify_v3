@@ -12,7 +12,7 @@ class EmailSetting extends Model {
     public function getEmailSetting($p_email_setting_id) {
         $sql = 'CALL getLoginCredentials(:p_email_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_email_setting_id' => $p_email_setting_id
         ]);
     }

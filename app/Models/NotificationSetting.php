@@ -12,7 +12,7 @@ class NotificationSetting extends Model {
     public function getNotificationSetting($p_notification_setting_id) {
         $sql = 'CALL getNotificationSetting(:p_notification_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
@@ -20,7 +20,7 @@ class NotificationSetting extends Model {
     public function getNotificationSettingEmailTemplate($p_notification_setting_id) {
         $sql = 'CALL getNotificationSettingEmailTemplate(:p_notification_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
@@ -28,7 +28,7 @@ class NotificationSetting extends Model {
     public function getNotificationSettingSystemTemplate($p_notification_setting_id) {
         $sql = 'CALL getNotificationSettingSystemTemplate(:p_notification_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
@@ -36,7 +36,7 @@ class NotificationSetting extends Model {
     public function getNotificationSettingSMSTemplate($p_notification_setting_id) {
         $sql = 'CALL getNotificationSettingSMSTemplate(:p_notification_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }

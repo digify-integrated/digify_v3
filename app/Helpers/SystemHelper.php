@@ -229,7 +229,7 @@ class SystemHelper
 
     public static function sendSuccessResponse($title, $message, array $additionalData = []) {
         $response = [
-            'success' => false,
+            'success' => true,
             'title' => $title,
             'message' => $message,
             'messageType' => 'success',

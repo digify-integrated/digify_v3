@@ -61,13 +61,14 @@ define('MAX_FILE_SIZE', 10485760);                      // Maximum file upload s
 # Mail Configuration
 # -------------------------------------------------------------
 
-define('MAIL_SMTP_SERVER', 'smtp.hostinger.com');       // SMTP server
-define('MAIL_SMTP_PORT', 465);                          // SMTP port (usually 587 for TLS)
-define('MAIL_USERNAME', 'your-email@example.com');      // SMTP username
-define('MAIL_PASSWORD', 'your-email-password');         // SMTP password
-define('MAIL_FROM_EMAIL', 'your-email@example.com');    // Email "from" address
-define('MAIL_FROM_NAME', 'Your Name');                  // Name to show in "from" field
-define('MAIL_SMTP_SECURE', 'ssl');                      // Mail SMTP Secure
+define('MAIL_SMTP_SERVER', 'smtp.hostinger.com');                   // SMTP server
+define('MAIL_SMTP_PORT', value: 465);                                      // SMTP port (usually 587 for TLS)
+define('MAIL_USERNAME', 'cgmi-noreply@christianmotors.ph');         // SMTP username
+define('MAIL_PASSWORD', 'P@ssw0rd');                                // SMTP password
+define('MAIL_FROM_EMAIL', 'cgmi-noreply@christianmotors.ph');       // Email "from" address
+define('MAIL_FROM_NAME', 'CGMI No Reply');                          // Name to show in "from" field
+define('MAIL_SMTP_SECURE', 'ssl');                                  // Mail SMTP Secure
+define('MAIL_SMTP_AUTH', true);                                     // Mail SMTP Authentication
 
 # -------------------------------------------------------------
 
@@ -110,7 +111,7 @@ define('MAX_FAILED_OTP_ATTEMPTS', 5);
 define('DEFAULT_OTP_DURATION', 5);
 define('DEFAULT_SESSION_INACTIVITY', 30);
 define('BASE_LOCK_DURATION', 60);
-define('DEFAULT_PASSWORD_RECOVERY_LINK', 'http:localhost/digify_v3/password-reset.php?id=');
+define('DEFAULT_PASSWORD_RECOVERY_LINK', 'password-reset.php?id=');
 
 # -------------------------------------------------------------
 

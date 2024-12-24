@@ -4,21 +4,24 @@ import { showNotification, setNotification } from '../modules/notifications.js';
 import { getDeviceInfo } from '../utilities/helpers.js';
 
 $(document).ready(function () {
-    $('#signin-form').validate({
+    $('#password-reset-form').validate({
         rules: {
-            username: {
+            new_password: {
                 required: true,
+                password_strength: true
             },
-            password: {
-                required: true
+            confirm_password: {
+                required: true,
+                equalTo: '#new_password'
             }
-        },
+          },
         messages: {
-            username: {
-                required: 'Enter the username',
-            },
-            password: {
+            new_password: {
                 required: 'Enter the password'
+            },
+            confirm_password: {
+                required: 'Enter the confirm password',
+                equalTo: 'The passwords you entered do not match'
             }
         },
         errorPlacement: (error, element) => {
@@ -41,34 +44,35 @@ $(document).ready(function () {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction = 'authenticate';
-            const deviceInfo = getDeviceInfo();
+            const transaction = 'password reset';
 
             $.ajax({
                 type: 'POST',
                 url: './app/Controllers/AuthenticationController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&device_info=' + deviceInfo,
+                data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
-                    disableButton('signin');
+                    disableButton('reset');
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location.href = response.redirectLink;
+                        setNotification(response.title, response.message, response.messageType);
+                        
+                        window.location.href = 'index.php';
                     }
                     else {
-                        if (response.passwordExpired) {
-                            setNotification(response.title, response.message, response.messageType);
-                            window.location.href = response.redirectLink;
-                        }
-                        else {
+                        if (response.passwordExist) {
                             showNotification(response.title, response.message, response.messageType);
-                            enableButton('signin');
+                            enableButton('reset');
+                        }
+                        else{
+                            setNotification(response.title, response.message, response.messageType);
+                            window.location.href = 'index.php';
                         }
                     }
                 },
                 error: function(xhr, status, error) {
-                    enableButton('signin');
+                    enableButton('reset');
                     handleSystemError(xhr, status, error);
                 }
             });

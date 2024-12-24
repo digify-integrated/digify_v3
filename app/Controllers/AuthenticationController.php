@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+require_once '../../config/config.php';
 require_once '../../autoload.php';
 
 use App\Models\Authentication;
@@ -87,7 +88,6 @@ class AuthenticationController{
         
         if ($loginCredentials['total'] === 0) {
             $this->systemHelper->sendErrorResponse('Authentication Failed', 'Invalid credentials. Please check and try again.');
-            return;
         }
 
         $ipAddress = $this->systemHelper->getPublicIPAddress();
@@ -108,7 +108,6 @@ class AuthenticationController{
 
         if ($password !== $userPassword) {
             $this->handleInvalidCredentials($userAccountID, $failedLoginAttempts, $accountLockDuration, $lastFailedLoginAttempt);
-            return;
         }
 
         $this->checkAccountLock($userAccountID, $accountLockDuration, $lastFailedLoginAttempt);
@@ -119,12 +118,10 @@ class AuthenticationController{
 
         if ($this->checkPasswordHasExpired($passwordExpiryDate)) {
             $this->handlePasswordExpiration($userAccountID);
-            exit;
         }
     
         if ($twoFactorAuth === 'Yes') {
             $this->handleTwoFactorAuth($userAccountID, $email, $encryptedUserID);
-            exit;
         }
 
         $sessionToken = $this->security->generateToken(6, 6);
@@ -218,14 +215,8 @@ class AuthenticationController{
     
         $this->authentication->updateOTP($userAccountID, $encryptedOTP, $otpExpiryDate, $failedLoginAttempts);
         $this->sendOTP($email, $otp, 1);
-    
-        $response = [
-            'success' => true,
-            'redirectLink' => 'otp-verification.php?id=' . $encryptedUserID
-        ];
-        
-        echo json_encode($response);
-        exit;
+
+        $this->systemHelper->sendSuccessResponse('', '', ['redirectLink' => 'otp-verification.php?id=' . $encryptedUserID]);
     }
 
     # -------------------------------------------------------------

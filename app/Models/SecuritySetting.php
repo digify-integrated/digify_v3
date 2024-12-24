@@ -12,7 +12,7 @@ class SecuritySetting extends Model {
     public function getSecuritySetting($p_security_setting_id) {
         $sql = 'CALL getSecuritySetting(:p_security_setting_id)';
         
-        return $this->fetchAll($sql, [
+        return $this->fetch($sql, [
             'p_security_setting_id' => $p_security_setting_id
         ]);
     }
