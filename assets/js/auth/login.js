@@ -6,7 +6,7 @@ import { getDeviceInfo } from '../utilities/helpers.js';
 $(document).ready(function () {
     $('#signin-form').validate({
         rules: {
-            username: {
+            email: {
                 required: true,
             },
             password: {
@@ -14,8 +14,8 @@ $(document).ready(function () {
             }
         },
         messages: {
-            username: {
-                required: 'Enter the username',
+            email: {
+                required: 'Enter the email',
             },
             password: {
                 required: 'Enter the password'

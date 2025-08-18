@@ -11,5 +11,3 @@ spl_autoload_register(function ($class) {
         throw new Exception("Class file not found: $file");
     }
 });
-
-?>
