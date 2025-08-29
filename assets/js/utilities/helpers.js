@@ -1,46 +1,41 @@
 import { showNotification } from '../modules/notifications.js';
 
-export function copyToClipboard(elementID) {
-    const text = document.getElementById(elementID)?.textContent || '';
-    if (!text) {
-        showNotification('Copy Error', 'No text to copy', 'error');
-        return;
-    }
+/**
+ * Copies text content from a given element to the clipboard.
+ *
+ * @param {string} elementID - The ID of the DOM element containing the text to copy.
+ * @returns {void}
+ */
+export const copyToClipboard = (elementID) => {
+  const text = document.getElementById(elementID)?.textContent?.trim() || '';
 
-    navigator.clipboard.writeText(text)
-        .then(() => showNotification('Success', 'Copied to clipboard', 'success'))
-        .catch(() => showNotification('Error', 'Failed to copy', 'error'));
-}
+  if (!text) {
+    showNotification('Copy Error', 'No text to copy', 'error');
+    return;
+  }
 
-export function resetForm(formId) {
-    const form = document.getElementById(formId);
-    if (!form) return;
+  navigator.clipboard.writeText(text)
+    .then(() => showNotification('Success', 'Copied to clipboard', 'success'))
+    .catch(() => showNotification('Error', 'Failed to copy', 'error'));
+};
 
-    $(form).find('.select2').val('').trigger('change');
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.reset();
-}
+/**
+ * Resets a form by clearing fields, removing validation states,
+ * and resetting Select2 dropdowns.
+ *
+ * @param {string} formId - The ID of the form element to reset.
+ * @returns {void}
+ */
+export const resetForm = (formId) => {
+  const form = document.getElementById(formId);
+  if (!form) return;
 
-export function getDeviceInfo() {
-    const userAgent = navigator.userAgent;
-    const deviceMap = {
-        Android: /Android/i,
-        iOS: /iPhone|iPad|iPod/i,
-        Windows: /Windows NT/i,
-        MacOS: /Mac OS/i,
-        Linux: /Linux/i
-    };
+  // Reset Select2 dropdowns if present (requires jQuery + Select2)
+  $(form).find('.select2').val('').trigger('change');
 
-    const browserMap = {
-        Firefox: /Firefox/i,
-        Opera: /OPR|Opera/i,
-        Chrome: /Chrome/i,
-        Safari: /Safari/i,
-        InternetExplorer: /MSIE|Trident/i
-    };
+  // Remove invalid state from form inputs
+  form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
 
-    const device = Object.keys(deviceMap).find((key) => deviceMap[key].test(userAgent)) || 'Unknown Device';
-    const browser = Object.keys(browserMap).find((key) => browserMap[key].test(userAgent)) || 'Unknown Browser';
-
-    return `${browser} - ${device}`;
-}
+  // Reset native form inputs
+  form.reset();
+};

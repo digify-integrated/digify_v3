@@ -1,10 +1,9 @@
 import { disableButton, enableButton } from '../utilities/form-utilities.js';
 import { handleSystemError } from '../modules/system-errors.js';
 import { showNotification, setNotification } from '../modules/notifications.js';
-import { getDeviceInfo } from '../utilities/helpers.js';
 
 $(document).ready(function () {
-    $('#signin-form').validate({
+    $('#login_form').validate({
         rules: {
             email: {
                 required: true,
@@ -42,29 +41,22 @@ $(document).ready(function () {
             event.preventDefault();
 
             const transaction = 'authenticate';
-            const deviceInfo = getDeviceInfo();
 
             $.ajax({
                 type: 'POST',
                 url: './app/Controllers/AuthenticationController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&device_info=' + deviceInfo,
+                data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
                     disableButton('signin');
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location.href = response.redirectLink;
+                        window.location.href = response.redirect_link;
                     }
                     else {
-                        if (response.passwordExpired) {
-                            setNotification(response.title, response.message, response.messageType);
-                            window.location.href = response.redirectLink;
-                        }
-                        else {
-                            showNotification(response.title, response.message, response.messageType);
-                            enableButton('signin');
-                        }
+                        showNotification(response.title, response.message, response.message_type);
+                        enableButton('signin');
                     }
                 },
                 error: function(xhr, status, error) {

@@ -1,4 +1,6 @@
 <?php
+require_once dirname(__DIR__) . '/vendor/autoload.php'; 
+
 # -------------------------------------------------------------
 # Timezone Configuration
 # -------------------------------------------------------------
@@ -12,9 +14,6 @@ date_default_timezone_set('Asia/Manila');
 # -------------------------------------------------------------
 
 define('APP_NAME', 'Digify');                           // The name of your app
-define('APP_URL', 'http://localhost/my_php_app');       // The base URL of your app
-define('APP_ENV', 'development');                       // The environment ('development', 'production', etc.)
-define('DEBUG_MODE', true);                             // Enable/disable error display
 
 # -------------------------------------------------------------
 
@@ -24,9 +23,9 @@ define('DEBUG_MODE', true);                             // Enable/disable error 
 
 define('DB_HOST', 'localhost');                         // Database host
 define('DB_NAME', 'digifydb');                          // Database name
-define('DB_USER', 'digify');                            // Database username
-define('DB_PASS', 'qKHJpbkgC6t93nQr');                  // Database password
-define('DB_CHARSET', 'utf8mb4');                        // Database charset (UTF-8MB4 is recommended)
+define('DB_USER', 'root');                              // Database username
+define('DB_PASS', '');                                  // Database password
+define('DB_CHARSET', 'utf8mb4');    
 
 # -------------------------------------------------------------
 
@@ -35,16 +34,6 @@ define('DB_CHARSET', 'utf8mb4');                        // Database charset (UTF
 # -------------------------------------------------------------
 
 define('ENCRYPTION_KEY', '4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R');
-define('SECRET_KEY', '9n6ui[N];T\?{Wju[@zq^7)y>gsz2ltMT');
-
-# -------------------------------------------------------------
-
-# -------------------------------------------------------------
-# CSRF Token Configuration
-# -------------------------------------------------------------
-
-define('CSRF_TOKEN_NAME', 'csrf_token');                // CSRF token form field name
-define('CSRF_TOKEN_LIFETIME', 3600);                    // CSRF token lifetime in seconds
 
 # -------------------------------------------------------------
 
@@ -73,15 +62,6 @@ define('MAIL_SMTP_AUTH', true);                                     // Mail SMTP
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
-# Google reCAPTCHA Configuration
-# -------------------------------------------------------------
-
-define('RECAPTCHA_SITE_KEY', 'your-site-key');          // reCAPTCHA site key
-define('RECAPTCHA_SECRET_KEY', 'your-secret-key');      // reCAPTCHA secret key
-
-# -------------------------------------------------------------
-
-# -------------------------------------------------------------
 # Default User Interface Images
 # -------------------------------------------------------------
 
@@ -102,16 +82,15 @@ define('DEFAULT_UPLOAD_PLACEHOLDER', './assets/images/default/upload-placeholder
 # -------------------------------------------------------------
 # Security Configuration
 # -------------------------------------------------------------
-define('DEFAULT_PASSWORD', 'P@ssw0rd');
+
 define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
-define('RESET_PASSWORD_TOKEN_DURATION', 10);
-define('REGISTRATION_VERIFICATION_TOKEN_DURATION', 180);
-define('DEFAULT_PASSWORD_DURATION', 180);
 define('MAX_FAILED_OTP_ATTEMPTS', 5);
-define('DEFAULT_OTP_DURATION', 5);
-define('DEFAULT_SESSION_INACTIVITY', 30);
-define('BASE_LOCK_DURATION', 60);
-define('DEFAULT_PASSWORD_RECOVERY_LINK', 'password-reset.php?id=');
+define('PASSWORD_RECOVERY_LINK', 'password-reset.php?id=');
+define('OTP_VERIFICATION_LINK', 'otp-verification.php?id=');
+define('RESET_PASSWORD_TOKEN_DURATION', 10);
+define('OTP_DURATION', 5);
+define('RATE_LIMITER_THRESHOLD', 5);
+define('RATE_LIMITER_WINDOW', 900);
 
 # -------------------------------------------------------------
 

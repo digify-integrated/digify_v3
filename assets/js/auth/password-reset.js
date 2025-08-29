@@ -1,7 +1,6 @@
 import { disableButton, enableButton } from '../utilities/form-utilities.js';
 import { handleSystemError } from '../modules/system-errors.js';
 import { showNotification, setNotification } from '../modules/notifications.js';
-import { getDeviceInfo } from '../utilities/helpers.js';
 
 $(document).ready(function () {
     $('#password-reset-form').validate({

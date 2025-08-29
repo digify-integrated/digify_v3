@@ -6,11 +6,11 @@ use App\Core\Model;
 class EmailSetting extends Model {
 
     # -------------------------------------------------------------
-    #   Get methods
+    #   Fetch methods
     # -------------------------------------------------------------
 
-    public function getEmailSetting($p_email_setting_id) {
-        $sql = 'CALL getLoginCredentials(:p_email_setting_id)';
+    public function fetchEmailSetting($p_email_setting_id) {
+        $sql = 'CALL fetchEmailSetting(:p_email_setting_id)';
         
         return $this->fetch($sql, [
             'p_email_setting_id' => $p_email_setting_id
