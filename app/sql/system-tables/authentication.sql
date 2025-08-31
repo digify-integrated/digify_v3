@@ -86,23 +86,3 @@ CREATE INDEX sessions_index_user_account_id ON sessions(user_account_id);
 CREATE INDEX sessions_index_session_token ON sessions(session_token);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
-
-/* Password History Table */
-
-DROP TABLE IF EXISTS password_history;
-
-CREATE TABLE password_history (
-    password_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    user_account_id INT UNSIGNED NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    password_change_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_log_by INT UNSIGNED DEFAULT 1,
-    FOREIGN KEY (user_account_id) REFERENCES user_account(user_account_id),
-    FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-CREATE INDEX password_history_index_user_account_id ON password_history(user_account_id);
-
-/* ----------------------------------------------------------------------------------------------------------------------------- */
-

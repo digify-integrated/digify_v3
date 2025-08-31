@@ -92,7 +92,7 @@ END //
 -- Insert Procedures
 --------------------------------------------------------------------------------------------- 
 
-DROP PROCEDURE IF EXISTS insertLoginAttempt//
+DROP PROCEDURE IF EXISTS insertLoginAttempt //
 
 CREATE PROCEDURE insertLoginAttempt(
     IN p_user_account_id INT,
@@ -101,7 +101,12 @@ CREATE PROCEDURE insertLoginAttempt(
     IN p_success TINYINT(1)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+    END;
+
+    DECLARE EXIT HANDLER FOR SQLWARNING
     BEGIN
         ROLLBACK;
     END;
@@ -110,6 +115,16 @@ BEGIN
 
     INSERT INTO login_attempts (user_account_id, email, ip_address, success)
     VALUES (p_user_account_id, p_email, p_ip_address, p_success);
+
+    IF p_success = 1 THEN
+        UPDATE user_account 
+        SET last_connection_date = NOW() 
+        WHERE user_account_id = p_user_account_id;
+    ELSE
+        UPDATE user_account 
+        SET last_failed_connection_date = NOW() 
+        WHERE user_account_id = p_user_account_id;
+    END IF;
 
     COMMIT;
 END //

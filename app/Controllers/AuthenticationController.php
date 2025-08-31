@@ -192,7 +192,7 @@ class AuthenticationController
         $sessionToken   = $this->security::generateToken(6);
         $sessionHash    = $this->security::hashToken($sessionToken);
 
-        $this->authentication->insertLoginAttempt($userAccountId, $email, $ip_address, true);
+        $this->authentication->insertLoginAttempt($userAccountId, $email, $ip_address, p_success: true);
         $this->authentication->saveSession($userAccountId, $sessionHash);
 
         // Store in session

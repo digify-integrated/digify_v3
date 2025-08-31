@@ -20,25 +20,37 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
     END IF;
 
-    IF NEW.last_failed_login_attempt <> OLD.last_failed_login_attempt THEN
-        SET audit_log = CONCAT(audit_log, "Last Failed Login Attempt: ", OLD.last_failed_login_attempt, " -> ", NEW.last_failed_login_attempt, "<br/>");
+    IF NEW.active <> OLD.active THEN
+        SET audit_log = CONCAT(audit_log, "Active: ", OLD.active, " -> ", NEW.active, "<br/>");
+    END IF;
+
+    IF NEW.two_factor_auth <> OLD.two_factor_auth THEN
+        SET audit_log = CONCAT(audit_log, "Two Factor Authentication: ", OLD.two_factor_auth, " -> ", NEW.two_factor_auth, "<br/>");
+    END IF;
+
+    IF NEW.multiple_session <> OLD.multiple_session THEN
+        SET audit_log = CONCAT(audit_log, "Multiple Session: ", OLD.multiple_session, " -> ", NEW.multiple_session, "<br/>");
     END IF;
 
     IF NEW.last_connection_date <> OLD.last_connection_date THEN
         SET audit_log = CONCAT(audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
     END IF;
 
+    IF NEW.last_failed_connection_date <> OLD.last_failed_connection_date THEN
+        SET audit_log = CONCAT(audit_log, "Last Failed Connection Date: ", OLD.last_failed_connection_date, " -> ", NEW.last_failed_connection_date, "<br/>");
+    END IF;
+
     IF NEW.last_password_change <> OLD.last_password_change THEN
         SET audit_log = CONCAT(audit_log, "Last Password Change: ", OLD.last_password_change, " -> ", NEW.last_password_change, "<br/>");
     END IF;
 
-    IF NEW.last_password_reset <> OLD.last_password_reset THEN
-        SET audit_log = CONCAT(audit_log, "Last Password Reset: ", OLD.last_password_reset, " -> ", NEW.last_password_reset, "<br/>");
+     IF NEW.last_password_reset_request <> OLD.last_password_reset_request THEN
+        SET audit_log = CONCAT(audit_log, "Last Password Reset Request: ", OLD.last_password_reset_request, " -> ", NEW.last_password_reset_request, "<br/>");
     END IF;
     
     IF audit_log <> 'User account changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('user_account', NEW.user_account_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('user_account', NEW.user_account_id, audit_log, NEW.last_log_by, CONVERT_TZ(NOW(), '+00:00', '+08:00'));
     END IF;
 END //
 
@@ -51,5 +63,5 @@ BEGIN
     DECLARE audit_log TEXT DEFAULT 'User account created.';
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('user_account', NEW.user_account_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('user_account', NEW.user_account_id, audit_log, NEW.last_log_by, CONVERT_TZ(NOW(), '+00:00', '+08:00'));
 END //
