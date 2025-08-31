@@ -1,6 +1,8 @@
 DELIMITER //
 
-/* Save Stored Procedure */
+---------------------------------------------------------------------------------------------
+-- Save Procedures
+--------------------------------------------------------------------------------------------- 
 
 DROP PROCEDURE IF EXISTS saveEmailSetting//
 
@@ -57,7 +59,9 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Delete Stored Procedure */
+---------------------------------------------------------------------------------------------
+-- Delete Procedures
+--------------------------------------------------------------------------------------------- 
 
 DROP PROCEDURE IF EXISTS deleteEmailSetting//
 
@@ -72,7 +76,9 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM email_setting WHERE email_setting_id = p_email_setting_id;
+    IF p_email_setting_id IS NULL OR NOT EXISTS (SELECT 1 FROM email_setting WHERE email_setting_id = p_email_setting_id) THEN
+        DELETE FROM email_setting WHERE email_setting_id = p_email_setting_id;    
+    END IF;
 
     COMMIT;
 END //

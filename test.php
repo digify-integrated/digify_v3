@@ -1,9 +1,17 @@
 <?php
+require_once './config/config.php';
+
+use App\Core\Security;
+
 $plainPassword = 'P@ssw0rd'; // 8 random hex chars (~8 chars long)
 
 // Hash the password using bcrypt
 $hashedPassword = password_hash($plainPassword, PASSWORD_BCRYPT);
 
 // Output both
-echo "Plain Password: " . $plainPassword . PHP_EOL;
-echo "Hashed Password: " . $hashedPassword . PHP_EOL;
+echo "Plain Password: " . $plainPassword . PHP_EOL ."<br/>";
+echo "Hashed Password: " . $hashedPassword . PHP_EOL . "<br/>";
+
+$security = new Security();
+
+echo "Encrypted Password: " . $security->encryptData($plainPassword) . "<br/>";
