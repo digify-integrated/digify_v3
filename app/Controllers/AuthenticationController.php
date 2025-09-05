@@ -1,15 +1,19 @@
 <?php
 namespace App\Controllers;
 
-require_once '../../config/config.php';
+session_start();
 
+use App\Core\Notification;
 use App\Models\Authentication;
-use App\Models\EmailSetting;
 use App\Models\NotificationSetting;
 use App\Models\SecuritySetting;
 use App\Core\Security;
-use App\Core\Email;
+use App\Services\EmailService;
+use App\Services\SmsService;
+use App\Services\SystemNotificationService;
 use App\Helpers\SystemHelper;
+
+require_once '../../config/config.php';
 
 /**
  * Class AuthenticationController
@@ -27,8 +31,8 @@ class AuthenticationController
     protected Authentication $authentication;
     protected SecuritySetting $securitySetting;
     protected NotificationSetting $notificationSetting;
+    protected Notification $notification;
     protected Security $security;
-    protected Email $email;
     protected SystemHelper $systemHelper;
 
     /**
@@ -37,23 +41,23 @@ class AuthenticationController
      * @param Authentication      $authentication       Handles DB operations for login, OTP, and sessions.
      * @param SecuritySetting     $securitySetting      Provides security-related configuration.
      * @param NotificationSetting $notificationSetting  Provides templates and settings for notifications.
+     * @param Notification        $notification         Sends the notifications.
      * @param Security            $security             Provides cryptographic utilities (hash, encrypt, tokens).
-     * @param Email               $email                Handles email composition and sending.
      * @param SystemHelper        $systemHelper         Utility for sending API/system responses.
      */
     public function __construct(
         Authentication $authentication,
         SecuritySetting $securitySetting,
         NotificationSetting $notificationSetting,
+        Notification $notification,
         Security $security,
-        Email $email,
         SystemHelper $systemHelper
     ) {
         $this->authentication       = $authentication;
         $this->securitySetting      = $securitySetting;
         $this->notificationSetting  = $notificationSetting;
+        $this->notification         = $notification;
         $this->security             = $security;
-        $this->email                = $email;
         $this->systemHelper         = $systemHelper;
     }
 
@@ -131,12 +135,12 @@ class AuthenticationController
 
         $email      = trim($_POST['email'] ?? '');
         $password   = $_POST['password'] ?? '';
-        $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
         // Rate limiting check
         $attempts = $this->authentication->checkRateLimited(
             $email, 
-            $ip_address
+            $ipAddress
         );
 
         if ($attempts >= RATE_LIMITER_THRESHOLD) {
@@ -150,7 +154,7 @@ class AuthenticationController
         $loginCredentials = $this->authentication->checkLoginCredentialsExist($email);
 
         if (empty($loginCredentials) || ($loginCredentials['total'] ?? 0) === 0) {
-            $this->authentication->insertLoginAttempt(null, $email, $ip_address, false);
+            $this->authentication->insertLoginAttempt(null, $email, $ipAddress, false);
 
             $this->systemHelper::sendErrorResponse(
                 'Authentication Failed',
@@ -167,7 +171,7 @@ class AuthenticationController
 
         // Validate password
         if (!password_verify($password, $userPassword)) {
-            $this->authentication->insertLoginAttempt($userAccountId, $email, $ip_address, false);
+            $this->authentication->insertLoginAttempt($userAccountId, $email, $ipAddress, false);
 
             $this->systemHelper->sendErrorResponse(
                 'Authentication Failed',
@@ -192,14 +196,22 @@ class AuthenticationController
         $sessionToken   = $this->security::generateToken(6);
         $sessionHash    = $this->security::hashToken($sessionToken);
 
-        $this->authentication->insertLoginAttempt($userAccountId, $email, $ip_address, p_success: true);
+        $this->authentication->insertLoginAttempt($userAccountId, $email, $ipAddress, p_success: true);
         $this->authentication->saveSession($userAccountId, $sessionHash);
 
         // Store in session
         $_SESSION['user_account_id'] = $userAccountId;
         $_SESSION['session_token']   = $sessionHash;
+
+        $this->systemHelper->sendSuccessResponse(
+            '',
+            '',
+             ['redirect_link' => 'app.php']
+        );
     }
     
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Handle Two-Factor Authentication
     # -------------------------------------------------------------
@@ -207,10 +219,11 @@ class AuthenticationController
     /**
      * Handles OTP-based two-factor authentication.
      *
-     * - Generates and saves OTP.
-     * - Retrieves email template from notification settings.
-     * - Sends OTP email using configured SMTP settings.
-     * - Responds with a redirect link on success, or error on failure.
+     * - Generates a new OTP and securely saves it with an expiry.
+     * - Prepares placeholders for the OTP email template.
+     * - Sends OTP to the user's registered email address.
+     * - On success, responds with a redirect link for verification.
+     * - On failure, responds with an error message.
      *
      * @param string $userAccountId  The user ID.
      * @param string $email          The user's email address.
@@ -219,44 +232,324 @@ class AuthenticationController
      */
     private function handleTwoFactorAuth(string $userAccountId, string $email): void
     {
-        $encryptedUserAccountID = $this->security->encryptData($userAccountId);
-        $otp                    = $this->security::generateOtp();
-        $otpHash                = $this->security::hashToken($otp);
-        $otpExpiryDate          = date('Y-m-d H:i:s', strtotime('+'. OTP_DURATION .' minutes'));
+        // Encrypt user account ID for secure redirect link
+        $encryptedUserAccountID = $this->security::encryptData($userAccountId);
 
-        // Save OTP in DB
+        // Generate a new OTP and hash it for secure storage
+        $otp           = $this->security::generateOtp();
+        $otpHash       = $this->security::hashToken($otp);
+        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
+
+        // Save OTP in the database (hashed for security)
         $this->authentication->saveOTP($userAccountId, $otpHash, $otpExpiryDate);
 
-        // Get template and settings
-        $notificationSettingDetails = $this->notificationSetting->getNotificationSettingEmailTemplate(1);
-        $emailSettingID             = $notificationSettingDetails['email_setting_id'] ?? null;
+        // Prepare template placeholders (OTP code + validity period)
+        $placeholder = [
+            'OTP_CODE'          => $otp,
+            'OTP_CODE_VALIDITY' => OTP_DURATION . ' minutes'
+        ];
 
-        $emailSubject   = $notificationSettingDetails['email_notification_subject'] ?? null;
-        $emailBody      = $notificationSettingDetails['email_notification_body'] ?? null;
-        $emailBody      = str_replace('#{OTP_CODE}', $otp, $emailBody);
-        $emailBody      = str_replace('#{OTP_CODE_VALIDITY}', OTP_DURATION . ' minutes', $emailBody);
-
-        // Send email
-        $result = $this->email->sendEmail(
-            $emailSettingID,
+        // Send OTP notification (via configured SMTP/email template)
+        $result = $this->notification->sendNotification(
+            1,
             $email,
-            $emailSubject,
-            $emailBody
+            [],
+            [],
+            $placeholder,
+            [],
+            []
         );
 
-        if ($result === true) {
+        // Handle result and respond with redirect or error
+        if ($result) {
             $this->systemHelper->sendSuccessResponse(
-                '',
-                '',
+                'OTP Sent',
+                'A one-time password has been sent to your registered email address.',
                 additionalData: ['redirect_link' => OTP_VERIFICATION_LINK . $encryptedUserAccountID]
             );
         } else {
             $this->systemHelper->sendErrorResponse(
-                'Email Sending Failed',
-                is_string($result) ? $result : 'Unable to send OTP email. Please try again later.'
+                'Sending OTP Failed',
+                is_string($result) ? $result : 'Unable to send OTP. Please try again later.'
             );
         }
     }
+    
+    # -------------------------------------------------------------
+    #   Verify
+    # -------------------------------------------------------------
+    
+    public function verifyOTP() {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        // Validate CSRF Token
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'otp_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $userAccountId   = $_POST['user_account_id'] ?? '';
+        $otpCode1        = $_POST['otp_code_1'] ?? '';
+        $otpCode2        = $_POST['otp_code_2'] ?? '';
+        $otpCode3        = $_POST['otp_code_3'] ?? '';
+        $otpCode4        = $_POST['otp_code_4'] ?? '';
+        $otpCode5        = $_POST['otp_code_5'] ?? '';
+        $otpCode6        = $_POST['otp_code_6'] ?? '';
+        $ipAddress      = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        $otpVerificationCode = $otpCode1 . $otpCode2 . $otpCode3 . $otpCode4 . $otpCode5 . $otpCode6;
+
+        $checkLoginCredentialsExist = $this->authentication->checkLoginCredentialsExist($userAccountId);
+        $total = $checkLoginCredentialsExist['total'] ?? 0;
+    
+        if ($total === 0) {
+            $this->systemHelper::sendErrorResponse(
+                'Authentication Failed',
+                'Invalid credentials. Please check and try again.'
+            );
+        }
+
+        $credentials    = $this->authentication->fetchLoginCredentials($userAccountId);
+        $isActive       = $credentials['active'] ?? 'No';
+        $email          = $credentials['email'] ?? 'No';
+
+        $otpDetails     = $this->authentication->fetchOTP($userAccountId);
+        $otp            = $otpDetails['otp'] ?? null;
+        $otpExpiryDate  = $otpDetails['otp_expiry_date'] ?? '';
+        $failedOtpAttempts  = $otpDetails['failed_otp_attempts'] ?? '';
+
+        if ($isActive === 'No') {
+            $this->systemHelper->sendErrorResponse(
+                'Account Inactive', 
+                'Your account is inactive. Please contact your administrator for assistance.'
+            );
+        }
+        
+        if (strtotime(date('Y-m-d H:i:s')) > strtotime($otpExpiryDate)) {
+            $this->systemHelper->sendErrorResponse(
+                'Expired OTP Code',
+                'The OTP code you entered is expired. Please request a new one.'
+            );
+        }
+    
+        if (!Security::verifyToken($otpVerificationCode, $otp) || empty($otp)) {
+            if ($failedOtpAttempts >= MAX_FAILED_OTP_ATTEMPTS) {
+                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 year'));
+                $this->authentication->updateOTPAsExpired($userAccountId, $otpExpiryDate);
+
+                $this->systemHelper->sendErrorResponse(
+                    'Invalid OTP Code',
+                    'The OTP code you entered is invalid. Please request a new one.'
+                );
+            }
+
+            $this->authentication->updateFailedOTPAttempts($userAccountId, $failedOtpAttempts + 1);
+
+            $this->systemHelper->sendErrorResponse(
+                'Invalid OTP Code',
+                'The OTP code you entered is incorrect.'
+            );
+        }
+
+        $this->authentication->updateOTPAsExpired($userAccountId, $otpExpiryDate);
+
+        // Generate and save session token
+        $sessionToken   = $this->security::generateToken(6);
+        $sessionHash    = $this->security::hashToken($sessionToken);
+
+        $this->authentication->insertLoginAttempt($userAccountId, $email, $ipAddress, p_success: true);
+        $this->authentication->saveSession($userAccountId, $sessionHash);
+
+        // Store in session
+        $_SESSION['user_account_id'] = $userAccountId;
+        $_SESSION['session_token']   = $sessionHash;
+
+        $this->systemHelper->sendSuccessResponse(
+            '',
+            '',
+            additionalData: ['redirect_link' => 'app.php']
+        );
+    }
+    
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Forgot Password
+    # -------------------------------------------------------------
+
+    public function forgotPassword() {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        // Validate CSRF Token
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'forgot_password_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $email   = $_POST['email'] ?? '';
+
+        $checkLoginCredentialsExist = $this->authentication->checkLoginCredentialsExist($email);
+        $total = $checkLoginCredentialsExist['total'] ?? 0;
+    
+        if ($total === 0) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Credentials',
+                'Invalid credentials. Please check and try again.'
+            );
+        }
+
+        $credentials           = $this->authentication->fetchLoginCredentials($email);
+        $userAccountId         = $credentials['user_account_id'] ?? '';
+        $isActive              = $credentials['active'] ?? 'No';
+        
+        $encryptedUserAccountID = $this->security::encryptData($userAccountId);
+
+        if ($isActive === 'No') {
+            $this->systemHelper->sendErrorResponse(
+                'Account Inactive', 
+                'Your account is inactive. Please contact your administrator for assistance.'
+            );
+        }
+
+        // Generate OTP and prepare expiry
+        $resetToken            = $this->security::generateToken();
+        $resetTokenHash        = $this->security::hashToken($resetToken);
+        $resetTokenExpiryDate  = date('Y-m-d H:i:s', strtotime('+' . RESET_PASSWORD_TOKEN_DURATION . ' minutes'));
+
+        // Save OTP in the database (hashed for security)
+        $this->authentication->saveResetToken($userAccountId, $resetTokenHash, $resetTokenExpiryDate);
+
+        // Placeholder values for notification template
+        $placeholder = [
+            'RESET_LINK'          => PASSWORD_RECOVERY_LINK  . $encryptedUserAccountID . '&token=' . $resetToken,
+            'RESET_LINK_VALIDITY' => RESET_PASSWORD_TOKEN_DURATION . ' minutes'
+        ];
+
+        $result = $this->notification->sendNotification(
+            2,
+            $email,
+            [],
+            [],
+            $placeholder,
+            [],
+            []
+        );
+
+        // Handle notification result and send appropriate response
+        if ($result === true) {
+            $this->systemHelper->sendSuccessResponse(
+                'Password Reset',
+                'We have sent a password reset link to your registered email address. Please check your inbox and follow the provided instructions to securely reset your password. If you do not receive the email within a few minutes, please also check your spam folder.',
+             ['redirect_link' => 'index.php']);
+        } else {
+            $this->systemHelper->sendErrorResponse(
+                'Password Reset Failed',
+                is_string($result) ? $result : 'Unable to send password reset link. Please try again later.'
+            );
+        }
+    }
+    
+    # -------------------------------------------------------------
+    #   Resend Authentication
+    # -------------------------------------------------------------
+
+    /**
+     * Handles the OTP resend request for a given user account.
+     * 
+     * - Only accepts POST requests.
+     * - Retrieves user account ID from request body.
+     * - Fetches login credentials (e.g., email) associated with the account.
+     * - Calls resendOTPCode() to generate, save, and send a new OTP.
+     * - Returns a JSON response indicating success.
+     *
+     * @return void
+     */
+    public function resendOTP()
+    {
+        // Ensure request method is POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        // Get user account ID from POST request, validating as integer
+        $userAccountId = filter_input(INPUT_POST, 'user_account_id', FILTER_VALIDATE_INT);
+
+        // Fetch login credentials (e.g., email) for this user
+        $loginCredentialsDetails = $this->authentication->fetchLoginCredentials($userAccountId);
+        $email = $loginCredentialsDetails['email'] ?? null;
+
+        // Generate and send a new OTP
+        $this->resendOTPCode($userAccountId, $email);
+
+        // Return simple JSON success response
+        $response = [
+            'success' => true
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    /**
+     * Generates, saves, and sends a new OTP to the user.
+     * 
+     * - Generates a random OTP and securely hashes it.
+     * - Saves the OTP and expiry time in the database.
+     * - Sends an OTP notification (e.g., via email).
+     * - Returns a success or error response depending on notification result.
+     *
+     * @param int         $userAccountId  The user account ID.
+     * @param string|null $email          The email address to send the OTP to.
+     * 
+     * @return void
+     */
+    private function resendOTPCode($userAccountId, $email)
+    {
+        // Generate OTP and prepare expiry
+        $otp           = $this->security::generateOtp();
+        $otpHash       = $this->security::hashToken($otp);
+        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
+        
+        // Save OTP in the database (hashed for security)
+        $this->authentication->saveOTP($userAccountId, $otpHash, $otpExpiryDate);
+
+        // Placeholder values for notification template
+        $placeholder = [
+            'OTP_CODE'          => $otp,
+            'OTP_CODE_VALIDITY' => OTP_DURATION . ' minutes'
+        ];
+
+        // Send OTP notification (e.g., email or SMS)
+        $result = $this->notification->sendNotification(
+            1,
+            $email,
+            [],
+            [],
+            $placeholder,
+            [],
+            []
+        );
+
+        // Handle notification result and send appropriate response
+        if ($result === true) {
+            $this->systemHelper->sendSuccessResponse(
+                'OTP Resend',
+                'A new OTP has been sent to you.'
+            );
+        } else {
+            $this->systemHelper->sendErrorResponse(
+                'Resending OTP Failed',
+                is_string($result) ? $result : 'Unable to resend OTP. Please try again later.'
+            );
+        }
+    }
+    
+    # -------------------------------------------------------------
+
 }
 
 # Bootstrap the controller
@@ -264,8 +557,8 @@ $controller = new AuthenticationController(
     new Authentication(),
     new SecuritySetting(),
     new NotificationSetting(),
+    new Notification(new NotificationSetting(), new EmailService(), new SmsService(), new SystemNotificationService()),
     new Security(),
-    new Email(new EmailSetting(), new Security()),
     new SystemHelper()
 );
 

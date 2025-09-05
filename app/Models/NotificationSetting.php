@@ -6,36 +6,36 @@ use App\Core\Model;
 class NotificationSetting extends Model {
 
     # -------------------------------------------------------------
-    #   Get methods
+    #   Fetch methods
     # -------------------------------------------------------------
 
-    public function getNotificationSetting($p_notification_setting_id) {
-        $sql = 'CALL getNotificationSetting(:p_notification_setting_id)';
+    public function fetchNotificationSetting($p_notification_setting_id) {
+        $sql = 'CALL fetchNotificationSetting(:p_notification_setting_id)';
         
         return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
 
-    public function getNotificationSettingEmailTemplate($p_notification_setting_id) {
-        $sql = 'CALL getNotificationSettingEmailTemplate(:p_notification_setting_id)';
+    public function fetchEmailNotificationTemplate($p_notification_setting_id) {
+        $sql = 'CALL fetchEmailNotificationTemplate(:p_notification_setting_id)';
         
         return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
 
-    public function getNotificationSettingSystemTemplate($p_notification_setting_id) {
-        $sql = 'CALL getNotificationSettingSystemTemplate(:p_notification_setting_id)';
+    public function fetchSystemNotificationTemplate($p_notification_setting_id) {
+        $sql = 'CALL fetchSystemNotificationTemplate(:p_notification_setting_id)';
         
         return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
     }
 
-    public function getNotificationSettingSMSTemplate($p_notification_setting_id) {
-        $sql = 'CALL getNotificationSettingSMSTemplate(:p_notification_setting_id)';
-        
+    public function fetchSmsNotificationTemplate($p_notification_setting_id) {
+        $sql = 'CALL fetchSmsNotificationTemplate(:p_notification_setting_id)';
+
         return $this->fetch($sql, [
             'p_notification_setting_id' => $p_notification_setting_id
         ]);
@@ -75,6 +75,40 @@ class NotificationSetting extends Model {
 
         return $result['notification_setting_id'] ?? null;
     }
+
+    public function saveSystemNotificationTemplate($p_notification_setting_id, $p_system_notification_title, $p_system_notification_message, $p_last_log_by) {
+        $sql = 'CALL saveSystemNotificationTemplate(:p_notification_setting_id, :p_system_notification_title, :p_system_notification_message, :p_last_log_by)';
+        
+        return $this->query($sql, [
+            'p_notification_setting_id' => $p_notification_setting_id,
+            'p_system_notification_title' => $p_system_notification_title,
+            'p_system_notification_message' => $p_system_notification_message,
+            'p_last_log_by' => $p_last_log_by
+        ]);
+    }
+
+    public function saveEmailNotificationTemplate($p_notification_setting_id, $p_email_notification_subject, $p_email_notification_body, $p_email_setting_id, $p_email_setting_name, $p_last_log_by) {
+        $sql = 'CALL saveEmailNotificationTemplate(:p_notification_setting_id, :p_email_notification_subject, :p_email_notification_body, :p_email_setting_id, :p_email_setting_name, :p_last_log_by)';
+        
+        return $this->query($sql, [
+            'p_notification_setting_id' => $p_notification_setting_id,
+            'p_email_notification_subject' => $p_email_notification_subject,
+            'p_email_notification_body' => $p_email_notification_body,
+            'p_email_setting_id' => $p_email_setting_id,
+            'p_email_setting_name' => $p_email_setting_name,
+            'p_last_log_by' => $p_last_log_by
+        ]);
+    }
+
+    public function saveSMSNotificationTemplate($p_notification_setting_id, $p_sms_notification_message, $p_last_log_by) {
+        $sql = 'CALL saveSMSNotificationTemplate(:p_notification_setting_id, :p_sms_notification_message, :p_last_log_by)';
+        
+        return $this->query($sql, [
+            'p_notification_setting_id' => $p_notification_setting_id,
+            'p_sms_notification_message' => $p_sms_notification_message,
+            'p_last_log_by' => $p_last_log_by
+        ]);
+    }
     
     # -------------------------------------------------------------
 
@@ -89,40 +123,6 @@ class NotificationSetting extends Model {
             'p_notification_setting_id' => $p_notification_setting_id,
             'p_notification_channel' => $p_notification_channel,
             'p_notification_channel_value' => $p_notification_channel_value,
-            'p_last_log_by' => $p_last_log_by
-        ]);
-    }
-
-    public function updateSystemNotificationTemplate($p_notification_setting_id, $p_system_notification_title, $p_system_notification_message, $p_last_log_by) {
-        $sql = 'CALL updateSystemNotificationTemplate(:p_notification_setting_id, :p_system_notification_title, :p_system_notification_message, :p_last_log_by)';
-        
-        return $this->query($sql, [
-            'p_notification_setting_id' => $p_notification_setting_id,
-            'p_system_notification_title' => $p_system_notification_title,
-            'p_system_notification_message' => $p_system_notification_message,
-            'p_last_log_by' => $p_last_log_by
-        ]);
-    }
-
-    public function updateEmailNotificationTemplate($p_notification_setting_id, $p_email_notification_subject, $p_email_notification_body, $p_email_setting_id, $p_email_setting_name, $p_last_log_by) {
-        $sql = 'CALL updateEmailNotificationTemplate(:p_notification_setting_id, :p_email_notification_subject, :p_email_notification_body, :p_email_setting_id, :p_email_setting_name, :p_last_log_by)';
-        
-        return $this->query($sql, [
-            'p_notification_setting_id' => $p_notification_setting_id,
-            'p_email_notification_subject' => $p_email_notification_subject,
-            'p_email_notification_body' => $p_email_notification_body,
-            'p_email_setting_id' => $p_email_setting_id,
-            'p_email_setting_name' => $p_email_setting_name,
-            'p_last_log_by' => $p_last_log_by
-        ]);
-    }
-
-    public function updateSMSNotificationTemplate($p_notification_setting_id, $p_sms_notification_message, $p_last_log_by) {
-        $sql = 'CALL updateSMSNotificationTemplate(:p_notification_setting_id, :p_sms_notification_message, :p_last_log_by)';
-        
-        return $this->query($sql, [
-            'p_notification_setting_id' => $p_notification_setting_id,
-            'p_sms_notification_message' => $p_sms_notification_message,
             'p_last_log_by' => $p_last_log_by
         ]);
     }

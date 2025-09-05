@@ -1,21 +1,36 @@
 DELIMITER //
 
----------------------------------------------------------------------------------------------
--- Save Procedures
---------------------------------------------------------------------------------------------- 
+/* =============================================================================================
+   STORED PROCEDURES: USER AUTHENTICATION & SECURITY
+   ---------------------------------------------------------------------------------------------
+   Purpose:
+     - Manage authentication and security database operations
+     - Handle reset tokens, sessions, OTPs, login attempts, password management
+     - Enforce access permissions and rate-limits
+   ---------------------------------------------------------------------------------------------
+   Structure:
+     SECTION 1: SAVE    → Insert or update tokens, sessions, OTPs
+     SECTION 2: INSERT  → Log authentication events (login attempts)
+     SECTION 3: UPDATE  → Modify OTP attempts, reset tokens, passwords
+     SECTION 4: FETCH   → Retrieve credentials and attachments
+     SECTION 5: CHECK   → Validate existence, permissions, and rate-limits
+============================================================================================= */
+
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+   ---------------------------------------------------------------------------------------------
+   Insert or update authentication artifacts (reset tokens, sessions, OTPs).
+============================================================================================= */
 
 DROP PROCEDURE IF EXISTS saveResetToken//
-
 CREATE PROCEDURE saveResetToken(
-    IN p_user_account_id INT, 
-    IN p_reset_token VARCHAR(255), 
+    IN p_user_account_id INT,
+    IN p_reset_token VARCHAR(255),
     IN p_reset_token_expiry_date DATETIME
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
@@ -32,17 +47,14 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS saveSession//
 
+DROP PROCEDURE IF EXISTS saveSession//
 CREATE PROCEDURE saveSession(
     IN p_user_account_id INT,
     IN p_session_token VARCHAR(255)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
@@ -58,58 +70,48 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS saveOTP//
 
+DROP PROCEDURE IF EXISTS saveOTP//
 CREATE PROCEDURE saveOTP(
     IN p_user_account_id INT,
     IN p_otp VARCHAR(255),
-    IN otp_expiry_date DATETIME
+    IN p_otp_expiry_date DATETIME
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
     IF EXISTS (SELECT 1 FROM otp WHERE user_account_id = p_user_account_id) THEN
         UPDATE otp
         SET otp = p_otp,
-            otp_expiry_date = otp_expiry_date
+            otp_expiry_date = p_otp_expiry_date
         WHERE user_account_id = p_user_account_id;
     ELSE
         INSERT INTO otp (user_account_id, otp, otp_expiry_date)
-        VALUES (p_user_account_id, p_otp, otp_expiry_date);
+        VALUES (p_user_account_id, p_otp, p_otp_expiry_date);
     END IF;
 
     COMMIT;
 END //
 
---------------------------------------------------------------------------------------------- 
 
----------------------------------------------------------------------------------------------
--- Insert Procedures
---------------------------------------------------------------------------------------------- 
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+   ---------------------------------------------------------------------------------------------
+   Insert new authentication events (e.g., login attempts).
+============================================================================================= */
 
-DROP PROCEDURE IF EXISTS insertLoginAttempt //
-
+DROP PROCEDURE IF EXISTS insertLoginAttempt//
 CREATE PROCEDURE insertLoginAttempt(
     IN p_user_account_id INT,
     IN p_email VARCHAR(255),
     IN p_ip_address VARCHAR(45),
-    IN p_success TINYINT(1)
+    IN p_success TINYINT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-    END;
-
-    DECLARE EXIT HANDLER FOR SQLWARNING
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
 
     START TRANSACTION;
 
@@ -118,34 +120,31 @@ BEGIN
 
     IF p_success = 1 THEN
         UPDATE user_account 
-        SET last_connection_date = NOW() 
+        SET last_connection_date = NOW()
         WHERE user_account_id = p_user_account_id;
     ELSE
         UPDATE user_account 
-        SET last_failed_connection_date = NOW() 
+        SET last_failed_connection_date = NOW()
         WHERE user_account_id = p_user_account_id;
     END IF;
 
     COMMIT;
 END //
 
---------------------------------------------------------------------------------------------- 
 
----------------------------------------------------------------------------------------------
--- Fetch Procedures
---------------------------------------------------------------------------------------------- 
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+   ---------------------------------------------------------------------------------------------
+   Update OTP attempts, reset tokens, and user passwords.
+============================================================================================= */
 
 DROP PROCEDURE IF EXISTS updateFailedOTPAttempts//
-
 CREATE PROCEDURE updateFailedOTPAttempts(
     IN p_user_account_id INT,
     IN p_failed_otp_attempts TINYINT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
@@ -156,17 +155,14 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS updateResetTokenAsExpired//
 
+DROP PROCEDURE IF EXISTS updateResetTokenAsExpired//
 CREATE PROCEDURE updateResetTokenAsExpired(
     IN p_user_account_id INT,
     IN p_reset_token_expiry_date DATETIME
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
@@ -177,25 +173,38 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS updateResetTokenAsExpired//
-CREATE PROCEDURE updateResetTokenAsExpired(
-    IN p_user_account_id INT,
-    IN p_reset_token_expiry_date DATETIME
-)
-BEGIN
-    UPDATE user_account
-    SET reset_token_expiry_date = p_reset_token_expiry_date
-    WHERE user_account_id = p_user_account_id;
-END //
 
 DROP PROCEDURE IF EXISTS updateUserPassword//
-
 CREATE PROCEDURE updateUserPassword(
     IN p_user_account_id INT,
-    IN p_password VARCHAR(255), 
+    IN p_password VARCHAR(255),
     IN p_password_expiry_date DATE
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+
+    START TRANSACTION;
+
+    -- Store password history
+    INSERT INTO password_history (user_account_id, password) 
+    VALUES (p_user_account_id, p_password);
+
+    -- Update active password
+    UPDATE user_account
+    SET password             = p_password, 
+        password_expiry_date = p_password_expiry_date,
+        last_log_by          = p_user_account_id
+    WHERE user_account_id = p_user_account_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateOTPAsExpired//
+CREATE PROCEDURE updateOTPAsExpired(
+    IN p_user_account_id INT,
+    IN p_otp_expiry_date DATETIME
+)
+BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -203,80 +212,79 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO password_history (user_account_id, password) 
-    VALUES (p_user_account_id, p_password);
-
-    UPDATE user_account
-    SET password = p_password, 
-        password_expiry_date = p_password_expiry_date,
-        last_log_by = p_user_account_id
+    UPDATE otp
+    SET otp_expiry_date = p_otp_expiry_date
     WHERE user_account_id = p_user_account_id;
 
     COMMIT;
 END //
 
 
---------------------------------------------------------------------------------------------- 
-
----------------------------------------------------------------------------------------------
--- Fetch Procedures
---------------------------------------------------------------------------------------------- 
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+   ---------------------------------------------------------------------------------------------
+   Retrieve credentials and related authentication data.
+============================================================================================= */
 
 DROP PROCEDURE IF EXISTS fetchLoginCredentials//
-
 CREATE PROCEDURE fetchLoginCredentials(
-    IN p_email VARCHAR(255)
+    IN p_credential VARCHAR(255)
 )
 BEGIN
     SELECT user_account_id,
+           file_as,
            email,
-           password_hash,
-           is_active
+           password,
+           active,
+           two_factor_auth,
+           multiple_session
     FROM user_account
-    WHERE email = p_email
+    WHERE user_account_id = CAST(p_credential AS UNSIGNED) OR email = BINARY p_credential
     LIMIT 1;
 END //
 
-DROP PROCEDURE IF EXISTS fetchPasswordHistory//
-
-CREATE PROCEDURE fetchPasswordHistory(
+DROP PROCEDURE IF EXISTS fetchOTP//
+CREATE PROCEDURE fetchOTP(
     IN p_user_account_id INT
 )
 BEGIN
-    SELECT password 
-    FROM password_history
-    WHERE user_account_id = p_user_account_id;
+    SELECT otp,
+           otp_expiry_date,
+           failed_otp_attempts
+    FROM otp
+    WHERE user_account_id = p_user_account_id
+    LIMIT 1;
 END //
 
 DROP PROCEDURE IF EXISTS fetchInternalNotesAttachment//
-
 CREATE PROCEDURE fetchInternalNotesAttachment(
     IN p_internal_notes_id INT
 )
 BEGIN
-    SELECT * FROM internal_notes_attachment
+    SELECT * 
+    FROM internal_notes_attachment
     WHERE internal_notes_id = p_internal_notes_id;
 END //
 
---------------------------------------------------------------------------------------------- 
 
----------------------------------------------------------------------------------------------
--- Check Procedures
---------------------------------------------------------------------------------------------- 
+/* =============================================================================================
+   SECTION 5: CHECK PROCEDURES
+   ---------------------------------------------------------------------------------------------
+   Validate existence, permissions, and rate-limits.
+============================================================================================= */
 
 DROP PROCEDURE IF EXISTS checkLoginCredentialsExist//
-
 CREATE PROCEDURE checkLoginCredentialsExist(
-    IN p_email VARCHAR(255)
+    IN p_credential VARCHAR(255)
 )
 BEGIN
     SELECT COUNT(*) AS total
     FROM user_account
-    WHERE email = BINARY p_email;
+    WHERE user_account_id = CAST(p_credential AS UNSIGNED) OR email = BINARY p_credential;
 END //
 
-DROP PROCEDURE IF EXISTS checkUserSystemActionPermission//
 
+DROP PROCEDURE IF EXISTS checkUserSystemActionPermission//
 CREATE PROCEDURE checkUserSystemActionPermission(
     IN p_user_account_id INT,
     IN p_system_action_id INT
@@ -285,19 +293,23 @@ BEGIN
     SELECT COUNT(role_id) AS total
     FROM role_system_action_permission 
     WHERE system_action_id = p_system_action_id
-    AND system_action_access = 1
-    AND role_id IN (SELECT role_id FROM role_user_account WHERE user_account_id = p_user_account_id);
+      AND system_action_access = 1
+      AND role_id IN (
+            SELECT role_id 
+            FROM role_user_account 
+            WHERE user_account_id = p_user_account_id
+          );
 END //
 
-DROP PROCEDURE IF EXISTS checkUserPermission//
 
+DROP PROCEDURE IF EXISTS checkUserPermission//
 CREATE PROCEDURE checkUserPermission(
     IN p_user_account_id INT,
     IN p_menu_item_id INT,
     IN p_access_type VARCHAR(10)
 )
 BEGIN
-	DECLARE v_total INT;
+    DECLARE v_total INT;
 
     SELECT COUNT(rua.role_id) INTO v_total
     FROM role_user_account rua
@@ -317,8 +329,8 @@ BEGIN
     SELECT v_total AS total;
 END //
 
-DROP PROCEDURE IF EXISTS checkRateLimited//
 
+DROP PROCEDURE IF EXISTS checkRateLimited//
 CREATE PROCEDURE checkRateLimited(
     IN p_email VARCHAR(255),
     IN p_ip_address VARCHAR(45),
@@ -333,4 +345,7 @@ BEGIN
            OR email = p_email);
 END //
 
---------------------------------------------------------------------------------------------- 
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */

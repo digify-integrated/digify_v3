@@ -129,19 +129,45 @@ class Security
     }
 
     /**
-     * Obscure an email address (e.g. j***e@example.com).
+     * Obscure an email address for display/logging (e.g. j***e@ex*****.com).
+     *
+     * - Masks most of the username but keeps first/last character (if length > 2).
+     * - Masks part of the domain (leaving TLD visible).
+     * - Handles short usernames safely.
+     * - Returns "invalid email" placeholder if input is not a valid email.
      *
      * @param string $email Email address
      * @return string Masked email
      */
     public static function obscureEmail(string $email): string
     {
-        [$username, $domain] = explode('@', $email, 2);
-        $maskedUsername = substr($username, 0, 1)
-            . str_repeat('*', max(0, strlen($username) - 2))
-            . substr($username, -1);
+        // Validate email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return '[invalid email]';
+        }
 
-        return $maskedUsername . '@' . $domain;
+        [$username, $domain] = explode('@', strtolower(trim($email)), 2);
+
+        // --- Mask username ---
+        if (strlen($username) <= 2) {
+            // If username is too short, mask entirely
+            $maskedUsername = str_repeat('*', strlen($username));
+        } else {
+            $maskedUsername = substr($username, 0, 1)
+                . str_repeat('*', strlen($username) - 2)
+                . substr($username, -1);
+        }
+
+        // --- Mask domain (keep TLD visible) ---
+        $domainParts = explode('.', $domain);
+        $tld = array_pop($domainParts);
+        $maskedDomain = '';
+        foreach ($domainParts as $part) {
+            $maskedDomain .= substr($part, 0, 2) . str_repeat('*', max(0, strlen($part) - 2)) . '.';
+        }
+        $maskedDomain .= $tld;
+
+        return $maskedUsername . '@' . $maskedDomain;
     }
 
     /**

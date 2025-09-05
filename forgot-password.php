@@ -1,6 +1,6 @@
 <?php
-    session_start();
     require_once './config/config.php';
+    require_once './config/session-check.php';
 
     use App\Core\Security;
 
@@ -25,7 +25,7 @@
         <div class="d-flex flex-column flex-sm-center flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
             <div class="d-flex flex-center flex-column flex-lg-row-fluid">
                 <div class="w-lg-500px p-10">
-                    <form class="form w-100" id="forgot_password" method="post" action="#">
+                    <form class="form w-100" id="forgot_password_form" method="post" action="#">
                         <?= Security::csrfInput('forgot_password_form'); ?>
                         <img src="./assets/images/logos/logo-dark.svg" class="mb-5" alt="Logo-Dark" />
                         <h2 class="mb-2 mt-4 fs-1 fw-bolder">Forgot Password?</h2>

@@ -30,6 +30,20 @@ class Authentication extends Model {
     }
 
     /**
+     * Fetch otp for a user by user account ID.
+     *
+     * @param int $p_user_account_id User account ID
+     * @return array|null User account row or null if not found
+     */
+    public function fetchOTP($p_user_account_id) {
+        $sql = 'CALL fetchOTP(:p_user_account_id)';
+        
+        return $this->fetch($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    /**
      * Fetch password history for a given user account.
      *
      * @param int $p_user_account_id User account ID
@@ -269,6 +283,21 @@ class Authentication extends Model {
         return $this->query($sql, [
             'p_user_account_id' => $p_user_account_id,
             'p_password'        => $p_password
+        ]);
+    }
+
+    /**
+     * Update an otp's expiry date.
+     *
+     * @param int $p_user_account_id User account ID
+     * @param string $p_otp_expiry_date New OTP expiry date
+     */
+    public function updateOTPAsExpired($p_user_account_id, $p_otp_expiry_date) {
+        $sql = 'CALL updateOTPAsExpired(:p_user_account_id, :p_otp_expiry_date)';
+        
+        return $this->query($sql, [
+            'p_user_account_id' => $p_user_account_id,
+            'p_otp_expiry_date' => $p_otp_expiry_date
         ]);
     }
     

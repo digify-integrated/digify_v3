@@ -1,23 +1,17 @@
 import { disableButton, enableButton } from '../utilities/form-utilities.js';
 import { handleSystemError } from '../modules/system-errors.js';
-import { showNotification } from '../modules/notifications.js';
+import { showNotification, setNotification } from '../modules/notifications.js';
 
 $(document).ready(function () {
-    $('#login_form').validate({
+    $('#forgot_password_form').validate({
         rules: {
             email: {
                 required: true,
-            },
-            password: {
-                required: true
             }
         },
         messages: {
             email: {
                 required: 'Enter the email',
-            },
-            password: {
-                required: 'Enter the password'
             }
         },
         errorPlacement: (error, element) => {
@@ -40,7 +34,7 @@ $(document).ready(function () {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction = 'authenticate';
+            const transaction = 'forgot password';
 
             $.ajax({
                 type: 'POST',
@@ -48,19 +42,20 @@ $(document).ready(function () {
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
-                    disableButton('signin');
+                    disableButton('forgot-password');
                 },
                 success: function(response) {
                     if (response.success) {
+                        setNotification(response.title, response.message, response.message_type);
                         window.location.href = response.redirect_link;
                     }
                     else {
                         showNotification(response.title, response.message, response.message_type);
-                        enableButton('signin');
+                        enableButton('forgot-password');
                     }
                 },
                 error: function(xhr, status, error) {
-                    enableButton('signin');
+                    enableButton('forgot-password');
                     handleSystemError(xhr, status, error);
                 }
             });

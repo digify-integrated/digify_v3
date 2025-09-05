@@ -11,6 +11,7 @@ export const showNotification = (title, message, type, timeOut = 2000) => {
   toastr.options = {
     closeButton: true,
     progressBar: true,
+    preventDuplicates: true,
     positionClass: 'toastr-top-right',
     timeOut,
   };
