@@ -115,6 +115,8 @@ BEGIN
 
     START TRANSACTION;
 
+    SET time_zone = '+08:00';
+
     INSERT INTO login_attempts (user_account_id, email, ip_address, success)
     VALUES (p_user_account_id, p_email, p_ip_address, p_success);
 
@@ -158,16 +160,15 @@ END //
 
 DROP PROCEDURE IF EXISTS updateResetTokenAsExpired//
 CREATE PROCEDURE updateResetTokenAsExpired(
-    IN p_user_account_id INT,
-    IN p_reset_token_expiry_date DATETIME
+    IN p_user_account_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
-    UPDATE user_account
-    SET reset_token_expiry_date = p_reset_token_expiry_date
+    UPDATE reset_token
+    SET reset_token_expiry_date = NOW()
     WHERE user_account_id = p_user_account_id;
 
     COMMIT;
@@ -177,22 +178,16 @@ END //
 DROP PROCEDURE IF EXISTS updateUserPassword//
 CREATE PROCEDURE updateUserPassword(
     IN p_user_account_id INT,
-    IN p_password VARCHAR(255),
-    IN p_password_expiry_date DATE
+    IN p_password VARCHAR(255)
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 
     START TRANSACTION;
 
-    -- Store password history
-    INSERT INTO password_history (user_account_id, password) 
-    VALUES (p_user_account_id, p_password);
-
     -- Update active password
     UPDATE user_account
-    SET password             = p_password, 
-        password_expiry_date = p_password_expiry_date,
+    SET password             = p_password,
         last_log_by          = p_user_account_id
     WHERE user_account_id = p_user_account_id;
 
@@ -201,8 +196,7 @@ END //
 
 DROP PROCEDURE IF EXISTS updateOTPAsExpired//
 CREATE PROCEDURE updateOTPAsExpired(
-    IN p_user_account_id INT,
-    IN p_otp_expiry_date DATETIME
+    IN p_user_account_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -213,7 +207,7 @@ BEGIN
     START TRANSACTION;
 
     UPDATE otp
-    SET otp_expiry_date = p_otp_expiry_date
+    SET otp_expiry_date = NOW()
     WHERE user_account_id = p_user_account_id;
 
     COMMIT;
@@ -252,6 +246,18 @@ BEGIN
            otp_expiry_date,
            failed_otp_attempts
     FROM otp
+    WHERE user_account_id = p_user_account_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchResetToken//
+CREATE PROCEDURE fetchResetToken(
+    IN p_user_account_id INT
+)
+BEGIN
+    SELECT reset_token,
+           reset_token_expiry_date
+    FROM reset_token
     WHERE user_account_id = p_user_account_id
     LIMIT 1;
 END //

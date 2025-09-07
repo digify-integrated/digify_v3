@@ -1,26 +1,14 @@
 /**
- * OTP Verification Script
- * 
- * Features:
- * - Auto-focus between OTP input boxes
- * - Handles OTP pasting
- * - Backspace navigation
- * - Resend OTP with countdown (persists across refresh using localStorage)
- * - Countdown displayed in MM:SS format
+ * Import utility functions for form handling, error handling, and notifications.
  */
-
 import { disableButton, enableButton } from '../utilities/form-utilities.js';
 import { handleSystemError } from '../modules/system-errors.js';
 import { showNotification, setNotification } from '../modules/notifications.js';
 
 $(document).ready(function () {
     /**
-     * ==========================
-     * OTP INPUT HANDLING
-     * ==========================
+     * Automatically focus on the next OTP input field once the current one reaches its max length.
      */
-
-    // Auto-focus next input when max length is reached
     $('.otp-input').on('input', function () {
         var maxLength = parseInt($(this).attr('maxlength'));
         var currentLength = $(this).val().length;
@@ -30,12 +18,15 @@ $(document).ready(function () {
         }
     });
 
-    // Handle OTP paste (only alphanumeric)
+    /**
+     * Handle OTP pasting: only accept alphanumeric characters.
+     * Automatically distributes pasted characters across OTP input fields.
+     */
     $('.otp-input').on('paste', function (e) {
         e.preventDefault();
 
         var pastedData = (e.originalEvent || e).clipboardData.getData('text/plain');
-        var filteredData = pastedData.replace(/[^a-zA-Z0-9]/g, '');
+        var filteredData = pastedData.replace(/[^a-zA-Z0-9]/g, ''); // Strip non-alphanumeric
 
         for (var i = 0; i < filteredData.length; i++) {
             if (i < 6) {
@@ -44,7 +35,9 @@ $(document).ready(function () {
         }
     });
 
-    // Handle backspace navigation
+    /**
+     * Handle backspace navigation: when empty, move focus to the previous field.
+     */
     $('.otp-input').on('keydown', function (e) {
         if (e.which === 8 && $(this).val().length === 0) {
             $(this).prev('.otp-input').focus();
@@ -52,31 +45,29 @@ $(document).ready(function () {
     });
 
     /**
-     * ==========================
-     * RESEND OTP HANDLING
-     * ==========================
+     * Trigger OTP resend when user clicks the "Resend OTP" link.
      */
-
-    // Resend OTP click handler
     $('#resend-link').on('click', function () {
-        resendOTP(180);
+        resendOTP(180); // Start a new 3-minute countdown
     });
 
-    // Restore countdown state on page load if still active
+    /**
+     * Restore countdown state on page reload if still active.
+     * Uses localStorage to persist countdown expiration time.
+     */
     const expireTime = localStorage.getItem('otpExpireTime');
     if (expireTime) {
         const remaining = Math.floor((expireTime - Date.now()) / 1000);
         if (remaining > 0) {
             startCountdown(remaining);
         } else {
-            localStorage.removeItem('otpExpireTime');
+            localStorage.removeItem('otpExpireTime'); // cleanup if expired
         }
     }
 
     /**
-     * ==========================
-     * OTP FORM VALIDATION
-     * ==========================
+     * Validate OTP form: all 6 fields are required.
+     * Error handling is done via notifications instead of inline messages.
      */
     $('#otp_form').validate({
         rules: {
@@ -95,9 +86,15 @@ $(document).ready(function () {
             otp_code_5: { required: 'Enter the security code' },
             otp_code_6: { required: 'Enter the security code' }
         },
+        /**
+         * Display error messages using a notification popup.
+         */
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
+        /**
+         * Highlight invalid inputs (Bootstrap class "is-invalid").
+         */
         highlight: (element) => {
             const $element = $(element);
             const $target = $element.hasClass('select2-hidden-accessible')
@@ -105,6 +102,9 @@ $(document).ready(function () {
                 : $element;
             $target.addClass('is-invalid');
         },
+        /**
+         * Remove highlight once field is valid again.
+         */
         unhighlight: (element) => {
             const $element = $(element);
             const $target = $element.hasClass('select2-hidden-accessible')
@@ -112,6 +112,11 @@ $(document).ready(function () {
                 : $element;
             $target.removeClass('is-invalid');
         },
+        /**
+         * Handle form submission via AJAX.
+         * Prevents default behavior, disables button while processing,
+         * verifies OTP, and redirects or shows error notifications accordingly.
+         */
         submitHandler: async (form, event) => {
             event.preventDefault();
 
@@ -140,16 +145,10 @@ $(document).ready(function () {
                 }
             });
 
-            return false;
+            return false; // Prevent normal form submission
         }
     });
 });
-
-/**
- * ==========================
- * COUNTDOWN FUNCTIONS
- * ==========================
- */
 
 /**
  * Starts a countdown timer and saves its expiry in localStorage.
@@ -160,7 +159,6 @@ function startCountdown(duration) {
     const $resendLink = $('#resend-link');
 
     let remaining = duration;
-    let countdownTimer;
 
     $countdown.removeClass('d-none').text(formatTime(remaining));
     $resendLink.addClass('d-none');
@@ -189,7 +187,7 @@ function startCountdown(duration) {
 }
 
 /**
- * Resets countdown and requests a new OTP from backend.
+ * Resets countdown and requests a new OTP from the backend.
  * @param {number} countdownValue - Countdown duration in seconds.
  */
 function resendOTP(countdownValue) {

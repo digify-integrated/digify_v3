@@ -44,6 +44,20 @@ class Authentication extends Model {
     }
 
     /**
+     * Fetch reset token for a user by user account ID.
+     *
+     * @param int $p_user_account_id User account ID
+     * @return array|null User account row or null if not found
+     */
+    public function fetchResetToken($p_user_account_id) {
+        $sql = 'CALL fetchResetToken(:p_user_account_id)';
+        
+        return $this->fetch($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    /**
      * Fetch password history for a given user account.
      *
      * @param int $p_user_account_id User account ID
@@ -257,21 +271,6 @@ class Authentication extends Model {
     }
 
     /**
-     * Mark a reset token as expired.
-     *
-     * @param int $p_user_account_id User account ID
-     * @param string $p_reset_token_expiry_date Expiry date/time
-     */
-    public function updateResetTokenAsExpired($p_user_account_id, $p_reset_token_expiry_date) {
-        $sql = 'CALL updateResetTokenAsExpired(:p_user_account_id, :p_reset_token_expiry_date)';
-
-        return $this->query($sql, [
-            'p_user_account_id'         => $p_user_account_id,
-            'p_reset_token_expiry_date' => $p_reset_token_expiry_date
-        ]);
-    }
-
-    /**
      * Update a user's password.
      *
      * @param int $p_user_account_id User account ID
@@ -290,14 +289,25 @@ class Authentication extends Model {
      * Update an otp's expiry date.
      *
      * @param int $p_user_account_id User account ID
-     * @param string $p_otp_expiry_date New OTP expiry date
      */
-    public function updateOTPAsExpired($p_user_account_id, $p_otp_expiry_date) {
-        $sql = 'CALL updateOTPAsExpired(:p_user_account_id, :p_otp_expiry_date)';
+    public function updateOTPAsExpired($p_user_account_id) {
+        $sql = 'CALL updateOTPAsExpired(:p_user_account_id)';
         
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_otp_expiry_date' => $p_otp_expiry_date
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    /**
+     * Update an reset token's expiry date.
+     *
+     * @param int $p_user_account_id User account ID
+     */
+    public function updateResetTokenAsExpired($p_user_account_id) {
+        $sql = 'CALL updateResetTokenAsExpired(:p_user_account_id)';
+        
+        return $this->query($sql, [
+            'p_user_account_id' => $p_user_account_id
         ]);
     }
     

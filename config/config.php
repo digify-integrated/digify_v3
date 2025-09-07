@@ -85,7 +85,7 @@ define('DEFAULT_UPLOAD_PLACEHOLDER', './assets/images/default/upload-placeholder
 
 define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
 define('MAX_FAILED_OTP_ATTEMPTS', 5);
-define('PASSWORD_RECOVERY_LINK', 'http://localhost/digify/password-reset.php?id=');
+define('PASSWORD_RECOVERY_LINK', 'http://localhost/digify_v3/password-reset.php?id=');
 define('OTP_VERIFICATION_LINK', 'otp-verification.php?id=');
 define('RESET_PASSWORD_TOKEN_DURATION', 10);
 define('OTP_DURATION', 5);

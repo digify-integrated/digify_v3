@@ -206,7 +206,7 @@ class AuthenticationController
         $this->systemHelper->sendSuccessResponse(
             '',
             '',
-             ['redirect_link' => 'app.php']
+             ['redirect_link' => 'apps.php']
         );
     }
     
@@ -297,7 +297,7 @@ class AuthenticationController
         $otpCode4        = $_POST['otp_code_4'] ?? '';
         $otpCode5        = $_POST['otp_code_5'] ?? '';
         $otpCode6        = $_POST['otp_code_6'] ?? '';
-        $ipAddress      = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $ipAddress       = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
         $otpVerificationCode = $otpCode1 . $otpCode2 . $otpCode3 . $otpCode4 . $otpCode5 . $otpCode6;
 
@@ -315,10 +315,10 @@ class AuthenticationController
         $isActive       = $credentials['active'] ?? 'No';
         $email          = $credentials['email'] ?? 'No';
 
-        $otpDetails     = $this->authentication->fetchOTP($userAccountId);
-        $otp            = $otpDetails['otp'] ?? null;
-        $otpExpiryDate  = $otpDetails['otp_expiry_date'] ?? '';
-        $failedOtpAttempts  = $otpDetails['failed_otp_attempts'] ?? '';
+        $otpDetails         = $this->authentication->fetchOTP($userAccountId);
+        $otp                = $otpDetails['otp'] ?? null;
+        $otpExpiryDate      = $otpDetails['otp_expiry_date'] ?? '';
+        $failedOtpAttempts  = $otpDetails['failed_otp_attempts'] ?? '';        
 
         if ($isActive === 'No') {
             $this->systemHelper->sendErrorResponse(
@@ -336,8 +336,7 @@ class AuthenticationController
     
         if (!Security::verifyToken($otpVerificationCode, $otp) || empty($otp)) {
             if ($failedOtpAttempts >= MAX_FAILED_OTP_ATTEMPTS) {
-                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 year'));
-                $this->authentication->updateOTPAsExpired($userAccountId, $otpExpiryDate);
+                $this->authentication->updateOTPAsExpired($userAccountId);
 
                 $this->systemHelper->sendErrorResponse(
                     'Invalid OTP Code',
@@ -353,7 +352,7 @@ class AuthenticationController
             );
         }
 
-        $this->authentication->updateOTPAsExpired($userAccountId, $otpExpiryDate);
+        $this->authentication->updateOTPAsExpired($userAccountId);
 
         // Generate and save session token
         $sessionToken   = $this->security::generateToken(6);
@@ -369,7 +368,7 @@ class AuthenticationController
         $this->systemHelper->sendSuccessResponse(
             '',
             '',
-            additionalData: ['redirect_link' => 'app.php']
+            additionalData: ['redirect_link' => 'apps.php']
         );
     }
     
@@ -452,9 +451,66 @@ class AuthenticationController
             );
         }
     }
+
+    # -------------------------------------------------------------
+    #   Password Reset
+    # -------------------------------------------------------------
+
+    public function passwordReset() {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        // Validate CSRF Token
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'password_reset_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $userAccountId   = $_POST['user_account_id'] ?? '';
+        $newPassword     = password_hash($_POST['new_password'] ?? '', PASSWORD_BCRYPT);
+
+        $checkLoginCredentialsExist = $this->authentication->checkLoginCredentialsExist($userAccountId);
+        $total = $checkLoginCredentialsExist['total'] ?? 0;
+    
+        if ($total === 0) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Credentials',
+                'Invalid credentials. Please check and try again.'
+            );
+        }
+
+        $credentials           = $this->authentication->fetchLoginCredentials($userAccountId);
+        $isActive              = $credentials['active'] ?? 'No';
+
+        if ($isActive === 'No') {
+            $this->systemHelper->sendErrorResponse(
+                'Account Inactive', 
+                'Your account is inactive. Please contact your administrator for assistance.'
+            );
+        }
+
+        $resetTokenDetails = $this->authentication->fetchResetToken($userAccountId);
+        $resetTokenExpiryDate = $resetTokenDetails['reset_token_expiry_date'] ?? null;
+
+        if(strtotime(date('Y-m-d H:i:s')) > strtotime($resetTokenExpiryDate)){
+            $this->systemHelper->sendErrorResponse(
+                'Password Reset Token Expired', 
+                'The password reset token has expired. Please request a new link to reset your password.'
+            );
+        }
+
+        $this->authentication->updateUserPassword($userAccountId, $newPassword);
+        $this->authentication->updateResetTokenAsExpired($userAccountId);
+
+        $this->systemHelper->sendSuccessResponse(
+                'Password Reset Success',
+                'Your password has been successfully updated. For security reasons, please use your new password to log in.',
+             ['redirect_link' => 'index.php']);
+    }
     
     # -------------------------------------------------------------
-    #   Resend Authentication
+    #   Resend OTP
     # -------------------------------------------------------------
 
     /**
