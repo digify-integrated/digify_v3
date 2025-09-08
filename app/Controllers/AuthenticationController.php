@@ -201,7 +201,7 @@ class AuthenticationController
 
         // Store in session
         $_SESSION['user_account_id'] = $userAccountId;
-        $_SESSION['session_token']   = $sessionHash;
+        $_SESSION['session_token']   = $sessionToken;
 
         $this->systemHelper->sendSuccessResponse(
             '',
@@ -225,12 +225,12 @@ class AuthenticationController
      * - On success, responds with a redirect link for verification.
      * - On failure, responds with an error message.
      *
-     * @param string $userAccountId  The user ID.
+     * @param int $userAccountId     The user ID.
      * @param string $email          The user's email address.
      *
      * @return void
      */
-    private function handleTwoFactorAuth(string $userAccountId, string $email): void
+    private function handleTwoFactorAuth(int $userAccountId, string $email): void
     {
         // Encrypt user account ID for secure redirect link
         $encryptedUserAccountID = $this->security::encryptData($userAccountId);
@@ -262,6 +262,8 @@ class AuthenticationController
 
         // Handle result and respond with redirect or error
         if ($result) {
+            $_SESSION['2fa_user_account_id'] = $userAccountId;
+
             $this->systemHelper->sendSuccessResponse(
                 'OTP Sent',
                 'A one-time password has been sent to your registered email address.',
@@ -363,7 +365,9 @@ class AuthenticationController
 
         // Store in session
         $_SESSION['user_account_id'] = $userAccountId;
-        $_SESSION['session_token']   = $sessionHash;
+        $_SESSION['session_token']   = $sessionToken;
+
+        unset($_SESSION['2fa_user_account_id']);
 
         $this->systemHelper->sendSuccessResponse(
             '',

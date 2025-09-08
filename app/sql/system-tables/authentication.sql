@@ -1,17 +1,35 @@
 /* ====================================================================================================
-   AUTHENTICATION & SECURITY TABLES
+   TABLE: audit_log
    ----------------------------------------------------------------------------------------------------
-   Defines core database tables to support authentication and security features:
-     • login_attempts   → Tracks login activity (success/failure, IPs) for auditing & rate limiting
-     • reset_token      → Stores temporary password reset tokens
-     • otp              → Handles one-time passwords (OTPs) for MFA
-     • sessions         → Manages user session tokens
+   Purpose:
+     Tracks changes made to database records for auditing, accountability, and debugging.
 
-   Notes:
-     - All tables link to `user_account` via foreign keys (direct or through last_log_by).
-     - Indexing is optimized for common queries (lookups, validation, rate-limiting).
-     - `created_date` and `last_updated` provide auditing capability.
+   Key Columns:
+     - audit_log_id  : Primary key, unique identifier for each audit log entry
+     - table_name    : Name of the table where the change occurred
+     - reference_id  : Primary key value of the affected record in the referenced table
+     - log           : Description/details of the change (JSON, text, or diff)
+     - changed_by    : User ID of the account that performed the change (FK → user_account.user_account_id)
+     - changed_at    : Timestamp of when the change was applied
 ==================================================================================================== */
+
+DROP TABLE IF EXISTS audit_log;
+
+CREATE TABLE audit_log (
+    audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    table_name VARCHAR(100) NOT NULL,
+    reference_id INT NOT NULL,
+    log TEXT NOT NULL,
+    changed_by INT UNSIGNED DEFAULT 1,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (changed_by) REFERENCES user_account(user_account_id)
+);
+
+-- Indexes for frequent queries
+CREATE INDEX idx_audit_log_table_name ON audit_log(table_name);
+CREATE INDEX idx_audit_log_reference_id ON audit_log(reference_id);
+CREATE INDEX idx_audit_log_changed_by ON audit_log(changed_by);
 
 
 /* ====================================================================================================
@@ -22,7 +40,9 @@
 
    Key Columns:
      - user_account_id : Optional link to user (nullable for unknown/failed attempts)
+     - email           : Email address used in the attempt
      - ip_address      : Source IP of attempt
+     - attempt_time    : Timestamp of the attempt
      - success         : 1 = success, 0 = failure
 ==================================================================================================== */
 

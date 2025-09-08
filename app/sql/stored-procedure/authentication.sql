@@ -115,8 +115,6 @@ BEGIN
 
     START TRANSACTION;
 
-    SET time_zone = '+08:00';
-
     INSERT INTO login_attempts (user_account_id, email, ip_address, success)
     VALUES (p_user_account_id, p_email, p_ip_address, p_success);
 
@@ -138,7 +136,7 @@ END //
    SECTION 3: UPDATE PROCEDURES
    ---------------------------------------------------------------------------------------------
    Update OTP attempts, reset tokens, and user passwords.
-============================================================================================= */
+=============================================================================================  */
 
 DROP PROCEDURE IF EXISTS updateFailedOTPAttempts//
 CREATE PROCEDURE updateFailedOTPAttempts(
@@ -258,6 +256,17 @@ BEGIN
     SELECT reset_token,
            reset_token_expiry_date
     FROM reset_token
+    WHERE user_account_id = p_user_account_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchSession//
+CREATE PROCEDURE fetchSession(
+    IN p_user_account_id INT
+)
+BEGIN
+    SELECT session_token
+    FROM sessions
     WHERE user_account_id = p_user_account_id
     LIMIT 1;
 END //

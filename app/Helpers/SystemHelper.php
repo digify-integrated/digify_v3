@@ -189,15 +189,26 @@ class SystemHelper
      * @param string      $type
      * @return string Image path
      */
-    public static function checkImage(?string $image, string $type): string
+    public static function checkImageExist(?string $image, string $type): string
     {
-        $image = $image ?? '';
-        $imagePath = str_replace('./apps/', '../../../../apps/', $image);
+        if (empty($image)) {
+            return self::getDefaultImage($type);
+        }
 
-        return (empty($image) || (!file_exists($imagePath) && !file_exists($image)))
-            ? self::getDefaultImage($type)
-            : $image;
+        // Normalize path (remove leading "./" if present)
+        $normalizedPath = ltrim($image, './');
+
+        // Build filesystem path relative to project root
+        $filePath = __DIR__ . '/../../' . $normalizedPath;
+
+        if (file_exists($filePath)) {
+            // Return the web-accessible path (not filesystem path)
+            return $normalizedPath;
+        }
+
+        return self::getDefaultImage($type);
     }
+
 
     /**
      * Map file extension to icon.

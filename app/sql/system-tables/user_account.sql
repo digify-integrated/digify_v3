@@ -23,7 +23,7 @@ CREATE TABLE user_account (
     profile_picture VARCHAR(500),                            -- Path or URL to profile picture
     active VARCHAR(5) DEFAULT 'No',                          -- Account status (Yes/No)
     two_factor_auth VARCHAR(5) DEFAULT 'Yes',                -- 2FA status (Yes/No)
-    multiple_session VARCHAR(10) DEFAULT 'Yes',              -- Allow multiple concurrent sessions (Yes/No)
+    multiple_session VARCHAR(5) DEFAULT 'No',               -- Allow multiple concurrent sessions (Yes/No)
     last_connection_date DATETIME,                           -- Last successful login
     last_failed_connection_date DATETIME,                    -- Last failed login attempt
     last_password_change DATETIME,                           -- Last password change timestamp

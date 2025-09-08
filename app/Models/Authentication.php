@@ -58,6 +58,20 @@ class Authentication extends Model {
     }
 
     /**
+     * Fetch session for a user by user account ID.
+     *
+     * @param int $p_user_account_id User account ID
+     * @return array|null User account row or null if not found
+     */
+    public function fetchSession($p_user_account_id) {
+        $sql = 'CALL fetchSession(:p_user_account_id)';
+
+        return $this->fetch($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    /**
      * Fetch password history for a given user account.
      *
      * @param int $p_user_account_id User account ID

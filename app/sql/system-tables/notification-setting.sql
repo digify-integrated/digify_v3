@@ -1,24 +1,4 @@
 /* ====================================================================================================
-   NOTIFICATION SETTINGS & TEMPLATES
-   ----------------------------------------------------------------------------------------------------
-   Purpose:
-     Defines configurable notification channels (system, email, SMS) and their templates for delivering
-     consistent messages. Supports placeholders for dynamic values.
-
-   Core Tables:
-     • notification_setting                 → Channel flags (system/email/SMS) per notification type
-     • notification_setting_email_template  → Email subject/body templates
-     • notification_setting_system_template → In-app (system) notification templates
-     • notification_setting_sms_template    → SMS message templates
-
-   Notes:
-     - All templates reference `notification_setting` for configuration.
-     - Templates support dynamic placeholders (e.g., #{OTP_CODE}, #{RESET_LINK}).
-     - Foreign keys ensure referential integrity with `user_account`.
-==================================================================================================== */
-
-
-/* ====================================================================================================
    TABLE: notification_setting
    ----------------------------------------------------------------------------------------------------
    Purpose:

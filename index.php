@@ -2,6 +2,8 @@
     require_once './config/config.php';
     require_once './config/session-check.php';
 
+    unset($_SESSION['2fa_user_account_id']);
+
     use App\Core\Security;
 
     $pageTitle = APP_NAME;
@@ -24,7 +26,7 @@
     <div class="d-flex flex-column flex-lg-row flex-column-fluid">
         <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
             <div class="d-flex flex-center flex-column flex-lg-row-fluid">
-                <div class="w-lg-700px p-10">
+                <div class="w-lg-600px p-10">
                     <form class="form w-100" id="login_form" method="post" action="#">
                         <?= Security::csrfInput('login_form'); ?>
                         <img src="./assets/images/logos/logo-dark.svg" class="mb-5" alt="Logo-Dark" />

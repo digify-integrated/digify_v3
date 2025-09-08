@@ -1,0 +1,68 @@
+<?php
+    require_once './app/Views/Partials/required_files.php';
+
+    $pageTitle = 'Apps';
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php 
+        require_once './app/Views/Partials/head-meta-tags.php'; 
+        require_once './app/Views/Partials/head-stylesheet.php';
+    ?>
+</head>
+
+<?php require_once './app/Views/Partials/theme-script.php'; ?>
+
+<body id="kt_body" class="app-blank bgi-size-cover bgi-attachment-fixed bgi-position-center bgi-no-repeat" data-kt-app-page-loading-enabled="true" data-kt-app-page-loading="on">
+    <?php require_once './app/Views/Partials/preloader.php'; ?>
+
+    <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+        <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+            <?php 
+                require_once('./app/Views/Partials/header.php');
+            ?>
+            <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+                <div id="kt_app_toolbar" class="app-toolbar py-6">
+                    <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex align-items-start">
+                        <div class="d-flex flex-column flex-row-fluid">
+                            <div class="d-flex flex-stack flex-wrap flex-lg-nowrap gap-4 gap-lg-10 pt-8 pb-6 mb-lg-0 mb-8">
+                                <div class="page-title me-5">
+                                    <h1 class="page-heading d-flex text-white fw-bold fs-2 flex-column justify-content-center my-0">
+                                        <?php echo $pageTitle; ?>
+                                    </h1>
+                                </div>
+                                <div class="d-flex align-self-center flex-center flex-shrink-0">
+                                    <a href="app-installer.php" class="btn btn-flex btn-sm btn-outline btn-active-color-primary btn-custom px-4">
+                                        <i class="ki-outline ki-plus-square fs-4 me-2"></i> Install Apps
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-container container-xxl">
+                    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+                        <div class="d-flex flex-column flex-column-fluid">
+                            <div id="kt_app_content" class="app-content flex-column-fluid">
+                                <div class="row g-5 g-xl-8">
+                                    <div class="col-xl-12">
+                                        <div class="row mb-5 mb-xl-8 g-5 g-xl-8">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php 
+        require_once './app/Views/Partials/error-modal.php';
+        require_once './app/Views/Partials/required-js.php';        
+    ?>
+</body>
+</html>
