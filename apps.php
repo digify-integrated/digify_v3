@@ -1,5 +1,7 @@
 <?php
     require_once './app/Views/Partials/required-files.php';
+    
+    use App\Helpers\SystemHelper;
 
     $pageTitle = 'Apps';
 ?>
@@ -53,13 +55,13 @@
                                                 $apps = '';
                                                     
                                                 $appModules = $authentication->fetchAppModuleStack($userID);
-                                                
+
                                                 foreach ($appModules as $row) {
                                                     $appModuleID = $row['app_module_id'];
                                                     $appModuleName = $row['app_module_name'];
                                                     $appModuleDescription = $row['app_module_description'];
                                                     $menuItemID = $row['menu_item_id'];
-                                                    $appLogo = SystemHelper::checkImage($row['app_logo'], 'app module logo');
+                                                    $appLogo = SystemHelper::checkImageExist($row['app_logo'], 'app module logo');
 
                                                     $menuItemDetails = $menuItemModel->fetchMenuItem($menuItemID);
                                                     $menuItemURL = $menuItemDetails['menu_item_url'] ?? null;

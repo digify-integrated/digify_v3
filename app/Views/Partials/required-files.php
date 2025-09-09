@@ -1,7 +1,7 @@
 <?php
 
-require_once './config/session.php';
 require_once './config/config.php';
+require_once './config/session.php';
 
 use App\Core\Security;
 use App\Models\Authentication;

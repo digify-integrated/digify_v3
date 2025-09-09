@@ -1,39 +1,4 @@
 /* =============================================================================================
-  TABLE: AUDIT LOG
-============================================================================================= */
-
-DROP TABLE IF EXISTS audit_log;
-
-CREATE TABLE audit_log (
-    audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    table_name VARCHAR(100) NOT NULL,
-    reference_id INT NOT NULL,
-    log TEXT NOT NULL,
-    changed_by INT UNSIGNED DEFAULT 1,
-    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (changed_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: AUDIT LOG
-============================================================================================= */
-
-CREATE INDEX idx_audit_log_table_name ON audit_log(table_name);
-CREATE INDEX idx_audit_log_reference_id ON audit_log(reference_id);
-CREATE INDEX idx_audit_log_changed_by ON audit_log(changed_by);
-
-/* =============================================================================================
-  INITIAL VALUES: AUDIT LOG
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
   TABLE: USER ACCOUNT
 ============================================================================================= */
 
@@ -85,6 +50,41 @@ INSERT INTO user_account (
     'Yes',
     'No'
 );
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: AUDIT LOG
+============================================================================================= */
+
+DROP TABLE IF EXISTS audit_log;
+
+CREATE TABLE audit_log (
+    audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    table_name VARCHAR(100) NOT NULL,
+    reference_id INT NOT NULL,
+    log TEXT NOT NULL,
+    changed_by INT UNSIGNED DEFAULT 1,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (changed_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: AUDIT LOG
+============================================================================================= */
+
+CREATE INDEX idx_audit_log_table_name ON audit_log(table_name);
+CREATE INDEX idx_audit_log_reference_id ON audit_log(reference_id);
+CREATE INDEX idx_audit_log_changed_by ON audit_log(changed_by);
+
+/* =============================================================================================
+  INITIAL VALUES: AUDIT LOG
+============================================================================================= */
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -294,7 +294,6 @@ CREATE TABLE notification_setting_email_template (
 ============================================================================================= */
 
 CREATE INDEX idx_notification_email_setting_id ON notification_setting_email_template(notification_setting_id);
-CREATE INDEX idx_notification_email_setting_id ON notification_setting_email_template(email_setting_id);
 
 /* =============================================================================================
   INITIAL VALUES: NOTIFICATION SETTING EMAIL TEMPLATE
@@ -541,7 +540,7 @@ CREATE INDEX idx_role_user_account_role_id ON role_user_account(role_id);
   INITIAL VALUES: ROLE USER ACCOUNT
 ============================================================================================= */
 
-INSERT INTO role_user_account (role_id, role_name, user_account_id, file_as, last_log_by) VALUES (1, 'Super Admin', 2, 'Lawrence Agulto', 1);
+INSERT INTO role_user_account (role_id, role_name, user_account_id, file_as, last_log_by) VALUES (1, 'Super Admin', 1, 'Lawrence Agulto', 1);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
