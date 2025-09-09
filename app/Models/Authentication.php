@@ -72,13 +72,13 @@ class Authentication extends Model {
     }
 
     /**
-     * Fetch password history for a given user account.
+     * Fetch module stack for a given user account.
      *
      * @param int $p_user_account_id User account ID
-     * @return array List of password history records
+     * @return array List of app modules
      */
-    public function fetchPasswordHistory($p_user_account_id) {
-        $sql = 'CALL fetchPasswordHistory(:p_user_account_id)';
+    public function fetchAppModuleStack($p_user_account_id) {
+        $sql = 'CALL fetchAppModuleStack(:p_user_account_id)';
         
         return $this->fetchAll($sql, [
             'p_user_account_id' => $p_user_account_id
