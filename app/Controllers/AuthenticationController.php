@@ -29,7 +29,6 @@ require_once '../../config/config.php';
 class AuthenticationController
 {
     protected Authentication $authentication;
-    protected SecuritySetting $securitySetting;
     protected NotificationSetting $notificationSetting;
     protected Notification $notification;
     protected Security $security;
@@ -39,7 +38,6 @@ class AuthenticationController
      * AuthenticationController constructor.
      *
      * @param Authentication      $authentication       Handles DB operations for login, OTP, and sessions.
-     * @param SecuritySetting     $securitySetting      Provides security-related configuration.
      * @param NotificationSetting $notificationSetting  Provides templates and settings for notifications.
      * @param Notification        $notification         Sends the notifications.
      * @param Security            $security             Provides cryptographic utilities (hash, encrypt, tokens).
@@ -47,14 +45,12 @@ class AuthenticationController
      */
     public function __construct(
         Authentication $authentication,
-        SecuritySetting $securitySetting,
         NotificationSetting $notificationSetting,
         Notification $notification,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->authentication       = $authentication;
-        $this->securitySetting      = $securitySetting;
         $this->notificationSetting  = $notificationSetting;
         $this->notification         = $notification;
         $this->security             = $security;
@@ -615,7 +611,6 @@ class AuthenticationController
 # Bootstrap the controller
 $controller = new AuthenticationController(
     new Authentication(),
-    new SecuritySetting(),
     new NotificationSetting(),
     new Notification(new NotificationSetting(), new EmailService(), new SmsService(), new SystemNotificationService()),
     new Security(),

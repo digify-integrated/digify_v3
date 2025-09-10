@@ -1,7 +1,5 @@
 <?php
     require_once './app/Views/Partials/required-files.php';
-    
-    use App\Helpers\SystemHelper;
 
     $pageTitle = 'Apps';
 ?>
@@ -61,13 +59,13 @@
                                                     $appModuleName = $row['app_module_name'];
                                                     $appModuleDescription = $row['app_module_description'];
                                                     $menuItemID = $row['menu_item_id'];
-                                                    $appLogo = SystemHelper::checkImageExist($row['app_logo'], 'app module logo');
+                                                    $appLogo = $systemHelper->checkImageExist($row['app_logo'], 'app module logo');
 
-                                                    $menuItemDetails = $menuItemModel->fetchMenuItem($menuItemID);
+                                                    $menuItemDetails = $menuItem->fetchMenuItem($menuItemID);
                                                     $menuItemURL = $menuItemDetails['menu_item_url'] ?? null;
                                                         
                                                     $apps .= ' <div class="col-lg-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="'. $appModuleDescription .'">
-                                                                    <a class="card d-flex justify-content-between flex-column flex-center w-100 text-gray-800 p-10 text-center" href="'. $menuItemURL .'?app_module_id='. Security::encryptData($appModuleID) .'&page_id='. Security::encryptData($menuItemID) .'">
+                                                                    <a class="card d-flex justify-content-between flex-column flex-center w-100 text-gray-800 p-10 text-center" href="'. $menuItemURL .'?app_module_id='. $security->encryptData($appModuleID) .'&page_id='. $security->encryptData($menuItemID) .'">
                                                                         <img src="'. $appLogo .'" alt="app-logo" class="img-fluid position-relative mb-5" width="75" height="75">
                                                                         <span class="fs-2 fw-bold">'. $appModuleName .'</span>
                                                                     </a>

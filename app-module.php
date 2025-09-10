@@ -34,16 +34,16 @@
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
                                     if($newRecord){
-                                        require_once('./app/Views/Page/app-module/app-module-new.php');
+                                        require_once('./app/Views/Page/app-module/new.php');
                                     }
                                     else if(!empty($detailID)){
-                                        require_once('./app/Views/Page/app-module/app-module-details.php');
+                                        require_once('./app/Views/Page/app-module/details.php');
                                     }
                                     else if(isset($_GET['import']) && !empty($_GET['import'])){
                                         require_once('./app/Views/import/import.php');
                                     }
                                     else{
-                                        require_once('./app/Views/Page/app-module/app-module.php');
+                                        require_once('./app/Views/Page/app-module/index.php');
                                     }
                                 ?>
                             </div>
@@ -61,20 +61,20 @@
 
     <?php
         $version = rand();
-        $scriptFile = './apps/settings/app-module/js/app-module.js';
+        $scriptFile = './assets/js/page/app-module/index.js';
 
         if ($newRecord) {
-            $scriptFile = './apps/settings/app-module/js/app-module-new.js';
+            $scriptFile = './assets/js/page/app-module/new.js';
         }
         elseif (!empty($detailID)) {
-            $scriptFile = './apps/settings/app-module/js/app-module-details.js';
+            $scriptFile = './assets/js/page/app-module/details.js';
         }
         elseif (isset($_GET['import']) && !empty($_GET['import'])) {
-            $scriptFile = './components/js/import.js'; 
+            $scriptFile = './components/import.js'; 
         }
     ?>
     
-    <script src="<?= $scriptFile ?>?v=<?= $version ?>"></script>
+    <script type="module" src="<?= $scriptFile ?>?v=<?= $version ?>"></script>
 
 </body>
 </html>

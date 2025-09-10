@@ -16,20 +16,31 @@ CREATE PROCEDURE saveResetToken(
     IN p_reset_token_expiry_date DATETIME
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
-    IF EXISTS (SELECT 1 FROM reset_token WHERE user_account_id = p_user_account_id) THEN
-        UPDATE reset_token
-        SET reset_token = p_reset_token,
-            reset_token_expiry_date = p_reset_token_expiry_date
-        WHERE user_account_id = p_user_account_id;
-    ELSE
-        INSERT INTO reset_token (user_account_id, reset_token, reset_token_expiry_date)
-        VALUES (p_user_account_id, p_reset_token, p_reset_token_expiry_date);
-    END IF;
+    UPDATE reset_token
+    SET reset_token                 = p_reset_token,
+        reset_token_expiry_date     = p_reset_token_expiry_date
+    WHERE user_account_id           = p_user_account_id;
 
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO reset_token (
+            user_account_id,
+            reset_token,
+            reset_token_expiry_date
+        )
+        VALUES (
+            p_user_account_id,
+            p_reset_token,
+            p_reset_token_expiry_date
+        );
+    END IF;
+    
     COMMIT;
 END //
 
@@ -41,17 +52,26 @@ CREATE PROCEDURE saveSession(
     IN p_session_token VARCHAR(255)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
-    IF EXISTS (SELECT 1 FROM sessions WHERE user_account_id = p_user_account_id) THEN
-        UPDATE sessions
-        SET session_token = p_session_token
-        WHERE user_account_id = p_user_account_id;
-    ELSE
-        INSERT INTO sessions (user_account_id, session_token)
-        VALUES (p_user_account_id, p_session_token);
+    UPDATE sessions
+    SET session_token       = p_session_token
+    WHERE user_account_id   = p_user_account_id;
+
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO sessions (
+            user_account_id,
+            session_token
+        )
+        VALUES (
+            p_user_account_id,
+            p_session_token
+        );
     END IF;
 
     COMMIT;
@@ -66,18 +86,28 @@ CREATE PROCEDURE saveOTP(
     IN p_otp_expiry_date DATETIME
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
-    IF EXISTS (SELECT 1 FROM otp WHERE user_account_id = p_user_account_id) THEN
-        UPDATE otp
-        SET otp = p_otp,
-            otp_expiry_date = p_otp_expiry_date
-        WHERE user_account_id = p_user_account_id;
-    ELSE
-        INSERT INTO otp (user_account_id, otp, otp_expiry_date)
-        VALUES (p_user_account_id, p_otp, p_otp_expiry_date);
+    UPDATE otp
+    SET otp                 = p_otp,
+        otp_expiry_date     = p_otp_expiry_date
+    WHERE user_account_id   = p_user_account_id;
+
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO otp (
+            user_account_id,
+            otp,
+            otp_expiry_date
+        )
+        VALUES (
+            p_user_account_id,
+            p_otp, p_otp_expiry_date
+        );
     END IF;
 
     COMMIT;
@@ -97,22 +127,35 @@ CREATE PROCEDURE insertLoginAttempt(
     IN p_success TINYINT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
     DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
 
     START TRANSACTION;
 
-    INSERT INTO login_attempts (user_account_id, email, ip_address, success)
-    VALUES (p_user_account_id, p_email, p_ip_address, p_success);
+    INSERT INTO login_attempts (
+        user_account_id,
+        email,
+        ip_address,
+        success
+    )
+    VALUES (
+        p_user_account_id,
+        p_email,
+        p_ip_address,
+        p_success
+    );
 
     IF p_success = 1 THEN
         UPDATE user_account 
-        SET last_connection_date = NOW()
-        WHERE user_account_id = p_user_account_id;
+        SET last_connection_date    = NOW()
+        WHERE user_account_id       = p_user_account_id;
     ELSE
         UPDATE user_account 
-        SET last_failed_connection_date = NOW()
-        WHERE user_account_id = p_user_account_id;
+        SET last_failed_connection_date     = NOW()
+        WHERE user_account_id               = p_user_account_id;
     END IF;
 
     COMMIT;
@@ -130,13 +173,16 @@ CREATE PROCEDURE updateFailedOTPAttempts(
     IN p_failed_otp_attempts TINYINT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
     UPDATE otp
-    SET failed_otp_attempts = p_failed_otp_attempts
-    WHERE user_account_id = p_user_account_id;
+    SET failed_otp_attempts     = p_failed_otp_attempts
+    WHERE user_account_id       = p_user_account_id;
 
     COMMIT;
 END //
@@ -148,13 +194,16 @@ CREATE PROCEDURE updateResetTokenAsExpired(
     IN p_user_account_id INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
     UPDATE reset_token
-    SET reset_token_expiry_date = NOW()
-    WHERE user_account_id = p_user_account_id;
+    SET reset_token_expiry_date     = NOW()
+    WHERE user_account_id           = p_user_account_id;
 
     COMMIT;
 END //
@@ -167,14 +216,17 @@ CREATE PROCEDURE updateUserPassword(
     IN p_password VARCHAR(255)
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
     UPDATE user_account
-    SET password             = p_password,
-        last_log_by          = p_user_account_id
-    WHERE user_account_id = p_user_account_id;
+    SET password                = p_password,
+        last_log_by             = p_user_account_id
+    WHERE user_account_id       = p_user_account_id;
 
     COMMIT;
 END //
@@ -193,8 +245,8 @@ BEGIN
     START TRANSACTION;
 
     UPDATE otp
-    SET otp_expiry_date = NOW()
-    WHERE user_account_id = p_user_account_id;
+    SET otp_expiry_date     = NOW()
+    WHERE user_account_id   = p_user_account_id;
 
     COMMIT;
 END //
@@ -320,7 +372,7 @@ DROP PROCEDURE IF EXISTS checkUserPermission//
 CREATE PROCEDURE checkUserPermission(
     IN p_user_account_id INT,
     IN p_menu_item_id INT,
-    IN p_access_type VARCHAR(10)
+    IN p_access_type VARCHAR(20)
 )
 BEGIN
     DECLARE v_total INT;
@@ -331,13 +383,13 @@ BEGIN
     WHERE rua.user_account_id = p_user_account_id
       AND rp.menu_item_id = p_menu_item_id
       AND (
-            (p_access_type = 'read'   AND rp.read_access   = 1) OR
-            (p_access_type = 'write'  AND rp.write_access  = 1) OR
-            (p_access_type = 'create' AND rp.create_access = 1) OR
-            (p_access_type = 'delete' AND rp.delete_access = 1) OR
-            (p_access_type = 'import' AND rp.import_access = 1) OR
-            (p_access_type = 'export' AND rp.export_access = 1) OR
-            (p_access_type = 'log'    AND rp.log_notes_access = 1)
+            (p_access_type = 'read'      AND rp.read_access   = 1) OR
+            (p_access_type = 'write'     AND rp.write_access  = 1) OR
+            (p_access_type = 'create'    AND rp.create_access = 1) OR
+            (p_access_type = 'delete'    AND rp.delete_access = 1) OR
+            (p_access_type = 'import'    AND rp.import_access = 1) OR
+            (p_access_type = 'export'    AND rp.export_access = 1) OR
+            (p_access_type = 'log notes' AND rp.log_notes_access = 1)
         );
 
     SELECT v_total AS total;
@@ -388,8 +440,7 @@ CREATE PROCEDURE insertUserAccount(
     IN p_email VARCHAR(255), 
     IN p_password VARCHAR(255),
     IN p_phone VARCHAR(50), 
-    IN p_last_log_by INT, 
-    OUT p_new_user_account_id INT
+    IN p_last_log_by INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -399,12 +450,24 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO user_account (file_as, email, password, phone, last_log_by) 
-    VALUES(p_file_as, p_email, p_password, p_phone, p_last_log_by);
-        
-    SET p_new_user_account_id = LAST_INSERT_ID();
+    INSERT INTO user_account (
+        file_as,
+        email,
+        password,
+        phone,
+        last_log_by
+    ) 
+    VALUES(
+        p_file_as,
+        p_email,
+        p_password,
+        p_phone,
+        p_last_log_by
+    );
 
     COMMIT;
+
+    SELECT LAST_INSERT_ID() AS new_user_account_id;
 END //
 
 /* =============================================================================================
@@ -427,9 +490,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE user_account
-    SET file_as = p_file_as,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET file_as             = p_file_as,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 
     COMMIT;
 END //
@@ -450,9 +513,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE user_account
-    SET email = p_email,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET email               = p_email,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 
     COMMIT;
 END //
@@ -473,9 +536,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE user_account
-    SET phone = p_phone,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET phone               = p_phone,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 
     COMMIT;
 END //
@@ -496,9 +559,10 @@ BEGIN
     START TRANSACTION;
 
     UPDATE user_account
-    SET password = p_password,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET password                = p_password,
+        last_password_change    = NOW(),
+        last_log_by             = p_last_log_by
+    WHERE user_account_id       = p_user_account_id;
 
     COMMIT;
 END //
@@ -519,9 +583,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE user_account
-    SET profile_picture = p_profile_picture,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET profile_picture     = p_profile_picture,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 
     COMMIT;
 END //
@@ -535,22 +599,23 @@ CREATE PROCEDURE updateTwoFactorAuthenticationStatus(
 )
 BEGIN
     UPDATE user_account
-    SET two_factor_auth = p_two_factor_auth,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET two_factor_auth     = p_two_factor_auth,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 END //
 
 DROP PROCEDURE IF EXISTS updateMultipleLoginSessionsStatus//
 
-CREATE PROCEDURE updateMultipleLoginSessionsStatus(IN p_user_account_id INT,
+CREATE PROCEDURE updateMultipleLoginSessionsStatus(
+    IN p_user_account_id INT,
     IN p_multiple_session VARCHAR(5),
     IN p_last_log_by INT
 )
 BEGIN
     UPDATE user_account
-    SET multiple_session = p_multiple_session,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET multiple_session    = p_multiple_session,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 END //
 
 DROP PROCEDURE IF EXISTS updateUserAccountStatus//
@@ -562,9 +627,9 @@ CREATE PROCEDURE updateUserAccountStatus(
 )
 BEGIN
     UPDATE user_account
-    SET active = p_active,
-        last_log_by = p_last_log_by
-    WHERE user_account_id = p_user_account_id;
+    SET active              = p_active,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
 END //
 
 /* =============================================================================================
@@ -599,7 +664,8 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM user_account WHERE user_account_id = p_user_account_id;
+    DELETE FROM user_account
+    WHERE user_account_id = p_user_account_id;
 
     COMMIT;
 END //
@@ -686,17 +752,25 @@ CREATE PROCEDURE saveNotificationSetting(
     IN  p_notification_setting_id INT, 
     IN  p_notification_setting_name VARCHAR(100), 
     IN  p_notification_setting_description VARCHAR(200),
-    IN  p_last_log_by INT, 
-    OUT p_new_notification_setting_id INT
+    IN  p_last_log_by INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE v_new_notification_setting_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
-    IF p_notification_setting_id IS NULL 
-       OR NOT EXISTS (SELECT 1 FROM notification_setting WHERE notification_setting_id = p_notification_setting_id) THEN
-        
+    UPDATE notification_setting
+    SET notification_setting_name           = p_notification_setting_name,
+        notification_setting_description    = p_notification_setting_description,
+        last_log_by                         = p_last_log_by
+    WHERE notification_setting_id           = p_notification_setting_id;
+    
+    IF ROW_COUNT() = 0 THEN
         INSERT INTO notification_setting (
             notification_setting_name, 
             notification_setting_description, 
@@ -706,20 +780,15 @@ BEGIN
             p_notification_setting_description, 
             p_last_log_by
         );
-        
-        SET p_new_notification_setting_id = LAST_INSERT_ID();
 
+        SET v_new_notification_setting_id = LAST_INSERT_ID();
     ELSE
-        UPDATE notification_setting
-        SET notification_setting_name        = p_notification_setting_name,
-            notification_setting_description = p_notification_setting_description,
-            last_log_by                      = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
-
-        SET p_new_notification_setting_id = p_notification_setting_id;
+        SET v_new_notification_setting_id = p_notification_setting_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_notification_setting_id AS new_notification_setting_id;
 END //
 
 DROP PROCEDURE IF EXISTS saveSystemNotificationTemplate//
@@ -731,7 +800,10 @@ CREATE PROCEDURE saveSystemNotificationTemplate(
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
@@ -772,7 +844,10 @@ CREATE PROCEDURE saveEmailNotificationTemplate(
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
@@ -816,7 +891,10 @@ CREATE PROCEDURE saveSMSNotificationTemplate(
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
@@ -860,27 +938,30 @@ CREATE PROCEDURE updateNotificationChannel(
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
     IF p_notification_channel = 'system' THEN
         UPDATE notification_setting
-        SET system_notification = p_notification_channel_value,
-            last_log_by         = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET system_notification         = p_notification_channel_value,
+            last_log_by                 = p_last_log_by
+        WHERE notification_setting_id   = p_notification_setting_id;
 
     ELSEIF p_notification_channel = 'email' THEN
         UPDATE notification_setting
-        SET email_notification = p_notification_channel_value,
-            last_log_by        = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET email_notification          = p_notification_channel_value,
+            last_log_by                 = p_last_log_by
+        WHERE notification_setting_id   = p_notification_setting_id;
 
     ELSE
         UPDATE notification_setting
-        SET sms_notification = p_notification_channel_value,
-            last_log_by      = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET sms_notification            = p_notification_channel_value,
+            last_log_by                 = p_last_log_by
+        WHERE notification_setting_id   = p_notification_setting_id;
     END IF;
 
     COMMIT;
@@ -944,13 +1025,15 @@ CREATE PROCEDURE deleteNotificationSetting(
     IN p_notification_setting_id INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
     START TRANSACTION;
 
-    IF p_notification_setting_id IS NOT NULL AND EXISTS (SELECT 1 FROM notification_setting WHERE notification_setting_id = p_notification_setting_id) THEN
-        DELETE FROM notification_setting WHERE notification_setting_id = p_notification_setting_id;
-    END IF;  
+    DELETE FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id; 
    
     COMMIT;
 END //
@@ -1008,10 +1091,11 @@ CREATE PROCEDURE saveAppModule(
     IN p_menu_item_id INT, 
     IN p_menu_item_name VARCHAR(100), 
     IN p_order_sequence TINYINT(10), 
-    IN p_last_log_by INT, 
-    OUT p_new_app_module_id INT
+    IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_new_app_module_id INT;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -1019,25 +1103,40 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_app_module_id IS NULL OR NOT EXISTS (SELECT 1 FROM app_module WHERE app_module_id = p_app_module_id) THEN
-        INSERT INTO app_module (app_module_name, app_module_description, menu_item_id, menu_item_name, order_sequence, last_log_by) 
-        VALUES(p_app_module_name, p_app_module_description, p_menu_item_id, p_menu_item_name, p_order_sequence, p_last_log_by);
-        
-        SET p_new_app_module_id = LAST_INSERT_ID();
-    ELSE
-        UPDATE app_module
-        SET app_module_name = p_app_module_name,
-            app_module_description = p_app_module_description,
-            menu_item_id = p_menu_item_id,
-            menu_item_name = p_menu_item_name,
-            order_sequence = p_order_sequence,
-            last_log_by = p_last_log_by
-        WHERE app_module_id = p_app_module_id;
+    UPDATE app_module
+    SET app_module_name         = p_app_module_name,
+        app_module_description  = p_app_module_description,
+        menu_item_id            = p_menu_item_id,
+        menu_item_name          = p_menu_item_name,
+        order_sequence          = p_order_sequence,
+        last_log_by             = p_last_log_by
+    WHERE app_module_id         = p_app_module_id;
 
-        SET p_new_app_module_id = p_app_module_id;
+    IF ROW_COUNT() = 0 THEN
+       INSERT INTO app_module (
+            app_module_name,
+            app_module_description,
+            menu_item_id,
+            menu_item_name,
+            order_sequence,
+            last_log_by
+        ) 
+        VALUES(
+            p_app_module_name,
+            p_app_module_description,
+            p_menu_item_id, p_menu_item_name,
+            p_order_sequence,
+            p_last_log_by
+        );
+        
+        SET v_new_app_module_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_app_module_id = p_app_module_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_app_module_id AS new_app_module_id;
 END //
 
 /* =============================================================================================
@@ -1064,8 +1163,8 @@ BEGIN
     START TRANSACTION;
 
     UPDATE app_module
-    SET app_logo = p_app_logo,
-        last_log_by = p_last_log_by
+    SET app_logo        = p_app_logo,
+        last_log_by     = p_last_log_by
     WHERE app_module_id = p_app_module_id;
 
     COMMIT;
@@ -1103,9 +1202,8 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_app_module_id IS NULL OR NOT EXISTS (SELECT 1 FROM app_module WHERE app_module_id = p_app_module_id) THEN
-        DELETE FROM app_module WHERE app_module_id = p_app_module_id;
-    END IF;
+    DELETE FROM app_module
+    WHERE app_module_id = p_app_module_id;
 
     COMMIT;
 END //
@@ -1167,9 +1265,11 @@ CREATE PROCEDURE saveRole(
     IN p_role_id INT,
     IN p_role_name VARCHAR(100),
     IN p_role_description VARCHAR(200),
-    IN p_last_log_by INT,
-    OUT p_new_role_id INT)
+    IN p_last_log_by INT
+)
 BEGIN
+    DECLARE v_new_role_id INT;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -1177,23 +1277,33 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_role_id IS NULL OR NOT EXISTS (SELECT 1 FROM role WHERE role_id = p_role_id) THEN
-        INSERT INTO role (role_name, role_description, last_log_by) 
-	    VALUES(p_role_name, p_role_description, p_last_log_by);
-        
-        SET p_new_role_id = LAST_INSERT_ID();
-    ELSE
-        UPDATE role
-        SET role_name = p_role_name,
-        role_name = p_role_name,
-        role_description = p_role_description,
-        last_log_by = p_last_log_by
-        WHERE role_id = p_role_id;
+    UPDATE role
+    SET role_name           = p_role_name,
+        role_name           = p_role_name,
+        role_description    = p_role_description,
+        last_log_by         = p_last_log_by
+    WHERE role_id           = p_role_id;
 
-        SET p_new_role_id = p_role_id;
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO role (
+            role_name,
+            role_description,
+            last_log_by
+        ) 
+	    VALUES(
+            p_role_name,
+            p_role_description,
+            p_last_log_by
+        );
+        
+        SET v_new_role_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_role_id = p_role_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_role_id AS new_role_id;
 END //
 
 /* =============================================================================================
@@ -1217,8 +1327,20 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO role_permission (role_id, role_name, menu_item_id, menu_item_name, last_log_by) 
-	VALUES(p_role_id, p_role_name, p_menu_item_id, p_menu_item_name, p_last_log_by);
+    INSERT INTO role_permission (
+        role_id,
+        role_name,
+        menu_item_id,
+        menu_item_name,
+        last_log_by
+    ) 
+	VALUES(
+        p_role_id,
+        p_role_name,
+        p_menu_item_id,
+        p_menu_item_name,
+        p_last_log_by
+    );
 
     COMMIT;
 END //
@@ -1240,8 +1362,19 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO role_system_action_permission (role_id, role_name, system_action_id, system_action_name, last_log_by) 
-	VALUES(p_role_id, p_role_name, p_system_action_id, p_system_action_name, p_last_log_by);
+    INSERT INTO role_system_action_permission (
+        role_id,
+        role_name,
+        system_action_id,
+        system_action_name,
+        last_log_by
+    ) 
+	VALUES(
+        p_role_id, p_role_name,
+        p_system_action_id,
+        p_system_action_name,
+        p_last_log_by
+    );
 
     COMMIT;
 END //
@@ -1263,8 +1396,20 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO role_user_account (role_id, role_name, user_account_id, file_as, last_log_by) 
-	VALUES(p_role_id, p_role_name, p_user_account_id, p_file_as, p_last_log_by);
+    INSERT INTO role_user_account (
+        role_id,
+        role_name,
+        user_account_id,
+        file_as,
+        last_log_by
+    ) 
+	VALUES(
+        p_role_id,
+        p_role_name,
+        p_user_account_id,
+        p_file_as, 
+        p_last_log_by
+    );
 
     COMMIT;
 END //
@@ -1320,9 +1465,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE role_system_action_permission
-    SET system_action_access = p_system_action_access,
-        last_log_by = p_last_log_by
-    WHERE role_system_action_permission_id = p_role_system_action_permission_id;
+    SET system_action_access                = p_system_action_access,
+        last_log_by                         = p_last_log_by
+    WHERE role_system_action_permission_id  = p_role_system_action_permission_id;
 
     COMMIT;
 END //
@@ -1359,14 +1504,14 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_role_id IS NULL OR NOT EXISTS (SELECT 1 FROM role WHERE role_id = p_role_id) THEN
-       DELETE FROM role WHERE role_id = p_role_id;
-    END IF;
+    DELETE FROM role
+    WHERE role_id = p_role_id;
 
     COMMIT;
 END //
 
 DROP PROCEDURE IF EXISTS deleteRolePermission//
+
 CREATE PROCEDURE deleteRolePermission(
     IN p_role_permission_id INT
 )
@@ -1378,14 +1523,14 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_role_permission_id IS NULL OR NOT EXISTS (SELECT 1 FROM role_permission WHERE role_permission_id = p_role_permission_id) THEN
-        DELETE FROM role_permission WHERE role_permission_id = p_role_permission_id;
-    END IF;
+    DELETE FROM role_permission
+    WHERE role_permission_id = p_role_permission_id;
 
     COMMIT;
 END //
 
 DROP PROCEDURE IF EXISTS deleteRoleSystemActionPermission//
+
 CREATE PROCEDURE deleteRoleSystemActionPermission(
     IN p_role_system_action_permission_id INT
 )
@@ -1397,14 +1542,14 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_role_system_action_permission_id IS NULL OR NOT EXISTS (SELECT 1 FROM role_system_action_permission WHERE role_system_action_permission_id = p_role_system_action_permission_id) THEN
-        DELETE FROM role_system_action_permission WHERE role_system_action_permission_id = p_role_system_action_permission_id;
-    END IF;
+    DELETE FROM role_system_action_permission
+    WHERE role_system_action_permission_id = p_role_system_action_permission_id;
 
     COMMIT;
 END //
 
 DROP PROCEDURE IF EXISTS deleteRoleUserAccount//
+
 CREATE PROCEDURE deleteRoleUserAccount(
     IN p_role_user_account_id INT
 )
@@ -1416,9 +1561,8 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_role_user_account_id IS NULL OR NOT EXISTS (SELECT 1 FROM role_user_account WHERE role_user_account_id = p_role_user_account_id) THEN
-        DELETE FROM role_user_account WHERE role_user_account_id = p_role_user_account_id;
-    END IF;
+    DELETE FROM role_user_account
+    WHERE role_user_account_id = p_role_user_account_id;
     
     COMMIT;
 END //
@@ -1653,10 +1797,11 @@ CREATE PROCEDURE saveMenuItem(
     IN p_parent_name VARCHAR(100), 
     IN p_table_name VARCHAR(100), 
     IN p_order_sequence TINYINT(10), 
-    IN p_last_log_by INT, 
-    OUT p_new_menu_item_id INT
+    IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_new_menu_item_id INT;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -1664,29 +1809,53 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_menu_item_id IS NULL OR NOT EXISTS (SELECT 1 FROM menu_item WHERE menu_item_id = p_menu_item_id) THEN
-        INSERT INTO menu_item (menu_item_name, menu_item_url, menu_item_icon, app_module_id, app_module_name, parent_id, parent_name, table_name, order_sequence, last_log_by) 
-        VALUES(p_menu_item_name, p_menu_item_url, p_menu_item_icon, p_app_module_id, p_app_module_name, p_parent_id, p_parent_name, p_table_name, p_order_sequence, p_last_log_by);
-        
-        SET p_new_menu_item_id = LAST_INSERT_ID();
-    ELSE        
-        UPDATE menu_item
-        SET menu_item_name = p_menu_item_name,
-            menu_item_url = p_menu_item_url,
-            menu_item_icon = p_menu_item_icon,
-            app_module_id = p_app_module_id,
-            app_module_name = p_app_module_name,
-            parent_id = p_parent_id,
-            parent_name = p_parent_name,
-            table_name = p_table_name,
-            order_sequence = p_order_sequence,
-            last_log_by = p_last_log_by
-        WHERE menu_item_id = p_menu_item_id;
+    UPDATE menu_item
+    SET menu_item_name  = p_menu_item_name,
+        menu_item_url   = p_menu_item_url,
+        menu_item_icon  = p_menu_item_icon,
+        app_module_id   = p_app_module_id,
+        app_module_name = p_app_module_name,
+        parent_id       = p_parent_id,
+        parent_name     = p_parent_name,
+        table_name      = p_table_name,
+        order_sequence  = p_order_sequence,
+        last_log_by     = p_last_log_by
+    WHERE menu_item_id  = p_menu_item_id;
 
-        SET p_new_menu_item_id = p_menu_item_id;
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO menu_item (
+            menu_item_name,
+            menu_item_url,
+            menu_item_icon,
+            app_module_id,
+            app_module_name,
+            parent_id,
+            parent_name,
+            table_name,
+            order_sequence,
+            last_log_by
+        ) 
+        VALUES(
+            p_menu_item_name,
+            p_menu_item_url,
+            p_menu_item_icon,
+            p_app_module_id,
+            p_app_module_name,
+            p_parent_id,
+            p_parent_name,
+            p_table_name,
+            p_order_sequence,
+            p_last_log_by
+        );
+        
+        SET v_new_menu_item_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_menu_item_id = p_menu_item_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_menu_item_id AS new_menu_item_id;
 END //
 
 /* =============================================================================================
@@ -1712,6 +1881,77 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchBreadcrumb//
+
+CREATE PROCEDURE fetchBreadcrumb(
+    IN p_page_id INT
+)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE current_id INT DEFAULT p_page_id;
+    
+    DECLARE menu_name VARCHAR(100);
+    DECLARE menu_url VARCHAR(50);
+    DECLARE parent INT;
+    
+    DECLARE breadcrumb_cursor CURSOR FOR
+        SELECT menu_item_name, menu_item_url, parent_id
+        FROM menu_item
+        WHERE menu_item_id = current_id;
+        
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    CREATE TEMPORARY TABLE IF NOT EXISTS BreadcrumbTrail (
+        menu_item_name VARCHAR(100),
+        menu_item_url VARCHAR(50)
+    );
+    
+    OPEN breadcrumb_cursor;
+    
+    read_loop: LOOP
+        FETCH breadcrumb_cursor INTO menu_name, menu_url, parent;
+        
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        IF current_id != p_page_id THEN
+            INSERT INTO BreadcrumbTrail (menu_item_name, menu_item_url) 
+            VALUES (menu_name, menu_url);
+        END IF;
+
+        SET current_id = parent;
+        
+        IF current_id IS NULL THEN
+            LEAVE read_loop;
+        END IF;
+        
+        CLOSE breadcrumb_cursor;
+        OPEN breadcrumb_cursor;
+    END LOOP read_loop;
+
+    CLOSE breadcrumb_cursor;
+
+    SELECT * FROM BreadcrumbTrail ORDER BY FIELD(menu_item_name, menu_item_name);
+
+    DROP TEMPORARY TABLE BreadcrumbTrail;
+END //
+
+DROP PROCEDURE IF EXISTS fetchNavBar//
+
+CREATE PROCEDURE fetchNavBar(
+    IN p_user_account_id INT,
+    IN p_app_module_id INT
+)
+BEGIN
+    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_item_url, mi.parent_id, mi.app_module_id, mi.menu_item_icon
+    FROM menu_item AS mi
+    INNER JOIN role_permission AS mar ON mi.menu_item_id = mar.menu_item_id
+    INNER JOIN role_user_account AS ru ON mar.role_id = ru.role_id
+    WHERE mar.read_access = 1 AND ru.user_account_id = p_user_account_id AND mi.app_module_id = p_app_module_id
+    ORDER BY mi.order_sequence AND mi.menu_item_name;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -1729,9 +1969,8 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_menu_item_id IS NOT NULL AND EXISTS (SELECT 1 FROM menu_item WHERE menu_item_id = p_menu_item_id) THEN
-        DELETE FROM menu_item WHERE menu_item_id = p_menu_item_id;
-    END IF;
+    DELETE FROM menu_item
+    WHERE menu_item_id = p_menu_item_id;
 
     COMMIT;
 END //
@@ -1836,10 +2075,11 @@ CREATE PROCEDURE saveSystemAction(
     IN p_system_action_id INT, 
     IN p_system_action_name VARCHAR(100), 
     IN p_system_action_description VARCHAR(200),
-    IN p_last_log_by INT, 
-    OUT p_new_system_action_id INT
+    IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_new_system_action_id INT;
+    
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -1847,22 +2087,32 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_system_action_id IS NULL OR NOT EXISTS (SELECT 1 FROM system_action WHERE system_action_id = p_system_action_id) THEN
-        INSERT INTO system_action (system_action_name, system_action_description, last_log_by) 
-        VALUES(p_system_action_name, p_system_action_description, p_last_log_by);
-        
-        SET p_new_system_action_id = LAST_INSERT_ID();
-    ELSE
-        UPDATE system_action
-        SET system_action_name = p_system_action_name,
-            system_action_description = p_system_action_description,
-            last_log_by = p_last_log_by
-        WHERE system_action_id = p_system_action_id;
+    UPDATE system_action
+    SET system_action_name          = p_system_action_name,
+        system_action_description   = p_system_action_description,
+        last_log_by                 = p_last_log_by
+    WHERE system_action_id          = p_system_action_id;
 
-        SET p_new_system_action_id = p_system_action_id;
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO system_action (
+            system_action_name,
+            system_action_description,
+            last_log_by
+        ) 
+        VALUES(
+            p_system_action_name,
+            p_system_action_description,
+            p_last_log_by
+        );
+        
+        SET v_new_system_action_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_system_action_id = p_system_action_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_system_action_id AS new_system_action_id;
 END //
 
 /* =============================================================================================
@@ -1879,7 +2129,7 @@ END //
 
 DROP PROCEDURE IF EXISTS fetchSystemAction//
 
-CREATE PROCEDURE getSystemAction(
+CREATE PROCEDURE fetchSystemAction(
     IN p_system_action_id INT
 )
 BEGIN
@@ -1905,9 +2155,8 @@ BEGIN
 
     START TRANSACTION;
     
-    IF p_system_action_id IS NULL OR NOT EXISTS (SELECT 1 FROM system_action WHERE system_action_id = p_system_action_id) THEN
-        DELETE FROM system_action WHERE system_action_id = p_system_action_id;
-    END IF;
+    DELETE FROM system_action
+    WHERE system_action_id = p_system_action_id;
 
     COMMIT;
 END //

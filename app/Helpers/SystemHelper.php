@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Core\Security;
 use DateTime;
 
 /**
@@ -12,7 +13,7 @@ use DateTime;
  *
  * @package App\Helpers
  */
-class SystemHelper
+class SystemHelper extends Security
 {
     /**
      * Returns a human-readable elapsed time string.
@@ -319,5 +320,105 @@ class SystemHelper
 
         echo json_encode($response);
         exit;
+    }
+    /**
+     * Redirects the user.
+     */
+    public static function redirect(string $url): void
+    {
+        header("Location: $url");
+        exit;
+    }
+
+    public function buildMenuItemHTML($menuItemDetails, $level = 1) {
+        $html = '';
+        $menuItemID = Security::encryptData($menuItemDetails['MENU_ITEM_ID'] ?? null);
+        $appModuleID = Security::encryptData($menuItemDetails['APP_MODULE_ID'] ?? null);
+        $menuItemName = $menuItemDetails['MENU_ITEM_NAME'] ?? null;
+        $menuItemIcon = $menuItemDetails['MENU_ITEM_ICON'] ?? null;
+        $menuItemURL = $menuItemDetails['MENU_ITEM_URL'] ?? null;
+        $children = $menuItemDetails['CHILDREN'] ?? null;
+    
+        $menuItemURL = !empty($menuItemURL) ? (strpos($menuItemURL, '?page_id=') !== false ? $menuItemURL : $menuItemURL . '?app_module_id=' . $appModuleID . '&page_id=' . $menuItemID) : 'javascript:void(0)';
+    
+        if ($level === 1) {
+            if (empty($children)) {
+                $html .= ' <div data-kt-menu-trigger="{default: \'click\', lg: \'hover\'}" data-kt-menu-placement="bottom-start" class="menu-item menu-here-bg menu-lg-down-accordion me-0 me-lg-2">
+                            <a class="menu-link" href="'. $menuItemURL .'">            
+                                <span class="menu-title">'. $menuItemName .'</span>
+                            </a>
+                        </div>';
+            }
+            else {
+                $html .= '<div data-kt-menu-trigger="{default: \'click\', lg: \'hover\'}" data-kt-menu-placement="bottom-start" class="menu-item menu-lg-down-accordion menu-sub-lg-down-indention me-0 me-lg-2">
+                                <span class="menu-link">
+                                    <span class="menu-title">'. $menuItemName .'</span>
+                                    <span class="menu-arrow d-lg-none"></span>
+                                </span>
+                                <div class="menu-sub menu-sub-lg-down-accordion menu-sub-lg-dropdown px-lg-2 py-lg-4 w-lg-250px">';
+
+                foreach ($children as $child) {
+                    $html .= $this->buildMenuItemHTML($child, $level + 1);
+                }
+    
+                $html .= '</div>
+                        </div>';
+            }
+        }
+        else {
+            if($level == 2){
+                $icon = '<span class="menu-icon">
+                                    <i class="'. $menuItemIcon .' fs-2"></i>
+                                </span>';
+            }
+            else{
+                $icon = '<span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>';
+            }
+            
+            if (empty($children)) {
+                $html .= ' <div data-kt-menu-trigger="{default: \'click\', lg: \'hover\'}" data-kt-menu-placement="bottom-start" class="menu-item menu-lg-down-accordion">
+                                <a class="menu-link" href="'. $menuItemURL .'">
+                                    '. $icon .'
+                                    <span class="menu-title">'. $menuItemName .'</span>
+                                </a>
+                            </div>';
+            }
+            else {
+                $html .= '  <div data-kt-menu-trigger="{default: \'click\', lg: \'hover\'}" data-kt-menu-placement="right-start" class="menu-item menu-lg-down-accordion">
+                                <span class="menu-link">
+                                    '. $icon .'
+                                    <span class="menu-title">'. $menuItemName .'</span>
+                                    <span class="menu-arrow"></span>
+                                </span>
+                                <div class="menu-sub menu-sub-lg-down-accordion menu-sub-lg-dropdown menu-active-bg px-lg-2 py-lg-4 w-lg-225px">';
+
+                foreach ($children as $child) {
+                    $html .= $this->buildMenuItemHTML($child, $level + 1);
+                }
+    
+                $html .= '</div>
+                </div>';
+            }
+        }
+    
+        return $html;
+    }
+
+    public static function getScriptFile(string $folderName, bool $newRecord, ?int $detailID, ?string $import): string {
+        if ($newRecord) {
+            return './assets/js/page/'. $folderName .'/new.js';
+        }
+
+        if (!empty($detailID)) {
+            return './assets/js/page/'. $folderName .'/details.js';
+        }
+
+        if (!empty($import)) {
+            return './components/import.js';
+        }
+
+        return './assets/js/page/'. $folderName .'/index.js';
     }
 }
