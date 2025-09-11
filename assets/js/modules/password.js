@@ -24,3 +24,5 @@ export const passwordAddOn = () => {
     // Prevent accidental focus on the toggle button
     .attr('tabindex', -1);
 };
+
+

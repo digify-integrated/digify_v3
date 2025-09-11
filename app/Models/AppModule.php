@@ -119,6 +119,12 @@ class AppModule extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateAppModuleTable() {
+        $sql = 'CALL generateAppModuleTable()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

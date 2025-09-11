@@ -3,10 +3,9 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Core\Notification;
 use App\Models\Authentication;
 use App\Models\NotificationSetting;
-use App\Models\SecuritySetting;
+use App\Core\Notification;
 use App\Core\Security;
 use App\Services\EmailService;
 use App\Services\SmsService;
@@ -15,17 +14,6 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-/**
- * Class AuthenticationController
- *
- * Handles authentication-related actions such as login, 
- * OTP verification, password reset, and rate limiting.
- *
- * Acts as the entry point for user authentication flows and ensures
- * that security measures like CSRF validation, rate limiting,
- * account activity status, and optional two-factor authentication
- * are properly enforced.
- */
 class AuthenticationController
 {
     protected Authentication $authentication;
@@ -34,15 +22,6 @@ class AuthenticationController
     protected Security $security;
     protected SystemHelper $systemHelper;
 
-    /**
-     * AuthenticationController constructor.
-     *
-     * @param Authentication      $authentication       Handles DB operations for login, OTP, and sessions.
-     * @param NotificationSetting $notificationSetting  Provides templates and settings for notifications.
-     * @param Notification        $notification         Sends the notifications.
-     * @param Security            $security             Provides cryptographic utilities (hash, encrypt, tokens).
-     * @param SystemHelper        $systemHelper         Utility for sending API/system responses.
-     */
     public function __construct(
         Authentication $authentication,
         NotificationSetting $notificationSetting,
@@ -57,21 +36,6 @@ class AuthenticationController
         $this->systemHelper         = $systemHelper;
     }
 
-    /**
-     * Entry point for handling a POST request.
-     *
-     * Validates request type and transaction type.
-     * Dispatches execution based on the transaction provided in POST.
-     *
-     * Supported transactions:
-     * - authenticate
-     * - otp verification
-     * - resend otp
-     * - forgot password
-     * - password reset
-     *
-     * @return void
-     */
     public function handleRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -101,22 +65,6 @@ class AuthenticationController
         };
     }
 
-    # -------------------------------------------------------------
-    #   Authenticate Function
-    # -------------------------------------------------------------
-
-    /**
-     * Attempts to authenticate a user.
-     *
-     * Steps:
-     * - Validates CSRF token.
-     * - Enforces rate limiting on failed attempts.
-     * - Validates user credentials and account status.
-     * - Handles two-factor authentication if enabled.
-     * - Creates a session on successful login.
-     *
-     * @return void
-     */
     public function authenticate(): void
     {
         $csrfToken = $_POST['csrf_token'] ?? null;
@@ -206,26 +154,6 @@ class AuthenticationController
         );
     }
     
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Handle Two-Factor Authentication
-    # -------------------------------------------------------------
-
-    /**
-     * Handles OTP-based two-factor authentication.
-     *
-     * - Generates a new OTP and securely saves it with an expiry.
-     * - Prepares placeholders for the OTP email template.
-     * - Sends OTP to the user's registered email address.
-     * - On success, responds with a redirect link for verification.
-     * - On failure, responds with an error message.
-     *
-     * @param int $userAccountId     The user ID.
-     * @param string $email          The user's email address.
-     *
-     * @return void
-     */
     private function handleTwoFactorAuth(int $userAccountId, string $email): void
     {
         // Encrypt user account ID for secure redirect link
@@ -272,11 +200,7 @@ class AuthenticationController
             );
         }
     }
-    
-    # -------------------------------------------------------------
-    #   Verify
-    # -------------------------------------------------------------
-    
+
     public function verifyOTP() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -371,17 +295,10 @@ class AuthenticationController
             additionalData: ['redirect_link' => 'apps.php']
         );
     }
-    
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Forgot Password
-    # -------------------------------------------------------------
 
     public function forgotPassword() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        // Validate CSRF Token
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'forgot_password_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -452,10 +369,6 @@ class AuthenticationController
         }
     }
 
-    # -------------------------------------------------------------
-    #   Password Reset
-    # -------------------------------------------------------------
-
     public function passwordReset() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -509,21 +422,6 @@ class AuthenticationController
              ['redirect_link' => 'index.php']);
     }
     
-    # -------------------------------------------------------------
-    #   Resend OTP
-    # -------------------------------------------------------------
-
-    /**
-     * Handles the OTP resend request for a given user account.
-     * 
-     * - Only accepts POST requests.
-     * - Retrieves user account ID from request body.
-     * - Fetches login credentials (e.g., email) associated with the account.
-     * - Calls resendOTPCode() to generate, save, and send a new OTP.
-     * - Returns a JSON response indicating success.
-     *
-     * @return void
-     */
     public function resendOTP()
     {
         // Ensure request method is POST
@@ -550,19 +448,6 @@ class AuthenticationController
         exit;
     }
 
-    /**
-     * Generates, saves, and sends a new OTP to the user.
-     * 
-     * - Generates a random OTP and securely hashes it.
-     * - Saves the OTP and expiry time in the database.
-     * - Sends an OTP notification (e.g., via email).
-     * - Returns a success or error response depending on notification result.
-     *
-     * @param int         $userAccountId  The user account ID.
-     * @param string|null $email          The email address to send the OTP to.
-     * 
-     * @return void
-     */
     private function resendOTPCode($userAccountId, $email)
     {
         // Generate OTP and prepare expiry
@@ -604,7 +489,6 @@ class AuthenticationController
         }
     }
     
-    # -------------------------------------------------------------
 
 }
 

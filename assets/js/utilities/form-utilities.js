@@ -40,3 +40,17 @@ export const enableButton = (buttonId) => {
     delete button.dataset.originalText;
   }
 };
+
+export const resetForm = (formId) => {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    // Reset Select2 fields
+    $(form).find('.select2').val(null).trigger('change');
+
+    // Remove validation classes
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+    // Reset the form
+    form.reset();
+};

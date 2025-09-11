@@ -3,6 +3,7 @@
 </div>
 <select id="datatable-length" class="form-select w-auto">
     <option value="-1">All</option>
+    <option value="0">0</option>
     <option value="5">5</option>
     <option value="10" selected>10</option>
     <option value="20">20</option>

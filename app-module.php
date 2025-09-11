@@ -12,6 +12,7 @@
         require_once './app/Views/Partials/head-meta-tags.php'; 
         require_once './app/Views/Partials/head-stylesheet.php';
     ?>
+    <link href="./vendor/datatables/datatables.bundle.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <?php require_once './app/Views/Partials/theme-script.php'; ?>
