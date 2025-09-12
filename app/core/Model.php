@@ -87,7 +87,10 @@ abstract class Model
     public function fetch(string $query, array $params = []): ?array
     {
         $stmt = $this->query($query, $params);
-        return $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : null;
+        $result = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : null;
+
+        // Convert false (no rows) to null
+        return $result !== false ? $result : null;
     }
 
     /**

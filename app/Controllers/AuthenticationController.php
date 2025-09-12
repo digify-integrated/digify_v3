@@ -488,8 +488,6 @@ class AuthenticationController
             );
         }
     }
-    
-
 }
 
 # Bootstrap the controller

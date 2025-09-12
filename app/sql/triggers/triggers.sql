@@ -64,18 +64,6 @@ BEGIN
     END IF;
 END //
 
-DROP TRIGGER IF EXISTS trg_user_account_file_as_update//
-
-CREATE TRIGGER trg_user_account_file_as_update
-AFTER UPDATE ON user_account
-FOR EACH ROW
-BEGIN
-    UPDATE role_user_account
-    SET file_as = NEW.file_as,
-        last_log_by = NEW.last_log_by
-    WHERE user_account_id = NEW.user_account_id;
-END //
-
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
@@ -88,22 +76,6 @@ FOR EACH ROW
 BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('user_account', NEW.user_account_id, 'User account created.', NEW.last_log_by, NOW());
-END //
-
-/* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_user_account_delete//
-
-CREATE TRIGGER trg_user_account_delete
-BEFORE DELETE ON user_account
-FOR EACH ROW
-BEGIN
-    DELETE FROM reset_token WHERE user_account_id = OLD.user_account_id;
-    DELETE FROM otp WHERE user_account_id = OLD.user_account_id;
-    DELETE FROM sessions WHERE user_account_id = OLD.user_account_id;
-    DELETE FROM role_user_account WHERE user_account_id = OLD.user_account_id;
 END //
 
 /* =============================================================================================
@@ -269,21 +241,6 @@ BEGIN
 END //
 
 /* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_notification_setting_delete//
-
-CREATE TRIGGER trg_notification_setting_delete
-BEFORE DELETE ON notification_setting
-FOR EACH ROW
-BEGIN
-    DELETE FROM notification_setting_email_template  WHERE notification_setting_id = OLD.notification_setting_id;
-    DELETE FROM notification_setting_system_template WHERE notification_setting_id = OLD.notification_setting_id;
-    DELETE FROM notification_setting_sms_template    WHERE notification_setting_id = OLD.notification_setting_id;
-END //
-
-/* =============================================================================================
    END OF TRIGGERS
 ============================================================================================= */
 
@@ -327,18 +284,6 @@ BEGIN
     END IF;
 END //
 
-DROP TRIGGER IF EXISTS trg_app_module_name_update//
-
-CREATE TRIGGER trg_app_module_name_update
-AFTER UPDATE ON app_module
-FOR EACH ROW
-BEGIN
-    UPDATE menu_item
-    SET app_module_name = NEW.app_module_name,
-        last_log_by = NEW.last_log_by
-    WHERE app_module_id = NEW.app_module_id;
-END //
-
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
@@ -354,10 +299,6 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('app_module', NEW.app_module_id, audit_log, NEW.last_log_by, NOW());
 END //
-
-/* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
-============================================================================================= */
 
 /* =============================================================================================
    END OF TRIGGERS
@@ -393,28 +334,6 @@ BEGIN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
     END IF;
-END //
-
-DROP TRIGGER IF EXISTS trg_role_name_update//
-
-CREATE TRIGGER trg_role_name_update
-AFTER UPDATE ON role
-FOR EACH ROW
-BEGIN
-    UPDATE role_permission
-    SET role_name = NEW.role_name,
-        last_log_by = NEW.last_log_by
-    WHERE role_id = NEW.role_id;
-
-    UPDATE role_system_action_permission
-    SET role_name = NEW.role_name,
-        last_log_by = NEW.last_log_by
-    WHERE role_id = NEW.role_id;
-
-    UPDATE role_user_account
-    SET role_name = NEW.role_name,
-        last_log_by = NEW.last_log_by
-    WHERE role_id = NEW.role_id;
 END //
 
 DROP TRIGGER IF EXISTS trg_role_permission_update//
@@ -568,21 +487,6 @@ BEGIN
 END //
 
 /* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_role_delete//
-
-CREATE TRIGGER trg_role_delete
-BEFORE DELETE ON role
-FOR EACH ROW
-BEGIN
-    DELETE FROM role_permission WHERE role_id = OLD.role_id;
-    DELETE FROM role_system_action_permission WHERE role_id = OLD.role_id;
-    DELETE FROM role_user_account WHERE role_id = OLD.role_id;
-END //
-
-/* =============================================================================================
    END OF TRIGGERS
 ============================================================================================= */
 
@@ -638,23 +542,6 @@ BEGIN
     END IF;
 END //
 
-DROP TRIGGER IF EXISTS trg_menu_item_name_update//
-
-CREATE TRIGGER trg_menu_item_name_update
-AFTER UPDATE ON menu_item
-FOR EACH ROW
-BEGIN
-    UPDATE role_permission
-    SET menu_item_name = NEW.menu_item_name,
-        last_log_by = NEW.last_log_by
-    WHERE menu_item_id = NEW.menu_item_id;
-        
-    UPDATE menu_item
-    SET parent_name = NEW.menu_item_name,
-        last_log_by = NEW.last_log_by
-    WHERE parent_id = NEW.menu_item_id;
-END //
-
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
@@ -669,19 +556,6 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-/* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_menu_item_delete//
-
-CREATE TRIGGER trg_menu_item_delete
-BEFORE DELETE ON menu_item
-FOR EACH ROW
-BEGIN
-    DELETE FROM role_permission WHERE menu_item_id = OLD.menu_item_id;
 END //
 
 /* =============================================================================================
@@ -720,18 +594,6 @@ BEGIN
     END IF;
 END //
 
-DROP TRIGGER IF EXISTS trg_system_action_name_update//
-
-CREATE TRIGGER trg_system_action_name_update
-AFTER UPDATE ON system_action
-FOR EACH ROW
-BEGIN
-    UPDATE role_system_action_permission
-    SET system_action_name = NEW.system_action_name,
-        last_log_by = NEW.last_log_by
-    WHERE system_action_id = NEW.system_action_id;
-END //
-
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
@@ -749,16 +611,220 @@ BEGIN
 END //
 
 /* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
+   END OF TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_system_action_delete//
 
-CREATE TRIGGER trg_system_action_delete
-BEFORE DELETE ON system_action
+
+/* =============================================================================================
+   TRIGGER: FILE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_file_type_update//
+
+CREATE TRIGGER trg_file_type_update
+AFTER UPDATE ON file_type
 FOR EACH ROW
 BEGIN
-   DELETE FROM role_system_action_permission WHERE system_action_id = OLD.system_action_id;
+    DECLARE audit_log TEXT DEFAULT 'File type changed.<br/><br/>';
+
+    IF NEW.file_type_name <> OLD.file_type_name THEN
+        SET audit_log = CONCAT(audit_log, "File Type Name: ", OLD.file_type_name, " -> ", NEW.file_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'File type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_file_type_insert//
+
+CREATE TRIGGER trg_file_type_insert
+AFTER INSERT ON file_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'File type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: FILE EXTENSION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_file_extension_update//
+
+CREATE TRIGGER trg_file_extension_update
+AFTER UPDATE ON file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'File extension changed.<br/><br/>';
+
+    IF NEW.file_extension_name <> OLD.file_extension_name THEN
+        SET audit_log = CONCAT(audit_log, "File Extension Name: ", OLD.file_extension_name, " -> ", NEW.file_extension_name, "<br/>");
+    END IF;
+
+    IF NEW.file_extension <> OLD.file_extension THEN
+        SET audit_log = CONCAT(audit_log, "File Extension: ", OLD.file_extension, " -> ", NEW.file_extension, "<br/>");
+    END IF;
+
+    IF NEW.file_type_name <> OLD.file_type_name THEN
+        SET audit_log = CONCAT(audit_log, "File Type: ", OLD.file_type_name, " -> ", NEW.file_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'File extension changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_file_extension_insert//
+
+CREATE TRIGGER trg_file_extension_insert
+AFTER INSERT ON file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'File extension created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: UPLOAD SETTING
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_upload_setting_update//
+
+CREATE TRIGGER trg_upload_setting_update
+AFTER UPDATE ON upload_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Upload setting changed.<br/><br/>';
+
+    IF NEW.upload_setting_name <> OLD.upload_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Upload Setting Name: ", OLD.upload_setting_name, " -> ", NEW.upload_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.upload_setting_description <> OLD.upload_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Upload Setting Description: ", OLD.upload_setting_description, " -> ", NEW.upload_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.max_file_size <> OLD.max_file_size THEN
+        SET audit_log = CONCAT(audit_log, "Max File Size: ", OLD.max_file_size, " -> ", NEW.max_file_size, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Upload setting changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('upload_setting', NEW.upload_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_upload_setting_insert//
+
+CREATE TRIGGER trg_upload_setting_insert
+AFTER INSERT ON upload_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Upload setting created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('upload_setting', NEW.upload_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: UPLOAD SETTING FILE EXTENSION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_upload_setting_file_update//
+
+CREATE TRIGGER trg_upload_setting_file_update
+AFTER UPDATE ON upload_setting_file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Upload setting file extension changed.<br/><br/>';
+
+    IF NEW.upload_setting_name <> OLD.upload_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Upload Setting Name: ", OLD.upload_setting_name, " -> ", NEW.upload_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.file_extension_name <> OLD.file_extension_name THEN
+        SET audit_log = CONCAT(audit_log, "File Extension Name: ", OLD.file_extension_name, " -> ", NEW.file_extension_name, "<br/>");
+    END IF;
+
+    IF NEW.file_extension <> OLD.file_extension THEN
+        SET audit_log = CONCAT(audit_log, "File Extension: ", OLD.file_extension, " -> ", NEW.file_extension, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Upload setting changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('upload_setting_file_extension', NEW.upload_setting_file_extension_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_upload_setting_file_trigger_insert//
+
+CREATE TRIGGER trg_upload_setting_file_trigger_insert
+AFTER INSERT ON upload_setting_file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Upload setting file extension created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('upload_setting_file_extension', NEW.upload_setting_file_extension_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================
@@ -777,10 +843,6 @@ END //
 
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
-============================================================================================= */
-
-/* =============================================================================================
-   SECTION 3: DELETE TRIGGERS
 ============================================================================================= */
 
 /* =============================================================================================

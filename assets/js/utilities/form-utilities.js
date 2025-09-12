@@ -1,44 +1,48 @@
 /**
- * Disables a button by ID, replaces its text with a loading spinner,
- * and stores the original text for later restoration.
- *
- * @param {string} buttonId - The ID of the button element to disable.
+ * Disables one or more buttons by ID.
+ * @param {string|string[]} buttonIds - Single button ID string, or array of button ID strings
  */
-export const disableButton = (buttonId) => {
-  const button = document.getElementById(buttonId);
+export const disableButton = (buttonIds) => {
+  // Normalize input: always a flat array of strings
+  const ids = Array.isArray(buttonIds) ? buttonIds : [buttonIds];
 
-  if (!button) return;
+  ids.forEach((id) => {
+    const btn = document.getElementById(id);
+    if (!btn) {
+      console.warn(`disableButton: button with ID "${id}" not found`);
+      return;
+    }
 
-  // Save the original button text if not already stored
-  if (!button.dataset.originalText) {
-    button.dataset.originalText = button.innerHTML;
-  }
+    // Save original text if not already saved
+    if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
 
-  button.disabled = true;
-  button.innerHTML = `
-    <span>
-      <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-    </span>
-  `;
+    // Disable button and show spinner
+    btn.disabled = true;
+    btn.innerHTML = `<span><span class="spinner-border spinner-border-sm align-middle ms-0"></span></span>`;
+  });
 };
 
 /**
- * Enables a button by ID and restores its original text if available.
- *
- * @param {string} buttonId - The ID of the button element to enable.
+ * Enables one or more buttons by ID.
+ * @param {string|string[]} buttonIds - Single button ID string, or array of button ID strings
  */
-export const enableButton = (buttonId) => {
-  const button = document.getElementById(buttonId);
+export const enableButton = (buttonIds) => {
+  const ids = Array.isArray(buttonIds) ? buttonIds : [buttonIds];
 
-  if (!button) return;
+  ids.forEach((id) => {
+    const btn = document.getElementById(id);
+    if (!btn) {
+      console.warn(`enableButton: button with ID "${id}" not found`);
+      return;
+    }
 
-  button.disabled = false;
-
-  // Restore original text if available
-  if (button.dataset.originalText) {
-    button.innerHTML = button.dataset.originalText;
-    delete button.dataset.originalText;
-  }
+    // Enable button and restore original text
+    btn.disabled = false;
+    if (btn.dataset.originalText) {
+      btn.innerHTML = btn.dataset.originalText;
+      delete btn.dataset.originalText;
+    }
+  });
 };
 
 export const resetForm = (formId) => {
@@ -54,3 +58,26 @@ export const resetForm = (formId) => {
     // Reset the form
     form.reset();
 };
+
+
+export const generateDropdownOptions = ({url, dropdownSelector, data = {}}) => {
+    $.ajax({
+        url: url,
+        method: 'POST',
+        dataType: 'json',
+        data: data,
+        success: function (response) {
+            const $dropdown = $(dropdownSelector);
+
+            $dropdown
+                .select2({ data: response })
+                .off('change')
+                .on('change', function () {
+                    $(this).valid();
+                });
+        },
+        error: function (xhr, status, error) {
+            handleSystemError(xhr, status, error);
+        }
+    });
+}

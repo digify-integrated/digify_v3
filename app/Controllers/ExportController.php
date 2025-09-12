@@ -102,8 +102,12 @@ class ExportController
         $tableColumns   = isset($_POST['table_column']) ? $_POST['table_column'] : null;
         $tableName      = isset($_POST['table_name']) ? $_POST['table_name'] : null;
 
-       if ($exportTo == 'csv') {
-            $filename = $tableName . '_export_' . date('Y-m-d_H-i-s') . ".csv";
+        $cleanTableName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($tableName));
+        $timestamp = date('Y-m-d_Hi');
+        
+
+        if ($exportTo === 'csv') {
+            $filename = "{$cleanTableName}_report_{$timestamp}.csv";
             
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -114,8 +118,8 @@ class ExportController
                 
             $columns = implode(", ", $tableColumns);
                 
-            $ids = implode(",", array_map('intval', $exportIDs));
-            $appModuleDetails = $this->export->fetchExportData($tableName, $columns, $ids);
+            $ids                = implode(",", array_map('intval', $exportIDs));
+            $appModuleDetails   = $this->export->fetchExportData($tableName, $columns, $ids);
 
             foreach ($appModuleDetails as $appModuleDetail) {
                 fputcsv($output, $appModuleDetail);
@@ -126,7 +130,7 @@ class ExportController
         }
         else {
             ob_start();
-            $filename = $tableName . '_export_' . date('Y-m-d_H-i-s') . ".xlsx";
+            $filename = "{$cleanTableName}_report_{$timestamp}.xlsx";
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
@@ -139,8 +143,8 @@ class ExportController
 
             $columns = implode(", ", $tableColumns);
                 
-            $ids = implode(",", array_map('intval', $exportIDs));
-            $appModuleDetails = $this->export->fetchExportData($tableName, $columns, $ids);
+            $ids                = implode(",", array_map('intval', $exportIDs));
+            $appModuleDetails   = $this->export->fetchExportData($tableName, $columns, $ids);
 
             $rowNumber = 2;
             foreach ($appModuleDetails as $appModuleDetail) {
@@ -163,7 +167,6 @@ class ExportController
             exit;
         }
     }
-
 }
 
 # Bootstrap the controller

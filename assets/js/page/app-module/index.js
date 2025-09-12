@@ -22,9 +22,7 @@ $(document).ready(function () {
             { width: 'auto', targets: 1, responsivePriority: 2 }
         ],
         onRowClick: (rowData) => {
-            if (rowData?.LINK) window.location.href = rowData.LINK;
+            if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
-
-    
 });

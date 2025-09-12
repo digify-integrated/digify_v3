@@ -42558,7 +42558,7 @@ code:not([class*=language-]).code-dark {
 }
 
 .form-check.form-check-solid .form-check-input:not(:checked) {
-    background-color: var(--bs-gray-400)
+    background-color: var(--bs-gray-300)
 }
 
 .form-check.form-check-solid .form-check-input[type=checkbox]:indeterminate {

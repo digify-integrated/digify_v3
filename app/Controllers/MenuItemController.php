@@ -3,24 +3,24 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Models\AppModule;
+use App\Models\MenuItem;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class AppModuleController
+class MenuItemController
 {
-    protected AppModule $appModule;
+    protected MenuItem $menuItem;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
-        AppModule $appModule,
+        MenuItem $menuItem,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->appModule            = $appModule;
+        $this->menuItem             = $menuItem;
         $this->security             = $security;
         $this->systemHelper         = $systemHelper;
     }
@@ -42,7 +42,7 @@ class AppModuleController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'generate app module table'     => $this->generateAppModuleTable(),
+            'generate app module table'     => $this->generateMenuItemTable(),
             default             => $this->systemHelper::sendErrorResponse(
                 'Transaction Failed',
                 'We encountered an issue while processing your request.'
@@ -50,46 +50,49 @@ class AppModuleController
         };
     }
 
-    public function generateAppModuleTable()
+    public function generateMenuItemTable()
     {
         $pageID = isset($_POST['page_id']) ? $_POST['page_id'] : null;
         $pageLink = isset($_POST['page_link']) ? $_POST['page_link'] : null;
         $response = [];
 
-        $appModules = $this->appModule->generateAppModuleTable();
+        $menuItems = $this->menuItem->generateMenuItemTable();
 
-        foreach ($appModules as $row) {
-            $appModuleID = $row['app_module_id'];
-            $appModuleName = $row['app_module_name'];
-            $appModuleDescription = $row['app_module_description'];
+        foreach ($menuItems as $row) {
+            $menuItemID = $row['app_module_id'];
+            $menuItemName = $row['app_module_name'];
+            $menuItemDescription = $row['app_module_description'];
             $appLogo = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
 
-            $appModuleIDEncrypted = $this->security->encryptData($appModuleID);
+            $menuItemIDEncrypted = $this->security->encryptData($menuItemID);
 
             $response[] = [
                 'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $appModuleID .'">
+                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $menuItemID .'">
                                  </div>',
                 'APP_MODULE_NAME' => '<div class="d-flex align-items-center">
                                         <img src="'. $appLogo .'" alt="app-logo" width="45" />
                                         <div class="ms-3">
                                             <div class="user-meta-info">
-                                                <h6 class="mb-0">'. $appModuleName .'</h6>
-                                                <small class="text-wrap fs-7 text-gray-500">'. $appModuleDescription .'</small>
+                                                <h6 class="mb-0">'. $menuItemName .'</h6>
+                                                <small class="text-wrap fs-7 text-gray-500">'. $menuItemDescription .'</small>
                                             </div>
                                         </div>
                                     </div>',
-                'LINK' => $pageLink .'&id='. $appModuleIDEncrypted
+                'LINK' => $pageLink .'&id='. $menuItemIDEncrypted
             ];
         }
 
         echo json_encode($response);
     }
+    
+   
+
 }
 
 # Bootstrap the controller
-$controller = new AppModuleController(
-    new AppModule(),
+$controller = new MenuItemController(
+    new MenuItem(),
     new Security(),
     new SystemHelper()
 );

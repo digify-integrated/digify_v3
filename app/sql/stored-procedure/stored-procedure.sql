@@ -489,6 +489,11 @@ BEGIN
 
     START TRANSACTION;
 
+    UPDATE role_user_account
+    SET file_as             = p_file_as,
+        last_log_by         = p_last_log_by
+    WHERE user_account_id   = p_user_account_id;
+
     UPDATE user_account
     SET file_as             = p_file_as,
         last_log_by         = p_last_log_by
@@ -663,6 +668,18 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    DELETE FROM reset_token
+    WHERE user_account_id = p_user_account_id;
+
+    DELETE FROM otp
+    WHERE user_account_id = p_user_account_id;
+
+    DELETE FROM sessions
+    WHERE user_account_id = p_user_account_id;
+
+    DELETE FROM role_user_account
+    WHERE user_account_id = p_user_account_id;
 
     DELETE FROM user_account
     WHERE user_account_id = p_user_account_id;
@@ -1032,6 +1049,15 @@ BEGIN
 
     START TRANSACTION;
 
+    DELETE FROM notification_setting_email_template 
+    WHERE notification_setting_id = p_notification_setting_id;
+
+    DELETE FROM notification_setting_system_template
+    WHERE notification_setting_id = p_notification_setting_id;
+
+    DELETE FROM notification_setting_sms_template
+    WHERE notification_setting_id = p_notification_setting_id;
+
     DELETE FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id; 
    
@@ -1102,6 +1128,11 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    UPDATE menu_item
+    SET app_module_name = p_app_module_name,
+        last_log_by = p_last_log_by
+    WHERE app_module_id = p_app_module_id;
 
     UPDATE app_module
     SET app_module_name         = p_app_module_name,
@@ -1276,6 +1307,21 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    UPDATE role_permission
+    SET role_name       = p_role_name,
+        last_log_by     = p_last_log_by
+    WHERE role_id       = p_role_id;
+
+    UPDATE role_system_action_permission
+    SET role_name       = p_role_name,
+        last_log_by     = p_last_log_by
+    WHERE role_id       = p_role_id;
+
+    UPDATE role_user_account
+    SET role_name       = p_role_name,
+        last_log_by     = p_last_log_by
+    WHERE role_id       = p_role_id;
 
     UPDATE role
     SET role_name           = p_role_name,
@@ -1503,6 +1549,15 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    DELETE FROM role_permission
+    WHERE role_id = p_role_id;
+
+    DELETE FROM role_system_action_permission
+    WHERE role_id = p_role_id;
+
+    DELETE FROM role_user_account
+    WHERE role_id = p_role_id;
 
     DELETE FROM role
     WHERE role_id = p_role_id;
@@ -1809,6 +1864,16 @@ BEGIN
 
     START TRANSACTION;
 
+    UPDATE role_permission
+    SET menu_item_name  = p_menu_item_name,
+        last_log_by     = p_last_log_by
+    WHERE menu_item_id  = p_menu_item_id;
+        
+    UPDATE menu_item
+    SET parent_name     = p_menu_item_name,
+        last_log_by     = p_last_log_by
+    WHERE parent_id     = p_menu_item_id;
+
     UPDATE menu_item
     SET menu_item_name  = p_menu_item_name,
         menu_item_url   = p_menu_item_url,
@@ -1969,6 +2034,9 @@ BEGIN
 
     START TRANSACTION;
 
+    DELETE FROM role_permission
+    WHERE menu_item_id = p_menu_item_id;
+
     DELETE FROM menu_item
     WHERE menu_item_id = p_menu_item_id;
 
@@ -2087,6 +2155,11 @@ BEGIN
 
     START TRANSACTION;
 
+    UPDATE role_system_action_permission
+    SET system_action_name  = p_system_action_name,
+        last_log_by         = p_last_log_by
+    WHERE system_action_id  = p_system_action_id;
+
     UPDATE system_action
     SET system_action_name          = p_system_action_name,
         system_action_description   = p_system_action_description,
@@ -2154,6 +2227,9 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    DELETE FROM role_system_action_permission
+    WHERE system_action_id = p_system_action_id;
     
     DELETE FROM system_action
     WHERE system_action_id = p_system_action_id;
@@ -2208,6 +2284,583 @@ BEGIN
     FROM role_system_action_permission
     WHERE system_action_id = p_system_action_id;
 END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: FILE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveFileType//
+
+CREATE PROCEDURE saveFileType(
+    IN p_file_type_id INT, 
+    IN p_file_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_file_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE file_extension
+    SET file_type_name  = p_file_type_name,
+        last_log_by     = p_last_log_by
+    WHERE file_type_id  = p_file_type_id;
+
+    UPDATE file_type
+    SET file_type_name  = p_file_type_name,
+        last_log_by     = p_last_log_by
+    WHERE file_type_id  = p_file_type_id;
+
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO file_type (
+            file_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_file_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_file_type_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_file_type_id = p_file_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_file_type_id AS new_file_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchFileType//
+
+CREATE PROCEDURE fetchFileType(
+    IN p_file_type_id INT
+)
+BEGIN
+	SELECT * FROM file_type
+	WHERE file_type_id = p_file_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteFileType//
+
+CREATE PROCEDURE deleteFileType(
+    IN p_file_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM file_extension
+    WHERE file_type_id = p_file_type_id;
+
+    DELETE FROM file_type
+    WHERE file_type_id = p_file_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkFileTypeExist//
+
+CREATE PROCEDURE checkFileTypeExist(
+    IN p_file_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateFileTypeTable//
+
+CREATE PROCEDURE generateFileTypeTable()
+BEGIN
+	SELECT file_type_id, file_type_name
+    FROM file_type 
+    ORDER BY file_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateFileTypeOptions//
+
+CREATE PROCEDURE generateFileTypeOptions()
+BEGIN
+	SELECT file_type_id, file_type_name 
+    FROM file_type 
+    ORDER BY file_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: FILE EXTENSION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveFileExtension//
+
+CREATE PROCEDURE saveFileExtension(
+    IN p_file_extension_id INT, 
+    IN p_file_extension_name VARCHAR(100), 
+    IN p_file_extension VARCHAR(10), 
+    IN p_file_type_id INT, 
+    IN p_file_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_file_extension_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE upload_setting_file_extension
+    SET file_extension_name     = p_file_extension_name,
+        file_extension          = p_file_extension,
+        last_log_by             = p_last_log_by
+    WHERE file_extension_id     = p_file_extension_id;
+
+    UPDATE file_extension
+    SET file_extension_name     = p_file_extension_name,
+        file_extension          = p_file_extension,
+        file_type_id            = p_file_type_id,
+        file_type_name          = p_file_type_name,
+        last_log_by             = p_last_log_by
+    WHERE file_extension_id     = p_file_extension_id;
+
+     IF ROW_COUNT() = 0 THEN
+        INSERT INTO file_extension (
+            file_extension_name,
+            file_extension,
+            file_type_id,
+            file_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_file_extension_name,
+            p_file_extension,
+            p_file_type_id,
+            p_file_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_file_extension_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_file_extension_id = p_file_extension_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_file_extension_id AS new_file_extension_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchFileExtension//
+
+CREATE PROCEDURE fetchFileExtension(
+    IN p_file_extension_id INT
+)
+BEGIN
+	SELECT * FROM file_extension
+	WHERE file_extension_id = p_file_extension_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteFileExtension//
+
+CREATE PROCEDURE deleteFileExtension(
+    IN p_file_extension_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM upload_setting_file_extension
+    WHERE file_extension_id = p_file_extension_id;
+
+    DELETE FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkFileExtensionExist//
+
+CREATE PROCEDURE checkFileExtensionExist(
+    IN p_file_extension_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateFileExtensionTable//
+
+CREATE PROCEDURE generateFileExtensionTable(
+    IN p_filter_by_file_type TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT file_extension_id, file_extension_name, file_extension, file_type_name 
+                FROM file_extension ';
+
+    IF p_filter_by_file_type IS NOT NULL AND p_filter_by_file_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' file_type_id IN (', p_filter_by_file_type, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY file_extension_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateFileExtensionOptions//
+
+CREATE PROCEDURE generateFileExtensionOptions()
+BEGIN
+	SELECT file_extension_id, file_extension_name, file_extension
+    FROM file_extension 
+    ORDER BY file_extension_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: UPLOAD SETTING
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveUploadSetting//
+
+CREATE PROCEDURE saveUploadSetting(
+    IN p_upload_setting_id INT, 
+    IN p_upload_setting_name VARCHAR(100), 
+    IN p_upload_setting_description VARCHAR(200), 
+    IN p_max_file_size DOUBLE, 
+    IN p_last_log_by INT, 
+    OUT p_new_upload_setting_id INT
+)
+BEGIN
+    DECLARE v_new_upload_setting_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE upload_setting_file_extension
+    SET upload_setting_name     = p_upload_setting_name,
+        last_log_by             = p_last_log_by
+    WHERE upload_setting_id     = p_upload_setting_id;
+
+    UPDATE upload_setting
+    SET upload_setting_name         = p_upload_setting_name,
+    	upload_setting_description  = p_upload_setting_description,
+    	max_file_size               = p_max_file_size,
+        last_log_by                 = p_last_log_by
+    WHERE upload_setting_id         = p_upload_setting_id;
+
+    IF ROW_COUNT() = 0 THEN
+        INSERT INTO upload_setting (
+            upload_setting_name,
+            upload_setting_description,
+            max_file_size,
+            last_log_by
+        ) 
+        VALUES(
+            p_upload_setting_name,
+            p_upload_setting_description,
+            p_max_file_size,
+            p_last_log_by
+        );
+        
+        SET v_new_upload_setting_id = LAST_INSERT_ID();
+    ELSE
+        SET v_new_upload_setting_id = p_upload_setting_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_upload_setting_id AS new_upload_setting_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchUploadSetting//
+
+CREATE PROCEDURE fetchUploadSetting(
+	IN p_upload_setting_id INT
+)
+BEGIN
+	SELECT * FROM upload_setting
+	WHERE upload_setting_id = p_upload_setting_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteUploadSetting//
+
+CREATE PROCEDURE deleteUploadSetting(
+    IN p_upload_setting_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id;
+
+    DELETE FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkUploadSettingExist//
+
+CREATE PROCEDURE checkUploadSettingExist(
+    IN p_upload_setting_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateUploadSettingTable//
+
+CREATE PROCEDURE generateUploadSettingTable()
+BEGIN
+	SELECT upload_setting_id, upload_setting_name, upload_setting_description, max_file_size
+    FROM upload_setting 
+    ORDER BY upload_setting_id;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: UPLOAD SETTING FILE EXTENSION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS insertUploadSettingFileExtension//
+
+CREATE PROCEDURE insertUploadSettingFileExtension(
+    IN p_upload_setting_id INT, 
+    IN p_upload_setting_name VARCHAR(100), 
+    IN p_file_extension_id INT, 
+    IN p_file_extension_name VARCHAR(100), 
+    IN p_file_extension VARCHAR(10), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO upload_setting_file_extension (
+        upload_setting_id,
+        upload_setting_name,
+        file_extension_id,
+        file_extension_name,
+        file_extension,
+        last_log_by
+    ) 
+    VALUES(
+        p_upload_setting_id,
+        p_upload_setting_name,
+        p_file_extension_id,
+        p_file_extension_name,
+        p_file_extension,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchUploadSettingFileExtension//
+
+CREATE PROCEDURE fetchUploadSettingFileExtension(
+	IN p_upload_setting_id INT
+)
+BEGIN
+	SELECT * FROM upload_setting_file_extension
+	WHERE upload_setting_id = p_upload_setting_id;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteUploadSettingFileExtension//
+
+CREATE PROCEDURE deleteUploadSettingFileExtension(
+    IN p_upload_setting_file_extension_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM upload_setting_file_extension 
+    WHERE upload_setting_file_extension_id = p_upload_setting_file_extension_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
 
 /* =============================================================================================
    END OF PROCEDURES
@@ -2310,6 +2963,16 @@ CREATE PROCEDURE saveImport(
     IN p_values TEXT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1
+            @p1 = MESSAGE_TEXT;
+            SELECT @p1 AS error_message;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
     SET @sql = CONCAT(
         'INSERT INTO ', p_table_name, ' (', p_columns, ') ',
         'VALUES ', p_values, ' ',
@@ -2319,7 +2982,10 @@ BEGIN
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+
+    COMMIT;
 END //
+
 
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
@@ -2348,6 +3014,45 @@ END //
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: 
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
 
 
 /* =============================================================================================
