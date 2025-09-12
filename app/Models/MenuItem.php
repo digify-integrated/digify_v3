@@ -140,6 +140,18 @@ class MenuItem extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateMenuItemOptions(
+        $p_menu_item_id
+    ) {
+        $sql = 'CALL generateMenuItemOptions(
+            :p_menu_item_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_menu_item_id' => $p_menu_item_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

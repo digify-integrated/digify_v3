@@ -30,9 +30,9 @@ export const readjustDatatableColumn = () => {
 };
 
 export const manageActionDropdown = (options = { hideOnly: false }) => {
-    const actionDropdown = document.querySelector('.action-dropdown');
-    const masterCheckbox = document.getElementById('datatable-checkbox');
-    const childCheckboxes = Array.from(document.querySelectorAll('.datatable-checkbox-children'));
+    const actionDropdown    = document.querySelector('.action-dropdown');
+    const masterCheckbox    = document.getElementById('datatable-checkbox');
+    const childCheckboxes   = Array.from(document.querySelectorAll('.datatable-checkbox-children'));
 
     if (!actionDropdown) return;
 
@@ -52,26 +52,31 @@ export const initializeDatatable = ({
     selector,
     ajaxUrl,
     transaction,
-    columns = [],
-    columnDefs = [],
-    lengthMenu = [[10, 5, 25, 50, 100, -1], [10, 5, 25, 50, 100, 'All']],
-    order = [[1, 'asc']],
-    onRowClick = null
+    columns         = [],
+    columnDefs      = [],
+    lengthMenu      = [[10, 5, 25, 50, 100, -1], [10, 5, 25, 50, 100, 'All']],
+    order           = [[1, 'asc']],
+    onRowClick         = null
 }) => {
     const tableElement = document.querySelector(selector);
+
     if (!tableElement) return;
 
     manageActionDropdown();
 
-    const pageId = document.getElementById('page-id')?.value || '';
-    const pageLink = document.getElementById('page-link')?.getAttribute('href') || '';
+    const pageId    = document.getElementById('page-id')?.value || '';
+    const pageLink  = document.getElementById('page-link')?.getAttribute('href') || '';
 
     const settings = {
         ajax: {
             url: ajaxUrl,
             method: 'POST',
             dataType: 'json',
-            data: { transaction : transaction, page_id: pageId, page_link: pageLink },
+            data: { 
+                transaction : transaction,
+                page_id: pageId,
+                page_link: pageLink
+            },
             dataSrc: '',
             error: (xhr, status, error) => handleSystemError(xhr, status, error)
         },

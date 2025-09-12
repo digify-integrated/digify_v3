@@ -20,9 +20,9 @@ class MenuItemController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->menuItem             = $menuItem;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->menuItem         = $menuItem;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -42,52 +42,39 @@ class MenuItemController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'generate app module table'     => $this->generateMenuItemTable(),
-            default             => $this->systemHelper::sendErrorResponse(
-                'Transaction Failed',
-                'We encountered an issue while processing your request.'
-            ),
+            'generate menu item options'    => $this->generateMenuItemOptions(),
+            default                         => $this->systemHelper::sendErrorResponse(
+                                                    'Transaction Failed',
+                                                    'We encountered an issue while processing your request.'
+                                                )
         };
     }
 
-    public function generateMenuItemTable()
+    public function generateMenuItemOptions()
     {
-        $pageID = isset($_POST['page_id']) ? $_POST['page_id'] : null;
-        $pageLink = isset($_POST['page_link']) ? $_POST['page_link'] : null;
-        $response = [];
+        $pageLink   = $_POST['page_link'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $menuItemId   = $_POST['menu_item_id'] ?? false;
+        $response   = [];
 
-        $menuItems = $this->menuItem->generateMenuItemTable();
+        if(!$multiple){
+            $response[] = [
+                'id' => '',
+                'text' => '--'
+            ];
+        }
+
+        $menuItems = $this->menuItem->generateMenuItemOptions($menuItemId);
 
         foreach ($menuItems as $row) {
-            $menuItemID = $row['app_module_id'];
-            $menuItemName = $row['app_module_name'];
-            $menuItemDescription = $row['app_module_description'];
-            $appLogo = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
-
-            $menuItemIDEncrypted = $this->security->encryptData($menuItemID);
-
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $menuItemID .'">
-                                 </div>',
-                'APP_MODULE_NAME' => '<div class="d-flex align-items-center">
-                                        <img src="'. $appLogo .'" alt="app-logo" width="45" />
-                                        <div class="ms-3">
-                                            <div class="user-meta-info">
-                                                <h6 class="mb-0">'. $menuItemName .'</h6>
-                                                <small class="text-wrap fs-7 text-gray-500">'. $menuItemDescription .'</small>
-                                            </div>
-                                        </div>
-                                    </div>',
-                'LINK' => $pageLink .'&id='. $menuItemIDEncrypted
+                'id' => $row['menu_item_id'],
+                'text' => $row['menu_item_name']
             ];
         }
 
         echo json_encode($response);
     }
-    
-   
-
 }
 
 # Bootstrap the controller

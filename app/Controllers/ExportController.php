@@ -22,9 +22,9 @@ class ExportController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->export               = $export;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->export           = $export;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -48,9 +48,9 @@ class ExportController
             'generate export table options'     => $this->generateExportTableOption(),
             'export data'                       => $this->exportData(),
             default                             => $this->systemHelper::sendErrorResponse(
-                'Transaction Failed',
-                'We encountered an issue while processing your request.'
-            ),
+                                                        'Transaction Failed',
+                                                        'We encountered an issue while processing your request.'
+                                                    )
         };
     }
 
@@ -97,13 +97,12 @@ class ExportController
 
     public function exportData()
     {
-        $exportTo       = isset($_POST['export_to']) ? $_POST['export_to'] : null;
-        $exportIDs      = isset($_POST['export_id']) ? $_POST['export_id'] : null;
-        $tableColumns   = isset($_POST['table_column']) ? $_POST['table_column'] : null;
-        $tableName      = isset($_POST['table_name']) ? $_POST['table_name'] : null;
-
-        $cleanTableName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($tableName));
-        $timestamp = date('Y-m-d_Hi');
+        $exportTo           = $_POST['export_to']       ?? null;
+        $exportIDs          = $_POST['export_id']       ?? null;
+        $tableColumns       = $_POST['table_column']    ?? null;
+        $tableName          = $_POST['table_name']      ?? null;
+        $cleanTableName     = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($tableName));
+        $timestamp          = date('Y-m-d_Hi');
         
 
         if ($exportTo === 'csv') {
@@ -116,8 +115,7 @@ class ExportController
 
             fputcsv($output, $tableColumns);
                 
-            $columns = implode(", ", $tableColumns);
-                
+            $columns            = implode(", ", $tableColumns);
             $ids                = implode(",", array_map('intval', $exportIDs));
             $appModuleDetails   = $this->export->fetchExportData($tableName, $columns, $ids);
 
@@ -130,23 +128,22 @@ class ExportController
         }
         else {
             ob_start();
-            $filename = "{$cleanTableName}_report_{$timestamp}.xlsx";
 
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
+            $filename       = "{$cleanTableName}_report_{$timestamp}.xlsx";
+            $spreadsheet    = new Spreadsheet();
+            $sheet          = $spreadsheet->getActiveSheet();
+            $colIndex       = 'A';
 
-            $colIndex = 'A';
             foreach ($tableColumns as $column) {
                 $sheet->setCellValue($colIndex . '1', ucfirst(str_replace('_', ' ', $column)));
                 $colIndex++;
             }
 
-            $columns = implode(", ", $tableColumns);
-                
+            $columns            = implode(", ", $tableColumns);
             $ids                = implode(",", array_map('intval', $exportIDs));
             $appModuleDetails   = $this->export->fetchExportData($tableName, $columns, $ids);
+            $rowNumber          = 2;
 
-            $rowNumber = 2;
             foreach ($appModuleDetails as $appModuleDetail) {
                 $colIndex = 'A';
                 foreach ($tableColumns as $column) {

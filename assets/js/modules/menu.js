@@ -9,16 +9,16 @@
  * @returns {void}
  */
 export const setHereClassForMenu = (menuContainerSelector, menuSelector) => {
-  const currentUrl = window.location.href.split('?')[0];
-  const menuContainer = document.querySelector(menuContainerSelector);
+  const currentUrl      = window.location.href.split('?')[0];
+  const menuContainer   = document.querySelector(menuContainerSelector);
 
   if (!menuContainer) return;
 
   const firstLevelMenuItems = menuContainer.querySelectorAll(menuSelector);
 
   firstLevelMenuItems.forEach((menuItem) => {
-    let hasChildMatch = false;
-    const childLinks = menuItem.querySelectorAll('.menu-sub .menu-link');
+    let hasChildMatch   = false;
+    const childLinks    = menuItem.querySelectorAll('.menu-sub .menu-link');
 
     if (childLinks.length > 0) {
       childLinks.forEach((childLink) => {

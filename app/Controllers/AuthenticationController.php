@@ -59,9 +59,9 @@ class AuthenticationController
             'forgot password'   => $this->forgotPassword(),
             'password reset'    => $this->passwordReset(),
             default             => $this->systemHelper::sendErrorResponse(
-                'Transaction Failed',
-                'We encountered an issue while processing your request.'
-            ),
+                                        'Transaction Failed',
+                                        'We encountered an issue while processing your request.'
+                                    )
         };
     }
 
@@ -79,7 +79,7 @@ class AuthenticationController
 
         $email      = trim($_POST['email'] ?? '');
         $password   = $_POST['password'] ?? '';
-        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $ipAddress  = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
         // Rate limiting check
         $attempts = $this->authentication->checkRateLimited(
@@ -160,9 +160,9 @@ class AuthenticationController
         $encryptedUserAccountID = $this->security::encryptData($userAccountId);
 
         // Generate a new OTP and hash it for secure storage
-        $otp           = $this->security::generateOtp();
-        $otpHash       = $this->security::hashToken($otp);
-        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
+        $otp            = $this->security::generateOtp();
+        $otpHash        = $this->security::hashToken($otp);
+        $otpExpiryDate  = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
 
         // Save OTP in the database (hashed for security)
         $this->authentication->saveOTP($userAccountId, $otpHash, $otpExpiryDate);
@@ -318,9 +318,9 @@ class AuthenticationController
             );
         }
 
-        $credentials           = $this->authentication->fetchLoginCredentials($email);
-        $userAccountId         = $credentials['user_account_id'] ?? '';
-        $isActive              = $credentials['active'] ?? 'No';
+        $credentials    = $this->authentication->fetchLoginCredentials($email);
+        $userAccountId  = $credentials['user_account_id'] ?? '';
+        $isActive       = $credentials['active'] ?? 'No';
         
         $encryptedUserAccountID = $this->security::encryptData($userAccountId);
 
@@ -393,8 +393,8 @@ class AuthenticationController
             );
         }
 
-        $credentials           = $this->authentication->fetchLoginCredentials($userAccountId);
-        $isActive              = $credentials['active'] ?? 'No';
+        $credentials    = $this->authentication->fetchLoginCredentials($userAccountId);
+        $isActive       = $credentials['active'] ?? 'No';
 
         if ($isActive === 'No') {
             $this->systemHelper->sendErrorResponse(
@@ -451,9 +451,9 @@ class AuthenticationController
     private function resendOTPCode($userAccountId, $email)
     {
         // Generate OTP and prepare expiry
-        $otp           = $this->security::generateOtp();
-        $otpHash       = $this->security::hashToken($otp);
-        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
+        $otp            = $this->security::generateOtp();
+        $otpHash        = $this->security::hashToken($otp);
+        $otpExpiryDate  = date('Y-m-d H:i:s', strtotime('+' . OTP_DURATION . ' minutes'));
         
         // Save OTP in the database (hashed for security)
         $this->authentication->saveOTP($userAccountId, $otpHash, $otpExpiryDate);

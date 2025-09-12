@@ -27,11 +27,11 @@ export const generateExportColumns = (table_name) => {
                 table_name: table_name
             },
             success: function(response) {
-                var select = document.getElementById('table_column');
+                let select = document.getElementById('table_column');
                 select.options.length = 0;
 
                 response.forEach(function(opt) {
-                    var option = new Option(opt.text, opt.id);
+                    let option = new Option(opt.text, opt.id);
                     select.appendChild(option);
                 });
             },
@@ -76,12 +76,10 @@ let selectedColumnsOrder = [];
 export const exportData = (table_name) => {
     $(document).on('click','#submit-export',function() {
 
-        const transaction = 'export data';
-        var export_to = $('input[name="export_to"]:checked').val();
-
-        var table_column = selectedColumnsOrder;
-
-        let export_id = [];
+        const transaction   = 'export data';
+        let export_to       = $('input[name="export_to"]:checked').val();
+        let table_column    = selectedColumnsOrder;
+        let export_id       = [];
 
         $('.datatable-checkbox-children').each((index, element) => {
             if ($(element).is(':checked')) {
@@ -116,20 +114,21 @@ export const exportData = (table_name) => {
                 disableButton('submit-export');
             },
             success: function (response, status, xhr) {
-                var filename = "";                   
-                var disposition = xhr.getResponseHeader('Content-Disposition');
+                let filename        = "";                   
+                let disposition     = xhr.getResponseHeader('Content-Disposition');
 
                 if (disposition && disposition.indexOf('attachment') !== -1) {
-                    var matches = /filename="(.+)"/.exec(disposition);
+                    let matches = /filename="(.+)"/.exec(disposition);
                     if (matches != null && matches[1]) {
                         filename = matches[1];
                     }
                 }
 
-                var blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
-                var link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename || "export." + export_to;
+                let blob        = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+                let link        = document.createElement('a');
+                link.href       = window.URL.createObjectURL(blob);
+                link.download   = filename || "export." + export_to;
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);

@@ -8,21 +8,21 @@
                 $navBar = $menuItem->fetchNavBar($userID, $appModuleID);
 
                 foreach ($navBar as $row) {
-                    $menuItemID = $row['menu_item_id'];
-                    $menuItemName = $row['menu_item_name'];
-                    $menuItemURL = $row['menu_item_url'] ?? null;
-                    $parentID = $row['parent_id'];
-                    $appModuleID = $row['app_module_id'];
-                    $menuItemIcon = !empty($row['menu_item_icon']) ? $row['menu_item_icon'] : null;
+                    $menuItemID     = $row['menu_item_id'];
+                    $menuItemName   = $row['menu_item_name'];
+                    $menuItemURL    = $row['menu_item_url'] ?? null;
+                    $parentID       = $row['parent_id'];
+                    $appModuleID    = $row['app_module_id'];
+                    $menuItemIcon   = !empty($row['menu_item_icon']) ? $row['menu_item_icon'] : null;
                     
                     $menuItemArray = [
-                        'MENU_ITEM_ID' => $menuItemID,
-                        'MENU_ITEM_NAME' => $menuItemName,
-                        'MENU_ITEM_URL' => $menuItemURL,
-                        'PARENT_ID' => $parentID,
-                        'MENU_ITEM_ICON' => $menuItemIcon,
-                        'APP_MODULE_ID' => $appModuleID,
-                        'CHILDREN' => []
+                        'MENU_ITEM_ID'      => $menuItemID,
+                        'MENU_ITEM_NAME'    => $menuItemName,
+                        'MENU_ITEM_URL'     => $menuItemURL,
+                        'PARENT_ID'         => $parentID,
+                        'MENU_ITEM_ICON'    => $menuItemIcon,
+                        'APP_MODULE_ID'     => $appModuleID,
+                        'CHILDREN'          => []
                     ];
                     
                     $menuItems[$menuItemID] = $menuItemArray;

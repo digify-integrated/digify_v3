@@ -57,9 +57,9 @@ export const setNotification = (title, message, type) => {
  * @returns {void}
  */
 export const checkNotification = () => {
-  const notificationTitle = sessionStorage.getItem('notificationTitle');
-  const notificationMessage = sessionStorage.getItem('notificationMessage');
-  const notificationType = sessionStorage.getItem('notificationType');
+  const notificationTitle     = sessionStorage.getItem('notificationTitle');
+  const notificationMessage   = sessionStorage.getItem('notificationMessage');
+  const notificationType      = sessionStorage.getItem('notificationType');
 
   if (notificationTitle && notificationMessage && notificationType) {
     sessionStorage.clear();

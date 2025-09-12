@@ -24,10 +24,10 @@ class ImportController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->import               = $import;
-        $this->uploadSetting        = $uploadSetting;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->import           = $import;
+        $this->uploadSetting    = $uploadSetting;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -50,9 +50,9 @@ class ImportController
             'generate import data preview'     => $this->generateImportDataPreview(),
             'save import data'                 => $this->saveImportData(),
             default                            => $this->systemHelper::sendErrorResponse(
-                'Transaction Failed',
-                'We encountered an issue while processing your request.'
-            ),
+                                                        'Transaction Failed',
+                                                        'We encountered an issue while processing your request.'
+                                                    )
         };
     }
 
@@ -67,14 +67,14 @@ class ImportController
             );
         }
 
-        $importFileName = $_FILES['import_file']['name'];
-        $importFileSize = $_FILES['import_file']['size'];
-        $importTempName = $_FILES['import_file']['tmp_name'];
-        $importFileExtension = explode('.', $importFileName);
-        $importActualFileExtension = strtolower(end($importFileExtension));
+        $importFileName             = $_FILES['import_file']['name'];
+        $importFileSize             = $_FILES['import_file']['size'];
+        $importTempName             = $_FILES['import_file']['tmp_name'];
+        $importFileExtension        = explode('.', $importFileName);
+        $importActualFileExtension  = strtolower(end($importFileExtension));
 
-        $uploadSetting = $this->uploadSetting->fetchUploadSetting(3);
-        $maxFileSize = $uploadSetting['max_file_size'];
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
+        $maxFileSize    = $uploadSetting['max_file_size'];
 
         $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(3);
         $allowedFileExtensions = [];
@@ -152,15 +152,15 @@ class ImportController
             );
         }
 
-        $importTableName = $_POST['import_table_name'];
-        $importFileName = $_FILES['import_file']['name'];
-        $importFileSize = $_FILES['import_file']['size'];
-        $importTempName = $_FILES['import_file']['tmp_name'];
-        $importFileExtension = explode('.', $importFileName);
-        $importActualFileExtension = strtolower(end($importFileExtension));
+        $importTableName            = $_POST['import_table_name'];
+        $importFileName             = $_FILES['import_file']['name'];
+        $importFileSize             = $_FILES['import_file']['size'];
+        $importTempName             = $_FILES['import_file']['tmp_name'];
+        $importFileExtension        = explode('.', $importFileName);
+        $importActualFileExtension  = strtolower(end($importFileExtension));
 
-        $uploadSetting = $this->uploadSetting->fetchUploadSetting(3);
-        $maxFileSize = $uploadSetting['max_file_size'];
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
+        $maxFileSize    = $uploadSetting['max_file_size'];
 
         $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(3);
         $allowedFileExtensions = [];
@@ -221,17 +221,14 @@ class ImportController
         $valuesString = implode(',', $allValues);
 
         // Build other SQL parts
-        $placeholders = implode(',', array_fill(0, count($headers), '?')); 
-        $columns = implode(',', array_map(function($header) {
-            return "`" . addslashes($header) . "`";
-        }, $headers));
-
-        $updateFields = implode(',', array_map(function($header) {
-            return "`" . addslashes($header) . "` = VALUES(`" . addslashes($header) . "`)"; 
-        }, $headers));
-
-        // Call model, passing prebuilt $valuesString
-        $saveImportData = $this->import->saveImport($importTableName, $columns, $placeholders, $updateFields, $valuesString);
+        $placeholders       = implode(',', array_fill(0, count($headers), '?')); 
+        $columns            = implode(',', array_map(function($header) {
+                                return "`" . addslashes($header) . "`";
+                            }, $headers));
+        $updateFields       = implode(',', array_map(function($header) {
+                                return "`" . addslashes($header) . "` = VALUES(`" . addslashes($header) . "`)"; 
+                            }, $headers));
+        $saveImportData     = $this->import->saveImport($importTableName, $columns, $placeholders, $updateFields, $valuesString);
 
         // Normalize fetch() result
         if ($saveImportData === false) {

@@ -8,7 +8,7 @@ session_start();
  * If not, clear the session and redirect to the login page.
  */
 if (isset($_SESSION['user_account_id']) && !empty($_SESSION['user_account_id'])) {
-    $userID       = (int) $_SESSION['user_account_id']; // cast for safety
+    $userID  = (int) $_SESSION['user_account_id']; // cast for safety
 }
 else {
     // Clear all session data

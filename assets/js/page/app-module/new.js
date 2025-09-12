@@ -4,11 +4,11 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 $(document).ready(function () {
 
-    /*generateDropdownOptions({
+    generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#menu_item_id',
         data: { transaction: 'generate menu item options' }
-    });*/
+    });
     
     $('#app_module_form').validate({
         rules: {

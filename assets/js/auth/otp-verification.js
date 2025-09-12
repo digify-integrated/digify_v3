@@ -10,8 +10,8 @@ $(document).ready(function () {
      * Automatically focus on the next OTP input field once the current one reaches its max length.
      */
     $('.otp-input').on('input', function () {
-        var maxLength = parseInt($(this).attr('maxlength'));
-        var currentLength = $(this).val().length;
+        let maxLength       = parseInt($(this).attr('maxlength'));
+        let currentLength   = $(this).val().length;
 
         if (currentLength === maxLength) {
             $(this).next('.otp-input').focus();
@@ -25,10 +25,10 @@ $(document).ready(function () {
     $('.otp-input').on('paste', function (e) {
         e.preventDefault();
 
-        var pastedData = (e.originalEvent || e).clipboardData.getData('text/plain');
-        var filteredData = pastedData.replace(/[^a-zA-Z0-9]/g, ''); // Strip non-alphanumeric
+        let pastedData      = (e.originalEvent || e).clipboardData.getData('text/plain');
+        let filteredData    = pastedData.replace(/[^a-zA-Z0-9]/g, ''); // Strip non-alphanumeric
 
-        for (var i = 0; i < filteredData.length; i++) {
+        for (let i = 0; i < filteredData.length; i++) {
             if (i < 6) {
                 $('#otp_code_' + (i + 1)).val(filteredData.charAt(i));
             }
@@ -155,8 +155,8 @@ $(document).ready(function () {
  * @param {number} duration - Countdown duration in seconds.
  */
 function startCountdown(duration) {
-    const $countdown = $('#countdown');
-    const $resendLink = $('#resend-link');
+    const $countdown    = $('#countdown');
+    const $resendLink   = $('#resend-link');
 
     let remaining = duration;
 

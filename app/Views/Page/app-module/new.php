@@ -4,22 +4,16 @@
     </div>
     <div class="card-body">
         <form id="app-module-form" method="post" action="#">
-            <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="app_module_name">
-                    <span class="required">Display Name</span>
-                </label>
+            <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-2 row-cols-lg-3">
+                <div class="col">
+                    <div class="fv-row mb-4">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="app_module_name">
+                            <span class="required">Display Name</span>
+                        </label>
 
-                <input type="text" class="form-control" id="app_module_name" name="app_module_name" maxlength="100" autocomplete="off">
-            </div>
-            <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="app_module_description">
-                    <span class="required">Description</span>
-                </label>
-
-                <textarea class="form-control" id="app_module_description" name="app_module_description" maxlength="500" rows="3"></textarea>
-            </div>
-
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+                        <input type="text" class="form-control" id="app_module_name" name="app_module_name" maxlength="100" autocomplete="off">
+                    </div>
+                </div>
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="menu_item_id">
@@ -28,9 +22,7 @@
 
                         <select id="menu_item_id" name="menu_item_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
-
                 </div>
-
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="order_sequence">
@@ -40,6 +32,14 @@
                         <input type="number" class="form-control" id="order_sequence" name="order_sequence" min="0">
                     </div>
                 </div>
+            </div>
+
+            <div class="fv-row mb-4">
+                <label class="fs-6 fw-semibold form-label mt-3" for="app_module_description">
+                    <span class="required">Description</span>
+                </label>
+
+                <textarea class="form-control" id="app_module_description" name="app_module_description" maxlength="500" rows="3"></textarea>
             </div>
         </form>
     </div>

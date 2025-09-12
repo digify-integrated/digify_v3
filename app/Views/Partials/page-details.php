@@ -3,8 +3,8 @@ if (empty($_GET['page_id']) || empty($_GET['app_module_id'])) {
     $systemHelper->redirect('apps.php');
 }
 
-$appModuleID = (int) $security->decryptData($_GET['app_module_id']);
-$pageID      = (int) $security->decryptData($_GET['page_id']);
+$appModuleID    = (int) $security->decryptData($_GET['app_module_id']);
+$pageID         = (int) $security->decryptData($_GET['page_id']);
 
 if (!$appModuleID || !$pageID) {
     $systemHelper->redirect('apps.php');
@@ -16,11 +16,10 @@ $pageURL           = $pageDetails['menu_item_url'] ?? '';
 $tableName         = $pageDetails['table_name'] ?? '';
 $pageLink          = $pageURL . '?app_module_id=' . $security->encryptData($appModuleID) . '&page_id=' . $security->encryptData($pageID);
 
-$appModuleDetails  = $appModule->fetchAppModule($appModuleID) ?? [];
-$appModuleName     = $appModuleDetails['app_module_name'] ?? '';
-$appLogo           = $systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
-
-$accessTypes = ['read', 'write', 'delete', 'create', 'import', 'export', 'log notes'];
+$appModuleDetails   = $appModule->fetchAppModule($appModuleID) ?? [];
+$appModuleName      = $appModuleDetails['app_module_name'] ?? '';
+$appLogo            = $systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
+$accessTypes        = ['read', 'write', 'delete', 'create', 'import', 'export', 'log notes'];
 
 $permissions = [];
 foreach ($accessTypes as $type) {
@@ -31,10 +30,10 @@ if ($permissions['read'] === 0) {
     $systemHelper->redirect('404.php');
 }
 
-$detailID        = null;
-$newRecord       = false;
-$importRecord    = false;
-$importTableName = null;
+$detailID           = null;
+$newRecord          = false;
+$importRecord       = false;
+$importTableName    = null;
 
 if (!empty($_GET['id'])) {
     $detailID = (int) $security->decryptData($_GET['id']);
@@ -57,8 +56,8 @@ if (isset($_GET['import'])) {
         $systemHelper->redirect($pageLink);
     }
 
-    $importRecord    = true;
-    $importTableName = $security->decryptData($_GET['import']);
+    $importRecord       = true;
+    $importTableName    = $security->decryptData($_GET['import']);
 }
 
 $disabled = $permissions['write'] === 0 ? 'disabled' : '';

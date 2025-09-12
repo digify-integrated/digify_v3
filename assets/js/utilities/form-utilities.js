@@ -17,8 +17,8 @@ export const disableButton = (buttonIds) => {
     if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
 
     // Disable button and show spinner
-    btn.disabled = true;
-    btn.innerHTML = `<span><span class="spinner-border spinner-border-sm align-middle ms-0"></span></span>`;
+    btn.disabled    = true;
+    btn.innerHTML   = `<span><span class="spinner-border spinner-border-sm align-middle ms-0"></span></span>`;
   });
 };
 
@@ -71,7 +71,6 @@ export const generateDropdownOptions = ({url, dropdownSelector, data = {}}) => {
 
             $dropdown
                 .select2({ data: response })
-                .off('change')
                 .on('change', function () {
                     $(this).valid();
                 });

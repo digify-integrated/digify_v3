@@ -20,9 +20,9 @@ class AppModuleController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->appModule            = $appModule;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->appModule        = $appModule;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -43,28 +43,26 @@ class AppModuleController
 
         match ($transaction) {
             'generate app module table'     => $this->generateAppModuleTable(),
-            default             => $this->systemHelper::sendErrorResponse(
-                'Transaction Failed',
-                'We encountered an issue while processing your request.'
-            ),
+            default                         => $this->systemHelper::sendErrorResponse(
+                                                'Transaction Failed',
+                                                'We encountered an issue while processing your request.'
+                                            )
         };
     }
 
     public function generateAppModuleTable()
     {
-        $pageID = isset($_POST['page_id']) ? $_POST['page_id'] : null;
-        $pageLink = isset($_POST['page_link']) ? $_POST['page_link'] : null;
-        $response = [];
+        $pageLink   = isset($_POST['page_link']) ? $_POST['page_link'] : null;
+        $response   = [];
 
         $appModules = $this->appModule->generateAppModuleTable();
 
         foreach ($appModules as $row) {
-            $appModuleID = $row['app_module_id'];
-            $appModuleName = $row['app_module_name'];
-            $appModuleDescription = $row['app_module_description'];
-            $appLogo = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
-
-            $appModuleIDEncrypted = $this->security->encryptData($appModuleID);
+            $appModuleID            = $row['app_module_id'];
+            $appModuleName          = $row['app_module_name'];
+            $appModuleDescription   = $row['app_module_description'];
+            $appLogo                = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
+            $appModuleIDEncrypted   = $this->security->encryptData($appModuleID);
 
             $response[] = [
                 'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
