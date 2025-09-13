@@ -74,11 +74,17 @@ $(document).ready(function () {
                 success: function(response) {
                     if (response.success) {
                         setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link + '&id=' + response.app_module_id
+                        window.location = page_link + '&id=' + response.app_module_id;
                     }
-                    else {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
+                    else{
+                        if(response.invalid_session){
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.href = response.redirect_link;
+                        }
+                        else{
+                            showNotification(response.title, response.message, response.message_type);
+                            enableButton('submit-data');
+                        }
                     }
                 },
                 error: function(xhr, status, error) {

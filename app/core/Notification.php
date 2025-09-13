@@ -111,8 +111,8 @@ class Notification
         if ((int)$setting['system_notification'] === 1 && !empty($recipientUserIds)) {
             $systemTemplate = $this->notificationSetting->fetchSystemNotificationTemplate($notificationSettingId);
             if ($systemTemplate) {
-                $title   = $replacePlaceholders($systemTemplate['system_notification_title'], $placeholders);
-                $message = $replacePlaceholders($systemTemplate['system_notification_message'], $placeholders);
+                $title      = $replacePlaceholders($systemTemplate['system_notification_title'], $placeholders);
+                $message    = $replacePlaceholders($systemTemplate['system_notification_message'], $placeholders);
 
                 foreach ($recipientUserIds as $userId) {
                     if ($this->systemNotification->send($userId, $title, $message)) {
@@ -126,8 +126,8 @@ class Notification
         if ((int)$setting['email_notification'] === 1 && !empty($recipientEmails)) {
             $emailTemplate = $this->notificationSetting->fetchEmailNotificationTemplate($notificationSettingId);
             if ($emailTemplate) {
-                $subject = $replacePlaceholders($emailTemplate['email_notification_subject'], $placeholders);
-                $body    = $replacePlaceholders($emailTemplate['email_notification_body'], $placeholders);
+                $subject    = $replacePlaceholders($emailTemplate['email_notification_subject'], $placeholders);
+                $body       = $replacePlaceholders($emailTemplate['email_notification_body'], $placeholders);
 
                 $emailResult = $this->email->sendEmail(
                     $recipientEmails,

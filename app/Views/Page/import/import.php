@@ -1,7 +1,3 @@
-<?php
-    use App\Core\Security;
-?>
-
 <div class="card mb-6">
     <div class="card-header border-0 pt-6 pb-6">
         <div class="card-title">
@@ -62,7 +58,7 @@
 
             <div class="modal-body">
                 <form id="upload_form" method="post" action="#">
-                    <?= Security::csrfInput('upload_form'); ?>
+                    <?= $security->csrfInput('upload_form'); ?>
                     <div class="row">
                         <div class="col-lg-12">
                             <input type="hidden" id="import_table_name" name="import_table_name" value="<?php echo $importTableName; ?>">

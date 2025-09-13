@@ -39,15 +39,19 @@ class AuthenticationController
     public function handleRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->systemHelper::sendErrorResponse('Invalid Request', 'Only POST requests are allowed.');
-            return;
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Only POST requests are allowed.'
+            );
         }
 
         $transaction = $_POST['transaction'] ?? null;
 
         if (!$transaction) {
-            $this->systemHelper::sendErrorResponse('Missing Transaction', 'No transaction type was provided.');
-            return;
+            $this->systemHelper::sendErrorResponse(
+                'Missing Transaction',
+                'No transaction type was provided.'
+            );
         }
 
         $transaction = strtolower(trim($transaction));

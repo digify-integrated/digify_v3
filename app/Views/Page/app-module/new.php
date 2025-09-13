@@ -3,7 +3,8 @@
         <h5 class="card-title mb-0">App Module Details</h5>
     </div>
     <div class="card-body">
-        <form id="app-module-form" method="post" action="#">
+        <form id="app_module_form" method="post" action="#">
+            <?= $security->csrfInput('app_module_form'); ?>
             <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-2 row-cols-lg-3">
                 <div class="col">
                     <div class="fv-row mb-4">
@@ -45,6 +46,6 @@
     </div>
     <div class="card-footer d-flex justify-content-end py-6 px-9">
         <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-        <button type="submit" form="app-module-form" class="btn btn-primary" id="submit-data">Save</button>
+        <button type="submit" form="app_module_form" class="btn btn-primary" id="submit-data">Save</button>
     </div>
 </div>

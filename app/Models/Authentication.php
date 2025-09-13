@@ -148,14 +148,14 @@ class Authentication extends Model {
     ============================================================================================= */
 
     public function fetchLoginCredentials(
-        $p_email
+        $p_credendtial
     ) {
         $sql = 'CALL fetchLoginCredentials(
-            :p_email
+            :p_credendtial
         )';
         
         return $this->fetch($sql, [
-            'p_email' => $p_email
+            'p_credendtial' => $p_credendtial
         ]);
     }
 
@@ -204,18 +204,6 @@ class Authentication extends Model {
         
         return $this->fetchAll($sql, [
             'p_user_account_id' => $p_user_account_id
-        ]);
-    }
-
-    public function fetchInternalNotesAttachment(
-        $p_internal_notes_id
-    ) {
-        $sql = 'CALL fetchInternalNotesAttachment(
-            :p_internal_notes_id
-        )';
-
-        return $this->fetchAll($sql, [
-            'p_internal_notes_id' => $p_internal_notes_id
         ]);
     }
 

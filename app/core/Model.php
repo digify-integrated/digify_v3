@@ -34,8 +34,8 @@ abstract class Model
      */
     public function __construct()
     {
-        $dbInstance = Database::getInstance(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-        $this->db = $dbInstance->getConnection();
+        $dbInstance     = Database::getInstance(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+        $this->db       = $dbInstance->getConnection();
     }
 
     /**
@@ -104,9 +104,9 @@ abstract class Model
     private function maskQuery(string $query, array $params): string
     {
         foreach ($params as $key => $value) {
-            $valuePlaceholder = is_numeric($value) ? '[NUMERIC_PARAM]' : '[STRING_PARAM]';
-            $placeholder = is_int($key) ? '?' : ":$key";
-            $query = str_replace($placeholder, $valuePlaceholder, $query);
+            $valuePlaceholder   = is_numeric($value) ? '[NUMERIC_PARAM]' : '[STRING_PARAM]';
+            $placeholder        = is_int($key) ? '?' : ":$key";
+            $query              = str_replace($placeholder, $valuePlaceholder, $query);
         }
         return $query;
     }

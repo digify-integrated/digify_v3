@@ -25,7 +25,7 @@
                     <h3 class="fw-bold m-0">App Module Details</h3>
                 </div>
                 <?php
-                    if ($permissions['delete'] > 0 || $permissions['export'] > 0) {
+                    if ($permissions['delete'] > 0) {
                         $action = '<a href="#" class="btn btn-light-primary btn-flex btn-center btn-active-light-primary show menu-dropdown align-self-center" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                                         Actions
                                         <i class="ki-outline ki-down fs-5 ms-1"></i>
@@ -47,24 +47,19 @@
                 ?>
             </div>
 
-            <form id="app-module-form" class="form" method="post" action="#">
+            <form id="app_module_form" class="form" method="post" action="#">
+                <?= $security->csrfInput('app_module_form'); ?>
                 <div class="card-body border-top p-9">
-                    <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="app_module_name">
-                            <span class="required">Display Name</span>
-                        </label>
+                    <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-2 row-cols-lg-3">
+                        <div class="col">
+                            <div class="fv-row mb-4">
+                                <label class="fs-6 fw-semibold form-label mt-3" for="app_module_name">
+                                    <span class="required">Display Name</span>
+                                </label>
 
-                        <input type="text" class="form-control" id="app_module_name" name="app_module_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                    </div>
-                    <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="app_module_description">
-                            <span class="required">Description</span>
-                        </label>
-
-                        <textarea class="form-control" id="app_module_description" name="app_module_description" maxlength="500" rows="3" <?php echo $disabled; ?>></textarea>
-                    </div>
-
-                    <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+                                <input type="text" class="form-control" id="app_module_name" name="app_module_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                            </div>
+                        </div>
                         <div class="col">
                             <div class="fv-row mb-7">
                                 <label class="fs-6 fw-semibold form-label mt-3" for="menu_item_id">
@@ -73,9 +68,7 @@
 
                                 <select id="menu_item_id" name="menu_item_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                             </div>
-
                         </div>
-
                         <div class="col">
                             <div class="fv-row mb-7">
                                 <label class="fs-6 fw-semibold form-label mt-3" for="order_sequence">
@@ -86,12 +79,20 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="fv-row mb-4">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="app_module_description">
+                            <span class="required">Description</span>
+                        </label>
+
+                        <textarea class="form-control" id="app_module_description" name="app_module_description" maxlength="500" rows="3" <?php echo $disabled; ?>></textarea>
+                    </div>
                 </div>
 
                 <?php
                     echo ($permissions['write'] > 0) ? '<div class="card-footer d-flex justify-content-end py-6 px-9">
                                                             <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-                                                            <button type="submit" form="app-module-form" class="btn btn-primary" id="submit-data">Save Changes</button>
+                                                            <button type="submit" form="app_module_form" class="btn btn-primary" id="submit-data">Save Changes</button>
                                                         </div>' : '';
                 ?>
             </form>

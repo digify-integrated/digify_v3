@@ -82,8 +82,8 @@ class Security
             return false;
         }
 
-        $ivLength = openssl_cipher_iv_length('aes-256-cbc');
-        $iv = random_bytes($ivLength);
+        $ivLength   = openssl_cipher_iv_length('aes-256-cbc');
+        $iv         = random_bytes($ivLength);
 
         $ciphertext = openssl_encrypt(
             $plainText,
@@ -116,8 +116,8 @@ class Security
             return false;
         }
 
-        $iv = substr($decodedData, 0, $ivLength);
-        $cipherRaw = substr($decodedData, $ivLength);
+        $iv         = substr($decodedData, 0, $ivLength);
+        $cipherRaw  = substr($decodedData, $ivLength);
 
         return openssl_decrypt(
             $cipherRaw,
@@ -159,9 +159,10 @@ class Security
         }
 
         // --- Mask domain (keep TLD visible) ---
-        $domainParts = explode('.', $domain);
-        $tld = array_pop($domainParts);
-        $maskedDomain = '';
+        $domainParts    = explode('.', $domain);
+        $tld            = array_pop($domainParts);
+        $maskedDomain   = '';
+
         foreach ($domainParts as $part) {
             $maskedDomain .= substr($part, 0, 2) . str_repeat('*', max(0, strlen($part) - 2)) . '.';
         }
@@ -178,11 +179,9 @@ class Security
      */
     public static function obscureCardNumber(string $cardNumber): string
     {
-        $last4Digits = substr($cardNumber, -4);
-        $masked = str_repeat('*', max(0, strlen($cardNumber) - 4));
-
-        // Group into chunks of 4 for readability
-        $maskedGrouped = implode(' ', str_split($masked, 4));
+        $last4Digits    = substr($cardNumber, -4);
+        $masked         = str_repeat('*', max(0, strlen($cardNumber) - 4));
+        $maskedGrouped  = implode(' ', str_split($masked, 4));
 
         return trim($maskedGrouped . ' ' . $last4Digits);
     }
@@ -196,8 +195,8 @@ class Security
      */
     public static function generateFileName(int $minLength = 4, int $maxLength = 8): string
     {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $length = random_int($minLength, $maxLength);
+        $characters     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $length         = random_int($minLength, $maxLength);
 
         $filename = '';
         for ($i = 0; $i < $length; $i++) {

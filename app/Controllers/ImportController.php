@@ -5,6 +5,7 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Import;
+use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
@@ -15,17 +16,20 @@ class ImportController
 {
     protected Import $import;
     protected UploadSetting $uploadSetting;
+    protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
         Import $import,
         UploadSetting $uploadSetting,
+        Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->import           = $import;
         $this->uploadSetting    = $uploadSetting;
+        $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -33,15 +37,38 @@ class ImportController
     public function handleRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->systemHelper::sendErrorResponse('Invalid Request', 'Only POST requests are allowed.');
-            return;
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Only POST requests are allowed.'
+            );
         }
 
         $transaction = $_POST['transaction'] ?? null;
+        $lastLogBy = $_SESSION['user_account_id'];
 
         if (!$transaction) {
-            $this->systemHelper::sendErrorResponse('Missing Transaction', 'No transaction type was provided.');
-            return;
+            $this->systemHelper::sendErrorResponse(
+                'Missing Transaction',
+                'No transaction type was provided.'
+            );
+        }
+
+        $loginCredentialsDetails = $this->authentication->fetchLoginCredentials($lastLogBy);       
+        $multipleSession    = $loginCredentialsDetails['multiple_session'] ?? 'No';
+        $isActive           = $loginCredentialsDetails['active'] ?? 'No';
+
+        $sessionTokenDetails    = $this->authentication->fetchSession($lastLogBy);
+        $sessionToken           = $sessionTokenDetails['session_token'] ?? '';
+
+        if ($isActive === 'No' || (!$this->security->verifyToken($_SESSION['session_token'], $sessionToken) && $multipleSession === 'No')) {
+            $this->systemHelper::sendErrorResponse(
+                'Session Expired', 
+                'Your session has expired. Please log in again to continue.',
+                [
+                    'invalid_session' => true,
+                    'redirect_link' => 'logout.php?logout'
+                    ]
+            );
         }
 
         $transaction = strtolower(trim($transaction));
@@ -255,6 +282,7 @@ class ImportController
 $controller = new ImportController(
     new Import(),
     new UploadSetting(),
+    new Authentication(),
     new Security(),
     new SystemHelper()
 );

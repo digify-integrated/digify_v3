@@ -1,5 +1,3 @@
-import { showNotification } from './notifications.js';
-
 /**
  * Shows a confirmation dialog before discarding unsaved changes.
  * - If confirmed, redirects to the given page.
@@ -16,12 +14,14 @@ export const discardCreate = (pageLink) => {
     showCancelButton: true,
     confirmButtonText: 'Yes, discard it!',
     cancelButtonText: 'Cancel',
+    customClass: {
+      confirmButton: 'btn btn-warning mt-2',
+      cancelButton: 'btn btn-secondary ms-2 mt-2'
+    },
     reverseButtons: true,
   }).then(({ isConfirmed, dismiss }) => {
     if (isConfirmed) {
       window.location.href = pageLink;
-    } else if (dismiss === Swal.DismissReason.cancel) {
-      showNotification('Cancelled', 'Your changes are safe.', 'info');
     }
   });
 };

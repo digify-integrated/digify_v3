@@ -168,16 +168,17 @@ class SystemHelper extends Security
     public static function getDefaultImage(string $type): string
     {
         $defaults = [
-            'profile'             => DEFAULT_AVATAR_IMAGE,
-            'login background'    => DEFAULT_BG_IMAGE,
-            'login logo'          => DEFAULT_LOGIN_LOGO_IMAGE,
-            'menu logo'           => DEFAULT_MENU_LOGO_IMAGE,
-            'module icon'         => DEFAULT_MODULE_ICON_IMAGE,
-            'favicon'             => DEFAULT_FAVICON_IMAGE,
-            'company logo'        => DEFAULT_COMPANY_LOGO,
-            'id placeholder front'=> DEFAULT_ID_PLACEHOLDER_FRONT,
-            'app module logo'     => DEFAULT_APP_MODULE_LOGO,
-            'upload placeholder'  => DEFAULT_UPLOAD_PLACEHOLDER,
+            'profile'               => DEFAULT_AVATAR_IMAGE,
+            'login background'      => DEFAULT_BG_IMAGE,
+            'login logo'            => DEFAULT_LOGIN_LOGO_IMAGE,
+            'menu logo'             => DEFAULT_MENU_LOGO_IMAGE,
+            'module icon'           => DEFAULT_MODULE_ICON_IMAGE,
+            'favicon'               => DEFAULT_FAVICON_IMAGE,
+            'company logo'          => DEFAULT_COMPANY_LOGO,
+            'id placeholder front'  => DEFAULT_ID_PLACEHOLDER_FRONT,
+            'app module logo'       => DEFAULT_APP_MODULE_LOGO,
+            'upload placeholder'    => DEFAULT_UPLOAD_PLACEHOLDER,
+            'null'                  => null
         ];
 
         return $defaults[$type] ?? DEFAULT_PLACEHOLDER_IMAGE;
@@ -208,6 +209,31 @@ class SystemHelper extends Security
         }
 
         return self::getDefaultImage($type);
+    }
+
+    /**
+     * Delete image if it exists.
+     *
+     * @param string|null $image
+     * @return bool True if deleted, false if not
+     */
+    public static function deleteImageIfExist(?string $image): bool
+    {
+        if (empty($image)) {
+            return false; // nothing to delete
+        }
+
+        // Normalize path (remove leading "./" if present)
+        $normalizedPath = ltrim($image, './');
+
+        // Build filesystem path relative to project root
+        $filePath = __DIR__ . '/../../' . $normalizedPath;
+
+        if (file_exists($filePath)) {
+            return unlink($filePath); // true if success, false if failure
+        }
+
+        return false; // file does not exist
     }
 
 
@@ -296,10 +322,10 @@ class SystemHelper extends Security
     public static function sendErrorResponse(string $title, string $message, array $additionalData = []): void
     {
         $response = array_merge([
-            'success'     => false,
-            'title'       => $title,
-            'message'     => $message,
-            'message_type' => 'error',
+            'success'       => false,
+            'title'         => $title,
+            'message'       => $message,
+            'message_type'  => 'error',
         ], $additionalData);
 
         echo json_encode($response);
@@ -312,10 +338,10 @@ class SystemHelper extends Security
     public static function sendSuccessResponse(string $title, string $message, array $additionalData = []): void
     {
         $response = array_merge([
-            'success'     => true,
-            'title'       => $title,
-            'message'     => $message,
-            'message_type' => 'success',
+            'success'       => true,
+            'title'         => $title,
+            'message'       => $message,
+            'message_type'  => 'success',
         ], $additionalData);
 
         echo json_encode($response);
@@ -332,12 +358,12 @@ class SystemHelper extends Security
 
     public function buildMenuItemHTML($menuItemDetails, $level = 1) {
         $html = '';
-        $menuItemID = Security::encryptData($menuItemDetails['MENU_ITEM_ID'] ?? null);
-        $appModuleID = Security::encryptData($menuItemDetails['APP_MODULE_ID'] ?? null);
-        $menuItemName = $menuItemDetails['MENU_ITEM_NAME'] ?? null;
-        $menuItemIcon = $menuItemDetails['MENU_ITEM_ICON'] ?? null;
-        $menuItemURL = $menuItemDetails['MENU_ITEM_URL'] ?? null;
-        $children = $menuItemDetails['CHILDREN'] ?? null;
+        $menuItemID     = Security::encryptData($menuItemDetails['MENU_ITEM_ID'] ?? null);
+        $appModuleID    = Security::encryptData($menuItemDetails['APP_MODULE_ID'] ?? null);
+        $menuItemName   = $menuItemDetails['MENU_ITEM_NAME'] ?? null;
+        $menuItemIcon   = $menuItemDetails['MENU_ITEM_ICON'] ?? null;
+        $menuItemURL    = $menuItemDetails['MENU_ITEM_URL'] ?? null;
+        $children       = $menuItemDetails['CHILDREN'] ?? null;
     
         $menuItemURL = !empty($menuItemURL) ? (strpos($menuItemURL, '?page_id=') !== false ? $menuItemURL : $menuItemURL . '?app_module_id=' . $appModuleID . '&page_id=' . $menuItemID) : 'javascript:void(0)';
     

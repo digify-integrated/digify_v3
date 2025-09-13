@@ -81,8 +81,14 @@ $(document).ready(function () {
                         }
                     }
                     else {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton(['submit-upload', 'import', 'reset-import']);
+                        if(response.invalid_session){
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.href = response.redirect_link;
+                        }
+                        else{
+                            showNotification(response.title, response.message, response.message_type);
+                            enableButton(['submit-upload', 'import', 'reset-import']);
+                        }
                     }
                 },
                 error: function(xhr, status, error) {
