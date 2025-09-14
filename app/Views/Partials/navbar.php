@@ -30,7 +30,7 @@
 
                 foreach ($menuItems as $menuItemArray) {
                     if (!empty($menuItemArray['PARENT_ID'])) {
-                        if ($authenticationModel->checkAccessRights($userID, $menuItemArray['PARENT_ID'], 'read')['total'] > 0) {
+                        if ($authentication->checkUserPermission($userID, $menuItemArray['PARENT_ID'], 'read')['total'] > 0) {
                             $menuItems[$menuItemArray['PARENT_ID']]['CHILDREN'][] = &$menuItems[$menuItemArray['MENU_ITEM_ID']];
                         }
                     }

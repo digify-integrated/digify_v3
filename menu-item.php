@@ -31,16 +31,16 @@
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
                                     if($newRecord){
-                                        require_once('./app/Views/Page/app-module/new.php');
+                                        require_once('./app/Views/Page/menu-item/new.php');
                                     }
                                     else if(!empty($detailID)){
-                                        require_once('./app/Views/Page/app-module/details.php');
+                                        require_once('./app/Views/Page/menu-item/details.php');
                                     }
                                     else if(isset($_GET['import']) && !empty($_GET['import'])){
                                         require_once('./app/Views/Page/import/import.php');
                                     }
                                     else{
-                                        require_once('./app/Views/Page/app-module/index.php');
+                                        require_once('./app/Views/Page/menu-item/index.php');
                                     }
                                 ?>
                             </div>
@@ -58,13 +58,13 @@
 
     <?php
         $version = rand();
-        $scriptFile = './assets/js/page/app-module/index.js';
+        $scriptFile = './assets/js/page/menu-item/index.js';
 
         if ($newRecord) {
-            $scriptFile = './assets/js/page/app-module/new.js';
+            $scriptFile = './assets/js/page/menu-item/new.js';
         }
         elseif (!empty($detailID)) {
-            $scriptFile = './assets/js/page/app-module/details.js';
+            $scriptFile = './assets/js/page/menu-item/details.js';
         }
         elseif (isset($_GET['import']) && !empty($_GET['import'])) {
             $scriptFile = './assets/js/page/import/import.js'; 

@@ -381,9 +381,9 @@ CREATE INDEX idx_app_module_menu_item_id ON app_module(menu_item_id);
   INITIAL VALUES: APP MODULE
 ============================================================================================= */
 
-INSERT INTO app_module (app_module_id, app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) 
-VALUES
-(1, 'Settings', 'Centralized management hub for comprehensive organizational oversight and control', './storage/uploads/app_module/1/Pboex.png', 1, 'App Module', 100);
+INSERT INTO app_module (app_module_id, app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) VALUES
+(1, 'Settings', 'Centralized management hub for comprehensive organizational oversight and control', './storage/uploads/app_module/1/Pboex.png', 1, 'App Module', 100),
+(2, 'Employee', 'Centralize employee information', './storage/uploads/app_module/2/Jiwn.png', 24, 'Employee', 5);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -427,7 +427,18 @@ CREATE INDEX idx_menu_item_parent_id ON menu_item(parent_id);
 
 INSERT INTO menu_item (menu_item_name, menu_item_url, menu_item_icon, app_module_id, app_module_name, parent_id, parent_name, table_name, order_sequence)
 VALUES
-('App Module', 'app-module.php', '', 1, 'Settings', 0, '', 'app_module', 1);
+('App Module', 'app-module.php', '', 1, 'Settings', 0, '', 'app_module', 1),
+('General Settings', 'general-settings.php', '', 1, 'Settings', 0, '', '', 7),
+('Users & Companies', '', '', 1, 'Settings', 0, '', '', 21),
+('User Account', 'user-account.php', 'ki-outline ki-user', 1, 'Settings', 3, 'Users & Companies', 'user_account', 21),
+('Company', 'company.php', 'ki-outline ki-shop', 1, 'Settings', 3, 'Users & Companies', 'company', 3),
+('Role', 'role.php', '', 1, 'Settings', NULL, NULL, 'role', 3),
+('User Interface', '', '', 1, 'Settings', NULL, NULL, '', 16),
+('Menu Item', 'menu-item.php', 'ki-outline ki-data', 1, 'Settings', 7, 'User Interface', 'menu_item', 2),
+('System Action', 'system-action.php', 'ki-outline ki-key-square', 1, 'Settings', 7, 'User Interface', 'system_action', 2),
+('Account Settings', 'account-settings.php', '', 1, 'Settings', NULL, NULL, NULL, 999),
+('Configurations', '', '', 1, 'Settings', 0, '', '', 50),
+('Localization', '', '', 1, 'Settings', 0, '', '', 50);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -457,6 +468,18 @@ CREATE TABLE system_action(
 /* =============================================================================================
   INITIAL VALUES: SYSTEM ACTION
 ============================================================================================= */
+
+INSERT INTO system_action (system_action_name, system_action_description) VALUES
+('Activate User Account', 'Access to activate the user account.'),
+('Deactivate User Account', 'Access to deactivate the user account.'),
+('Add Role User Account', 'Access to assign roles to user account.'),
+('Delete Role User Account', 'Access to delete roles to user account.'),
+('Add Role Access', 'Access to add role access.'),
+('Update Role Access', 'Access to update role access.'),
+('Delete Role Access', 'Access to delete role access.'),
+('Add Role System Action Access', 'Access to add the role system action access.'),
+('Update Role System Action Access', 'Access to update the role system action access.'),
+('Delete Role System Action Access', 'Access to delete the role system action access.');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -531,9 +554,17 @@ CREATE INDEX idx_role_permission_menu_item_id ON role_permission(menu_item_id);
   INITIAL VALUES: ROLE PERMISSION
 ============================================================================================= */
 
-INSERT INTO role_permission (role_permission_id, role_id, role_name, menu_item_id, menu_item_name, read_access, write_access, create_access, delete_access, import_access, export_access, log_notes_access)
+INSERT INTO role_permission (role_id, role_name, menu_item_id, menu_item_name, read_access, write_access, create_access, delete_access, import_access, export_access, log_notes_access)
 VALUES
-(1, 1, 'Super Admin', 1, 'App Module', 1, 1, 1, 1, 1, 1, 1);
+(1, 'Super Admin', 1, 'App Module', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 2, 'General Settings', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 3, 'Users & Companies', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 4, 'User Account', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 5, 'Company', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 6, 'Role', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 7, 'User Interface', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 8, 'Menu Item', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 9, 'System Action', 1, 1, 1, 1, 1, 1, 1);
 
 /* =============================================================================================
   TABLE: ROLE SYSTEM ACTION PERMISSION
@@ -567,6 +598,18 @@ CREATE INDEX idx_role_system_action_permission_system_action_id ON role_system_a
 /* =============================================================================================
   INITIAL VALUES: ROLE SYSTEM ACTION PERMISSION
 ============================================================================================= */
+
+INSERT INTO role_system_action_permission (role_id, role_name, system_action_id, system_action_name, system_action_access) VALUES
+(1, 'Super Admin', 1, 'Activate User Account', 1),
+(1, 'Super Admin', 2, 'Deactivate User Account', 1),
+(1, 'Super Admin', 3, 'Add Role User Account', 1),
+(1, 'Super Admin', 4, 'Delete Role User Account', 1),
+(1, 'Super Admin', 5, 'Add Role Access', 1),
+(1, 'Super Admin', 6, 'Update Role Access', 1),
+(1, 'Super Admin', 7, 'Delete Role Access', 1),
+(1, 'Super Admin', 8, 'Add Role System Action Access', 1),
+(1, 'Super Admin', 9, 'Update Role System Action Access', 1),
+(1, 'Super Admin', 19, 'Delete Role System Action Access', 1);
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT

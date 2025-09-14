@@ -1,11 +1,13 @@
 <?php
 namespace App\Controllers;
 
+
 session_start();
 
 use App\Models\AppModule;
 use App\Models\MenuItem;
 use App\Models\Authentication;
+use App\Models\UploadSetting;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
@@ -16,6 +18,7 @@ class AppModuleController
     protected AppModule $appModule;
     protected MenuItem $menuItem;
     protected Authentication $authentication;
+    protected UploadSetting $uploadSetting;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
@@ -23,12 +26,14 @@ class AppModuleController
         AppModule $appModule,
         MenuItem $menuItem,
         Authentication $authentication,
+        UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->appModule        = $appModule;
         $this->menuItem         = $menuItem;
         $this->authentication   = $authentication;
+        $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -42,8 +47,8 @@ class AppModuleController
             );
         }
 
-        $transaction = $_POST['transaction'] ?? null;
-        $lastLogBy = $_SESSION['user_account_id'];
+        $transaction    = $_POST['transaction'] ?? null;
+        $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
             $this->systemHelper::sendErrorResponse(
@@ -106,33 +111,106 @@ class AppModuleController
         $menuItemName = $menuItemDetains['menu_item_name'] ?? '';
 
         $appModuleId = $this->appModule->saveAppModule($appModuleId, $appModuleName, $appModuleDescription, $menuItemId, $menuItemName, $orderSequence, $lastLogBy);
-        $encryptedAppModuleId = $this->security->encryptData($appModuleId);
+        $encryptedappModuleId = $this->security->encryptData($appModuleId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save App Module Success',
             'The app module has been saved successfully.',
-            ['app_module_id' => $encryptedAppModuleId]
+            ['app_module_id' => $encryptedappModuleId]
         );
     }
 
     public function updateAppModuleLogo($lastLogBy){
 
         $appModuleId   = $_POST['app_module_id'] ?? null;
-        $appModuleName   = $_POST['app_module_name'] ?? null;
-        $menuItemId   = $_POST['menu_item_id'] ?? null;
-        $orderSequence   = $_POST['order_sequence'] ?? null;
-        $appModuleDescription   = $_POST['app_module_description'] ?? null;
+       
+        $appLogoFileName                = $_FILES['app_logo']['name'];
+        $appLogoFileSize                = $_FILES['app_logo']['size'];
+        $appLogoFileError               = $_FILES['app_logo']['error'];
+        $appLogoTempName                = $_FILES['app_logo']['tmp_name'];
+        $appLogoFileExtension           = explode('.', $appLogoFileName);
+        $appLogoActualFileExtension     = strtolower(end($appLogoFileExtension));
 
-        $menuItemDetains = $this->menuItem->fetchMenuItem($menuItemId);
-        $menuItemName = $menuItemDetains['menu_item_name'] ?? '';
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(1);
+        $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $appModuleId = $this->appModule->saveAppModule($appModuleId, $appModuleName, $appModuleDescription, $menuItemId, $menuItemName, $orderSequence, $lastLogBy);
-        $encryptedAppModuleId = $this->security->encryptData($appModuleId);
+        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(1);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $allowedFileExtensions[] = $row['file_extension'];
+        }
+
+        if (!in_array($appLogoActualFileExtension, $allowedFileExtensions)) {              
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'The file uploaded is not supported.'
+            );
+        }
+            
+        if(empty($appLogoTempName)){
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'Please choose the app logo.'
+            );
+        }
+            
+        if($appLogoFileError){                
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'An error occurred while uploading the file.'
+            );
+        }
+            
+        if($appLogoFileSize > ($maxFileSize * 1024)){
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'The app module logo exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
+            );
+        }
+
+        $fileName   = $this->security->generateFileName();
+        $fileNew    = $fileName . '.' . $appLogoActualFileExtension;
+            
+        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+
+        $uploadsDir         = PROJECT_BASE_DIR . '/storage/uploads/';
+        $directory          = $uploadsDir . 'app_module/' . $appModuleId . '/';
+        $fileDestination    = $directory . $fileNew;
+        $filePath           = 'storage/uploads/app_module/' . $appModuleId . '/' . $fileNew;
+
+        $directoryChecker = $this->security->directoryChecker($directory);
+
+        if ($directoryChecker !== true) {
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error',
+                $directoryChecker
+            );
+        }
+
+        $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
+        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
+        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($appLogo);
+
+        if(!$deleteImageFile){
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'The app module logo cannot be deleted due to an error'
+            );
+        }
+
+        if(!move_uploaded_file($appLogoTempName, $fileDestination)){
+            $this->systemHelper::sendErrorResponse(
+                'Update App Module Logo Error', 
+                'The app module logo cannot be uploaded due to an error'
+            );
+        }
+
+        $this->appModule->updateAppLogo($appModuleId, $filePath, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save App Module Success',
-            'The app module has been saved successfully.',
-            ['app_module_id' => $encryptedAppModuleId]
+            'Yodate App Module Logo Success',
+            'The app module logo has been updated successfully.'
         );
     }
 
@@ -141,12 +219,19 @@ class AppModuleController
         $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
         $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
 
-        $this->systemHelper->deleteImageIfExist($appLogo);
+        $deleteImageFile = $this->systemHelper->deleteFileIfExist($appLogo);
+
+        if(!$deleteImageFile){
+            $this->systemHelper::sendErrorResponse(
+                'Delete App Module Error', 
+                'The app logo cannot be deleted due to an error'
+            );
+        }
 
         $this->appModule->deleteAppModule($appModuleId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save App Module Success',
+            'Delete App Module Success',
             'The app module has been deleted successfully.'
         );
     }
@@ -158,7 +243,7 @@ class AppModuleController
             $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
             $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
 
-            $this->systemHelper->deleteImageIfExist($appLogo);
+            $this->systemHelper->deleteFileIfExist($appLogo);
 
             $this->appModule->deleteAppModule($appModuleId);
         }
@@ -181,17 +266,17 @@ class AppModuleController
             );
         }
 
-        $appModuleDetails = $this->appModule->fetchAppModule($appModuleId);
-        $appLogo = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
+        $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
+        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
 
         $response = [
-            'success' => true,
-            'appModuleName' => $appModuleDetails['app_module_name'] ?? null,
-            'appModuleDescription' => $appModuleDetails['app_module_description'] ?? null,
-            'menuItemID' => $appModuleDetails['menu_item_id'] ?? null,
-            'menuItemName' => $appModuleDetails['menu_item_name'] ?? null,
-            'orderSequence' => $appModuleDetails['order_sequence'] ?? null,
-            'appLogo' => $appLogo
+            'success'               => true,
+            'appModuleName'         => $appModuleDetails['app_module_name'] ?? null,
+            'appModuleDescription'  => $appModuleDetails['app_module_description'] ?? null,
+            'menuItemID'            => $appModuleDetails['menu_item_id'] ?? null,
+            'menuItemName'          => $appModuleDetails['menu_item_name'] ?? null,
+            'orderSequence'         => $appModuleDetails['order_sequence'] ?? null,
+            'appLogo'               => $appLogo
         ];
 
         echo json_encode($response);
@@ -206,15 +291,15 @@ class AppModuleController
         $appModules = $this->appModule->generateAppModuleTable();
 
         foreach ($appModules as $row) {
-            $appModuleID            = $row['app_module_id'];
+            $appModuleId            = $row['app_module_id'];
             $appModuleName          = $row['app_module_name'];
             $appModuleDescription   = $row['app_module_description'];
             $appLogo                = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
-            $appModuleIDEncrypted   = $this->security->encryptData($appModuleID);
+            $appModuleIdEncrypted   = $this->security->encryptData($appModuleId);
 
             $response[] = [
                 'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $appModuleID .'">
+                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $appModuleId .'">
                                  </div>',
                 'APP_MODULE_NAME' => '<div class="d-flex align-items-center">
                                         <img src="'. $appLogo .'" alt="app-logo" width="45" />
@@ -225,7 +310,7 @@ class AppModuleController
                                             </div>
                                         </div>
                                     </div>',
-                'LINK' => $pageLink .'&id='. $appModuleIDEncrypted
+                'LINK' => $pageLink .'&id='. $appModuleIdEncrypted
             ];
         }
 
@@ -238,6 +323,7 @@ $controller = new AppModuleController(
     new AppModule(),
     new MenuItem(),
     new Authentication(),
+    new UploadSetting(),
     new Security(),
     new SystemHelper()
 );

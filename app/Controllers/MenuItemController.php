@@ -38,8 +38,8 @@ class MenuItemController
             );
         }
 
-        $transaction = $_POST['transaction'] ?? null;
-        $lastLogBy = $_SESSION['user_account_id'];
+        $transaction    = $_POST['transaction'] ?? null;
+        $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
             $this->systemHelper::sendErrorResponse(
@@ -48,9 +48,9 @@ class MenuItemController
             );
         }
 
-        $loginCredentialsDetails = $this->authentication->fetchLoginCredentials($lastLogBy);       
-        $multipleSession    = $loginCredentialsDetails['multiple_session'] ?? 'No';
-        $isActive           = $loginCredentialsDetails['active'] ?? 'No';
+        $loginCredentialsDetails    = $this->authentication->fetchLoginCredentials($lastLogBy);       
+        $multipleSession            = $loginCredentialsDetails['multiple_session'] ?? 'No';
+        $isActive                   = $loginCredentialsDetails['active'] ?? 'No';
 
         $sessionTokenDetails    = $this->authentication->fetchSession($lastLogBy);
         $sessionToken           = $sessionTokenDetails['session_token'] ?? '';
@@ -79,15 +79,14 @@ class MenuItemController
 
     public function generateMenuItemOptions()
     {
-        $pageLink   = $_POST['page_link'] ?? null;
-        $multiple   = $_POST['multiple'] ?? false;
-        $menuItemId   = $_POST['menu_item_id'] ?? false;
-        $response   = [];
+        $multiple       = $_POST['multiple'] ?? false;
+        $menuItemId     = $_POST['menu_item_id'] ?? false;
+        $response       = [];
 
         if(!$multiple){
             $response[] = [
-                'id' => '',
-                'text' => '--'
+                'id'    => '',
+                'text'  => '--'
             ];
         }
 
@@ -95,8 +94,8 @@ class MenuItemController
 
         foreach ($menuItems as $row) {
             $response[] = [
-                'id' => $row['menu_item_id'],
-                'text' => $row['menu_item_name']
+                'id'    => $row['menu_item_id'],
+                'text'  => $row['menu_item_name']
             ];
         }
 

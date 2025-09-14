@@ -43,8 +43,8 @@ class ImportController
             );
         }
 
-        $transaction = $_POST['transaction'] ?? null;
-        $lastLogBy = $_SESSION['user_account_id'];
+        $transaction    = $_POST['transaction'] ?? null;
+        $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
             $this->systemHelper::sendErrorResponse(
@@ -53,9 +53,9 @@ class ImportController
             );
         }
 
-        $loginCredentialsDetails = $this->authentication->fetchLoginCredentials($lastLogBy);       
-        $multipleSession    = $loginCredentialsDetails['multiple_session'] ?? 'No';
-        $isActive           = $loginCredentialsDetails['active'] ?? 'No';
+        $loginCredentialsDetails    = $this->authentication->fetchLoginCredentials($lastLogBy);       
+        $multipleSession            = $loginCredentialsDetails['multiple_session'] ?? 'No';
+        $isActive                   = $loginCredentialsDetails['active'] ?? 'No';
 
         $sessionTokenDetails    = $this->authentication->fetchSession($lastLogBy);
         $sessionToken           = $sessionTokenDetails['session_token'] ?? '';
@@ -103,8 +103,8 @@ class ImportController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(3);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(3);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
@@ -189,8 +189,8 @@ class ImportController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(3);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(3);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];

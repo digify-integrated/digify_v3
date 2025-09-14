@@ -217,23 +217,22 @@ class SystemHelper extends Security
      * @param string|null $image
      * @return bool True if deleted, false if not
      */
-    public static function deleteImageIfExist(?string $image): bool
+    public static function deleteFileIfExist(?string $file): bool
     {
-        if (empty($image)) {
-            return false; // nothing to delete
+        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+
+        if (empty($file)) {
+            return true;
         }
 
-        // Normalize path (remove leading "./" if present)
-        $normalizedPath = ltrim($image, './');
-
-        // Build filesystem path relative to project root
-        $filePath = __DIR__ . '/../../' . $normalizedPath;
+        $normalizedPath = ltrim($file, './');
+        $filePath = PROJECT_BASE_DIR . '/' . $normalizedPath;
 
         if (file_exists($filePath)) {
-            return unlink($filePath); // true if success, false if failure
+            return unlink($filePath);
         }
 
-        return false; // file does not exist
+        return true;
     }
 
 

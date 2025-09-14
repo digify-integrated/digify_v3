@@ -4,6 +4,7 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Export;
+use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -14,15 +15,18 @@ require_once '../../config/config.php';
 class ExportController
 {
     protected Export $export;
+    protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
         Export $export,
+        Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->export           = $export;
+        $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -36,12 +40,31 @@ class ExportController
             );
         }
 
-        $transaction = $_POST['transaction'] ?? null;
+        $transaction    = $_POST['transaction'] ?? null;
+        $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
             $this->systemHelper::sendErrorResponse(
                 'Missing Transaction',
                 'No transaction type was provided.'
+            );
+        }
+
+        $loginCredentialsDetails    = $this->authentication->fetchLoginCredentials($lastLogBy);       
+        $multipleSession            = $loginCredentialsDetails['multiple_session'] ?? 'No';
+        $isActive                   = $loginCredentialsDetails['active'] ?? 'No';
+
+        $sessionTokenDetails    = $this->authentication->fetchSession($lastLogBy);
+        $sessionToken           = $sessionTokenDetails['session_token'] ?? '';
+
+        if ($isActive === 'No' || (!$this->security->verifyToken($_SESSION['session_token'], $sessionToken) && $multipleSession === 'No')) {
+            $this->systemHelper::sendErrorResponse(
+                'Session Expired', 
+                'Your session has expired. Please log in again to continue.',
+                [
+                    'invalid_session' => true,
+                    'redirect_link' => 'logout.php?logout'
+                    ]
             );
         }
         
@@ -173,6 +196,7 @@ class ExportController
 # Bootstrap the controller
 $controller = new ExportController(
     new Export(),
+    new Authentication(),
     new Security(),
     new SystemHelper()
 );

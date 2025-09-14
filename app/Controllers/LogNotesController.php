@@ -38,8 +38,8 @@ class LogNotesController
             );
         }
 
-        $transaction = $_POST['transaction'] ?? null;
-        $lastLogBy = $_SESSION['user_account_id'];
+        $transaction    = $_POST['transaction'] ?? null;
+        $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
             $this->systemHelper::sendErrorResponse(
@@ -48,9 +48,9 @@ class LogNotesController
             );
         }
 
-        $loginCredentialsDetails = $this->authentication->fetchLoginCredentials($lastLogBy);       
-        $multipleSession    = $loginCredentialsDetails['multiple_session'] ?? 'No';
-        $isActive           = $loginCredentialsDetails['active'] ?? 'No';
+        $loginCredentialsDetails    = $this->authentication->fetchLoginCredentials($lastLogBy);       
+        $multipleSession            = $loginCredentialsDetails['multiple_session'] ?? 'No';
+        $isActive                   = $loginCredentialsDetails['active'] ?? 'No';
 
         $sessionTokenDetails    = $this->authentication->fetchSession($lastLogBy);
         $sessionToken           = $sessionTokenDetails['session_token'] ?? '';
@@ -70,7 +70,7 @@ class LogNotesController
 
         match ($transaction) {
             'fetch log notes'    => $this->fetchLogNotes(),
-            default                 => $this->systemHelper::sendErrorResponse(
+            default              => $this->systemHelper::sendErrorResponse(
                                     'Transaction Failed',
                                     'We encountered an issue while processing your request.'
                                         )
@@ -82,17 +82,17 @@ class LogNotesController
         $referenceID    = $_POST['reference_id'] ?? null;
         $logNote        = '';
 
-        $logNotesList = $this->logNotes->fetchLogNotes($databaseTable, $referenceID);
-        $count = count($logNotesList);
+        $logNotesList   = $this->logNotes->fetchLogNotes($databaseTable, $referenceID);
+        $count          = count($logNotesList);
 
         foreach ($logNotesList as $index => $row) {
-            $log = $row['log'];
-            $changedBy = $row['changed_by'];
-            $timeElapsed = $this->systemHelper->timeElapsedString($row['changed_at']);
+            $log            = $row['log'];
+            $changedBy      = $row['changed_by'];
+            $timeElapsed    = $this->systemHelper->timeElapsedString($row['changed_at']);
                 
-            $userDetails = $this->authentication->fetchLoginCredentials($changedBy);
-            $fileAs = $userDetails['file_as'] ?? '';
-            $profilePicture = $this->systemHelper->checkImageExist($userDetails['profile_picture'] ?? null, 'profile');
+            $userDetails        = $this->authentication->fetchLoginCredentials($changedBy);
+            $fileAs             = $userDetails['file_as'] ?? '';
+            $profilePicture     = $this->systemHelper->checkImageExist($userDetails['profile_picture'] ?? null, 'profile');
                 
             $marginClass = ($index === $count - 1) ? 'mb-0' : 'mb-9';
 
@@ -135,8 +135,8 @@ class LogNotesController
 
         
         $response = [
-            'success' => true,
-            'log_notes' => $logNote
+            'success'       => true,
+            'log_notes'     => $logNote
         ];
 
         echo json_encode($response);
