@@ -1,21 +1,21 @@
-import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
+import { initializeDatatable, initializeDatatableControls, reloadDatatable, manageActionDropdown } from '../../utilities/datatable.js';
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 $(document).ready(function () {
-    initializeDatatableControls('#app-module-table');
-    initializeExportFeature('app_module');
+    initializeDatatableControls('#system-action-table');
+    initializeExportFeature('system_action');
 
     initializeDatatable({
-        selector: '#app-module-table',
-        ajaxUrl: './app/Controllers/AppModuleController.php',
-        transaction: 'generate app module table',
+        selector: '#system-action-table',
+        ajaxUrl: './app/Controllers/SystemActionController.php',
+        transaction: 'generate system action table',
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'APP_MODULE_NAME' }
+            { data: 'SYSTEM_ACTION_NAME' }
         ],
         columnDefs: [
-            { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
+            { width: '1%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 }
         ],
         onRowClick: (rowData) => {
@@ -23,20 +23,20 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click','#delete-app-module',function() {
-        let app_module_id = [];
-        const transaction = 'delete multiple app module';
+    $(document).on('click','#delete-system-action',function() {
+        let system_action_id = [];
+        const transaction = 'delete multiple system action';
 
         $('.datatable-checkbox-children').each((index, element) => {
             if ($(element).is(':checked')) {
-                app_module_id.push(element.value);
+                system_action_id.push(element.value);
             }
         });
     
-        if(app_module_id.length > 0){
+        if(system_action_id.length > 0){
             Swal.fire({
-                title: 'Confirm Multiple App Modules Deletion',
-                text: 'Are you sure you want to delete these app modules?',
+                title: 'Confirm Multiple System Actions Deletion',
+                text: 'Are you sure you want to delete these system actions?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -50,16 +50,16 @@ $(document).ready(function () {
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: './app/Controllers/AppModuleController.php',
+                        url: './app/Controllers/SystemActionController.php',
                         dataType: 'json',
                         data: {
-                            app_module_id: app_module_id,
+                            system_action_id: system_action_id,
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
                                 showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#app-module-table');
+                                reloadDatatable('#system-action-table');
                             }
                             else{
                                 if(response.invalid_session){
@@ -82,7 +82,7 @@ $(document).ready(function () {
             });
         }
         else{
-            showNotification('Deletion Multiple App Module Error', 'Please select the app modules you wish to delete.', 'error');
+            showNotification('Deletion Multiple System Action Error', 'Please select the system actions you wish to delete.', 'error');
         }
     });
 });

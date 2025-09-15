@@ -125,6 +125,12 @@ class AppModule extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateAppModuleOptions() {
+        $sql = 'CALL generateAppModuleOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

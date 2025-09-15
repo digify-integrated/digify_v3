@@ -1,6 +1,6 @@
 <?php
-    $addMenuItemRoleAccess = $authentication->checkUserSystemActionPermission($userID, 7);
-    $addSystemActionRoleAccess = $authentication->checkUserSystemActionPermission($userID, 10);
+    $addMenuItemRoleAccess      = $authentication->checkUserSystemActionPermission($userID, 5);
+    $addSystemActionRoleAccess  = $authentication->checkUserSystemActionPermission($userID, 8);
 ?>
 <div class="card mb-10">
     <div class="card-header border-0">
@@ -30,7 +30,8 @@
                 ?>
     </div>
     <div class="card-body">
-        <form id="role-form" method="post" action="#">
+        <form id="role_form" method="post" action="#">
+            <?= $security->csrfInput('role_form'); ?>
             <div class="fv-row mb-4">
                 <label class="fs-6 fw-semibold form-label mt-3" for="role_name">
                     <span class="required">Display Name</span>
@@ -49,9 +50,9 @@
     </div>
 
     <?php
-        echo ($writeAccess['total'] > 0) ? ' <div class="card-footer d-flex justify-content-end py-6 px-9">
+        echo ($permissions['write'] > 0) ? ' <div class="card-footer d-flex justify-content-end py-6 px-9">
                                                 <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-                                                <button type="submit" form="role-form" class="btn btn-primary" id="submit-data">Save</button>
+                                                <button type="submit" form="role_form" class="btn btn-primary" id="submit-data">Save</button>
                                             </div>' : '';
     ?>
 </div>
@@ -148,7 +149,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="menu-item-permission-assignment-form" method="post" action="#">
+                <form id="menu_item_permission_assignment_form" method="post" action="#">
+                    <?= $security->csrfInput('menu_item_permission_assignment_form'); ?>
                     <div class="row">
                         <div class="col-12">
                             <select multiple="multiple" size="20" id="menu_item_id" name="menu_item_id[]"></select>
@@ -159,7 +161,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="menu-item-permission-assignment-form" class="btn btn-primary" id="submit-assignment">Assign</button>
+                <button type="submit" form="menu_item_permission_assignment_form" class="btn btn-primary" id="submit-menu-item-assignment">Assign</button>
             </div>
         </div>
     </div>
@@ -176,7 +178,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="system-action-permission-assignment-form" method="post" action="#">
+                <form id="system_action_permission_assignment_form" method="post" action="#">
+                    <?= $security->csrfInput('role_form'); ?>
                     <div class="row">
                         <div class="col-12">
                             <select multiple="multiple" size="20" id="system_action_id" name="system_action_id[]"></select>
@@ -187,10 +190,10 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="system-action-permission-assignment-form" class="btn btn-primary" id="submit-assignment">Assign</button>
+                <button type="submit" form="system_action_permission_assignment_form" class="btn btn-primary" id="submit-system-action-assignment">Assign</button>
             </div>
         </div>
     </div>
 </div>
 
-<?php require_once('components/view/_log_notes_modal.php'); ?>
+<?php require_once('./app/Views/Partials/log-notes-modal.php'); ?>

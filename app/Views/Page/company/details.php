@@ -7,7 +7,7 @@
                     <div class="image-input-wrapper w-125px h-125px" id="compay_logo_thumbnail" style="background-image: url(./assets/images/default/default-company-logo.png); background-size: cover; background-repeat: no-repeat; background-position: center;"></div>
 
                     <?php
-                        echo ($writeAccess['total'] > 0) ? '<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change logo" data-bs-original-title="Change logo" data-kt-initialized="1">
+                        echo ($permissions['write'] > 0) ? '<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change logo" data-bs-original-title="Change logo" data-kt-initialized="1">
                                                                 <i class="ki-outline ki-pencil fs-7"></i>
                                                                 <input type="file" id="company_logo" name="company_logo" accept=".png, .jpg, .jpeg">
                                                             </label>' : '';
@@ -152,7 +152,7 @@
                     </div>
 
                     <?php
-                        echo ($writeAccess['total'] > 0) ? '<div class="card-footer d-flex justify-content-end py-6 px-9">
+                        echo ($permissions['write'] > 0) ? '<div class="card-footer d-flex justify-content-end py-6 px-9">
                                                                 <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
                                                                 <button type="submit" form="company_form" class="btn btn-primary" id="submit-data">Save Changes</button>
                                                             </div>' : '';
@@ -163,4 +163,4 @@
     </div>
 </div>
 
-<?php require_once('components/view/_log_notes_modal.php'); ?>
+<?php require_once('./app/Views/Partials/log-notes-modal.php'); ?>

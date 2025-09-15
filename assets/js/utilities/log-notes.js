@@ -8,6 +8,10 @@ export const attachLogNotesHandler = (triggerSelector, sourceSelector, type) => 
     });
 };
 
+export const attachLogNotesClassHandler = (sourceSelector, id) => {
+    logNotes(sourceSelector, id);
+};
+
 export const logNotes = (database_table, reference_id) => {
     const transaction = 'fetch log notes';
 
@@ -21,7 +25,6 @@ export const logNotes = (database_table, reference_id) => {
             reference_id : reference_id 
         },
         success: function (response) {
-            console.log(response.success);
             if(response.success){
                 document.getElementById('log-notes').innerHTML = response.log_notes;
             }

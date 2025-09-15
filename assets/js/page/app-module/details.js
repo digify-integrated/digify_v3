@@ -7,7 +7,8 @@ $(document).ready(function () {
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#menu_item_id',
-        data: { transaction: 'generate menu item options' }
+        data: { transaction: 'generate menu item options' },
+        validateOnChange: true
     });
 
     displayDetails();
@@ -53,7 +54,6 @@ $(document).ready(function () {
                             }
                             else{
                                 showNotification(response.title, response.message, response.message_type);
-                                enableButton('submit-data');
                             }
                         }
                     },
@@ -194,9 +194,9 @@ $(document).ready(function () {
 });
 
 function displayDetails(){
-    const page_link     = document.getElementById('page-link').getAttribute('href');
-    const transaction   = 'fetch app module details';
-    let app_module_id   = $('#details-id').text();
+    const page_link         = document.getElementById('page-link').getAttribute('href');
+    const transaction       = 'fetch app module details';
+    const app_module_id     = $('#details-id').text();
             
     $.ajax({
         url: './app/Controllers/AppModuleController.php',

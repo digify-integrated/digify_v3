@@ -609,7 +609,7 @@ INSERT INTO role_system_action_permission (role_id, role_name, system_action_id,
 (1, 'Super Admin', 7, 'Delete Role Access', 1),
 (1, 'Super Admin', 8, 'Add Role System Action Access', 1),
 (1, 'Super Admin', 9, 'Update Role System Action Access', 1),
-(1, 'Super Admin', 19, 'Delete Role System Action Access', 1);
+(1, 'Super Admin', 10, 'Delete Role System Action Access', 1);
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT

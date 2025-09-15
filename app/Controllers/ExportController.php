@@ -86,7 +86,7 @@ class ExportController
         $tableName = isset($_POST['table_name']) ? $_POST['table_name'] : null;
         $response = [];
 
-        $exports = $this->export->generateExportOption(DB_NAME, $tableName);
+        $exports = $this->export->generateExportOptions(DB_NAME, $tableName);
 
         foreach ($exports as $row) {
             $response[] = [
@@ -110,7 +110,7 @@ class ExportController
             ];
         }
 
-        $exports = $this->export->generateTableOption(DB_NAME);
+        $exports = $this->export->generateTableOptions(DB_NAME);
 
         foreach ($exports as $row) {
             $response[] = [

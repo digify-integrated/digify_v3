@@ -21,7 +21,6 @@ class Export extends Model {
         SECTION 4: FETCH METHODS
     ============================================================================================= */
     
-    
     public function fetchExportData(
         $p_table_name,
         $p_columns,
@@ -52,11 +51,11 @@ class Export extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-    public function generateExportOption(
+    public function generateExportOptions(
         $p_database_name,
         $p_table_name
     ) {
-        $sql = 'CALL generateExportOption(
+        $sql = 'CALL generateExportOptions(
             :p_database_name,
             :p_table_name
         )';
@@ -67,10 +66,10 @@ class Export extends Model {
         ]);
     }
 
-    public function generateTableOption(
+    public function generateTableOptions(
         $p_database_name
     ) {
-        $sql = 'CALL generateTableOption(
+        $sql = 'CALL generateTableOptions(
             :p_database_name
         )';
         

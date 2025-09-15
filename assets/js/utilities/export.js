@@ -14,31 +14,33 @@ export const initializeDualListBoxIcon = () => {
     $('.remove').removeClass('btn-default').addClass('btn-primary');
 }
 
-export const generateExportColumns = (table_name) => {
-    $(document).on('click','#export-data',function() {
+export const initializeExportFeature = (tableName) => {
+    let selectedColumnsOrder = [];
+
+    // Handle column selection generation
+    $(document).off('click', '#export-data').on('click', '#export-data', function () {
         const transaction = 'generate export column option';
-    
+
         $.ajax({
             url: './app/Controllers/ExportController.php',
             method: 'POST',
             dataType: 'json',
             data: {
-                transaction: transaction,
-                table_name: table_name
+                transaction,
+                table_name: tableName
             },
-            success: function(response) {
-                let select = document.getElementById('table_column');
+            success: function (response) {
+                const select = document.getElementById('table_column');
                 select.options.length = 0;
 
-                response.forEach(function(opt) {
-                    let option = new Option(opt.text, opt.id);
-                    select.appendChild(option);
+                response.forEach(opt => {
+                    select.appendChild(new Option(opt.text, opt.id));
                 });
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 handleSystemError(xhr, status, error);
             },
-            complete: function() {
+            complete: function () {
                 if ($('#table_column').length) {
                     $('#table_column').bootstrapDualListbox({
                         nonSelectedListLabel: 'Non-selected',
@@ -49,16 +51,17 @@ export const generateExportColumns = (table_name) => {
                         sortByInputOrder: true
                     });
 
-                    $('#table_column').on('change', function() {
-                        $('#table_column option:selected').each(function() {
-                            let value = $(this).val();
+                    $('#table_column').off('change').on('change', function () {
+                        // Keep selected column order up to date
+                        $('#table_column option:selected').each(function () {
+                            const value = $(this).val();
                             if (!selectedColumnsOrder.includes(value)) {
                                 selectedColumnsOrder.push(value);
                             }
                         });
 
-                        $('#table_column option:not(:selected)').each(function() {
-                            let value = $(this).val();
+                        $('#table_column option:not(:selected)').each(function () {
+                            const value = $(this).val();
                             selectedColumnsOrder = selectedColumnsOrder.filter(item => item !== value);
                         });
                     });
@@ -67,32 +70,28 @@ export const generateExportColumns = (table_name) => {
                     initializeDualListBoxIcon();
                 }
             }
-        });     
+        });
     });
-}
 
-let selectedColumnsOrder = [];
-
-export const exportData = (table_name) => {
-    $(document).on('click','#submit-export',function() {
-
-        const transaction   = 'export data';
-        let export_to       = $('input[name="export_to"]:checked').val();
-        let table_column    = selectedColumnsOrder;
-        let export_id       = [];
+    // Handle export action
+    $(document).off('click', '#submit-export').on('click', '#submit-export', function () {
+        const transaction = 'export data';
+        const exportTo = $('input[name="export_to"]:checked').val();
+        const tableColumn = selectedColumnsOrder;
+        const exportId = [];
 
         $('.datatable-checkbox-children').each((index, element) => {
             if ($(element).is(':checked')) {
-                export_id.push(element.value);
+                exportId.push(element.value);
             }
         });
 
-        if (export_id.length === 0) {
+        if (exportId.length === 0) {
             showNotification('Export Data', 'Choose the data you want to export.', 'error');
             return;
         }
 
-        if (table_column.length === 0) {
+        if (tableColumn.length === 0) {
             showNotification('Export Data', 'Choose the columns you want to export.', 'error');
             return;
         }
@@ -101,44 +100,42 @@ export const exportData = (table_name) => {
             type: 'POST',
             url: './app/Controllers/ExportController.php',
             data: {
-                transaction: transaction,
-                export_id: export_id,
-                export_to: export_to,
-                table_column: table_column,
-                table_name: table_name  
+                transaction,
+                export_id: exportId,
+                export_to: exportTo,
+                table_column: tableColumn,
+                table_name: tableName
             },
-            xhrFields: {
-                responseType: 'blob'
-            },
-            beforeSend: function() {
+            xhrFields: { responseType: 'blob' },
+            beforeSend: function () {
                 disableButton('submit-export');
             },
             success: function (response, status, xhr) {
-                let filename        = "";                   
-                let disposition     = xhr.getResponseHeader('Content-Disposition');
+                let filename = '';
+                const disposition = xhr.getResponseHeader('Content-Disposition');
 
                 if (disposition && disposition.indexOf('attachment') !== -1) {
-                    let matches = /filename="(.+)"/.exec(disposition);
-                    if (matches != null && matches[1]) {
+                    const matches = /filename="(.+)"/.exec(disposition);
+                    if (matches?.[1]) {
                         filename = matches[1];
                     }
                 }
 
-                let blob        = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
-                let link        = document.createElement('a');
-                link.href       = window.URL.createObjectURL(blob);
-                link.download   = filename || "export." + export_to;
-                
+                const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename || `export.${exportTo}`;
+
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 handleSystemError(xhr, status, error);
             },
-            complete: function() {
+            complete: function () {
                 enableButton('submit-export');
             }
         });
     });
-}
+};

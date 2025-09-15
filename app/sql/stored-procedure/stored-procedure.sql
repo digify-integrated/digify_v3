@@ -23,12 +23,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE reset_token
-    SET reset_token                 = p_reset_token,
-        reset_token_expiry_date     = p_reset_token_expiry_date
-    WHERE user_account_id           = p_user_account_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_user_account_id IS NULL OR NOT EXISTS (SELECT 1 FROM reset_token WHERE user_account_id = p_user_account_id) THEN
         INSERT INTO reset_token (
             user_account_id,
             reset_token,
@@ -39,6 +34,11 @@ BEGIN
             p_reset_token,
             p_reset_token_expiry_date
         );
+    ELSE
+        UPDATE reset_token
+        SET reset_token                 = p_reset_token,
+            reset_token_expiry_date     = p_reset_token_expiry_date
+        WHERE user_account_id           = p_user_account_id;
     END IF;
     
     COMMIT;
@@ -794,13 +794,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE notification_setting
-    SET notification_setting_name           = p_notification_setting_name,
-        notification_setting_description    = p_notification_setting_description,
-        last_log_by                         = p_last_log_by
-    WHERE notification_setting_id           = p_notification_setting_id;
-    
-    IF ROW_COUNT() = 0 THEN
+    IF p_notification_setting_id IS NULL OR NOT EXISTS (SELECT 1 FROM notification_setting WHERE notification_setting_id = p_notification_setting_id) THEN
         INSERT INTO notification_setting (
             notification_setting_name, 
             notification_setting_description, 
@@ -813,6 +807,12 @@ BEGIN
 
         SET v_new_notification_setting_id = LAST_INSERT_ID();
     ELSE
+        UPDATE notification_setting
+        SET notification_setting_name           = p_notification_setting_name,
+            notification_setting_description    = p_notification_setting_description,
+            last_log_by                         = p_last_log_by
+        WHERE notification_setting_id           = p_notification_setting_id;
+        
         SET v_new_notification_setting_id = p_notification_setting_id;
     END IF;
 
@@ -1142,22 +1142,8 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE menu_item
-    SET app_module_name = p_app_module_name,
-        last_log_by = p_last_log_by
-    WHERE app_module_id = p_app_module_id;
-
-    UPDATE app_module
-    SET app_module_name         = p_app_module_name,
-        app_module_description  = p_app_module_description,
-        menu_item_id            = p_menu_item_id,
-        menu_item_name          = p_menu_item_name,
-        order_sequence          = p_order_sequence,
-        last_log_by             = p_last_log_by
-    WHERE app_module_id         = p_app_module_id;
-
-    IF ROW_COUNT() = 0 THEN
-       INSERT INTO app_module (
+    IF p_app_module_id IS NULL OR NOT EXISTS (SELECT 1 FROM app_module WHERE app_module_id = p_app_module_id) THEN
+        INSERT INTO app_module (
             app_module_name,
             app_module_description,
             menu_item_id,
@@ -1175,6 +1161,20 @@ BEGIN
         
         SET v_new_app_module_id = LAST_INSERT_ID();
     ELSE
+        UPDATE menu_item
+        SET app_module_name = p_app_module_name,
+            last_log_by = p_last_log_by
+        WHERE app_module_id = p_app_module_id;
+
+        UPDATE app_module
+        SET app_module_name         = p_app_module_name,
+            app_module_description  = p_app_module_description,
+            menu_item_id            = p_menu_item_id,
+            menu_item_name          = p_menu_item_name,
+            order_sequence          = p_order_sequence,
+            last_log_by             = p_last_log_by
+        WHERE app_module_id         = p_app_module_id;
+        
         SET v_new_app_module_id = p_app_module_id;
     END IF;
 
@@ -1321,29 +1321,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE role_permission
-    SET role_name       = p_role_name,
-        last_log_by     = p_last_log_by
-    WHERE role_id       = p_role_id;
-
-    UPDATE role_system_action_permission
-    SET role_name       = p_role_name,
-        last_log_by     = p_last_log_by
-    WHERE role_id       = p_role_id;
-
-    UPDATE role_user_account
-    SET role_name       = p_role_name,
-        last_log_by     = p_last_log_by
-    WHERE role_id       = p_role_id;
-
-    UPDATE role
-    SET role_name           = p_role_name,
-        role_name           = p_role_name,
-        role_description    = p_role_description,
-        last_log_by         = p_last_log_by
-    WHERE role_id           = p_role_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_role_id IS NULL OR NOT EXISTS (SELECT 1 FROM role WHERE role_id = p_role_id) THEN
         INSERT INTO role (
             role_name,
             role_description,
@@ -1357,9 +1335,31 @@ BEGIN
         
         SET v_new_role_id = LAST_INSERT_ID();
     ELSE
+        UPDATE role_permission
+        SET role_name       = p_role_name,
+            last_log_by     = p_last_log_by
+        WHERE role_id       = p_role_id;
+
+        UPDATE role_system_action_permission
+        SET role_name       = p_role_name,
+            last_log_by     = p_last_log_by
+        WHERE role_id       = p_role_id;
+
+        UPDATE role_user_account
+        SET role_name       = p_role_name,
+            last_log_by     = p_last_log_by
+        WHERE role_id       = p_role_id;
+
+        UPDATE role
+        SET role_name           = p_role_name,
+            role_name           = p_role_name,
+            role_description    = p_role_description,
+            last_log_by         = p_last_log_by
+        WHERE role_id           = p_role_id;
+        
         SET v_new_role_id = p_role_id;
     END IF;
-
+    
     COMMIT;
 
     SELECT v_new_role_id AS new_role_id;
@@ -1501,7 +1501,7 @@ BEGIN
         delete_access    = CASE WHEN p_access_type = 'delete'    THEN p_access ELSE delete_access END,
         import_access    = CASE WHEN p_access_type = 'import'    THEN p_access ELSE import_access END,
         export_access    = CASE WHEN p_access_type = 'export'    THEN p_access ELSE export_access END,
-        log_notes_access = CASE WHEN p_access_type = 'log_notes' THEN p_access ELSE log_notes_access END,
+        log_notes_access = CASE WHEN p_access_type = 'log notes' THEN p_access ELSE log_notes_access END,
         last_log_by      = p_last_log_by
     WHERE role_permission_id = p_role_permission_id;
 
@@ -1766,18 +1766,6 @@ BEGIN
     WHERE role_id = p_role_id;
 END //
 
-DROP PROCEDURE IF EXISTS generateUserAccountRoleList//
-
-CREATE PROCEDURE generateUserAccountRoleList(
-    IN p_user_account_id INT
-)
-BEGIN
-	SELECT role_user_account_id, role_name, date_assigned
-    FROM role_user_account
-    WHERE user_account_id = p_user_account_id
-    ORDER BY role_name;
-END //
-
 DROP PROCEDURE IF EXISTS generateUserAccountRoleDualListBoxOptions//
 
 CREATE PROCEDURE generateUserAccountRoleDualListBoxOptions(
@@ -1787,18 +1775,6 @@ BEGIN
 	SELECT role_id, role_name 
     FROM role 
     WHERE role_id NOT IN (SELECT role_id FROM role_user_account WHERE user_account_id = p_user_account_id)
-    ORDER BY role_name;
-END //
-
-DROP PROCEDURE IF EXISTS generateMenuItemRoleDualListBoxOptions//
-
-CREATE PROCEDURE generateMenuItemRoleDualListBoxOptions(
-    IN p_menu_item_id INT
-)
-BEGIN
-	SELECT role_id, role_name 
-    FROM role 
-    WHERE role_id NOT IN (SELECT role_id FROM role_permission WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
 END //
 
@@ -1877,30 +1853,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE role_permission
-    SET menu_item_name  = p_menu_item_name,
-        last_log_by     = p_last_log_by
-    WHERE menu_item_id  = p_menu_item_id;
-        
-    UPDATE menu_item
-    SET parent_name     = p_menu_item_name,
-        last_log_by     = p_last_log_by
-    WHERE parent_id     = p_menu_item_id;
-
-    UPDATE menu_item
-    SET menu_item_name  = p_menu_item_name,
-        menu_item_url   = p_menu_item_url,
-        menu_item_icon  = p_menu_item_icon,
-        app_module_id   = p_app_module_id,
-        app_module_name = p_app_module_name,
-        parent_id       = p_parent_id,
-        parent_name     = p_parent_name,
-        table_name      = p_table_name,
-        order_sequence  = p_order_sequence,
-        last_log_by     = p_last_log_by
-    WHERE menu_item_id  = p_menu_item_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_menu_item_id IS NULL OR NOT EXISTS (SELECT 1 FROM menu_item WHERE menu_item_id = p_menu_item_id) THEN
         INSERT INTO menu_item (
             menu_item_name,
             menu_item_url,
@@ -1928,6 +1881,29 @@ BEGIN
         
         SET v_new_menu_item_id = LAST_INSERT_ID();
     ELSE
+        UPDATE role_permission
+        SET menu_item_name  = p_menu_item_name,
+            last_log_by     = p_last_log_by
+        WHERE menu_item_id  = p_menu_item_id;
+            
+        UPDATE menu_item
+        SET parent_name     = p_menu_item_name,
+            last_log_by     = p_last_log_by
+        WHERE parent_id     = p_menu_item_id;
+
+        UPDATE menu_item
+        SET menu_item_name  = p_menu_item_name,
+            menu_item_url   = p_menu_item_url,
+            menu_item_icon  = p_menu_item_icon,
+            app_module_id   = p_app_module_id,
+            app_module_name = p_app_module_name,
+            parent_id       = p_parent_id,
+            parent_name     = p_parent_name,
+            table_name      = p_table_name,
+            order_sequence  = p_order_sequence,
+            last_log_by     = p_last_log_by
+        WHERE menu_item_id  = p_menu_item_id;
+        
         SET v_new_menu_item_id = p_menu_item_id;
     END IF;
 
@@ -2082,22 +2058,16 @@ CREATE PROCEDURE generateMenuItemTable(
     IN p_filter_by_parent_id TEXT
 )
 BEGIN
-    DECLARE query TEXT;
-    DECLARE filter_conditions TEXT DEFAULT '';
-
-    SET query = 'SELECT menu_item_id, menu_item_name, app_module_name, parent_name, order_sequence 
-                FROM menu_item WHERE 1=1';
+    DECLARE query TEXT DEFAULT 
+        'SELECT menu_item_id, menu_item_name, app_module_name, parent_name, order_sequence
+        FROM menu_item WHERE 1=1';
 
     IF p_filter_by_app_module IS NOT NULL AND p_filter_by_app_module <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' AND app_module_id IN (', p_filter_by_app_module, ')');
+        SET query = CONCAT(query, ' AND app_module_id IN (', p_filter_by_app_module, ')');
     END IF;
 
     IF p_filter_by_parent_id IS NOT NULL AND p_filter_by_parent_id <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' AND parent_id IN (', p_filter_by_parent_id, ')');
-    END IF;
-
-    IF filter_conditions <> '' THEN
-        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+        SET query = CONCAT(query, ' AND parent_id IN (', p_filter_by_parent_id, ')');
     END IF;
 
     SET query = CONCAT(query, ' ORDER BY menu_item_name');
@@ -2136,6 +2106,18 @@ BEGIN
     END IF;
 END //
 
+DROP PROCEDURE IF EXISTS generateMenuItemRoleDualListBoxOptions//
+
+CREATE PROCEDURE generateMenuItemRoleDualListBoxOptions(
+    IN p_menu_item_id INT
+)
+BEGIN
+	SELECT role_id, role_name 
+    FROM role 
+    WHERE role_id NOT IN (SELECT role_id FROM role_permission WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -2168,18 +2150,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE role_system_action_permission
-    SET system_action_name  = p_system_action_name,
-        last_log_by         = p_last_log_by
-    WHERE system_action_id  = p_system_action_id;
-
-    UPDATE system_action
-    SET system_action_name          = p_system_action_name,
-        system_action_description   = p_system_action_description,
-        last_log_by                 = p_last_log_by
-    WHERE system_action_id          = p_system_action_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_system_action_id IS NULL OR NOT EXISTS (SELECT 1 FROM system_action WHERE system_action_id = p_system_action_id) THEN
         INSERT INTO system_action (
             system_action_name,
             system_action_description,
@@ -2193,6 +2164,17 @@ BEGIN
         
         SET v_new_system_action_id = LAST_INSERT_ID();
     ELSE
+        UPDATE role_system_action_permission
+        SET system_action_name  = p_system_action_name,
+            last_log_by         = p_last_log_by
+        WHERE system_action_id  = p_system_action_id;
+
+        UPDATE system_action
+        SET system_action_name          = p_system_action_name,
+            system_action_description   = p_system_action_description,
+            last_log_by                 = p_last_log_by
+        WHERE system_action_id          = p_system_action_id;
+        
         SET v_new_system_action_id = p_system_action_id;
     END IF;
 
@@ -2329,17 +2311,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE file_extension
-    SET file_type_name  = p_file_type_name,
-        last_log_by     = p_last_log_by
-    WHERE file_type_id  = p_file_type_id;
-
-    UPDATE file_type
-    SET file_type_name  = p_file_type_name,
-        last_log_by     = p_last_log_by
-    WHERE file_type_id  = p_file_type_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_file_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM file_type WHERE file_type_id = p_file_type_id) THEN
         INSERT INTO file_type (
             file_type_name,
             last_log_by
@@ -2351,6 +2323,16 @@ BEGIN
         
         SET v_new_file_type_id = LAST_INSERT_ID();
     ELSE
+        UPDATE file_extension
+        SET file_type_name  = p_file_type_name,
+            last_log_by     = p_last_log_by
+        WHERE file_type_id  = p_file_type_id;
+
+        UPDATE file_type
+        SET file_type_name  = p_file_type_name,
+            last_log_by     = p_last_log_by
+        WHERE file_type_id  = p_file_type_id;
+        
         SET v_new_file_type_id = p_file_type_id;
     END IF;
 
@@ -2479,21 +2461,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE upload_setting_file_extension
-    SET file_extension_name     = p_file_extension_name,
-        file_extension          = p_file_extension,
-        last_log_by             = p_last_log_by
-    WHERE file_extension_id     = p_file_extension_id;
-
-    UPDATE file_extension
-    SET file_extension_name     = p_file_extension_name,
-        file_extension          = p_file_extension,
-        file_type_id            = p_file_type_id,
-        file_type_name          = p_file_type_name,
-        last_log_by             = p_last_log_by
-    WHERE file_extension_id     = p_file_extension_id;
-
-     IF ROW_COUNT() = 0 THEN
+    IF p_file_extension_id IS NULL OR NOT EXISTS (SELECT 1 FROM file_extension WHERE file_extension_id = p_file_extension_id) THEN
         INSERT INTO file_extension (
             file_extension_name,
             file_extension,
@@ -2511,6 +2479,20 @@ BEGIN
         
         SET v_new_file_extension_id = LAST_INSERT_ID();
     ELSE
+        UPDATE upload_setting_file_extension
+        SET file_extension_name     = p_file_extension_name,
+            file_extension          = p_file_extension,
+            last_log_by             = p_last_log_by
+        WHERE file_extension_id     = p_file_extension_id;
+
+        UPDATE file_extension
+        SET file_extension_name     = p_file_extension_name,
+            file_extension          = p_file_extension,
+            file_type_id            = p_file_type_id,
+            file_type_name          = p_file_type_name,
+            last_log_by             = p_last_log_by
+        WHERE file_extension_id     = p_file_extension_id;
+        
         SET v_new_file_extension_id = p_file_extension_id;
     END IF;
 
@@ -2657,19 +2639,7 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE upload_setting_file_extension
-    SET upload_setting_name     = p_upload_setting_name,
-        last_log_by             = p_last_log_by
-    WHERE upload_setting_id     = p_upload_setting_id;
-
-    UPDATE upload_setting
-    SET upload_setting_name         = p_upload_setting_name,
-    	upload_setting_description  = p_upload_setting_description,
-    	max_file_size               = p_max_file_size,
-        last_log_by                 = p_last_log_by
-    WHERE upload_setting_id         = p_upload_setting_id;
-
-    IF ROW_COUNT() = 0 THEN
+    IF p_upload_setting_id IS NULL OR NOT EXISTS (SELECT 1 FROM upload_setting WHERE upload_setting_id = p_upload_setting_id) THEN
         INSERT INTO upload_setting (
             upload_setting_name,
             upload_setting_description,
@@ -2685,6 +2655,18 @@ BEGIN
         
         SET v_new_upload_setting_id = LAST_INSERT_ID();
     ELSE
+        UPDATE upload_setting_file_extension
+        SET upload_setting_name     = p_upload_setting_name,
+            last_log_by             = p_last_log_by
+        WHERE upload_setting_id     = p_upload_setting_id;
+
+        UPDATE upload_setting
+        SET upload_setting_name         = p_upload_setting_name,
+            upload_setting_description  = p_upload_setting_description,
+            max_file_size               = p_max_file_size,
+            last_log_by                 = p_last_log_by
+        WHERE upload_setting_id         = p_upload_setting_id;
+        
         SET v_new_upload_setting_id = p_upload_setting_id;
     END IF;
 
@@ -2928,9 +2910,9 @@ END//
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS generateTables//
+DROP PROCEDURE IF EXISTS generateTableOptions//
 
-CREATE PROCEDURE generateTables(
+CREATE PROCEDURE generateTableOptions(
     IN p_database_name VARCHAR(255)
 )
 BEGIN
@@ -2939,9 +2921,9 @@ BEGIN
     WHERE table_schema = p_database_name;
 END //
 
-DROP PROCEDURE IF EXISTS generateExportOption//
+DROP PROCEDURE IF EXISTS generateExportOptions//
 
-CREATE PROCEDURE generateExportOption(
+CREATE PROCEDURE generateExportOptions(
     IN p_databasename VARCHAR(500),
     IN p_table_name VARCHAR(500)
 )

@@ -1,3 +1,5 @@
+import { initializeDualListBoxIcon } from '../utilities/export.js';
+
 /**
  * Disables one or more buttons by ID.
  * @param {string|string[]} buttonIds - Single button ID string, or array of button ID strings
@@ -60,23 +62,65 @@ export const resetForm = (formId) => {
 };
 
 
-export const generateDropdownOptions = ({url, dropdownSelector, data = {}}) => {
+export const generateDropdownOptions = ({url, dropdownSelector, data = {}, validateOnChange = false }) => {
+  $.ajax({
+    url: url,
+    method: 'POST',
+    dataType: 'json',
+    data: data,
+    success: function (response) {
+      const $dropdown = $(dropdownSelector);
+
+      $dropdown.select2({ data: response });
+
+      if (validateOnChange) {
+        $dropdown.on('change', function () {
+          $(this).valid();
+        });
+      }
+    },
+    error: function (xhr, status, error) {
+      handleSystemError(xhr, status, error);
+    }
+  });
+}
+
+export const generateDualListBox = ({ 
+    url,
+    selectSelector, 
+    data = {}
+}) => {
     $.ajax({
         url: url,
         method: 'POST',
         dataType: 'json',
         data: data,
-        success: function (response) {
-            const $dropdown = $(dropdownSelector);
+        success: function(response) {
+            let select = document.getElementById(selectSelector);
+            select.options.length = 0;
 
-            $dropdown
-                .select2({ data: response })
-                .on('change', function () {
-                    $(this).valid();
-                });
+            response.forEach(function(opt) {
+              var option = new Option(opt.text, opt.id);
+              select.appendChild(option);
+            });
         },
-        error: function (xhr, status, error) {
+        error: function(xhr, status, error) {
             handleSystemError(xhr, status, error);
+        },
+        complete: function() {
+          if($(`#${selectSelector}`).length){
+            $(`#${selectSelector}`).bootstrapDualListbox({
+              nonSelectedListLabel: 'Non-selected',
+              selectedListLabel: 'Selected',
+              preserveSelectionOnMove: 'moved',
+              moveOnSelect: false,
+              helperSelectNamePostfix: false
+            });
+        
+            $(`#${selectSelector}`).bootstrapDualListbox('refresh', true);
+        
+            initializeDualListBoxIcon();
+          }
         }
     });
-}
+};

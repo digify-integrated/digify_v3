@@ -216,7 +216,7 @@ function resendOTP(countdownValue) {
             }
             else {
                 window.location.href = 'index.php';
-                setNotification(response.title, response.message, response.messageType);
+                setNotification(response.title, response.message, response.message_type);
             }
         },
         error: function (xhr, status, error) {

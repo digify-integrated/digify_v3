@@ -437,4 +437,4 @@
     </div>
 </div>
 
-<?php require_once('components/view/_log_notes_modal.php'); ?>
+<?php require_once('./app/Views/Partials/log-notes-modal.php'); ?>

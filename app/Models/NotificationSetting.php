@@ -213,6 +213,12 @@ class NotificationSetting extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateNotificationSettingTable() {
+        $sql = 'CALL generateNotificationSettingTable()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

@@ -1,5 +1,7 @@
+import { handleSystemError } from '../modules/system-errors.js';
+
 export const reloadDatatable = (datatableSelector) => {
-    manageActionDropdown();
+    toggleHideActionDropdown();
 
     if ($.fn.DataTable.isDataTable(datatableSelector)) {
         $(datatableSelector).DataTable().ajax.reload(null, false);
@@ -48,10 +50,21 @@ export const manageActionDropdown = (options = { hideOnly: false }) => {
     }
 };
 
+export const toggleHideActionDropdown = () =>{
+    const actionDropdown    = document.querySelector('.action-dropdown');
+    const masterCheckbox    = document.getElementById('datatable-checkbox');
+
+    if (actionDropdown && masterCheckbox) {
+        actionDropdown.classList.add('d-none');
+        masterCheckbox.checked = false;
+    }
+}
+
 export const initializeDatatable = ({
     selector,
     ajaxUrl,
     transaction,
+    ajaxData        = {},
     columns         = [],
     columnDefs      = [],
     lengthMenu      = [[10, 5, 25, 50, 100, -1], [10, 5, 25, 50, 100, 'All']],
@@ -75,7 +88,8 @@ export const initializeDatatable = ({
             data: { 
                 transaction : transaction,
                 page_id: pageId,
-                page_link: pageLink
+                page_link: pageLink,
+                ...ajaxData
             },
             dataSrc: '',
             error: (xhr, status, error) => handleSystemError(xhr, status, error)
@@ -108,34 +122,25 @@ export const initializeDatatable = ({
     $(selector).DataTable(settings);
 };
 
-export const datatableLength = (selector) => {
-    $('#datatable-length')
-    .on('change', function() {
-        let table = $(selector).DataTable();
-        let length = $(this).val(); 
+export const initializeDatatableControls = (selector) => {
+    $('#datatable-length').off('change').on('change', function() {
+        const table = $(selector).DataTable();
+        const length = $(this).val();
         table.page.len(length).draw();
     });
-};
 
-export const datatableSearch = (selector) => {
-    $('#datatable-search')
-    .on('keyup', function () {
-        let table = $(selector).DataTable();
+    $('#datatable-search').off('keyup').on('keyup', function () {
+        const table = $(selector).DataTable();
         table.search(this.value).draw();
     });
-};
 
-export const toggleSingleTableCheckBox = () => {
-    $(document).on('click','.datatable-checkbox-children',function() {
+    $(document).off('click', '.datatable-checkbox-children').on('click', '.datatable-checkbox-children', function() {
         manageActionDropdown();
     });
-};
 
-export const toggleAllTableCheckBox = () => {
-    $(document).on('click','#datatable-checkbox',function() {
-        let status = $(this).is(':checked') ? true : false;
-        $('.datatable-checkbox-children').prop('checked',status);
-    
+    $(document).off('click', '#datatable-checkbox').on('click', '#datatable-checkbox', function() {
+        const status = $(this).is(':checked');
+        $('.datatable-checkbox-children').prop('checked', status);
         manageActionDropdown();
     });
 };

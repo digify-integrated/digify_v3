@@ -275,6 +275,120 @@ class Role extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateRoleTable() {
+        $sql = 'CALL generateRoleTable()';
+        
+        return $this->fetchAll($sql);
+    }
+
+    public function generateRoleMenuItemPermissionTable(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleMenuItemPermissionTable(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateRoleSystemActionPermissionTable(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleSystemActionPermissionTable(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateRoleUserAccountTable(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleUserAccountTable(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateUserAccountRoleList(
+        $p_user_account_id
+    ) {
+        $sql = 'CALL generateUserAccountRoleList(
+            :p_user_account_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    public function generateRoleAssignedMenuItemTable(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleAssignedMenuItemTable(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateRoleAssignedSystemActionTable(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleAssignedSystemActionTable(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateUserAccountRoleDualListBoxOptions(
+        $p_user_account_id
+    ) {
+        $sql = 'CALL generateUserAccountRoleDualListBoxOptions(
+            :p_user_account_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
+    public function generateRoleMenuItemDualListBoxOptions(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleMenuItemDualListBoxOptions(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
+    public function generateRoleSystemActionDualListBoxOptions(
+        $p_role_id
+    ) {
+        $sql = 'CALL generateRoleSystemActionDualListBoxOptions(
+            :p_role_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_role_id' => $p_role_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

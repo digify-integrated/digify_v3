@@ -84,6 +84,7 @@ class AppModuleController
             'delete multiple app module'    => $this->deleteMultipleAppModule(),
             'fetch app module details'      => $this->fetchAppModuleDetails(),
             'generate app module table'     => $this->generateAppModuleTable(),
+            'generate app module options'   => $this->generateAppModuleOptions(),
             default                         => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -311,6 +312,30 @@ class AppModuleController
                                         </div>
                                     </div>',
                 'LINK' => $pageLink .'&id='. $appModuleIdEncrypted
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateAppModuleOptions()
+    {
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $appModules = $this->appModule->generateAppModuleOptions();
+
+        foreach ($appModules as $row) {
+            $response[] = [
+                'id'    => $row['app_module_id'],
+                'text'  => $row['app_module_name']
             ];
         }
 

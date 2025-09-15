@@ -269,6 +269,18 @@ class UserAccount extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateUserAccountTable() {
+        $sql = 'CALL generateUserAccountTable()';
+        
+        return $this->fetchAll($sql);
+    }
+
+    public function generateUserAccountOptions() {
+        $sql = 'CALL generateUserAccountOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

@@ -1,42 +1,23 @@
-import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#menu_item_id',
-        data: { transaction: 'generate menu item options' },
-        validateOnChange: true
-    });
-    
-    $('#app_module_form').validate({
+$(document).ready(function () {    
+    $('#role_form').validate({
         rules: {
-            app_module_name: {
+            role_name: {
                 required: true
             },
-            app_module_description: {
-                required: true
-            },
-            menu_item_id: {
-                required: true
-            },
-            order_sequence: {
+            role_description: {
                 required: true
             }
         },
         messages: {
-            app_module_name: {
+            role_name: {
                 required: 'Enter the display name'
             },
-            app_module_description: {
-                required: 'Enter the description'
-            },
-            menu_item_id: {
-                required: 'Select the default page'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
+            role_description: {
+                required: 'Ether the description'
             }
         },
         errorPlacement: (error, element) => {
@@ -60,11 +41,11 @@ $(document).ready(function () {
             event.preventDefault();
 
             const page_link     = document.getElementById('page-link').getAttribute('href');
-            const transaction   = 'save app module';
+            const transaction   = 'save role';
 
             $.ajax({
                 type: 'POST',
-                url: './app/Controllers/AppModuleController.php',
+                url: './app/Controllers/RoleController.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
@@ -73,7 +54,7 @@ $(document).ready(function () {
                 success: function(response) {
                     if (response.success) {
                         setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link + '&id=' + response.app_module_id;
+                        window.location = page_link + '&id=' + response.role_id;
                     }
                     else{
                         if(response.invalid_session){

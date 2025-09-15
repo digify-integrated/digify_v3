@@ -37,7 +37,7 @@ class MenuItem extends Model {
         )';
 
         $row = $this->fetch($sql, [
-            'p_menu_item_id'         => $p_menu_item_id,
+            'p_menu_item_id'        => $p_menu_item_id,
             'p_menu_item_name'      => $p_menu_item_name,
             'p_menu_item_url'       => $p_menu_item_url,
             'p_menu_item_icon'      => $p_menu_item_icon,
@@ -140,10 +140,51 @@ class MenuItem extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateMenuItemTable(
+        $p_filter_by_app_module,
+        $p_filter_by_parent_id
+    ) {
+        $sql = 'CALL generateMenuItemTable(
+            :p_filter_by_app_module,
+            :p_filter_by_parent_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_filter_by_app_module' => $p_filter_by_app_module,
+            'p_filter_by_parent_id' => $p_filter_by_parent_id
+        ]);
+    }
+
     public function generateMenuItemOptions(
         $p_menu_item_id
     ) {
         $sql = 'CALL generateMenuItemOptions(
+            :p_menu_item_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_menu_item_id' => $p_menu_item_id
+        ]);
+    }
+
+    public function generateMenuItemAssignedRoleTable(
+        $p_menu_item_id
+    ) {
+        $sql = 'CALL generateMenuItemAssignedRoleTable(
+            :p_menu_item_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_menu_item_id' => $p_menu_item_id
+        ]);
+    }
+
+    
+
+    public function generateMenuItemRoleDualListBoxOptions(
+        $p_menu_item_id
+    ) {
+        $sql = 'CALL generateMenuItemRoleDualListBoxOptions(
             :p_menu_item_id
         )';
         

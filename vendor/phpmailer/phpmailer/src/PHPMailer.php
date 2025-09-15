@@ -1667,7 +1667,7 @@ class PHPMailer
                 $this->ContentType = static::CONTENT_TYPE_MULTIPART_ALTERNATIVE;
             }
 
-            $this->setMessageType();
+            $this->setmessage_type();
             //Refuse to send an empty message unless we are specifically allowing it
             if (!$this->AllowEmpty && empty($this->Body)) {
                 throw new Exception($this->lang('empty_message'), self::STOP_CRITICAL);
@@ -3262,7 +3262,7 @@ class PHPMailer
      * Set the message type.
      * PHPMailer only supports some preset message types, not arbitrary MIME structures.
      */
-    protected function setMessageType()
+    protected function setmessage_type()
     {
         $type = [];
         if ($this->alternativeExists()) {

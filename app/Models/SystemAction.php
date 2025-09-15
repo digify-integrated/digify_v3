@@ -92,6 +92,42 @@ class SystemAction extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
+    public function generateSystemActionTable() {
+        $sql = 'CALL generateSystemActionTable()';
+        
+        return $this->fetchAll($sql);
+    }
+
+    public function generateSystemActionOptions() {
+        $sql = 'CALL generateSystemActionOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
+    public function generateSystemActionAssignedRoleTable(
+        $p_system_action_id
+    ) {
+        $sql = 'CALL generateSystemActionAssignedRoleTable(
+            :p_system_action_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_system_action_id' => $p_system_action_id
+        ]);
+    }
+
+    public function generateSystemActionRoleDualListBoxOptions(
+        $p_system_action_id
+    ) {
+        $sql = 'CALL generateSystemActionRoleDualListBoxOptions(
+            :p_system_action_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_system_action_id' => $p_system_action_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

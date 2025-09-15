@@ -5,20 +5,34 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 $(document).ready(function () {
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#menu_item_id',
-        data: { transaction: 'generate menu item options' },
-        validateOnChange: true
+        dropdownSelector: '#parent_id',
+        data: { 
+            transaction: 'generate menu item options'
+        }
+    });
+
+    generateDropdownOptions({
+        url: './app/Controllers/AppModuleController.php',
+        dropdownSelector: '#app_module_id',
+        data: { 
+            transaction: 'generate app module options'
+        }
+    });
+
+    generateDropdownOptions({
+        url: './app/Controllers/ExportController.php',
+        dropdownSelector: '#table_name',
+        data: { 
+            transaction: 'generate export table options'
+        }
     });
     
-    $('#app_module_form').validate({
+    $('#menu_item_form').validate({
         rules: {
-            app_module_name: {
+            menu_item_name: {
                 required: true
             },
-            app_module_description: {
-                required: true
-            },
-            menu_item_id: {
+            app_module_id: {
                 required: true
             },
             order_sequence: {
@@ -26,14 +40,11 @@ $(document).ready(function () {
             }
         },
         messages: {
-            app_module_name: {
+            menu_item_name: {
                 required: 'Enter the display name'
             },
-            app_module_description: {
-                required: 'Enter the description'
-            },
-            menu_item_id: {
-                required: 'Select the default page'
+            app_module_id: {
+                required: 'Choose the app module'
             },
             order_sequence: {
                 required: 'Enter the order sequence'
@@ -60,11 +71,11 @@ $(document).ready(function () {
             event.preventDefault();
 
             const page_link     = document.getElementById('page-link').getAttribute('href');
-            const transaction   = 'save app module';
+            const transaction   = 'save menu item';
 
             $.ajax({
                 type: 'POST',
-                url: './app/Controllers/AppModuleController.php',
+                url: './app/Controllers/MenuItemController.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
@@ -73,7 +84,7 @@ $(document).ready(function () {
                 success: function(response) {
                     if (response.success) {
                         setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link + '&id=' + response.app_module_id;
+                        window.location = page_link + '&id=' + response.menu_item_id;
                     }
                     else{
                         if(response.invalid_session){

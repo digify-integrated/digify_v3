@@ -446,4 +446,10 @@ class SystemHelper extends Security
 
         return './assets/js/page/'. $folderName .'/index.js';
     }
+
+    public static function checkFilter(?array $values): ?string {
+        if (!$values) return null;
+        $cleanValues = array_filter(array_map('trim', $values), fn($v) => $v !== '');
+        return $cleanValues ? "'" . implode("','", array_map('addslashes', $cleanValues)) . "'" : null;
+    }
 }
