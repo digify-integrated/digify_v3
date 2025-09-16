@@ -36,11 +36,12 @@
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password">
-                                <button class="btn btn-light bg-transparent password-addon" type="button">
+                            <div class="position-relative mb-3">
+                                <input class="form-control" type="password" id="password" name="password" autocomplete="off" />
+
+                                <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2 password-addon">
                                     <i class="ki-outline ki-eye-slash fs-2 p-0"></i>
-                                </button>
+                                </span>
                             </div>
                         </div>
                         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">

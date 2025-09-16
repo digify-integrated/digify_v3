@@ -1,9 +1,13 @@
 <?php
+    use App\Models\UserAccount;
+
+    $userAccount= new UserAccount();
+
     $activateUserAccount    = $authentication->checkUserSystemActionPermission($userID, 1);
     $deactivateUserAccount  = $authentication->checkUserSystemActionPermission($userID, 2);
     $addRoleUserAccount     = $authentication->checkUserSystemActionPermission($userID, 5);
 
-    $userAccountDetails     = $userAccount->getUserAccount($detailID);
+    $userAccountDetails     = $userAccount->fetchUserAccount($detailID);
     $userAccountActive      = $security->decryptData($userAccountDetails['active']);
     $disabled               = $permissions['delete'] > 0 ? '' : 'disabled';
 ?>
@@ -38,26 +42,23 @@
 
                 <div>
                     <div class="pb-5 fs-6">
-                        <div class="fw-bold mt-5">Username</div>
-                        <div class="text-gray-600" id="username_side_summary"></div>
-
                         <div class="fw-bold mt-5">Phone</div>
                         <div class="text-gray-600" id="phone_side_summary"></div>
 
                         <div class="fw-bold mt-5">Status</div>
                         <div class="text-gray-600" id="status_side_summary"></div>
 
-                        <div class="fw-bold mt-5">Locked Status</div>
-                        <div class="text-gray-600" id="locked_status_side_summary"></div>
-
-                        <div class="fw-bold mt-5">Password Expiry Date</div>
-                        <div class="text-gray-600" id="password_expiry_date_side_summary"></div>
-
                         <div class="fw-bold mt-5">Last Password Change</div>
                         <div class="text-gray-600" id="last_password_date_side_summary"></div>
 
+                        <div class="fw-bold mt-5">Last Password Reset Request</div>
+                        <div class="text-gray-600" id="last_password_reset_request_side_summary"></div>
+
                         <div class="fw-bold mt-5">Last Login</div>
                         <div class="text-gray-600" id="last_connection_date_side_summary"></div>
+
+                        <div class="fw-bold mt-5">Last Failed Attempt</div>
+                        <div class="text-gray-600" id="last_failed_connection_date_side_summary"></div>
                     </div>
                 </div>
             </div>
@@ -160,7 +161,7 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="details_tab" role="tabpanel">
                 <div class="card mb-5 mb-xl-10">
-                    <div class="card-header border-0" role="button">
+                    <div class="card-header border-0">
                         <div class="card-title m-0">
                             <h3 class="fw-bold m-0">User Account Details</h3>
                         </div>
@@ -175,7 +176,8 @@
                                 </div>
                                         
                                 <div id="change_full_name_edit" class="flex-row-fluid d-none">
-                                    <form id="update-full-name-form">
+                                    <form id="update_full_name_form">
+                                        <?= $security->csrfInput('update_full_name_form'); ?>
                                         <div class="row mb-6">
                                             <div class="col-lg-12 mb-4 mb-lg-0">
                                                 <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -186,8 +188,8 @@
                                         </div>
                                         
                                         <?php
-                                            echo ($permissions['delete'] > 0) ? '<div class="d-flex">
-                                                                                    <button id="update_full_name_submit" form="update-full-name-form" type="submit" class="btn btn-primary me-2 px-6">Update Full Name</button>
+                                            echo ($permissions['write'] > 0) ? '<div class="d-flex">
+                                                                                    <button id="update_full_name_submit" form="update_full_name_form" type="submit" class="btn btn-primary me-2 px-6">Update Full Name</button>
                                                                                     <button id="update_full_name_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_full_name">Cancel</button>
                                                                                 </div>' : '';
                                         ?>
@@ -195,42 +197,7 @@
                                 </div>
 
                                 <?php
-                                    echo ($permissions['delete'] > 0) ? '<div id="change_full_name_button" class="ms-auto" data-toggle-section="change_full_name">
-                                                                            <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
-                                                                        </div>' : '';
-                                ?>
-                            </div>
-
-                            <div class="separator separator-dashed my-6"></div>
-
-                            <div class="d-flex flex-wrap align-items-center">
-                                <div id="change_username">
-                                    <div class="fs-6 fw-bold mb-1">Username</div>
-                                    <div class="fw-semibold text-gray-600" id="username_summary"></div>
-                                </div>
-                                        
-                                <div id="change_username_edit" class="flex-row-fluid d-none">
-                                    <form id="update-username-form">
-                                        <div class="row mb-6">
-                                            <div class="col-lg-12 mb-4 mb-lg-0">
-                                                <div class="fv-row mb-0 fv-plugins-icon-container">
-                                                    <label for="username" class="form-label fs-6 fw-bold mb-3">Enter New Username</label>
-                                                    <input type="text" class="form-control" id="username" name="username" autocomplete="off" <?php echo $disabled; ?>>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <?php
-                                            echo ($permissions['delete'] > 0) ? '<div class="d-flex">
-                                                                                    <button id="update_username_submit" form="update-username-form" type="submit" class="btn btn-primary me-2 px-6">Update Username</button>
-                                                                                    <button id="update_username_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary px-6" data-toggle-section="change_username">Cancel</button>
-                                                                                </div>' : '';
-                                        ?>
-                                    </form>
-                                </div>
-                                        
-                                <?php
-                                    echo ($permissions['delete'] > 0) ? '<div id="change_username_button" class="ms-auto" data-toggle-section="change_username">
+                                    echo ($permissions['write'] > 0) ? '<div id="change_full_name_button" class="ms-auto" data-toggle-section="change_full_name">
                                                                             <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
                                                                         </div>' : '';
                                 ?>
@@ -245,7 +212,8 @@
                                 </div>
                                         
                                 <div id="change_email_edit" class="flex-row-fluid d-none">
-                                    <form id="update-email-form">
+                                    <form id="update_email_form">
+                                        <?= $security->csrfInput('update_email_form'); ?>
                                         <div class="row mb-6">
                                             <div class="col-lg-12 mb-4 mb-lg-0">
                                                 <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -256,8 +224,8 @@
                                         </div>
                                         
                                         <?php
-                                            echo ($permissions['delete'] > 0) ? '<div class="d-flex">
-                                                                                    <button id="update_email_submit" form="update-email-form" type="submit" class="btn btn-primary me-2 px-6">Update Email</button>
+                                            echo ($permissions['write'] > 0) ? '<div class="d-flex">
+                                                                                    <button id="update_email_submit" form="update_email_form" type="submit" class="btn btn-primary me-2 px-6">Update Email</button>
                                                                                     <button id="update_email_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary px-6" data-toggle-section="change_email">Cancel</button>
                                                                                 </div>' : '';
                                         ?>
@@ -265,7 +233,7 @@
                                 </div>
 
                                 <?php
-                                    echo ($permissions['delete'] > 0) ? '<div id="change_email_button" class="ms-auto" data-toggle-section="change_email">
+                                    echo ($permissions['write'] > 0) ? '<div id="change_email_button" class="ms-auto" data-toggle-section="change_email">
                                                                             <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
                                                                         </div>' : '';
                                 ?>
@@ -280,7 +248,8 @@
                                 </div>
                                         
                                 <div id="change_phone_edit" class="flex-row-fluid d-none">
-                                    <form id="update-phone-form">
+                                    <form id="update_phone_form">
+                                        <?= $security->csrfInput('update_phone_form'); ?>
                                         <div class="row mb-6">
                                             <div class="col-lg-12 mb-4 mb-lg-0">
                                                 <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -291,8 +260,8 @@
                                         </div>
 
                                         <?php
-                                            echo ($permissions['delete'] > 0) ? '<div class="d-flex">
-                                                                                    <button id="update_phone_submit" form="update-phone-form" type="submit" class="btn btn-primary me-2 px-6">Update Phone</button>
+                                            echo ($permissions['write'] > 0) ? '<div class="d-flex">
+                                                                                    <button id="update_phone_submit" form="update_phone_form" type="submit" class="btn btn-primary me-2 px-6">Update Phone</button>
                                                                                     <button id="update_phone_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary px-6" data-toggle-section="change_phone">Cancel</button>
                                                                                 </div>' : '';
                                         ?>
@@ -300,7 +269,7 @@
                                 </div>
                                         
                                 <?php
-                                    echo ($permissions['delete'] > 0) ? '<div id="change_phone_button" class="ms-auto" data-toggle-section="change_phone">
+                                    echo ($permissions['write'] > 0) ? '<div id="change_phone_button" class="ms-auto" data-toggle-section="change_phone">
                                                                             <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
                                                                         </div>' : '';
                                 ?>
@@ -315,7 +284,8 @@
                                 </div>
                                         
                                 <div id="change_password_edit" class="flex-row-fluid d-none">
-                                    <form id="update-password-form">
+                                    <form id="update_password_form">
+                                        <?= $security->csrfInput('update_password_form'); ?>
                                         <div class="row mb-1">
                                             <div class="col-lg-12">
                                                 <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -331,8 +301,8 @@
                                         </div>
 
                                         <?php
-                                            echo ($permissions['delete'] > 0) ? '<div class="d-flex mt-5">
-                                                                                    <button id="update_password_submit" form="update-password-form" type="submit" class="btn btn-primary me-2 px-6">Update Password</button>
+                                            echo ($permissions['write'] > 0) ? '<div class="d-flex mt-5">
+                                                                                    <button id="update_password_submit" form="update_password_form" type="submit" class="btn btn-primary me-2 px-6">Update Password</button>
                                                                                     <button id="update_password_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary px-6" data-toggle-section="change_password">Cancel</button>
                                                                                 </div>' : '';
                                         ?>
@@ -340,7 +310,7 @@
                                 </div>
                                         
                                 <?php
-                                    echo ($permissions['delete'] > 0) ? '<div id="change_password_button" class="ms-auto" data-toggle-section="change_password">
+                                    echo ($permissions['write'] > 0) ? '<div id="change_password_button" class="ms-auto" data-toggle-section="change_password">
                                                                             <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
                                                                         </div>' : '';
                                 ?>

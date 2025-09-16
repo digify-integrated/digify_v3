@@ -31,197 +31,6 @@ $(document).ready(function () {
             transaction: 'generate export table options'
         }
     });
-
-    initializeDatatable({
-        selector: '#role-permission-table',
-        ajaxUrl: './app/Controllers/MenuItemController.php',
-        transaction: 'generate menu item assigned role table',
-        ajaxData: {
-            menu_item_id: $('#details-id').text()
-        },
-        columns: [
-            { data: 'ROLE_NAME' },
-            { data: 'READ_ACCESS' },
-            { data: 'CREATE_ACCESS' },
-            { data: 'WRITE_ACCESS' },
-            { data: 'DELETE_ACCESS' },
-            { data: 'IMPORT_ACCESS' },
-            { data: 'EXPORT_ACCESS' },
-            { data: 'LOG_NOTES_ACCESS' },
-            { data: 'ACTION' }
-        ],
-        columnDefs: [
-            { width: 'auto', targets: 0, responsivePriority: 1 },
-            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
-            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
-            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
-            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
-            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
-            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
-            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
-            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
-        ],
-        order : [[0, 'asc']]
-    });
-
-    displayDetails();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
-
-    $(document).on('click','#delete-menu-item',function() {
-        const menu_item_id     = $('#details-id').text();
-        const page_link         = document.getElementById('page-link').getAttribute('href'); 
-        const transaction       = 'delete menu item';
-    
-        Swal.fire({
-            title: 'Confirm Menu Item Deletion',
-            text: 'Are you sure you want to delete this menu item?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/MenuItemController.php',
-                    dataType: 'json',
-                    data: {
-                        menu_item_id : menu_item_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location = page_link;
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','#assign-role-permission',function() {
-        generateDualListBox({
-            url: './app/Controllers/MenuItemController.php',
-            selectSelector: 'role_id',
-            data: { 
-                transaction: 'generate menu item role dual listbox options',
-                menu_item_id: $('#details-id').text()
-            }
-        });
-    });
-
-    $(document).on('click','.update-role-permission',function() {
-        const role_permission_id    = $(this).data('role-permission-id');
-        const access_type           = $(this).data('access-type');
-        const access                = $(this).is(':checked') ? '1' : '0';
-        const transaction           = 'update menu item role permission';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/MenuItemController.php',
-            dataType: 'json',
-            data: {
-                role_permission_id : role_permission_id,
-                access_type : access_type,
-                access : access,
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-                else{
-                    if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
-            }
-        });
-    });
-
-    $(document).on('click','.delete-role-permission',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-        const transaction       = 'delete menu item role permission';
-    
-        Swal.fire({
-            title: 'Confirm Role Permission Deletion',
-            text: 'Are you sure you want to delete this role permission?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/MenuItemController.php',
-                    dataType: 'json',
-                    data: {
-                        role_permission_id : role_permission_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            reloadDatatable('#role-permission-table');
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','.view-role-permission-log-notes',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-
-        attachLogNotesClassHandler('role_permission', role_permission_id);
-    });
     
     $('#menu_item_form').validate({
         rules: {
@@ -362,6 +171,196 @@ $(document).ready(function () {
 
             return false;
         }
+    });
+
+    initializeDatatable({
+        selector: '#role-permission-table',
+        ajaxUrl: './app/Controllers/MenuItemController.php',
+        transaction: 'generate menu item assigned role table',
+        ajaxData: {
+            menu_item_id: $('#details-id').text()
+        },
+        columns: [
+            { data: 'ROLE_NAME' },
+            { data: 'READ_ACCESS' },
+            { data: 'CREATE_ACCESS' },
+            { data: 'WRITE_ACCESS' },
+            { data: 'DELETE_ACCESS' },
+            { data: 'IMPORT_ACCESS' },
+            { data: 'EXPORT_ACCESS' },
+            { data: 'LOG_NOTES_ACCESS' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
+            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
+            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
+            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
+            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
+            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
+            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
+            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    displayDetails();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
+
+    $(document).on('click','#delete-menu-item',function() {
+        const menu_item_id      = $('#details-id').text();
+        const page_link         = document.getElementById('page-link').getAttribute('href'); 
+        const transaction       = 'delete menu item';
+    
+        Swal.fire({
+            title: 'Confirm Menu Item Deletion',
+            text: 'Are you sure you want to delete this menu item?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/MenuItemController.php',
+                    dataType: 'json',
+                    data: {
+                        menu_item_id : menu_item_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location = page_link;
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','#assign-role-permission',function() {
+        generateDualListBox({
+            url: './app/Controllers/MenuItemController.php',
+            selectSelector: 'role_id',
+            data: { 
+                transaction: 'generate menu item role dual listbox options',
+                menu_item_id: $('#details-id').text()
+            }
+        });
+    });
+
+    $(document).on('click','.update-role-permission',function() {
+        const role_permission_id    = $(this).data('role-permission-id');
+        const access_type           = $(this).data('access-type');
+        const access                = $(this).is(':checked') ? '1' : '0';
+        const transaction           = 'update menu item role permission';
+    
+        $.ajax({
+            type: 'POST',
+            url: './app/Controllers/MenuItemController.php',
+            dataType: 'json',
+            data: {
+                role_permission_id : role_permission_id,
+                access_type : access_type,
+                access : access,
+                transaction : transaction
+            },
+            success: function (response) {
+                if (response.success) {
+                    showNotification(response.title, response.message, response.message_type);
+                }
+                else{
+                    if(response.invalid_session){
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location.href = response.redirect_link;
+                    }
+                    else{
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    });
+
+    $(document).on('click','.delete-role-permission',function() {
+        const role_permission_id = $(this).data('role-permission-id');
+        const transaction       = 'delete menu item role permission';
+    
+        Swal.fire({
+            title: 'Confirm Role Permission Deletion',
+            text: 'Are you sure you want to delete this role permission?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/MenuItemController.php',
+                    dataType: 'json',
+                    data: {
+                        role_permission_id : role_permission_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showNotification(response.title, response.message, response.message_type);
+                            reloadDatatable('#role-permission-table');
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','.view-role-permission-log-notes',function() {
+        const role_permission_id = $(this).data('role-permission-id');
+
+        attachLogNotesClassHandler('role_permission', role_permission_id);
     });
 });
 

@@ -139,26 +139,7 @@ class SystemHelper extends Security
 
         return $parts ?: ['less than a second'];
     }
-
-    /**
-     * Get default return value based on type.
-     *
-     * @param string $type
-     * @param string $systemDate
-     * @param string $systemTime
-     * @return string|null
-     */
-    public static function getDefaultReturnValue(string $type, string $systemDate, string $systemTime): ?string
-    {
-        return match ($type) {
-            'default'       => $systemDate,
-            'default time'  => $systemTime,
-            'na', 'complete', 'encoded', 'date time' => 'N/A',
-            'empty', 'attendance empty', 'summary'   => null,
-            default         => null,
-        };
-    }
-
+    
     /**
      * Get default system image by type.
      *
@@ -451,5 +432,43 @@ class SystemHelper extends Security
         if (!$values) return null;
         $cleanValues = array_filter(array_map('trim', $values), fn($v) => $v !== '');
         return $cleanValues ? "'" . implode("','", array_map('addslashes', $cleanValues)) . "'" : null;
+    }
+
+    public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {
+        $systemDate ??= date('Y-m-d');
+        $systemTime ??= date('H:i:s');
+
+        if (empty($date)) {
+            return $this->getDefaultReturnValue($type, $systemDate, $systemTime);
+        }
+
+        $formattedDate = $this->formatDate($format, $date, $modify);
+
+        if ($this->needsTime($type) && !empty($time)) {
+            return "$formattedDate $time";
+        }
+
+        return $formattedDate;
+    }
+
+    private function needsTime(string $type): bool
+    {
+        static $typesRequiringTime = ['complete', 'encoded', 'date time'];
+        return in_array(strtolower($type), $typesRequiringTime, true);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    private static function getDefaultReturnValue($type, $systemDate, $systemTime) {
+        $type = strtolower($type);
+
+        return match ($type) {
+            'default'                                   => $systemDate,
+            'default time'                              => $systemTime,
+            'summary'                                   => '--',
+            'na', 'complete', 'encoded', 'date time'    => 'N/A',
+            'empty', 'attendance empty'                 => null,
+            default                                     => null,
+        };
     }
 }

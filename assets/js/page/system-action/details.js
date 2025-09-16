@@ -27,165 +27,6 @@ $(document).ready(function () {
         order : [[0, 'asc']]
     });
 
-    displayDetails();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'system_action');
-
-    $(document).on('click','#delete-system-action',function() {
-        const system_action_id      = $('#details-id').text();
-        const page_link             = document.getElementById('page-link').getAttribute('href'); 
-        const transaction           = 'delete system action';
-    
-        Swal.fire({
-            title: 'Confirm System Action Deletion',
-            text: 'Are you sure you want to delete this system action?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/SystemActionController.php',
-                    dataType: 'json',
-                    data: {
-                        system_action_id : system_action_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location = page_link;
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','#assign-role-permission',function() {
-        generateDualListBox({
-            url: './app/Controllers/SystemActionController.php',
-            selectSelector: 'role_id',
-            data: { 
-                transaction: 'generate system action role dual listbox options',
-                system_action_id: $('#details-id').text()
-            }
-        });
-    });
-
-    $(document).on('click','.update-role-permission',function() {
-        const role_permission_id    = $(this).data('role-permission-id');
-        const access_type           = $(this).data('access-type');
-        const access                = $(this).is(':checked') ? '1' : '0';
-        const transaction           = 'update system action role permission';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/SystemActionController.php',
-            dataType: 'json',
-            data: {
-                role_permission_id : role_permission_id,
-                access_type : access_type,
-                access : access,
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-                else{
-                    if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
-            }
-        });
-    });
-
-    $(document).on('click','.delete-role-permission',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-        const transaction       = 'delete system action role permission';
-    
-        Swal.fire({
-            title: 'Confirm Role Permission Deletion',
-            text: 'Are you sure you want to delete this role permission?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/SystemActionController.php',
-                    dataType: 'json',
-                    data: {
-                        role_permission_id : role_permission_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            reloadDatatable('#role-permission-table');
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','.view-role-permission-log-notes',function() {
-        const role_system_action_permission_id = $(this).data('role-permission-id');
-
-        attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
-    });
-    
     $('#system_action_form').validate({
         rules: {
             system_action_name: {
@@ -319,6 +160,164 @@ $(document).ready(function () {
 
             return false;
         }
+    });
+
+    displayDetails();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'system_action');
+
+    $(document).on('click','#delete-system-action',function() {
+        const system_action_id      = $('#details-id').text();
+        const page_link             = document.getElementById('page-link').getAttribute('href'); 
+        const transaction           = 'delete system action';
+    
+        Swal.fire({
+            title: 'Confirm System Action Deletion',
+            text: 'Are you sure you want to delete this system action?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/SystemActionController.php',
+                    dataType: 'json',
+                    data: {
+                        system_action_id : system_action_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location = page_link;
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','#assign-role-permission',function() {
+        generateDualListBox({
+            url: './app/Controllers/SystemActionController.php',
+            selectSelector: 'role_id',
+            data: { 
+                transaction: 'generate system action role dual listbox options',
+                system_action_id: $('#details-id').text()
+            }
+        });
+    });
+
+    $(document).on('click','.update-role-permission',function() {
+        const role_permission_id    = $(this).data('role-permission-id');
+        const access_type           = $(this).data('access-type');
+        const access                = $(this).is(':checked') ? '1' : '0';
+        const transaction           = 'update system action role permission';
+    
+        $.ajax({
+            type: 'POST',
+            url: './app/Controllers/SystemActionController.php',
+            dataType: 'json',
+            data: {
+                role_permission_id : role_permission_id,
+                access_type : access_type,
+                access : access,
+                transaction : transaction
+            },
+            success: function (response) {
+                if (response.success) {
+                    showNotification(response.title, response.message, response.message_type);
+                }
+                else{
+                    if(response.invalid_session){
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location.href = response.redirect_link;
+                    }
+                    else{
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    });
+
+    $(document).on('click','.delete-role-permission',function() {
+        const role_permission_id = $(this).data('role-permission-id');
+        const transaction       = 'delete system action role permission';
+    
+        Swal.fire({
+            title: 'Confirm Role Permission Deletion',
+            text: 'Are you sure you want to delete this role permission?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/SystemActionController.php',
+                    dataType: 'json',
+                    data: {
+                        role_permission_id : role_permission_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showNotification(response.title, response.message, response.message_type);
+                            reloadDatatable('#role-permission-table');
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','.view-role-permission-log-notes',function() {
+        const role_system_action_permission_id = $(this).data('role-permission-id');
+
+        attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
     });
 });
 

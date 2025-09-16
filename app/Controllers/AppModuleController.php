@@ -317,7 +317,7 @@ class AppModuleController
 
         echo json_encode($response);
     }
-
+    
     public function generateAppModuleOptions()
     {
         $multiple   = $_POST['multiple'] ?? false;

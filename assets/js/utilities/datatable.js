@@ -144,3 +144,16 @@ export const initializeDatatableControls = (selector) => {
         manageActionDropdown();
     });
 };
+
+export const initializeSubDatatableControls = (search, length, selector) => {
+    $(length).off('change').on('change', function() {
+        const table = $(selector).DataTable();
+        const length = $(this).val();
+        table.page.len(length).draw();
+    });
+
+    $(search).off('keyup').on('keyup', function () {
+        const table = $(selector).DataTable();
+        table.search(this.value).draw();
+    });
+};

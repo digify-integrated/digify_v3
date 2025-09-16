@@ -8,6 +8,13 @@
  * @returns {void}
  */
 export const showNotification = (title, message, type, timeOut = 2000) => {
+  const validTypes = ['success', 'info', 'warning', 'error'];
+
+  if (!validTypes.includes(type)) {
+    console.error(`Invalid toastr type: ${type}`);
+    return;
+  }
+
   toastr.options = {
     closeButton: true,
     progressBar: true,
@@ -16,7 +23,7 @@ export const showNotification = (title, message, type, timeOut = 2000) => {
     timeOut,
   };
 
-  toastr[type]?.(message, title) ?? console.error(`Invalid toastr type: ${type}`);
+  toastr[type](message, title);
 };
 
 /**

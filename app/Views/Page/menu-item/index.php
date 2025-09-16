@@ -1,7 +1,7 @@
 <div class="card mb-6">
     <div class="card-header border-0 pt-6">
         <div class="card-title">
-            <?php require('./app/Views/Partials/datatable-search.php') ?>
+            <?php require './app/Views/Partials/datatable-search.php'; ?>
         </div>
         <div class="card-toolbar">
             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
@@ -83,5 +83,5 @@
 </div>
 
 <?php
-    $permissions['export'] > 0 ? require('./app/Views/Partials/export-modal.php') : '';
+    $permissions['export'] > 0 ? require './app/Views/Partials/export-modal.php' : '';
 ?>

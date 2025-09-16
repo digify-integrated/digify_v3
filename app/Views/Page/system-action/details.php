@@ -59,7 +59,7 @@
 <div class="card">
     <div class="card-header border-0 pt-6">
         <div class="card-title">
-            <?php require('./app/Views/Partials/datatable-search.php') ?>
+            <?php require './app/Views/Partials/datatable-search.php'; ?>
         </div>
         <div class="card-toolbar">
             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">

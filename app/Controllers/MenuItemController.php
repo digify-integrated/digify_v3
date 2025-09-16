@@ -209,8 +209,8 @@ class MenuItemController
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple App Modules Success',
-            'The selected app modules have been deleted successfully.'
+            'Delete Multiple Menu Items Success',
+            'The selected menu items have been deleted successfully.'
         );
     }
 
@@ -288,7 +288,7 @@ class MenuItemController
         echo json_encode($response);
     }
 
-     public function generateMenuItemAssignedRoleTable($userId, $pageId)
+    public function generateMenuItemAssignedRoleTable($userId, $pageId)
     {
         $menuItemId     = $_POST['menu_item_id'] ?? null;
         $response       = [];

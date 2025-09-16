@@ -5,22 +5,15 @@
     <div class="card-body">
         <form id="user_account_form" method="post" action="#">
             <?= $security->csrfInput('user_account_form'); ?>
-            <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="file_as">
-                    <span class="required">Full Name</span>
-                </label>
-
-                <input type="text" class="form-control maxlength" id="file_as" name="file_as" maxlength="300" autocomplete="off">
-            </div>
 
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="username">
-                            <span class="required">Username</span>
-                        </label>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="file_as">
+                    <span class="required">Full Name</span>
+                </label>
 
-                        <input type="text" class="form-control maxlength" id="username" name="username" maxlength="100" autocomplete="off">
+                        <input type="text" class="form-control maxlength" id="file_as" name="file_as" maxlength="300" autocomplete="off">
                     </div>
                 </div>
 
@@ -38,7 +31,7 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="phone">
-                            <span class="required">Phone</span>
+                            <span>Phone</span>
                         </label>
 
                         <input type="text" class="form-control maxlength" id="phone" name="phone" maxlength="50" autocomplete="off">
@@ -51,11 +44,12 @@
                             <span class="required">Password</span>
                         </label>
 
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password">
-                            <button class="btn btn-light bg-transparent password-addon" type="button">
+                        <div class="position-relative mb-3">
+                            <input class="form-control" type="password" id="password" name="password" autocomplete="off" />
+
+                            <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2 password-addon">
                                 <i class="ki-outline ki-eye-slash fs-2 p-0"></i>
-                            </button>
+                            </span>
                         </div>
                     </div>
                 </div>

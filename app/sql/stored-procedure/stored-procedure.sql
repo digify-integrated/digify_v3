@@ -487,167 +487,79 @@ END //
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
 
-DROP PROCEDURE IF EXISTS updateUserAccountFullName//
+DROP PROCEDURE IF EXISTS updateUserAccount //
 
-CREATE PROCEDURE updateUserAccountFullName(
-	IN p_user_account_id INT, 
-	IN p_file_as VARCHAR(300), 
-	IN p_last_log_by INT
-)
-BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE role_user_account
-    SET file_as             = p_file_as,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-
-    UPDATE user_account
-    SET file_as             = p_file_as,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateUserAccountEmailAddress//
-
-CREATE PROCEDURE updateUserAccountEmailAddress(
-	IN p_user_account_id INT, 
-	IN p_email VARCHAR(255),
-	IN p_last_log_by INT
-)
-BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE user_account
-    SET email               = p_email,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateUserAccountPhone//
-
-CREATE PROCEDURE updateUserAccountPhone(
-	IN p_user_account_id INT, 
-	IN p_phone VARCHAR(50),
-	IN p_last_log_by INT
-)
-BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE user_account
-    SET phone               = p_phone,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateUserAccountPassword//
-
-CREATE PROCEDURE updateUserAccountPassword(
-	IN p_user_account_id INT, 
-	IN p_password VARCHAR(255),
-	IN p_last_log_by INT
-)
-BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE user_account
-    SET password                = p_password,
-        last_password_change    = NOW(),
-        last_log_by             = p_last_log_by
-    WHERE user_account_id       = p_user_account_id;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateProfilePicture//
-
-CREATE PROCEDURE updateProfilePicture(
-	IN p_user_account_id INT, 
-	IN p_profile_picture VARCHAR(500), 
-	IN p_last_log_by INT
-)
-BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE user_account
-    SET profile_picture     = p_profile_picture,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateTwoFactorAuthenticationStatus//
-
-CREATE PROCEDURE updateTwoFactorAuthenticationStatus(
-    IN p_user_account_id INT,
-    IN p_two_factor_auth VARCHAR(5),
+CREATE PROCEDURE updateUserAccount (
+    IN p_user_account_id INT, 
+    IN p_value VARCHAR(500),
+    IN p_update_type VARCHAR(50),
     IN p_last_log_by INT
 )
 BEGIN
-    UPDATE user_account
-    SET two_factor_auth     = p_two_factor_auth,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-END //
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
-DROP PROCEDURE IF EXISTS updateMultipleLoginSessionsStatus//
+    START TRANSACTION;
 
-CREATE PROCEDURE updateMultipleLoginSessionsStatus(
-    IN p_user_account_id INT,
-    IN p_multiple_session VARCHAR(5),
-    IN p_last_log_by INT
-)
-BEGIN
-    UPDATE user_account
-    SET multiple_session    = p_multiple_session,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
-END //
+    CASE p_update_type
+        WHEN 'email' THEN
+            UPDATE user_account
+            SET email = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
 
-DROP PROCEDURE IF EXISTS updateUserAccountStatus//
+        WHEN 'phone' THEN
+            UPDATE user_account
+            SET phone = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
 
-CREATE PROCEDURE updateUserAccountStatus(
-    IN p_user_account_id INT,
-    IN p_active VARCHAR(5),
-    IN p_last_log_by INT
-)
-BEGIN
-    UPDATE user_account
-    SET active              = p_active,
-        last_log_by         = p_last_log_by
-    WHERE user_account_id   = p_user_account_id;
+        WHEN 'password' THEN
+            UPDATE user_account
+            SET password = p_value,
+                last_password_change = NOW(),
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
+
+        WHEN 'profile picture' THEN
+            UPDATE user_account
+            SET profile_picture = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
+
+        WHEN 'two factor auth' THEN
+            UPDATE user_account
+            SET two_factor_auth = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
+
+        WHEN 'multiple session' THEN
+            UPDATE user_account
+            SET multiple_session = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
+
+        WHEN 'status' THEN
+            UPDATE user_account
+            SET active = p_value,
+                last_log_by = p_last_log_by
+            WHERE user_account_id = p_user_account_id;
+
+        ELSE
+            UPDATE role_user_account
+            SET file_as             = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
+
+            UPDATE user_account
+            SET file_as             = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
+    END CASE;
+
+    COMMIT;
 END //
 
 /* =============================================================================================
@@ -745,12 +657,23 @@ END //
 
 DROP PROCEDURE IF EXISTS generateUserAccountTable//
 
-CREATE PROCEDURE generateUserAccountTable()
+CREATE PROCEDURE generateUserAccountTable(
+    IN p_active VARCHAR(5)
+)
 BEGIN
-	SELECT user_account_id, file_as, email, profile_picture, active, last_connection_date, last_failed_connection_date 
-    FROM user_account
-    WHERE user_account_id NOT IN (1, 2)
-    ORDER BY user_account_id;
+    DECLARE query TEXT DEFAULT 
+        'SELECT user_account_id, file_as, email, profile_picture, active, last_connection_date, last_failed_connection_date
+        FROM user_account WHERE 1=1';
+
+    IF p_active IS NOT NULL AND p_active <> '' THEN
+        SET query = CONCAT(query, ' AND active = ', QUOTE(p_active));
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY file_as');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 DROP PROCEDURE IF EXISTS generateUserAccountOptions//
@@ -1998,12 +1921,19 @@ CREATE PROCEDURE fetchNavBar(
     IN p_app_module_id INT
 )
 BEGIN
-    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_item_url, mi.parent_id, mi.app_module_id, mi.menu_item_icon
+    SELECT 
+    mi.menu_item_id,
+    mi.menu_item_name,
+    mi.menu_item_url,
+    mi.parent_id,
+    mi.app_module_id,
+    mi.menu_item_icon,
+    mi.order_sequence
     FROM menu_item AS mi
     INNER JOIN role_permission AS mar ON mi.menu_item_id = mar.menu_item_id
     INNER JOIN role_user_account AS ru ON mar.role_id = ru.role_id
     WHERE mar.read_access = 1 AND ru.user_account_id = p_user_account_id AND mi.app_module_id = p_app_module_id
-    ORDER BY mi.order_sequence AND mi.menu_item_name;
+    ORDER BY mi.order_sequence, mi.menu_item_name;
 END //
 
 /* =============================================================================================

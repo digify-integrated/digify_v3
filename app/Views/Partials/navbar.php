@@ -7,42 +7,59 @@
 
                 $navBar = $menuItem->fetchNavBar($userID, $appModuleID);
 
+                $menuItems = [];
                 foreach ($navBar as $row) {
-                    $menuItemID     = $row['menu_item_id'];
-                    $menuItemName   = $row['menu_item_name'];
-                    $menuItemURL    = $row['menu_item_url'] ?? null;
-                    $parentID       = $row['parent_id'];
-                    $appModuleID    = $row['app_module_id'];
-                    $menuItemIcon   = !empty($row['menu_item_icon']) ? $row['menu_item_icon'] : null;
-                    
-                    $menuItemArray = [
-                        'MENU_ITEM_ID'      => $menuItemID,
-                        'MENU_ITEM_NAME'    => $menuItemName,
-                        'MENU_ITEM_URL'     => $menuItemURL,
-                        'PARENT_ID'         => $parentID,
-                        'MENU_ITEM_ICON'    => $menuItemIcon,
-                        'APP_MODULE_ID'     => $appModuleID,
-                        'CHILDREN'          => []
+                    $id = $row['menu_item_id'];
+                    $menuItems[$id] = [
+                        'MENU_ITEM_ID'   => $id,
+                        'MENU_ITEM_NAME' => $row['menu_item_name'],
+                        'MENU_ITEM_URL'  => $row['menu_item_url'] ?? null,
+                        'PARENT_ID'      => $row['parent_id'],
+                        'MENU_ITEM_ICON' => $row['menu_item_icon'] ?? null,
+                        'APP_MODULE_ID'  => $row['app_module_id'],
+                        'ORDER_SEQUENCE' => $row['order_sequence'] ?? 0,
+                        'CHILDREN'       => []
                     ];
-                    
-                    $menuItems[$menuItemID] = $menuItemArray;
                 }
 
-                foreach ($menuItems as $menuItemArray) {
-                    if (!empty($menuItemArray['PARENT_ID'])) {
-                        if ($authentication->checkUserPermission($userID, $menuItemArray['PARENT_ID'], 'read')['total'] > 0) {
-                            $menuItems[$menuItemArray['PARENT_ID']]['CHILDREN'][] = &$menuItems[$menuItemArray['MENU_ITEM_ID']];
-                        }
+                foreach ($menuItems as $id => $item) {
+                    if (!empty($item['PARENT_ID']) && isset($menuItems[$item['PARENT_ID']])) {
+                        $menuItems[$item['PARENT_ID']]['CHILDREN'][$id] = &$menuItems[$id];
                     }
                 }
+
+                $rootMenuItems = [];
+                foreach ($menuItems as $id => &$item) {
+                    if (empty($item['PARENT_ID'])) {
+                        $rootMenuItems[$id] = &$item;
+                    }
+                }
+
+                unset($item);
                     
-                $rootMenuItems = array_filter($menuItems, function ($item) {
-                    return empty($item['PARENT_ID']);
-                });
-                    
-                foreach ($rootMenuItems as $rootMenuItem) {
-                    $menu .= $systemHelper->buildMenuItemHTML($rootMenuItem);
-                }      
+                $sortTree = function (&$items) use (&$sortTree) {
+                    if (empty($items)) return;
+                    uasort($items, function ($a, $b) {
+                        $as = $a['ORDER_SEQUENCE'] ?? 0;
+                        $bs = $b['ORDER_SEQUENCE'] ?? 0;
+                        if ($as === $bs) {
+                            return strcmp($a['MENU_ITEM_NAME'], $b['MENU_ITEM_NAME']);
+                        }
+                        return $as <=> $bs;
+                    });
+                    foreach ($items as &$it) {
+                        if (!empty($it['CHILDREN'])) {
+                            $sortTree($it['CHILDREN']);
+                        }
+                    }
+                    unset($it);
+                };
+
+                $sortTree($rootMenuItems);
+
+                foreach ($rootMenuItems as $root) {
+                    $menu .= $systemHelper->buildMenuItemHTML($root);
+                }
             }
 
             echo $menu;

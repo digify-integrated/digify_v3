@@ -4,7 +4,6 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\SystemAction;
-use App\Models\AppModule;
 use App\Models\Role;
 use App\Models\Authentication;
 use App\Core\Security;
@@ -15,7 +14,6 @@ require_once '../../config/config.php';
 class SystemActionController
 {
     protected SystemAction $systemAction;
-    protected AppModule $appModule;
     protected Role $role;
     protected Authentication $authentication;
     protected Security $security;
@@ -23,14 +21,12 @@ class SystemActionController
 
     public function __construct(
         SystemAction $systemAction,
-        AppModule $appModule,
         Role $role,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->systemAction     = $systemAction;
-        $this->appModule        = $appModule;
         $this->role             = $role;
         $this->authentication   = $authentication;
         $this->security         = $security;
@@ -111,12 +107,12 @@ class SystemActionController
         $systemActionDescription    = $_POST['system_action_description'] ?? null;
 
         $systemActionId = $this->systemAction->saveSystemAction($systemActionId, $systemActionName, $systemActionDescription, $lastLogBy);
-        $encryptedsystemActionId = $this->security->encryptData($systemActionId);
+        $encryptedSystemActionId = $this->security->encryptData($systemActionId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save System Action Success',
             'The system action has been saved successfully.',
-            ['system_action_id' => $encryptedsystemActionId]
+            ['system_action_id' => $encryptedSystemActionId]
         );
     }
 
@@ -197,8 +193,8 @@ class SystemActionController
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple App Modules Success',
-            'The selected app modules have been deleted successfully.'
+            'Delete Multiple System Actionss Success',
+            'The selected system action have been deleted successfully.'
         );
     }
 
@@ -245,9 +241,9 @@ class SystemActionController
         $systemActions = $this->systemAction->generateSystemActionTable();
 
         foreach ($systemActions as $row) {
-            $systemActionId = $row['system_action_id'];
-            $systemActionName = $row['system_action_name'];
-            $systemActionDescription = $row['system_action_description'];
+            $systemActionId             = $row['system_action_id'];
+            $systemActionName           = $row['system_action_name'];
+            $systemActionDescription    = $row['system_action_description'];
 
             $systemActionIdEncrypted = $this->security->encryptData($systemActionId);
 
@@ -266,7 +262,7 @@ class SystemActionController
         echo json_encode($response);
     }
 
-     public function generateSystemActionAssignedRoleTable($userId, $pageId)
+    public function generateSystemActionAssignedRoleTable($userId, $pageId)
     {
         $systemActionId     = $_POST['system_action_id'] ?? null;
         $response       = [];
@@ -360,7 +356,6 @@ class SystemActionController
 # Bootstrap the controller
 $controller = new SystemActionController(
     new SystemAction(),
-    new AppModule(),
     new Role(),
     new Authentication(),
     new Security(),

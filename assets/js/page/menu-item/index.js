@@ -1,4 +1,4 @@
-import { initializeDatatable, initializeDatatableControls, reloadDatatable, manageActionDropdown } from '../../utilities/datatable.js';
+import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';

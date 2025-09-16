@@ -1,18 +1,16 @@
 <?php
-    $activateUserAccount = $authentication->checkSystemActionAccessRights($userID, 1);
-    $deactivateUserAccount = $authentication->checkSystemActionAccessRights($userID, 2);
-    $lockUserAccount = $authentication->checkSystemActionAccessRights($userID, 3);
-    $unlockUserAccount = $authentication->checkSystemActionAccessRights($userID, 4);
+    $activateUserAccount    = $authentication->checkUserSystemActionPermission($userID, 1);
+    $deactivateUserAccount  = $authentication->checkUserSystemActionPermission($userID, 2);
 ?>
 <div class="card mb-6">
     <div class="card-header border-0 pt-6">
         <div class="card-title">
-            <?php require('./app/Views/Partials/datatable-search.php') ?>
+            <?php require './app/Views/Partials/datatable-search.php'; ?>
         </div>
         <div class="card-toolbar">
             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                 <?php
-                    if ($permissions['delete'] > 0 || $permissions['export'] > 0) {
+                    if ($permissions['delete'] > 0 || $permissions['export'] > 0 || $activateUserAccount['total'] > 0 || $deactivateUserAccount['total'] > 0) {
                         $action = '<a href="#" class="btn btn-light-primary btn-flex btn-center btn-active-light-primary show menu-dropdown action-dropdown me-3 d-none" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                                         Actions
                                         <i class="ki-outline ki-down fs-5 ms-1"></i>
@@ -31,22 +29,6 @@
                             $action .= '<div class="menu-item px-3">
                                             <a href="javascript:void(0);" class="menu-link px-3" id="deactivate-user-account">
                                                 Deactivate
-                                            </a>
-                                        </div>';
-                        }
-                                    
-                        if ($lockUserAccount['total'] > 0) {
-                            $action .= '<div class="menu-item px-3">
-                                            <a href="javascript:void(0);" class="menu-link px-3" id="lock-user-account">
-                                                Lock
-                                            </a>
-                                        </div>';
-                        }
-                                    
-                        if ($unlockUserAccount['total'] > 0) {
-                            $action .= '<div class="menu-item px-3">
-                                            <a href="javascript:void(0);" class="menu-link px-3" id="unlock-user-account">
-                                                Unlock
                                             </a>
                                         </div>';
                         }
@@ -88,14 +70,6 @@
                                     <option value="No">Inactive</option>
                                 </select>
                             </div>
-                            <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="user_account_lock_status_filter">Locked:</label>
-                                <select id="user_account_lock_status_filter" class="form-select" data-control="select2" data-allow-clear="false">
-                                    <option value="">--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
-                            </div>
                             <div class="d-flex justify-content-end">
                                 <button type="reset" class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6" id="reset-filter" data-kt-menu-dismiss="true" data-kt-user-table-filter="reset">Reset</button>
                                 <button type="button" class="btn btn-primary fw-semibold px-6" id="apply-filter" data-kt-menu-dismiss="true" data-kt-user-table-filter="filter">Apply</button>
@@ -118,7 +92,6 @@
                         </th>
                         <th>User</th>
                         <th>Status</th>
-                        <th>Locked</th>
                         <th>Last Login</th>
                     </tr>
                 </thead>
@@ -129,5 +102,5 @@
 </div>
 
 <?php
-    $permissions['export'] > 0 ? require('./app/Views/Partials/export-modal.php') : '';
+    $permissions['export'] > 0 ? require './app/Views/Partials/export-modal.php' : '';
 ?>

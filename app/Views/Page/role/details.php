@@ -179,7 +179,7 @@
 
             <div class="modal-body">
                 <form id="system_action_permission_assignment_form" method="post" action="#">
-                    <?= $security->csrfInput('role_form'); ?>
+                    <?= $security->csrfInput('system_action_permission_assignment_form'); ?>
                     <div class="row">
                         <div class="col-12">
                             <select multiple="multiple" size="20" id="system_action_id" name="system_action_id[]"></select>
