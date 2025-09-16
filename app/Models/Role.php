@@ -317,18 +317,6 @@ class Role extends Model {
         ]);
     }
 
-    public function generateUserAccountRoleList(
-        $p_user_account_id
-    ) {
-        $sql = 'CALL generateUserAccountRoleList(
-            :p_user_account_id
-        )';
-        
-        return $this->fetchAll($sql, [
-            'p_user_account_id' => $p_user_account_id
-        ]);
-    }
-
     public function generateRoleAssignedMenuItemTable(
         $p_role_id
     ) {

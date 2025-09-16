@@ -8,7 +8,7 @@
     $addRoleUserAccount     = $authentication->checkUserSystemActionPermission($userID, 5);
 
     $userAccountDetails     = $userAccount->fetchUserAccount($detailID);
-    $userAccountActive      = $security->decryptData($userAccountDetails['active']);
+    $userAccountActive      = $userAccountDetails['active'];
     $disabled               = $permissions['delete'] > 0 ? '' : 'disabled';
 ?>
 <div class="d-flex flex-column flex-lg-row">
@@ -31,11 +31,13 @@
                         <div class="text-gray-600" id="email_side_summary"></div>
                     </div>
                 </div>
-                
+
                 <div class="d-flex flex-stack fs-4 py-3">
                     <div class="fw-bold">
                         Details
                     </div>
+
+                    <div id="status_side_summary"></div>
                 </div>
 
                 <div class="separator separator-dashed my-3"></div>
@@ -44,9 +46,6 @@
                     <div class="pb-5 fs-6">
                         <div class="fw-bold mt-5">Phone</div>
                         <div class="text-gray-600" id="phone_side_summary"></div>
-
-                        <div class="fw-bold mt-5">Status</div>
-                        <div class="text-gray-600" id="status_side_summary"></div>
 
                         <div class="fw-bold mt-5">Last Password Change</div>
                         <div class="text-gray-600" id="last_password_date_side_summary"></div>
@@ -115,9 +114,6 @@
         <ul class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-semibold mb-8" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#details_tab" aria-selected="true" role="tab">Details</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#logs_tab" aria-selected="false" tabindex="-1" role="tab">Logs</a>
             </li>
             <li class="nav-item ms-auto">
                 <?php
@@ -336,45 +332,6 @@
                     <div class="card-body" id="role-list"></div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="logs_tab" role="tabpanel">
-                <div class="card mb-5 mb-lg-10">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <h3>Login Sessions</h3>
-                        </div>
-                        <div class="card-toolbar">
-                            <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                                <select id="login-session-datatable-length" class="form-select w-auto">
-                                    <option value="-1">All</option>
-                                    <option value="5">5</option>
-                                    <option value="10" selected>10</option>
-                                    <option value="20">20</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5 text-nowrap" id="login-session-table">
-                                <thead>
-                                    <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-250px">Location</th>
-                                        <th class="min-w-100px">Status</th>
-                                        <th class="min-w-150px">Device</th>
-                                        <th class="min-w-150px">IP Address</th>
-                                        <th class="min-w-150px">Time</th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody class="fw-6 fw-semibold text-gray-600"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -390,7 +347,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="role-assignment-form" method="post" action="#">
+                <form id="role_assignment_form" method="post" action="#">
+                    <?= $security->csrfInput('role_assignment_form'); ?>
                     <div class="row">
                         <div class="col-12">
                             <select multiple="multiple" size="20" id="role_id" name="role_id[]"></select>
@@ -401,7 +359,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="role-assignment-form" class="btn btn-primary" id="submit-assignment">Assign</button>
+                <button type="submit" form="role_assignment_form" class="btn btn-primary" id="submit-assignment">Assign</button>
             </div>
         </div>
     </div>

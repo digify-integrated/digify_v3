@@ -419,7 +419,7 @@ $(document).ready(function () {
             selectSelector: 'system_action_id',
             data: { 
                 transaction: 'generate role system action dual listbox options',
-                system_action_id: $('#details-id').text()
+                role_id: $('#details-id').text()
             }
         });
     });

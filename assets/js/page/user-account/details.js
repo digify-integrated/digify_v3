@@ -5,6 +5,26 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 $(document).ready(function () {
+    const roleList = () => {
+        const user_account_id   = $('#details-id').text();
+        const transaction       = 'generate assigned user account role list';
+
+        $.ajax({
+            type: 'POST',
+            url: './app/Controllers/UserAccountController.php',
+            dataType: 'json',
+            data: { 
+                transaction : transaction,
+                user_account_id : user_account_id
+            },
+            success: function (result) {
+                document.getElementById('role-list').innerHTML = result[0].ROLE_USER_ACCOUNT;
+            }
+        });
+    }
+
+    roleList();
+
     $('#update_full_name_form').validate({
         rules: {
             full_name: {
@@ -286,6 +306,66 @@ $(document).ready(function () {
         }
     });
 
+    $('#role_assignment_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const user_account_id   = $('#details-id').text();
+            const transaction       = 'save user account role';
+
+            $.ajax({
+                type: 'POST',
+                url: './app/Controllers/UserAccountController.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
+                dataType: 'JSON',
+                beforeSend: function() {
+                    disableButton('submit-assignment');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification(response.title, response.message, response.message_type);
+                        enableButton('submit-assignment');
+                        roleList();
+                        $('#role-assignment-modal').modal('hide');
+                    }
+                   else{
+                        if(response.invalid_session){
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.href = response.redirect_link;
+                        }
+                        else{
+                            showNotification(response.title, response.message, response.message_type);
+                            enableButton('submit-assignment');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    enableButton('submit-assignment');
+                    handleSystemError(xhr, status, error);
+                }
+            });
+
+            return false;
+        }
+    });
+
     displayDetails();
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'user_account');
@@ -376,7 +456,7 @@ $(document).ready(function () {
                 handleSystemError(xhr, status, error);
             }
         });
-    })
+    });
 
     $(document).on('click','#multiple-login-sessions',function() {
         const user_account_id   = $('#details-id').text();
@@ -408,7 +488,68 @@ $(document).ready(function () {
                 handleSystemError(xhr, status, error);
             }
         });
-    })
+    });
+
+    $(document).on('click','#assign-role',function() {
+        generateDualListBox({
+            url: './app/Controllers/UserAccountController.php',
+            selectSelector: 'role_id',
+            data: { 
+                transaction: 'user account role dual listbox options',
+                user_account_id: $('#details-id').text()
+            }
+        });
+    });
+
+    $(document).on('click','.delete-role-user-account',function() {
+        const role_user_account_id = $(this).data('role-user-account-id');
+        const transaction       = 'delete user account role';
+    
+        Swal.fire({
+            title: 'Confirm Role Deletion',
+            text: 'Are you sure you want to delete this role?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/UserAccountController.php',
+                    dataType: 'json',
+                    data: {
+                        role_user_account_id : role_user_account_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showNotification(response.title, response.message, response.message_type);
+                            roleList();
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
 });
 
 function displayDetails(){

@@ -247,8 +247,8 @@ class RoleController
         $this->role->deleteRole($roleId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete System Action Success',
-            'The system action has been deleted successfully.'
+            'Delete Role Success',
+            'The role has been deleted successfully.'
         );
     }
 

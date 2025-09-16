@@ -164,6 +164,18 @@ class UserAccount extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateUserAccountRoleList(
+        $p_user_account_id
+    ) {
+        $sql = 'CALL generateUserAccountRoleList(
+            :p_user_account_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */
