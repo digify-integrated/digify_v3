@@ -2,7 +2,7 @@ import { disableButton, enableButton, resetForm } from '../../utilities/form-uti
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     $(document).on('click','#reset-import',function() {
         $('.upload-file-default-preview').removeClass('d-none');
         $('.upload-file-preview').addClass('d-none');

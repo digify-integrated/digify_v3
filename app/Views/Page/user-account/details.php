@@ -20,7 +20,7 @@
                         <div class="image-input-wrapper w-125px h-125px" id="profile_picture_image" style="background-image: url(./assets/images/default/default-avatar.jpg)"></div>
 
                         <?php
-                            echo ($permissions['delete'] > 0) ? '<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change image" data-bs-original-title="Change image" data-kt-initialized="1">
+                            echo ($permissions['write'] > 0) ? '<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change image" data-bs-original-title="Change image" data-kt-initialized="1">
                                                                     <i class="ki-outline ki-pencil fs-7"></i>
                                                                     <input type="file" id="profile_picture" name="profile_picture" accept=".png, .jpg, .jpeg">
                                                                 </label>' : '';
@@ -286,11 +286,12 @@
                                             <div class="col-lg-12">
                                                 <div class="fv-row mb-0 fv-plugins-icon-container">
                                                     <label for="new_password" class="form-label fs-6 fw-bold mb-3">New Password</label>
-                                                    <div class="input-group">
-                                                        <input type="password" class="form-control" name="new_password" id="new_password" <?php echo $disabled; ?>>
-                                                        <button class="btn btn-light bg-transparent password-addon" type="button">
+                                                    <div class="position-relative mb-3">
+                                                        <input class="form-control" type="password" id="new_password" name="new_password" autocomplete="off" />
+
+                                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2 password-addon">
                                                             <i class="ki-outline ki-eye-slash fs-2 p-0"></i>
-                                                        </button>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>

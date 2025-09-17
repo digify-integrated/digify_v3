@@ -6,6 +6,7 @@ session_start();
 use App\Models\UserAccount;
 use App\Models\Role;
 use App\Models\Authentication;
+use App\Models\UploadSetting;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
@@ -16,6 +17,7 @@ class UserAccountController
     protected UserAccount $userAccount;
     protected Role $role;
     protected Authentication $authentication;
+    protected UploadSetting $uploadSetting;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
@@ -23,12 +25,14 @@ class UserAccountController
         UserAccount $userAccount,
         Role $role,
         Authentication $authentication,
+        UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->userAccount         = $userAccount;
         $this->role             = $role;
         $this->authentication   = $authentication;
+        $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -82,6 +86,11 @@ class UserAccountController
             'update user account password'                      => $this->updateUserAccountPassword($lastLogBy),
             'update user account two factor authentication'     => $this->updateUserAccountTwoFactorAuthentication($lastLogBy),
             'update user account multiple login sessions'       => $this->updateUserAccountMultipleLoginSession($lastLogBy),
+            'update user account profile picture'               => $this->updateUserAccountProfilePicture($lastLogBy),
+            'activate user account'                             => $this->activateUserAccount($lastLogBy),
+            'activate multiple user account'                    => $this->activateMultipleUserAccount($lastLogBy),
+            'deactivate user account'                           => $this->deactivateUserAccount($lastLogBy),
+            'deactivate multiple user account'                  => $this->deactivateMultipleUserAccount($lastLogBy),
             'delete user account'                               => $this->deleteUserAccount(),
             'delete multiple user account'                      => $this->deleteMultipleUserAccount(),
             'delete user account role'                          => $this->deleteUserAccountRole(),
@@ -230,7 +239,7 @@ class UserAccountController
             $this->systemHelper::sendErrorResponse(
                 'Save User Account Phone Error',
                 'The new phone already exists.'
-            );  
+            );
         }
 
         $this->userAccount->updateUserAccount($userAccountId, $phone, 'phone', $lastLogBy);
@@ -288,6 +297,157 @@ class UserAccountController
         $this->systemHelper->sendSuccessResponse(
             'Update Multiple Login Session Success',
             'The multiple login session has been updated successfully.'
+        );
+    }
+
+    public function updateUserAccountProfilePicture($lastLogBy){
+
+        $userAccountId = $_POST['user_account_id'] ?? null;
+       
+        $profilePictureFileName                = $_FILES['profile_picture']['name'];
+        $profilePictureFileSize                = $_FILES['profile_picture']['size'];
+        $profilePictureFileError               = $_FILES['profile_picture']['error'];
+        $profilePictureTempName                = $_FILES['profile_picture']['tmp_name'];
+        $profilePictureFileExtension           = explode('.', $profilePictureFileName);
+        $profilePictureActualFileExtension     = strtolower(end($profilePictureFileExtension));
+
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(4);
+        $maxFileSize    = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(4);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $allowedFileExtensions[] = $row['file_extension'];
+        }
+
+        if (!in_array($profilePictureActualFileExtension, $allowedFileExtensions)) {              
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The file uploaded is not supported.'
+            );
+        }
+            
+        if(empty($profilePictureTempName)){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'Please choose the profile picture.'
+            );
+        }
+            
+        if($profilePictureFileError){                
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'An error occurred while uploading the file.'
+            );
+        }
+            
+        if($profilePictureFileSize > ($maxFileSize * 1024)){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The user account profile image exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
+            );
+        }
+
+        $fileName   = $this->security->generateFileName();
+        $fileNew    = $fileName . '.' . $profilePictureActualFileExtension;
+            
+        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+
+        $uploadsDir         = PROJECT_BASE_DIR . '/storage/uploads/';
+        $directory          = $uploadsDir . 'user_account/' . $userAccountId . '/';
+        $fileDestination    = $directory . $fileNew;
+        $filePath           = 'storage/uploads/user_account/' . $userAccountId . '/' . $fileNew;
+
+        $directoryChecker = $this->security->directoryChecker($directory);
+
+        if ($directoryChecker !== true) {
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error',
+                $directoryChecker
+            );
+        }
+
+        $userAccountIdDetails   = $this->userAccount->fetchUserAccount($userAccountId);
+        $profilePicture         = $this->systemHelper->checkImageExist($userAccountIdDetails['profile_picture'] ?? null, 'null');
+        $deleteImageFile        = $this->systemHelper->deleteFileIfExist($profilePicture);
+
+        if(!$deleteImageFile){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The user account profile image cannot be deleted due to an error'
+            );
+        }
+
+        if(!move_uploaded_file($profilePictureTempName, $fileDestination)){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The user account profile image cannot be uploaded due to an error'
+            );
+        }
+
+        $this->userAccount->updateUserAccount($userAccountId, $filePath, 'profile picture', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update User Account Profile Picture Success',
+            'The user account profile picture has been updated successfully.'
+        );
+    }
+
+    public function activateUserAccount($lastLogBy){
+        $userAccountId = $_POST['user_account_id'] ?? null;
+
+        $this->userAccount->updateUserAccount($userAccountId, 'Yes', 'status', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Activate User Account Success',
+            'The user account has been activated successfully.'
+        );
+    }
+    
+    public function activateMultipleUserAccount($lastLogBy){
+        $userAccountIds  = $_POST['user_account_id'] ?? null;
+
+        foreach($userAccountIds as $userAccountId){
+            $this->userAccount->updateUserAccount($userAccountId, 'Yes', 'status', $lastLogBy);
+        }
+
+        $this->systemHelper->sendSuccessResponse(
+            'Activate Multiple User Accounts Success',
+            'The selected user accounts have been activated successfully.'
+        );
+    }
+
+    public function deactivateUserAccount($lastLogBy){
+        $userAccountId = $_POST['user_account_id'] ?? null;
+
+        if($userAccountId == $lastLogBy){
+            $this->systemHelper::sendErrorResponse(
+                'Deactivate User Account Error',
+                'You cannot deactivate the user account you are currently logged in as.'
+            );
+        }
+
+        $this->userAccount->updateUserAccount($userAccountId, 'No', 'status', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Deactivate User Account Success',
+            'The user account has been deactivated successfully.'
+        );
+    }
+    
+    public function deactivateMultipleUserAccount($lastLogBy){
+        $userAccountIds  = $_POST['user_account_id'] ?? null;
+
+        foreach($userAccountIds as $userAccountId){
+            if($userAccountId != $lastLogBy){
+                $this->userAccount->updateUserAccount($userAccountId, 'No', 'status', $lastLogBy);
+            }
+        }
+
+        $this->systemHelper->sendSuccessResponse(
+            'Deactivate Multiple User Accounts Success',
+            'The selected user accounts have been deactivated successfully.'
         );
     }
 
@@ -479,6 +639,7 @@ $controller = new UserAccountController(
     new UserAccount(),
     new Role(),
     new Authentication(),
+    new UploadSetting(),
     new Security(),
     new SystemHelper()
 );

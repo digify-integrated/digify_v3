@@ -4,7 +4,44 @@ import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilit
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
+    const displayDetails = () => {
+        const page_link         = document.getElementById('page-link').getAttribute('href');
+        const transaction       = 'fetch system action details';
+        const system_action_id  = $('#details-id').text();
+                
+        $.ajax({
+            url: './app/Controllers/SystemActionController.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                system_action_id : system_action_id,
+                transaction : transaction
+            },
+            beforeSend: function(){
+                resetForm('system_action_form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#system_action_name').val(response.systemActionName);
+                    $('#system_action_description').val(response.systemActionDescription);
+                } 
+                else {
+                    if (response.notExist) {
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location = page_link;
+                    }
+                    else {
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    }
+
     initializeDatatableControls('#role-permission-table');
 
     initializeDatatable({
@@ -26,6 +63,10 @@ $(document).ready(function () {
         ],
         order : [[0, 'asc']]
     });
+
+    displayDetails();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'system_action');
 
     $('#system_action_form').validate({
         rules: {
@@ -161,10 +202,6 @@ $(document).ready(function () {
             return false;
         }
     });
-
-    displayDetails();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'system_action');
 
     $(document).on('click','#delete-system-action',function() {
         const system_action_id      = $('#details-id').text();
@@ -320,40 +357,3 @@ $(document).ready(function () {
         attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
     });
 });
-
-function displayDetails(){
-    const page_link         = document.getElementById('page-link').getAttribute('href');
-    const transaction       = 'fetch system action details';
-    const system_action_id  = $('#details-id').text();
-            
-    $.ajax({
-        url: './app/Controllers/SystemActionController.php',
-        method: 'POST',
-        dataType: 'json',
-        data: {
-            system_action_id : system_action_id,
-            transaction : transaction
-        },
-        beforeSend: function(){
-            resetForm('system_action_form');
-        },
-        success: function(response) {
-            if (response.success) {
-                $('#system_action_name').val(response.systemActionName);
-                $('#system_action_description').val(response.systemActionDescription);
-            } 
-            else {
-                if (response.notExist) {
-                    setNotification(response.title, response.message, response.message_type);
-                    window.location = page_link;
-                }
-                else {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            handleSystemError(xhr, status, error);
-        }
-    });
-}

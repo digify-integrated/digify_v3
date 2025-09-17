@@ -200,7 +200,9 @@ class SystemHelper extends Security
      */
     public static function deleteFileIfExist(?string $file): bool
     {
-        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+        if (!defined('PROJECT_BASE_DIR')) {
+            define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+        }
 
         if (empty($file)) {
             return true;

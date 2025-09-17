@@ -1,21 +1,36 @@
 import { showErrorDialog } from './notifications.js';
 
-/**
- * Handles system-level errors (e.g., AJAX or fetch failures) and displays them in a dialog.
- *
- * @param {XMLHttpRequest|object} xhr - The XHR object or response object containing details.
- * @param {string} status - The status text of the request (e.g., "error", "timeout").
- * @param {string} error - The error message returned by the request.
- * @returns {void}
- */
-export const handleSystemError = (xhr, status, error) => {
-  const responseText = xhr?.responseText ?? 'No response text';
+export const handleSystemError = async (xhr, status, error) => {
+  let message = `
+    <strong>Status:</strong> ${status}<br/>
+    <strong>Error:</strong> ${error || 'Unknown error'}<br/>
+  `;
 
-  const errorMessage = `
-    Status: ${status}
-    Error: ${error}
-    Response: ${responseText}
-  `.trim();
+  if (xhr instanceof Error) {
+    message += `
+      <strong>Error Name:</strong> ${xhr.name}<br/>
+      <strong>Message:</strong> ${xhr.message}<br/>
+      <strong>Stack Trace:</strong><pre>${xhr.stack || 'No stack trace available'}</pre>
+    `;
+  } 
+  else if (xhr instanceof Response) {
+    message += `
+      <strong>HTTP Status:</strong> ${xhr.status} ${xhr.statusText}<br/>
+      <strong>URL:</strong> ${xhr.url}<br/>
+    `;
+    try {
+      const text = await xhr.text();
+      message += `<strong>Response Body:</strong><pre>${text || 'No response body'}</pre>`;
+    } catch {
+      message += `<strong>Response Body:</strong> Could not be read`;
+    }
+  } 
+  else {
+    message += `
+      <strong>Response:</strong> ${xhr?.responseText ?? 'No response text'}<br/>
+      <strong>Status Code:</strong> ${xhr?.status ?? 'Unknown'}<br/>
+    `;
+  }
 
-  showErrorDialog(errorMessage);
+  showErrorDialog(message);
 };

@@ -42611,7 +42611,7 @@ code:not([class*=language-]).code-dark {
 }
 
 .form-switch.form-check-solid .form-check-input:not(:checked) {
-    background-color: var(--bs-gray-200)
+    background-color: var(--bs-gray-300)
 }
 
 [data-bs-theme=dark] .form-switch .form-check-input:focus:not(:checked) {

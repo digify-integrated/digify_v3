@@ -2,7 +2,7 @@ import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {    
+document.addEventListener('DOMContentLoaded', () => {    
     $('#role_form').validate({
         rules: {
             role_name: {

@@ -4,7 +4,7 @@ import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilit
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     initializeDatatableControls('#role-permission-table');
 
     generateDropdownOptions({
@@ -31,6 +31,85 @@ $(document).ready(function () {
             transaction: 'generate export table options'
         }
     });
+
+    const displayDetails = () => {
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const transaction   = 'fetch menu item details';
+        const menu_item_id  = $('#details-id').text();
+                
+        $.ajax({
+            url: './app/Controllers/MenuItemController.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                menu_item_id : menu_item_id,
+                transaction : transaction
+            },
+            beforeSend: function(){
+                resetForm('menu_item_form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#menu_item_name').val(response.menuItemName);
+                    $('#order_sequence').val(response.orderSequence);
+                    $('#menu_item_url').val(response.menuItemURL);
+                            
+                    $('#app_module_id').val(response.appModuleID).trigger('change');
+                    $('#parent_id').val(response.parentID).trigger('change');
+                    $('#menu_item_icon').val(response.menuItemIcon).trigger('change');
+                    $('#table_name').val(response.tableName).trigger('change');
+                } 
+                else {
+                    if (response.notExist) {
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location = page_link;
+                    }
+                    else {
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    }
+
+    initializeDatatable({
+        selector: '#role-permission-table',
+        ajaxUrl: './app/Controllers/MenuItemController.php',
+        transaction: 'generate menu item assigned role table',
+        ajaxData: {
+            menu_item_id: $('#details-id').text()
+        },
+        columns: [
+            { data: 'ROLE_NAME' },
+            { data: 'READ_ACCESS' },
+            { data: 'CREATE_ACCESS' },
+            { data: 'WRITE_ACCESS' },
+            { data: 'DELETE_ACCESS' },
+            { data: 'IMPORT_ACCESS' },
+            { data: 'EXPORT_ACCESS' },
+            { data: 'LOG_NOTES_ACCESS' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
+            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
+            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
+            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
+            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
+            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
+            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
+            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    displayDetails();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
     
     $('#menu_item_form').validate({
         rules: {
@@ -172,42 +251,6 @@ $(document).ready(function () {
             return false;
         }
     });
-
-    initializeDatatable({
-        selector: '#role-permission-table',
-        ajaxUrl: './app/Controllers/MenuItemController.php',
-        transaction: 'generate menu item assigned role table',
-        ajaxData: {
-            menu_item_id: $('#details-id').text()
-        },
-        columns: [
-            { data: 'ROLE_NAME' },
-            { data: 'READ_ACCESS' },
-            { data: 'CREATE_ACCESS' },
-            { data: 'WRITE_ACCESS' },
-            { data: 'DELETE_ACCESS' },
-            { data: 'IMPORT_ACCESS' },
-            { data: 'EXPORT_ACCESS' },
-            { data: 'LOG_NOTES_ACCESS' },
-            { data: 'ACTION' }
-        ],
-        columnDefs: [
-            { width: 'auto', targets: 0, responsivePriority: 1 },
-            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
-            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
-            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
-            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
-            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
-            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
-            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
-            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
-        ],
-        order : [[0, 'asc']]
-    });
-
-    displayDetails();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
 
     $(document).on('click','#delete-menu-item',function() {
         const menu_item_id      = $('#details-id').text();
@@ -363,46 +406,3 @@ $(document).ready(function () {
         attachLogNotesClassHandler('role_permission', role_permission_id);
     });
 });
-
-function displayDetails(){
-    const page_link     = document.getElementById('page-link').getAttribute('href');
-    const transaction   = 'fetch menu item details';
-    const menu_item_id  = $('#details-id').text();
-            
-    $.ajax({
-        url: './app/Controllers/MenuItemController.php',
-        method: 'POST',
-        dataType: 'json',
-        data: {
-            menu_item_id : menu_item_id,
-            transaction : transaction
-        },
-        beforeSend: function(){
-            resetForm('menu_item_form');
-        },
-        success: function(response) {
-            if (response.success) {
-                $('#menu_item_name').val(response.menuItemName);
-                $('#order_sequence').val(response.orderSequence);
-                $('#menu_item_url').val(response.menuItemURL);
-                        
-                $('#app_module_id').val(response.appModuleID).trigger('change');
-                $('#parent_id').val(response.parentID).trigger('change');
-                $('#menu_item_icon').val(response.menuItemIcon).trigger('change');
-                $('#table_name').val(response.tableName).trigger('change');
-            } 
-            else {
-                if (response.notExist) {
-                    setNotification(response.title, response.message, response.message_type);
-                    window.location = page_link;
-                }
-                else {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            handleSystemError(xhr, status, error);
-        }
-    });
-}

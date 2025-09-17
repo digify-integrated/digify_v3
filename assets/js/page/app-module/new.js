@@ -2,7 +2,7 @@ import { disableButton, enableButton, generateDropdownOptions } from '../../util
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#menu_item_id',

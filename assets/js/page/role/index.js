@@ -2,7 +2,7 @@ import { initializeDatatable, initializeDatatableControls, reloadDatatable } fro
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     initializeDatatableControls('#role-table');
     initializeExportFeature('role');
 

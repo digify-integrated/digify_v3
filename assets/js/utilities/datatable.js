@@ -26,7 +26,6 @@ export const readjustDatatableColumn = () => {
         tables.columns.adjust().fixedColumns().relayout();
     };
 
-    // Re-adjust columns on tab or modal shown
     $('a[data-bs-toggle="tab"], a[data-bs-toggle="pill"], #System-Modal')
         .on('shown.bs.tab shown.bs.modal', adjustColumns);
 };
@@ -39,12 +38,10 @@ export const manageActionDropdown = (options = { hideOnly: false }) => {
     if (!actionDropdown) return;
 
     if (options.hideOnly) {
-        // Hide dropdown and uncheck master checkbox
         actionDropdown.classList.add('d-none');
         if (masterCheckbox) masterCheckbox.checked = false;
         childCheckboxes.forEach(chk => (chk.checked = false));
     } else {
-        // Toggle dropdown based on checked children
         const checkedCount = childCheckboxes.filter(chk => chk.checked).length;
         actionDropdown.classList.toggle('d-none', checkedCount === 0);
     }
@@ -69,7 +66,7 @@ export const initializeDatatable = ({
     columnDefs      = [],
     lengthMenu      = [[10, 5, 25, 50, 100, -1], [10, 5, 25, 50, 100, 'All']],
     order           = [[1, 'asc']],
-    onRowClick         = null
+    onRowClick      = null
 }) => {
     const tableElement = document.querySelector(selector);
 
@@ -123,26 +120,31 @@ export const initializeDatatable = ({
 };
 
 export const initializeDatatableControls = (selector) => {
-    $('#datatable-length').off('change').on('change', function() {
-        const table = $(selector).DataTable();
-        const length = $(this).val();
-        table.page.len(length).draw();
-    });
+    const $lengthDropdown = $('#datatable-length');
+    const $searchInput    = $('#datatable-search');
 
-    $('#datatable-search').off('keyup').on('keyup', function () {
-        const table = $(selector).DataTable();
-        table.search(this.value).draw();
-    });
+    if ($lengthDropdown.length) {
+        $lengthDropdown.off('change').on('change', function () {
+            const table = $(selector).DataTable();
+            table.page.len($(this).val()).draw();
+        });
+    }
 
-    $(document).off('click', '.datatable-checkbox-children').on('click', '.datatable-checkbox-children', function() {
-        manageActionDropdown();
-    });
+    if ($searchInput.length) {
+        $searchInput.off('keyup').on('keyup', function () {
+            const table = $(selector).DataTable();
+            table.search(this.value).draw();
+        });
+    }
 
-    $(document).off('click', '#datatable-checkbox').on('click', '#datatable-checkbox', function() {
-        const status = $(this).is(':checked');
-        $('.datatable-checkbox-children').prop('checked', status);
-        manageActionDropdown();
-    });
+    $(document)
+        .off('click.datatableCheckbox')
+        .on('click.datatableCheckbox', '.datatable-checkbox-children', manageActionDropdown)
+        .on('click.datatableCheckbox', '#datatable-checkbox', function () {
+            const status = $(this).is(':checked');
+            $('.datatable-checkbox-children').prop('checked', status);
+            manageActionDropdown();
+        });
 };
 
 export const initializeSubDatatableControls = (search, length, selector) => {

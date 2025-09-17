@@ -1,29 +1,17 @@
-/**
- * Import utility functions for form handling, error handling, and notifications.
- */
 import { disableButton, enableButton } from '../utilities/form-utilities.js';
 import { handleSystemError } from '../modules/system-errors.js';
 import { showNotification, setNotification } from '../modules/notifications.js';
 
-$(document).ready(function () {
-    /**
-     * Initialize jQuery Validation on the password reset form.
-     * 
-     * Validation rules:
-     * - new_password: required and must pass custom password strength validation.
-     * - confirm_password: required and must match the value of new_password.
-     * 
-     * Custom error messages are displayed using notification popups.
-     */
+document.addEventListener('DOMContentLoaded', () => {
     $('#password_reset_form').validate({
         rules: {
             new_password: {
                 required: true,
-                password_strength: true // Custom rule for password strength
+                password_strength: true
             },
             confirm_password: {
                 required: true,
-                equalTo: '#new_password' // Must match the "new_password" field
+                equalTo: '#new_password'
             }
         },
         messages: {
@@ -35,16 +23,9 @@ $(document).ready(function () {
                 equalTo: 'The passwords you entered do not match'
             }
         },
-        /**
-         * Display validation errors using a notification popup instead of default placement.
-         */
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
-        /**
-         * Highlight invalid form fields by adding a Bootstrap "is-invalid" class.
-         * Special handling for Select2 fields to ensure styling applies correctly.
-         */
         highlight: (element) => {
             const $element = $(element);
             const $target = $element.hasClass('select2-hidden-accessible')
@@ -52,9 +33,6 @@ $(document).ready(function () {
                 : $element;
             $target.addClass('is-invalid');
         },
-        /**
-         * Remove the "is-invalid" class when a field becomes valid again.
-         */
         unhighlight: (element) => {
             const $element = $(element);
             const $target = $element.hasClass('select2-hidden-accessible')
@@ -62,47 +40,41 @@ $(document).ready(function () {
                 : $element;
             $target.removeClass('is-invalid');
         },
-        /**
-         * Handle successful form submission via AJAX.
-         * 
-         * - Prevents default submission.
-         * - Sends serialized form data to AuthenticationController.php.
-         * - Disables the reset button while processing to avoid duplicate submissions.
-         * - Redirects on success, or displays error notifications otherwise.
-         */
         submitHandler: async (form, event) => {
             event.preventDefault();
 
             const transaction = 'password reset';
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/AuthenticationController.php',
-                data: $(form).serialize() + '&transaction=' + transaction,
-                dataType: 'JSON',
-                beforeSend: function () {
-                    // Disable reset button while request is being processed
-                    disableButton('reset');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification(response.title, response.message, response.message_type);
-                        // Redirect user to provided link on successful reset
-                        window.location.href = response.redirect_link;
-                    } else {
-                        // Show server-provided error notification and re-enable button
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('reset');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    // Re-enable button and handle unexpected system errors
-                    enableButton('reset');
-                    handleSystemError(xhr, status, error);
-                }
-            });
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
 
-            return false; // Prevent form from submitting normally
+            disableButton('reset');
+
+            try {
+                const response = await fetch('./app/Controllers/AuthenticationController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Password reset failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (response.success) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                } else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('reset');
+                }
+            } catch (error) {
+                enableButton('reset');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
         }
     });
 });

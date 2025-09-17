@@ -1,11 +1,6 @@
 import { initializeDualListBoxIcon } from '../utilities/export.js';
 
-/**
- * Disables one or more buttons by ID.
- * @param {string|string[]} buttonIds - Single button ID string, or array of button ID strings
- */
 export const disableButton = (buttonIds) => {
-  // Normalize input: always a flat array of strings
   const ids = Array.isArray(buttonIds) ? buttonIds : [buttonIds];
 
   ids.forEach((id) => {
@@ -15,19 +10,13 @@ export const disableButton = (buttonIds) => {
       return;
     }
 
-    // Save original text if not already saved
     if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
 
-    // Disable button and show spinner
-    btn.disabled    = true;
-    btn.innerHTML   = `<span><span class="spinner-border spinner-border-sm align-middle ms-0"></span></span>`;
+    btn.disabled = true;
+    btn.innerHTML = `<span><span class="spinner-border spinner-border-sm align-middle ms-0"></span></span>`;
   });
 };
 
-/**
- * Enables one or more buttons by ID.
- * @param {string|string[]} buttonIds - Single button ID string, or array of button ID strings
- */
 export const enableButton = (buttonIds) => {
   const ids = Array.isArray(buttonIds) ? buttonIds : [buttonIds];
 
@@ -38,7 +27,6 @@ export const enableButton = (buttonIds) => {
       return;
     }
 
-    // Enable button and restore original text
     btn.disabled = false;
     if (btn.dataset.originalText) {
       btn.innerHTML = btn.dataset.originalText;
@@ -48,79 +36,96 @@ export const enableButton = (buttonIds) => {
 };
 
 export const resetForm = (formId) => {
-    const form = document.getElementById(formId);
-    if (!form) return;
+  const form = document.getElementById(formId);
+  if (!form) return;
 
-    // Reset Select2 fields
-    $(form).find('.select2').val(null).trigger('change');
-
-    // Remove validation classes
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
-    // Reset the form
-    form.reset();
+  $(form).find('.select2').val(null).trigger('change');
+  form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+  form.reset();
 };
 
 
-export const generateDropdownOptions = ({url, dropdownSelector, data = {}, validateOnChange = false }) => {
-  $.ajax({
-    url: url,
-    method: 'POST',
-    dataType: 'json',
-    data: data,
-    success: function (response) {
-      const $dropdown = $(dropdownSelector);
-
-      $dropdown.select2({ data: response });
-
-      if (validateOnChange) {
-        $dropdown.on('change', function () {
-          $(this).valid();
-        });
-      }
-    },
-    error: function (xhr, status, error) {
-      handleSystemError(xhr, status, error);
-    }
-  });
-}
-
-export const generateDualListBox = ({ 
-    url,
-    selectSelector, 
-    data = {}
+export const generateDropdownOptions = async ({
+  url,
+  dropdownSelector,
+  data = {},
+  validateOnChange = false
 }) => {
-    $.ajax({
-        url: url,
-        method: 'POST',
-        dataType: 'json',
-        data: data,
-        success: function(response) {
-            let select = document.getElementById(selectSelector);
-            select.options.length = 0;
+  try {
+    const formData = new URLSearchParams();
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        formData.append(key, data[key]);
+      }
+    }
 
-            response.forEach(function(opt) {
-              var option = new Option(opt.text, opt.id);
-              select.appendChild(option);
-            });
-        },
-        error: function(xhr, status, error) {
-            handleSystemError(xhr, status, error);
-        },
-        complete: function() {
-          if($(`#${selectSelector}`).length){
-            $(`#${selectSelector}`).bootstrapDualListbox({
-              nonSelectedListLabel: 'Non-selected',
-              selectedListLabel: 'Selected',
-              preserveSelectionOnMove: 'moved',
-              moveOnSelect: false,
-              helperSelectNamePostfix: false
-            });
-        
-            $(`#${selectSelector}`).bootstrapDualListbox('refresh', true);
-        
-            initializeDualListBoxIcon();
-          }
-        }
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
     });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch dropdown data. HTTP status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    const $dropdown = $(dropdownSelector);
+    $dropdown.select2({ data: result });
+
+    if (validateOnChange) {
+      $dropdown.on('change', function () {
+        $(this).valid();
+      });
+    }
+  } catch (error) {
+    handleSystemError(error, 'fetch_failed', `Dropdown generation failed: ${error.message}`);
+  }
+};
+export const generateDualListBox = async ({ url, selectSelector, data = {} }) => {
+  try {
+    const formData = new URLSearchParams();
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        formData.append(key, data[key]);
+      }
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch dual list box data. HTTP status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    const select = document.getElementById(selectSelector);
+    if (!select) {
+      return;
+    }
+
+    select.options.length = 0;
+    result.forEach(opt => {
+      const option = new Option(opt.text, opt.id);
+      select.appendChild(option);
+    });
+
+    if ($(`#${selectSelector}`).length) {
+      $(`#${selectSelector}`).bootstrapDualListbox({
+        nonSelectedListLabel: 'Non-selected',
+        selectedListLabel: 'Selected',
+        preserveSelectionOnMove: 'moved',
+        moveOnSelect: false,
+        helperSelectNamePostfix: false
+      });
+
+      $(`#${selectSelector}`).bootstrapDualListbox('refresh', true);
+      initializeDualListBoxIcon();
+    }
+  } catch (error) {
+    handleSystemError(error, 'fetch_failed', `Dual list box generation failed: ${error.message}`);
+  }
 };

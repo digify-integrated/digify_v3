@@ -2,7 +2,7 @@ import { initializeDatatable, initializeDatatableControls, reloadDatatable } fro
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     initializeDatatableControls('#app-module-table');
     initializeExportFeature('app_module');
 
@@ -23,66 +23,67 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click','#delete-app-module',function() {
-        let app_module_id = [];
+    document.addEventListener('click', async (event) => {
+        if (!event.target.closest('#delete-app-module')) return;
+
+        const app_module_id = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+            .filter(el => el.checked)
+            .map(el => el.value);
+
+        if (app_module_id.length === 0) {
+            showNotification(
+                'Deletion Multiple App Module Error', 
+                'Please select the app modules you wish to delete.', 
+                'error'
+            );
+            return;
+        }
+
         const transaction = 'delete multiple app module';
 
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                app_module_id.push(element.value);
-            }
+        const result = await Swal.fire({
+            title: 'Confirm Multiple App Modules Deletion',
+            text: 'Are you sure you want to delete these app modules?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
         });
-    
-        if(app_module_id.length > 0){
-            Swal.fire({
-                title: 'Confirm Multiple App Modules Deletion',
-                text: 'Are you sure you want to delete these app modules?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    confirmButton: 'btn btn-danger',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/AppModuleController.php',
-                        dataType: 'json',
-                        data: {
-                            app_module_id: app_module_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#app-module-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            app_module_id.forEach(id => formData.append('app_module_id[]', id));
+
+            const response = await fetch('./app/Controllers/AppModuleController.php', {
+                method: 'POST',
+                body: formData
             });
-        }
-        else{
-            showNotification('Deletion Multiple App Module Error', 'Please select the app modules you wish to delete.', 'error');
+
+            if (!response.ok) {
+                throw new Error(`Deletion failed with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                showNotification(data.title, data.message, data.message_type);
+                reloadDatatable('#app-module-table');
+            } else if (data.invalid_session) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = data.redirect_link;
+            } else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
         }
     });
 });

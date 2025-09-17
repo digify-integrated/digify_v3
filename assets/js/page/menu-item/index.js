@@ -3,7 +3,7 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     initializeDatatableControls('#menu-item-table');
     initializeExportFeature('menu_item');
 

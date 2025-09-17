@@ -1,10 +1,62 @@
-import { disableButton, enableButton, generateDropdownOptions, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
-import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
-import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilities/log-notes.js';
+import { disableButton, enableButton, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
+import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
+    const displayDetails = () => {
+        const page_link         = document.getElementById('page-link').getAttribute('href');
+        const transaction       = 'fetch user account details';
+        const user_account_id   = $('#details-id').text();
+                
+        $.ajax({
+            url: './app/Controllers/UserAccountController.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                user_account_id : user_account_id,
+                transaction : transaction
+            },
+            beforeSend: function(){
+                resetForm('user_account_form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#full_name_side_summary').text(response.fileAs);
+                    $('#email_side_summary').text(response.email);
+                    $('#phone_side_summary').text(response.phoneSummary);
+                    $('#last_password_date_side_summary').text(response.lastPasswordChange);
+                    $('#last_connection_date_side_summary').text(response.lastConnectionDate);
+                    $('#last_password_reset_request_side_summary').text(response.lastPasswordResetRequest);
+                    $('#last_failed_connection_date_side_summary').text(response.lastFailedConnectionDate);
+
+                    $('#full_name_summary').text(response.fileAs);
+                    $('#email_summary').text(response.email);
+                    $('#phone_summary').text(response.phoneSummary);
+
+                    document.getElementById('two-factor-authentication').checked = response.twoFactorAuthentication === 'Yes';
+                    document.getElementById('multiple-login-sessions').checked = response.multipleSession === 'Yes';
+
+                    document.getElementById('profile_picture_image').style.backgroundImage = `url(${response.profilePicture})`;
+
+                    document.getElementById('status_side_summary').innerHTML = response.activeBadge;
+                } 
+                else {
+                    if (response.notExist) {
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location = page_link;
+                    }
+                    else {
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    }
+
     const roleList = () => {
         const user_account_id   = $('#details-id').text();
         const transaction       = 'generate assigned user account role list';
@@ -23,6 +75,7 @@ $(document).ready(function () {
         });
     }
 
+    displayDetails();
     roleList();
 
     $('#update_full_name_form').validate({
@@ -366,9 +419,146 @@ $(document).ready(function () {
         }
     });
 
-    displayDetails();
-
     attachLogNotesHandler('#log-notes-main', '#details-id', 'user_account');
+
+    $(document).on('click','#activate-user-account',function() {
+        const user_account_id   = $('#details-id').text();
+        const transaction       = 'activate user account';
+    
+        Swal.fire({
+            title: 'Confirm User Account Activation',
+            text: 'Are you sure you want to activate this user account?',
+            icon: 'info',
+            showCancelButton: !0,
+            confirmButtonText: 'Activate',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-success mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/UserAccountController.php',
+                    dataType: 'json',
+                    data: {
+                        user_account_id : user_account_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.reload();
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('change','#profile_picture',function() {
+        if ($(this).val() !== '' && $(this)[0].files.length > 0) {
+            const transaction       = 'update user account profile picture';
+            const user_account_id   = $('#details-id').text();
+    
+            let formData = new FormData();
+            formData.append('profile_picture', $(this)[0].files[0]);
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+            
+            $.ajax({
+                type: 'POST',
+                url: './app/Controllers/UserAccountController.php',
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.success) {
+                        showNotification(response.title, response.message, response.message_type);
+                        displayDetails();
+                    }
+                    else{
+                        if(response.invalid_session){
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.href = response.redirect_link;
+                        }
+                        else{
+                            showNotification(response.title, response.message, response.message_type);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    handleSystemError(xhr, status, error);
+                }
+            });
+        }
+    });
+    
+    $(document).on('click','#deactivate-user-account',function() {
+        const user_account_id   = $('#details-id').text();
+        const transaction       = 'deactivate user account';
+    
+        Swal.fire({
+            title: 'Confirm User Account Deactivation',
+            text: 'Are you sure you want to deactivate this user account?',
+            icon: 'info',
+            showCancelButton: !0,
+            confirmButtonText: 'Deactivate',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                 $.ajax({
+                    type: 'POST',
+                    url: './app/Controllers/UserAccountController.php',
+                    dataType: 'json',
+                    data: {
+                        user_account_id : user_account_id, 
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            setNotification(response.title, response.message, response.message_type);
+                            window.location.reload();
+                        }
+                        else{
+                            if(response.invalid_session){
+                                setNotification(response.title, response.message, response.message_type);
+                                window.location.href = response.redirect_link;
+                            }
+                            else{
+                                showNotification(response.title, response.message, response.message_type);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleSystemError(xhr, status, error);
+                    }
+                });
+                return false;
+            }
+        });
+    });
 
     $(document).on('click','#delete-user-account',function() {
         const user_account_id   = $('#details-id').text();
@@ -552,58 +742,7 @@ $(document).ready(function () {
     });
 });
 
-function displayDetails(){
-    const page_link         = document.getElementById('page-link').getAttribute('href');
-    const transaction       = 'fetch user account details';
-    const user_account_id  = $('#details-id').text();
-            
-    $.ajax({
-        url: './app/Controllers/UserAccountController.php',
-        method: 'POST',
-        dataType: 'json',
-        data: {
-            user_account_id : user_account_id,
-            transaction : transaction
-        },
-        beforeSend: function(){
-            resetForm('user_account_form');
-        },
-        success: function(response) {
-            if (response.success) {
-                $('#full_name_side_summary').text(response.fileAs);
-                $('#email_side_summary').text(response.email);
-                $('#phone_side_summary').text(response.phoneSummary);
-                $('#last_password_date_side_summary').text(response.lastPasswordChange);
-                $('#last_connection_date_side_summary').text(response.lastConnectionDate);
-                $('#last_password_reset_request_side_summary').text(response.lastPasswordResetRequest);
-                $('#last_failed_connection_date_side_summary').text(response.lastFailedConnectionDate);
 
-                $('#full_name_summary').text(response.fileAs);
-                $('#email_summary').text(response.email);
-                $('#phone_summary').text(response.phoneSummary);
-
-                document.getElementById('two-factor-authentication').checked = response.twoFactorAuthentication === 'Yes';
-                document.getElementById('multiple-login-sessions').checked = response.multipleSession === 'Yes';
-
-                document.getElementById('profile_picture_image').style.backgroundImage = `url(${response.profilePicture})`;
-
-                document.getElementById('status_side_summary').innerHTML = response.activeBadge;
-            } 
-            else {
-                if (response.notExist) {
-                    setNotification(response.title, response.message, response.message_type);
-                    window.location = page_link;
-                }
-                else {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            handleSystemError(xhr, status, error);
-        }
-    });
-}
 
 function toggleSection(section) {
     $(`#${section}_button`).toggleClass('d-none');

@@ -1,10 +1,106 @@
-import { disableButton, enableButton, generateDropdownOptions, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
 import { initializeDatatable, initializeSubDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
+    const displayDetails = () => {
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const transaction   = 'fetch role details';
+        const role_id       = $('#details-id').text();
+                
+        $.ajax({
+            url: './app/Controllers/RoleController.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                role_id : role_id,
+                transaction : transaction
+            },
+            beforeSend: function(){
+                resetForm('role_form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#role_name').val(response.roleName);
+                    $('#role_description').val(response.roleDescription);
+                } 
+                else {
+                    if (response.notExist) {
+                        setNotification(response.title, response.message, response.message_type);
+                        window.location = page_link;
+                    }
+                    else {
+                        showNotification(response.title, response.message, response.message_type);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                handleSystemError(xhr, status, error);
+            }
+        });
+    }
+
+    initializeDatatable({
+        selector: '#menu-item-permission-table',
+        ajaxUrl: './app/Controllers/RoleController.php',
+        transaction: 'generate role assigned menu item table',
+        ajaxData: {
+            role_id: $('#details-id').text()
+        },
+        columns: [
+            { data: 'MENU_ITEM_NAME' },
+            { data: 'READ_ACCESS' },
+            { data: 'CREATE_ACCESS' },
+            { data: 'WRITE_ACCESS' },
+            { data: 'DELETE_ACCESS' },
+            { data: 'IMPORT_ACCESS' },
+            { data: 'EXPORT_ACCESS' },
+            { data: 'LOG_NOTES_ACCESS' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
+            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
+            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
+            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
+            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
+            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
+            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
+            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    initializeDatatable({
+        selector: '#system-action-permission-table',
+        ajaxUrl: './app/Controllers/RoleController.php',
+        transaction: 'generate role assigned system action table',
+        ajaxData: {
+            role_id: $('#details-id').text()
+        },
+        columns: [
+            { data: 'SYSTEM_ACTION_NAME' },
+            { data: 'ACCESS' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
+            { width: '5%', bSortable: false, targets: 2, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    initializeSubDatatableControls('#menu-item-permission-datatable-search', '#menu-item-permission-datatable-length', '#menu-item-permission-table')
+    initializeSubDatatableControls('#system-action-permission-datatable-search', '#system-action-permission-datatable-length', '#system-action-permission-table')
+
+    displayDetails();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'role');
+
     $('#role_form').validate({
         rules: {
             role_name: {
@@ -199,65 +295,6 @@ $(document).ready(function () {
             return false;
         }
     });
-
-    initializeDatatable({
-        selector: '#menu-item-permission-table',
-        ajaxUrl: './app/Controllers/RoleController.php',
-        transaction: 'generate role assigned menu item table',
-        ajaxData: {
-            role_id: $('#details-id').text()
-        },
-        columns: [
-            { data: 'MENU_ITEM_NAME' },
-            { data: 'READ_ACCESS' },
-            { data: 'CREATE_ACCESS' },
-            { data: 'WRITE_ACCESS' },
-            { data: 'DELETE_ACCESS' },
-            { data: 'IMPORT_ACCESS' },
-            { data: 'EXPORT_ACCESS' },
-            { data: 'LOG_NOTES_ACCESS' },
-            { data: 'ACTION' }
-        ],
-        columnDefs: [
-            { width: 'auto', targets: 0, responsivePriority: 1 },
-            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
-            { width: 'auto', bSortable: false, targets: 2, responsivePriority: 3 },
-            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 },
-            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 },
-            { width: 'auto', bSortable: false, targets: 5, responsivePriority: 6 },
-            { width: 'auto', bSortable: false, targets: 6, responsivePriority: 7 },
-            { width: 'auto', bSortable: false, targets: 7, responsivePriority: 8 },
-            { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
-        ],
-        order : [[0, 'asc']]
-    });
-
-    initializeDatatable({
-        selector: '#system-action-permission-table',
-        ajaxUrl: './app/Controllers/RoleController.php',
-        transaction: 'generate role assigned system action table',
-        ajaxData: {
-            role_id: $('#details-id').text()
-        },
-        columns: [
-            { data: 'SYSTEM_ACTION_NAME' },
-            { data: 'ACCESS' },
-            { data: 'ACTION' }
-        ],
-        columnDefs: [
-            { width: 'auto', targets: 0, responsivePriority: 1 },
-            { width: 'auto', bSortable: false, targets: 1, responsivePriority: 2 },
-            { width: '5%', bSortable: false, targets: 2, responsivePriority: 1 }
-        ],
-        order : [[0, 'asc']]
-    });
-
-    initializeSubDatatableControls('#menu-item-permission-datatable-search', '#menu-item-permission-datatable-length', '#menu-item-permission-table')
-    initializeSubDatatableControls('#system-action-permission-datatable-search', '#system-action-permission-datatable-length', '#system-action-permission-table')
-
-    displayDetails();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'role');
 
     $(document).on('click','#delete-role',function() {
         const role_id       = $('#details-id').text();
@@ -516,40 +553,3 @@ $(document).ready(function () {
         attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
     });
 });
-
-function displayDetails(){
-    const page_link     = document.getElementById('page-link').getAttribute('href');
-    const transaction   = 'fetch role details';
-    const role_id       = $('#details-id').text();
-            
-    $.ajax({
-        url: './app/Controllers/RoleController.php',
-        method: 'POST',
-        dataType: 'json',
-        data: {
-            role_id : role_id,
-            transaction : transaction
-        },
-        beforeSend: function(){
-            resetForm('role_form');
-        },
-        success: function(response) {
-            if (response.success) {
-                $('#role_name').val(response.roleName);
-                $('#role_description').val(response.roleDescription);
-            } 
-            else {
-                if (response.notExist) {
-                    setNotification(response.title, response.message, response.message_type);
-                    window.location = page_link;
-                }
-                else {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            handleSystemError(xhr, status, error);
-        }
-    });
-}

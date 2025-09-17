@@ -815,9 +815,9 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_upload_setting_file_trigger_insert//
+DROP TRIGGER IF EXISTS trg_upload_setting_file_insert//
 
-CREATE TRIGGER trg_upload_setting_file_trigger_insert
+CREATE TRIGGER trg_upload_setting_file_insert
 AFTER INSERT ON upload_setting_file_extension
 FOR EACH ROW
 BEGIN
@@ -825,6 +825,316 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('upload_setting_file_extension', NEW.upload_setting_file_extension_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: COUNTRY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_country_update//
+
+CREATE TRIGGER trg_country_update
+AFTER UPDATE ON country
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Country changed.<br/><br/>';
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country Name: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+
+    IF NEW.country_code <> OLD.country_code THEN
+        SET audit_log = CONCAT(audit_log, "Country Code: ", OLD.country_code, " -> ", NEW.country_code, "<br/>");
+    END IF;
+
+    IF NEW.phone_code <> OLD.phone_code THEN
+        SET audit_log = CONCAT(audit_log, "Phone Code: ", OLD.phone_code, " -> ", NEW.phone_code, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Country changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('country', NEW.country_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_country_insert//
+
+CREATE TRIGGER trg_country_insert
+AFTER INSERT ON country
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Country created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('country', NEW.country_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: STATE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_state_update//
+
+CREATE TRIGGER trg_state_update
+AFTER UPDATE ON state
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'State changed.<br/><br/>';
+
+    IF NEW.state_name <> OLD.state_name THEN
+        SET audit_log = CONCAT(audit_log, "State Name: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+    END IF;
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'State changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('state', NEW.state_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_state_insert//
+
+CREATE TRIGGER trg_state_insert
+AFTER INSERT ON state
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'State created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('state', NEW.state_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CITY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_city_update//
+
+CREATE TRIGGER trg_city_update
+AFTER UPDATE ON city
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'City changed.<br/><br/>';
+
+    IF NEW.city_name <> OLD.city_name THEN
+        SET audit_log = CONCAT(audit_log, "City Name: ", OLD.city_name, " -> ", NEW.city_name, "<br/>");
+    END IF;
+
+    IF NEW.state_name <> OLD.state_name THEN
+        SET audit_log = CONCAT(audit_log, "State: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+    END IF;
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'City changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('city', NEW.city_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_city_insert//
+
+CREATE TRIGGER trg_city_insert
+AFTER INSERT ON city
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'City created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('city', NEW.city_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CURRENCY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_currency_update//
+
+CREATE TRIGGER trg_currency_update
+AFTER UPDATE ON currency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Currency changed.<br/><br/>';
+
+    IF NEW.currency_name <> OLD.currency_name THEN
+        SET audit_log = CONCAT(audit_log, "Currency Name: ", OLD.currency_name, " -> ", NEW.currency_name, "<br/>");
+    END IF;
+
+    IF NEW.symbol <> OLD.symbol THEN
+        SET audit_log = CONCAT(audit_log, "Symbol: ", OLD.symbol, " -> ", NEW.symbol, "<br/>");
+    END IF;
+
+    IF NEW.shorthand <> OLD.shorthand THEN
+        SET audit_log = CONCAT(audit_log, "Shorthand: ", OLD.shorthand, " -> ", NEW.shorthand, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Currency changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('currency', NEW.currency_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_currency_insert//
+
+CREATE TRIGGER trg_currency_insert
+AFTER INSERT ON currency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Currency created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('currency', NEW.currency_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: COMPANY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS trg_company_update//
+
+CREATE TRIGGER trg_company_update
+AFTER UPDATE ON company
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Company changed.<br/><br/>';
+
+    IF NEW.company_name <> OLD.company_name THEN
+        SET audit_log = CONCAT(audit_log, "Company Name: ", OLD.company_name, " -> ", NEW.company_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_name <> OLD.city_name THEN
+        SET audit_log = CONCAT(audit_log, "City: ", OLD.city_name, " -> ", NEW.city_name, "<br/>");
+    END IF;
+
+    IF NEW.state_name <> OLD.state_name THEN
+        SET audit_log = CONCAT(audit_log, "State: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+    END IF;
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+
+    IF NEW.tax_id <> OLD.tax_id THEN
+        SET audit_log = CONCAT(audit_log, "Tax ID: ", OLD.tax_id, " -> ", NEW.tax_id, "<br/>");
+    END IF;
+
+    IF NEW.currency_name <> OLD.currency_name THEN
+        SET audit_log = CONCAT(audit_log, "Currency: ", OLD.currency_name, " -> ", NEW.currency_name, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+
+    IF NEW.website <> OLD.website THEN
+        SET audit_log = CONCAT(audit_log, "Website: ", OLD.website, " -> ", NEW.website, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Company changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('company', NEW.company_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_company_insert//
+
+CREATE TRIGGER trg_company_insert
+AFTER INSERT ON company
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Company created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('company', NEW.company_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================
