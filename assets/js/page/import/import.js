@@ -3,12 +3,13 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    $(document).on('click','#reset-import',function() {
-        $('.upload-file-default-preview').removeClass('d-none');
-        $('.upload-file-preview').addClass('d-none');
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#reset-import')) return;
+
+        document.querySelectorAll('.upload-file-default-preview').forEach(el => el.classList.remove('d-none'));
+        document.querySelectorAll('.upload-file-preview').forEach(el => el.classList.add('d-none'));
 
         resetForm('upload_form');
-
         document.getElementById('upload-file-preview-table').innerHTML = '';
     });
 
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 required: 'Choose the import file'
             }
         },
-        errorPlacement: (error, element) => {
+        errorPlacement: (error) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
         highlight: (element) => {
@@ -43,59 +44,58 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const page_link = document.getElementById('page-link').getAttribute('href');
-            
-            let transaction = $('.upload-file-preview').hasClass('d-none') 
-            ? 'generate import data preview' 
-            : 'save import data';
+            const transaction   = document.querySelector('.upload-file-preview').classList.contains('d-none')
+                                    ? 'generate import data preview'
+                                    : 'save import data';
+            const page_link     = document.getElementById('page-link').getAttribute('href');
 
-            var formData = new FormData(form);
+            const formData = new FormData(form);
             formData.append('transaction', transaction);
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/ImportController.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton(['submit-upload', 'import', 'reset-import']);
-                },
-                success: function(response) {
-                    if (response.success) {
-                        const $preview = $('.upload-file-preview');
-                        const $defaultPreview = $('.upload-file-default-preview');
+            try {
+                disableButton(['submit-upload', 'import', 'reset-import']);
 
-                        if ($preview.hasClass('d-none')) {
-                            $defaultPreview.addClass('d-none');
-                            $preview.removeClass('d-none');
+                const response = await fetch('./app/Controllers/ImportController.php', {
+                    method: 'POST',
+                    body: formData
+                });
 
-                            document.getElementById('upload-file-preview-table').innerHTML = response.preview;
+                if (!response.ok) {
+                    throw new Error(`Request failed with status: ${response.status}`);
+                }
 
-                            $('#upload-modal').modal('hide');
-                            enableButton(['submit-upload', 'import', 'reset-import']);
-                        } else {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = page_link;
-                        }
+                const data = await response.json();
+
+                if (data.success) {
+                    const $preview = $('.upload-file-preview');
+                    const $defaultPreview = $('.upload-file-default-preview');
+
+                    if ($preview.hasClass('d-none')) {
+                        $defaultPreview.addClass('d-none');
+                        $preview.removeClass('d-none');
+
+                        document.getElementById('upload-file-preview-table').innerHTML = data.preview;
+                        
+                        $('#upload-modal').modal('hide');
+                        enableButton(['submit-upload', 'import', 'reset-import']);
                     }
                     else {
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton(['submit-upload', 'import', 'reset-import']);
-                        }
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = page_link;
                     }
-                },
-                error: function(xhr, status, error) {
-                    enableButton(['submit-upload', 'import', 'reset-import']);
-                    handleSystemError(xhr, status, error);
                 }
-            });
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton(['submit-upload', 'import', 'reset-import']);
+                }
+            } catch (error) {
+                enableButton(['submit-upload', 'import', 'reset-import']);
+                handleSystemError(error, 'fetch_failed', `Import request failed: ${error.message}`);
+            }
 
             return false;
         }

@@ -4,90 +4,100 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const displayDetails = () => {
-        const page_link         = document.getElementById('page-link').getAttribute('href');
+    const displayDetails = async () => {
         const transaction       = 'fetch user account details';
-        const user_account_id   = $('#details-id').text();
-                
-        $.ajax({
-            url: './app/Controllers/UserAccountController.php',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                user_account_id : user_account_id,
-                transaction : transaction
-            },
-            beforeSend: function(){
-                resetForm('user_account_form');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#full_name_side_summary').text(response.fileAs);
-                    $('#email_side_summary').text(response.email);
-                    $('#phone_side_summary').text(response.phoneSummary);
-                    $('#last_password_date_side_summary').text(response.lastPasswordChange);
-                    $('#last_connection_date_side_summary').text(response.lastConnectionDate);
-                    $('#last_password_reset_request_side_summary').text(response.lastPasswordResetRequest);
-                    $('#last_failed_connection_date_side_summary').text(response.lastFailedConnectionDate);
+        const page_link         = document.getElementById('page-link').getAttribute('href');
+        const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
-                    $('#full_name_summary').text(response.fileAs);
-                    $('#email_summary').text(response.email);
-                    $('#phone_summary').text(response.phoneSummary);
+        try {
+            resetForm('user_account_form');
 
-                    document.getElementById('two-factor-authentication').checked = response.twoFactorAuthentication === 'Yes';
-                    document.getElementById('multiple-login-sessions').checked = response.multipleSession === 'Yes';
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
 
-                    document.getElementById('profile_picture_image').style.backgroundImage = `url(${response.profilePicture})`;
+            const response = await fetch('./app/Controllers/UserAccountController.php', {
+                method: 'POST',
+                body: formData
+            });
 
-                    document.getElementById('status_side_summary').innerHTML = response.activeBadge;
-                } 
-                else {
-                    if (response.notExist) {
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link;
-                    }
-                    else {
-                        showNotification(response.title, response.message, response.message_type);
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#full_name_side_summary').text(data.fileAs);
+                $('#email_side_summary').text(data.email);
+                $('#phone_side_summary').text(data.phoneSummary);
+                $('#last_password_date_side_summary').text(data.lastPasswordChange);
+                $('#last_connection_date_side_summary').text(data.lastConnectionDate);
+                $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest);
+                $('#last_failed_connection_date_side_summary').text(data.lastFailedConnectionDate);
+                $('#full_name_summary').text(data.fileAs);
+                $('#email_summary').text(data.email);
+                $('#phone_summary').text(data.phoneSummary);
+
+                document.getElementById('two-factor-authentication').checked = data.twoFactorAuthentication === 'Yes';
+                document.getElementById('multiple-login-sessions').checked = data.multipleSession === 'Yes';
+                document.getElementById('profile_picture_image').style.backgroundImage = `url(${data.profilePicture})`;
+                document.getElementById('status_side_summary').innerHTML = data.activeBadge;
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
             }
-        });
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch system action details: ${error.message}`);
+        }
     }
 
-    const roleList = () => {
-        const user_account_id   = $('#details-id').text();
+    const roleList = async () => {
         const transaction       = 'generate assigned user account role list';
+        const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/UserAccountController.php',
-            dataType: 'json',
-            data: { 
-                transaction : transaction,
-                user_account_id : user_account_id
-            },
-            success: function (result) {
-                document.getElementById('role-list').innerHTML = result[0].ROLE_USER_ACCOUNT;
-            }
-        });
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+
+            const response = await fetch('./app/Controllers/UserAccountController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('role-list').innerHTML = data[0].ROLE_USER_ACCOUNT;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch system action details: ${error.message}`);
+        }
     }
 
-    displayDetails();
+    const toggleSection = (section) => {
+        $(`#${section}_button`).toggleClass('d-none');
+        $(`#${section}`).toggleClass('d-none');
+        $(`#${section}_edit`).toggleClass('d-none');
+
+        const formName = section.replace(/^change_/, '');
+        resetForm(`update_${formName}_form`);
+    }
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'user_account');
     roleList();
+    displayDetails();
 
     $('#update_full_name_form').validate({
         rules: {
-            full_name: {
-                required: true
-            }
+            full_name: { required: true }
         },
         messages: {
-            full_name: {
-                required: 'Enter the full name'
-            }  
+            full_name: { required: 'Enter the full name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -109,40 +119,42 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const user_account_id   = $('#details-id').text();
             const transaction       = 'update user account full name';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/UserAccountController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('update_full_name_submit');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        displayDetails();
-                        toggleSection('change_full_name');
-                        enableButton('update_full_name_submit');
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('update_full_name_submit');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('update_full_name_submit');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+
+            disableButton('update_full_name_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_full_name');
+                    displayDetails();
                 }
-            });
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    enableButton('update_full_name_submit');
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                enableButton('update_full_name_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -150,14 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#update_email_form').validate({
         rules: {
-            email: {
-                required: true
-            }
+            email: { required: true }
         },
         messages: {
-            email: {
-                required: 'Enter the email'
-            }  
+            email: { required: 'Enter the email' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -179,40 +187,42 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const user_account_id   = $('#details-id').text();
             const transaction       = 'update user account email';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/UserAccountController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('update_email_submit');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        displayDetails();
-                        toggleSection('change_email');
-                        enableButton('update_email_submit');
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('update_email_submit');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('update_email_submit');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+
+            disableButton('update_email_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_email');
+                    displayDetails();
                 }
-            });
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_email_submit');
+                }
+            } catch (error) {
+                enableButton('update_email_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -220,14 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#update_phone_form').validate({
         rules: {
-            phone: {
-                required: true
-            }
+            phone: { required: true }
         },
         messages: {
-            phone: {
-                required: 'Enter the phone'
-            }  
+            phone: { required: 'Enter the phone' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -249,40 +255,42 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const user_account_id   = $('#details-id').text();
             const transaction       = 'update user account phone';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/UserAccountController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('update_phone_submit');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        displayDetails();
-                        toggleSection('change_phone');
-                        enableButton('update_phone_submit');
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('update_phone_submit');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('update_phone_submit');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+
+            disableButton('update_phone_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_phone');
+                    displayDetails();
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
                 }
-            });
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_phone_submit');
+                }
+            } catch (error) {
+                enableButton('update_phone_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -296,9 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         messages: {
-            new_password: {
-                required: 'Enter the new password'
-            }  
+            new_password: { required: 'Enter the new password' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -320,40 +326,41 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const user_account_id   = $('#details-id').text();
             const transaction       = 'update user account password';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/UserAccountController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('update_password_submit');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        displayDetails();
-                        toggleSection('change_password');
-                        enableButton('update_password_submit');
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('update_password_submit');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('update_password_submit');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', encodeURIComponent(user_account_id));
+
+            disableButton('update_password_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    displayDetails();
+                    toggleSection('change_password');
                 }
-            });
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                enableButton('update_password_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -380,375 +387,369 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const user_account_id   = $('#details-id').text();
             const transaction       = 'save user account role';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/UserAccountController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + encodeURIComponent(user_account_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-assignment');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-assignment');
-                        roleList();
-                        $('#role-assignment-modal').modal('hide');
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-assignment');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-assignment');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', encodeURIComponent(user_account_id));
+
+            disableButton('submit-assignment');
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    $('#role-assignment-modal').modal('hide');
+                    roleList();
                 }
-            });
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-assignment');
+                }
+            } catch (error) {
+                enableButton('submit-assignment');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
     });
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'user_account');
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#activate-user-account')){
+            const transaction       = 'activate user account';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-    $(document).on('click','#activate-user-account',function() {
-        const user_account_id   = $('#details-id').text();
-        const transaction       = 'activate user account';
-    
-        Swal.fire({
-            title: 'Confirm User Account Activation',
-            text: 'Are you sure you want to activate this user account?',
-            icon: 'info',
-            showCancelButton: !0,
-            confirmButtonText: 'Activate',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-success mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/UserAccountController.php',
-                    dataType: 'json',
-                    data: {
-                        user_account_id : user_account_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.reload();
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
+            Swal.fire({
+                title: 'Confirm User Account Activation',
+                text: 'Are you sure you want to activate this user account?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Activate',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-success mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('user_account_id', user_account_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/UserAccountController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
                     }
-                });
-                return false;
-            }
-        });
-    });
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
 
-    $(document).on('change','#profile_picture',function() {
-        if ($(this).val() !== '' && $(this)[0].files.length > 0) {
-            const transaction       = 'update user account profile picture';
-            const user_account_id   = $('#details-id').text();
-    
-            let formData = new FormData();
-            formData.append('profile_picture', $(this)[0].files[0]);
+        if (event.target.closest('#deactivate-user-account')){
+            const transaction       = 'deactivate user account';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+
+            Swal.fire({
+                title: 'Confirm User Account Deactivation',
+                text: 'Are you sure you want to deactivate this user account?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Deactivate',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('user_account_id', user_account_id);
+                formData.append('transaction', transaction);
+
+                try {
+                    const response = await fetch('./app/Controllers/UserAccountController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#delete-user-account')){
+            const transaction       = 'delete user account';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const page_link         = document.getElementById('page-link')?.getAttribute('href');
+
+            Swal.fire({
+                title: 'Confirm User Account Deletion',
+                text: 'Are you sure you want to delete this user account?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('user_account_id', user_account_id);
+                
+                try {
+                    const response = await fetch('./app/Controllers/UserAccountController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location = page_link;
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#two-factor-authentication')){
+            const transaction       = 'update user account two factor authentication';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams();
             formData.append('transaction', transaction);
             formData.append('user_account_id', user_account_id);
-            
-            $.ajax({
-                type: 'POST',
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('#multiple-login-sessions')){
+            const transaction       = 'update user account multiple login sessions';
+            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('user_account_id', user_account_id);
+
+            try {
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('#assign-role')){
+            generateDualListBox({
                 url: './app/Controllers/UserAccountController.php',
-                dataType: 'json',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        displayDetails();
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                        }
-                    }
+                selectSelector: 'role_id',
+                data: {
+                    transaction: 'user account role dual listbox options',
+                    user_account_id: document.getElementById('details-id')?.textContent.trim()
+                }
+            });
+        }
+
+        if (event.target.closest('[data-toggle-section]')){
+            const section = event.target.closest('[data-toggle-section]');
+            const toggle_section  = section.dataset.toggleSection;
+            toggleSection(toggle_section);
+        }
+
+        if (event.target.closest('.delete-role-user-account')){
+            const transaction           = 'delete user account role';
+            const button                = event.target.closest('.delete-role-user-account');
+            const role_user_account_id  = button.dataset.roleUserAccountId;
+
+            Swal.fire({
+                title: 'Confirm Role Deletion',
+                text: 'Are you sure you want to delete this role?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
                 },
-                error: function(xhr, status, error) {
-                    handleSystemError(xhr, status, error);
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('role_user_account_id', role_user_account_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/UserAccountController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        roleList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
                 }
             });
         }
     });
-    
-    $(document).on('click','#deactivate-user-account',function() {
-        const user_account_id   = $('#details-id').text();
-        const transaction       = 'deactivate user account';
-    
-        Swal.fire({
-            title: 'Confirm User Account Deactivation',
-            text: 'Are you sure you want to deactivate this user account?',
-            icon: 'info',
-            showCancelButton: !0,
-            confirmButtonText: 'Deactivate',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/UserAccountController.php',
-                    dataType: 'json',
-                    data: {
-                        user_account_id : user_account_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.reload();
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
 
-    $(document).on('click','#delete-user-account',function() {
-        const user_account_id   = $('#details-id').text();
-        const page_link         = document.getElementById('page-link').getAttribute('href'); 
-        const transaction       = 'delete user account';
-    
-        Swal.fire({
-            title: 'Confirm User Account Deletion',
-            text: 'Are you sure you want to delete this user account?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/UserAccountController.php',
-                    dataType: 'json',
-                    data: {
-                        user_account_id : user_account_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location = page_link;
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
+    document.addEventListener('change', async (event) => {
+        const input = event.target.closest('#profile_picture');
+        if (!input || !input.files.length) return;
 
-    $(document).on('click', '[data-toggle-section]', function () {
-        const section = $(this).data('toggle-section');
-        toggleSection(section);
-    });
+        const transaction       = 'update user account profile picture';
+        const user_account_id   = document.getElementById('details-id')?.textContent.trim();
 
-    $(document).on('click','#two-factor-authentication',function() {
-        const user_account_id   = $('#details-id').text();
-        const transaction       = 'update user account two factor authentication';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/UserAccountController.php',
-            dataType: 'json',
-            data: {
-                user_account_id : user_account_id, 
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-                else{
-                if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
-            }
-        });
-    });
+        const formData = new FormData();
+        formData.append('transaction', transaction);
+        formData.append('user_account_id', user_account_id);
+        formData.append('profile_picture', input.files[0]);
 
-    $(document).on('click','#multiple-login-sessions',function() {
-        const user_account_id   = $('#details-id').text();
-        const transaction       = 'update user account multiple login sessions';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/UserAccountController.php',
-            dataType: 'json',
-            data: {
-                user_account_id : user_account_id, 
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
-                }
-                else{
-                if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
-            }
-        });
-    });
+        try {
+            const response = await fetch('./app/Controllers/UserAccountController.php', {
+                method: 'POST',
+                body: formData
+            });
 
-    $(document).on('click','#assign-role',function() {
-        generateDualListBox({
-            url: './app/Controllers/UserAccountController.php',
-            selectSelector: 'role_id',
-            data: { 
-                transaction: 'user account role dual listbox options',
-                user_account_id: $('#details-id').text()
-            }
-        });
-    });
+            if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
 
-    $(document).on('click','.delete-role-user-account',function() {
-        const role_user_account_id = $(this).data('role-user-account-id');
-        const transaction       = 'delete user account role';
-    
-        Swal.fire({
-            title: 'Confirm Role Deletion',
-            text: 'Are you sure you want to delete this role?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/UserAccountController.php',
-                    dataType: 'json',
-                    data: {
-                        role_user_account_id : role_user_account_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            roleList();
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
+            const data = await response.json();
+
+            if (data.success) {
+                showNotification(data.title, data.message, data.message_type);
+                displayDetails();
             }
-        });
+            else if (data.invalid_session) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = data.redirect_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
     });
 });
-
-
-
-function toggleSection(section) {
-    $(`#${section}_button`).toggleClass('d-none');
-    $(`#${section}`).toggleClass('d-none');
-    $(`#${section}_edit`).toggleClass('d-none');
-
-    const formName = section.replace(/^change_/, '');
-    resetForm(`update_${formName}_form`);
-}

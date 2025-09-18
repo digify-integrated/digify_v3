@@ -427,7 +427,7 @@ CREATE INDEX idx_menu_item_parent_id ON menu_item(parent_id);
 
 INSERT INTO menu_item (menu_item_name, menu_item_url, menu_item_icon, app_module_id, app_module_name, parent_id, parent_name, table_name, order_sequence)
 VALUES
-('App Module', 'app-module.php', '', 1, 'Settings', 0, '', 'app_module', 1),
+('App Module', 'app-module.php', '', 1, 'Settings', 0, '', 'app_module'),
 ('Settings', '', '', 1, 'Settings', 0, '', '', 80),
 ('Users & Companies', '', '', 1, 'Settings', 0, '', '', 21),
 ('User Account', 'user-account.php', 'ki-outline ki-user', 1, 'Settings', 3, 'Users & Companies', 'user_account', 21),
@@ -450,15 +450,15 @@ VALUES
 ('Security Setting', 'security-setting.php', 'ki-outline ki-lock', 1, 'Settings', 2, 'Settings', 'security_setting', 19),
 ('Email Setting', 'email-setting.php', 'ki-outline ki-sms', 1, 'Settings', 2, 'Settings', 'email_setting', 5),
 ('Notification Setting', 'notification-setting.php', 'ki-outline ki-notification', 1, 'Settings', 2, 'Settings', 'notification_setting', 14),
-('Employee', 'employee.php', '', 2, 'Employee', 0, '', '', 1),
+('Employee', 'employee.php', '', 2, 'Employee', 0, '', ''),
 ('Banking', '', 'ki-outline ki-bank', 1, 'Settings', 11, 'Configurations', '', 2),
-('Bank', 'bank.php', '', 1, 'Settings', 25, 'Banking', 'bank', 1),
+('Bank', 'bank.php', '', 1, 'Settings', 25, 'Banking', 'bank'),
 ('Bank Account Type', 'bank-account-type.php', '', 1, 'Settings', 25, 'Banking', 'bank_account_type', 2),
 ('Contact Information', '', 'ki-outline ki-address-book', 1, 'Settings', 11, 'Configurations', '', 3),
-('Address Type', 'address-type.php', '', 1, 'Settings', 28, 'Contact Information', 'address_type', 1),
+('Address Type', 'address-type.php', '', 1, 'Settings', 28, 'Contact Information', 'address_type'),
 ('Contact Information Type', 'contact-information-type.php', 'ki-outline ki-abstract', 1, 'Settings', 28, 'Contact Information', 'contact_information_type', 3),
 ('Language Settings', '', 'ki-outline ki-note-2', 1, 'Settings', 11, 'Configurations', '', 12),
-('Language', 'language.php', '', 1, 'Settings', 31, 'Language Settings', 'language', 1),
+('Language', 'language.php', '', 1, 'Settings', 31, 'Language Settings', 'language'),
 ('Language Proficiency', 'language-proficiency.php', '', 1, 'Settings', 31, 'Language Settings', 'language_proficiency', 2),
 ('Profile Attribute', '', 'ki-outline ki-people', 1, 'Settings', 11, 'Configurations', '', 16),
 ('Blood Type', 'blood-type.php', '', 1, 'Settings', 34, 'Profile Attribute', 'blood_type', 2),
@@ -474,8 +474,7 @@ VALUES
 ('Employment Location Type', 'employment-location-type.php', 'ki-outline ki-route', 2, 'Employee', 42, 'HR Configurations', 'employment_location_type', 5),
 ('Employment Type', 'employment-type.php', 'ki-outline ki-briefcase', 2, 'Employee', 42, 'HR Configurations', 'employment_type', 5),
 ('Job Position', 'job-position.php', 'ki-outline ki-questionnaire-tablet', 2, 'Employee', 42, 'HR Configurations', 'job_position', 10),
-('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 42, 'HR Configurations', 'work_location', 23),
-('Work Schedule', 'work-schedule.php', '', 2, 'Employee', 0, '', '', 23);
+('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 42, 'HR Configurations', 'work_location', 23);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -593,56 +592,54 @@ CREATE INDEX idx_role_permission_menu_item_id ON role_permission(menu_item_id);
 
 INSERT INTO role_permission (role_id, role_name, menu_item_id, menu_item_name, read_access, write_access, create_access, delete_access, import_access, export_access, log_notes_access)
 VALUES
-(1, 'Super Admin', 1, 'App Module', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 1, 'App Module', 1, 1),
 (1, 'Super Admin', 2, 'Settings', 1, 0, 0, 0, 0, 0, 0),
 (1, 'Super Admin', 3, 'Users & Companies', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 4, 'User Account', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 5, 'Company', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 6, 'Role', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 4, 'User Account', 1, 1),
+(1, 'Super Admin', 5, 'Company', 1, 1),
+(1, 'Super Admin', 6, 'Role', 1, 1),
 (1, 'Super Admin', 7, 'User Interface', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 8, 'Menu Item', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 9, 'System Action', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 10, 'Account Settings', 1, 1, 0, 0, 0, 0, 1),
+(1, 'Super Admin', 8, 'Menu Item', 1, 1),
+(1, 'Super Admin', 9, 'System Action', 1, 1),
+(1, 'Super Admin', 10, 'Account Settings', 1, 1, 0, 0, 0, 0),
 (1, 'Super Admin', 11, 'Configurations', 1, 0, 0, 0, 0, 0, 0),
 (1, 'Super Admin', 12, 'Localization', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 13, 'Country', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 14, 'State', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 15, 'City', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 13, 'Country', 1, 1),
+(1, 'Super Admin', 14, 'State', 1, 1),
+(1, 'Super Admin', 15, 'City', 1, 1),
 (1, 'Super Admin', 16, 'Currency', 1, 1, 1, 1, 1, 1, 0),
 (1, 'Super Admin', 17, 'Data Classification', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 18, 'File Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 19, 'File Extension', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 20, 'Upload Setting', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 18, 'File Type', 1, 1),
+(1, 'Super Admin', 19, 'File Extension', 1, 1),
+(1, 'Super Admin', 20, 'Upload Setting', 1, 1),
 (1, 'Super Admin', 21, 'Security Setting', 1, 1, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 22, 'Email Setting', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 23, 'Notification Setting', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 24, 'Employee', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 26, 'Bank', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 27, 'Bank Account Type', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 22, 'Email Setting', 1, 1),
+(1, 'Super Admin', 23, 'Notification Setting', 1, 1),
+(1, 'Super Admin', 24, 'Employee', 1, 1),
 (1, 'Super Admin', 25, 'Banking', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 26, 'Bank', 1, 1),
+(1, 'Super Admin', 27, 'Bank Account Type', 1, 1),
 (1, 'Super Admin', 28, 'Contact Information', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 29, 'Address Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 30, 'Contact Information Type', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 29, 'Address Type', 1, 1),
+(1, 'Super Admin', 30, 'Contact Information Type', 1, 1),
 (1, 'Super Admin', 31, 'Language Settings', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 32, 'Language', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 33, 'Language Proficiency', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 32, 'Language', 1, 1),
+(1, 'Super Admin', 33, 'Language Proficiency', 1, 1),
 (1, 'Super Admin', 34, 'Profile Attribute', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 35, 'Blood Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 36, 'Civil Status', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 37, 'Educational Stage', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 38, 'Gender', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 39, 'Credential Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 40, 'Relationship', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 41, 'Religion', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 35, 'Blood Type', 1, 1),
+(1, 'Super Admin', 36, 'Civil Status', 1, 1),
+(1, 'Super Admin', 37, 'Educational Stage', 1, 1),
+(1, 'Super Admin', 38, 'Gender', 1, 1),
+(1, 'Super Admin', 39, 'Credential Type', 1, 1),
+(1, 'Super Admin', 40, 'Relationship', 1, 1),
+(1, 'Super Admin', 41, 'Religion', 1, 1),
 (1, 'Super Admin', 42, 'HR Configurations', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 43, 'Department', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 44, 'Departure Reason', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 45, 'Employment Location Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 46, 'Employment Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 47, 'Job Position', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 48, 'Work Location', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 49, 'Work Schedule Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 50, 'Work Schedule', 1, 1, 1, 1, 1, 1, 1);
+(1, 'Super Admin', 43, 'Department', 1, 1),
+(1, 'Super Admin', 44, 'Departure Reason', 1, 1),
+(1, 'Super Admin', 45, 'Employment Location Type', 1, 1),
+(1, 'Super Admin', 46, 'Employment Type', 1, 1),
+(1, 'Super Admin', 47, 'Job Position', 1, 1),
+(1, 'Super Admin', 48, 'Work Location', 1, 1);
 
 /* =============================================================================================
   TABLE: ROLE SYSTEM ACTION PERMISSION
@@ -678,16 +675,16 @@ CREATE INDEX idx_role_system_action_permission_system_action_id ON role_system_a
 ============================================================================================= */
 
 INSERT INTO role_system_action_permission (role_id, role_name, system_action_id, system_action_name, system_action_access) VALUES
-(1, 'Super Admin', 1, 'Activate User Account', 1),
-(1, 'Super Admin', 2, 'Deactivate User Account', 1),
-(1, 'Super Admin', 3, 'Add Role User Account', 1),
-(1, 'Super Admin', 4, 'Delete Role User Account', 1),
-(1, 'Super Admin', 5, 'Add Role Access', 1),
-(1, 'Super Admin', 6, 'Update Role Access', 1),
-(1, 'Super Admin', 7, 'Delete Role Access', 1),
-(1, 'Super Admin', 8, 'Add Role System Action Access', 1),
-(1, 'Super Admin', 9, 'Update Role System Action Access', 1),
-(1, 'Super Admin', 10, 'Delete Role System Action Access', 1);
+(1, 'Super Admin', 1, 'Activate User Account'),
+(1, 'Super Admin', 2, 'Deactivate User Account'),
+(1, 'Super Admin', 3, 'Add Role User Account'),
+(1, 'Super Admin', 4, 'Delete Role User Account'),
+(1, 'Super Admin', 5, 'Add Role Access'),
+(1, 'Super Admin', 6, 'Update Role Access'),
+(1, 'Super Admin', 7, 'Delete Role Access'),
+(1, 'Super Admin', 8, 'Add Role System Action Access'),
+(1, 'Super Admin', 9, 'Update Role System Action Access'),
+(1, 'Super Admin', 10, 'Delete Role System Action Access');
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT
@@ -755,20 +752,20 @@ CREATE TABLE file_type (
 ============================================================================================= */
 
 INSERT INTO file_type (file_type_id, file_type_name, last_log_by) VALUES
-(1, 'Audio', 1),
-(2, 'Compressed', 1),
-(3, 'Disk and Media', 1),
-(4, 'Data and Database', 1),
-(5, 'Email', 1),
-(6, 'Executable', 1),
-(7, 'Font', 1),
-(8, 'Image', 1),
-(9, 'Internet Related', 1),
-(10, 'Presentation', 1),
-(11, 'Spreadsheet', 1),
-(12, 'System Related', 1),
-(13, 'Video', 1),
-(14, 'Word Processor', 1);
+(1, 'Audio'),
+(2, 'Compressed'),
+(3, 'Disk and Media'),
+(4, 'Data and Database'),
+(5, 'Email'),
+(6, 'Executable'),
+(7, 'Font'),
+(8, 'Image'),
+(9, 'Internet Related'),
+(10, 'Presentation'),
+(11, 'Spreadsheet'),
+(12, 'System Related'),
+(13, 'Video'),
+(14, 'Word Processor');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -6686,6 +6683,324 @@ CREATE INDEX idx_company_currency_id ON company(currency_id);
 /* =============================================================================================
   INITIAL VALUES: COMPANY
 ============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: BLOOD TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS blood_type;
+
+CREATE TABLE blood_type (
+  blood_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  blood_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+
+/* =============================================================================================
+  INDEX: BLOOD TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: BLOOD TYPE
+============================================================================================= */
+
+INSERT INTO blood_type (blood_type_name)
+VALUES 
+('A+'),
+('A-'),
+('B+'),
+('B-'),
+('AB+'),
+('AB-'),
+('O+'),
+('O-');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: CIVIL STATUS
+============================================================================================= */
+
+DROP TABLE IF EXISTS civil_status;
+
+CREATE TABLE civil_status (
+  civil_status_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  civil_status_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: CIVIL STATUS
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: CIVIL STATUS
+============================================================================================= */
+
+INSERT INTO civil_status (civil_status_name)
+VALUES 
+('Single'),
+('Married'),
+('Divorced'),
+('Widowed'),
+('Separated');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: CREDENTIAL TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS credential_type;
+
+CREATE TABLE credential_type (
+  credential_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  credential_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: CREDENTIAL TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: CREDENTIAL TYPE
+============================================================================================= */
+
+INSERT INTO credential_type (credential_type_name) 
+VALUES
+('Passport'),
+('Driver\'s License'),
+('National ID'),
+('SSS ID'),
+('GSIS ID'),
+('PhilHealth ID'),
+('Postal ID'),
+('Voter\'s ID'),
+('Barangay ID'),
+('Student ID'),
+('PRC License'),
+('Company ID'),
+('Professional Certification'),
+('Work Permit'),
+('Medical License'),
+('Teaching License'),
+('Engineering License'),
+('Bar Exam Certificate'),
+('Visa'),
+('Work Visa'),
+('Immigration Card'),
+('Marriage Certificate'),
+('Birth Certificate'),
+('Death Certificate'),
+('Police Clearance'),
+('NBI Clearance'),
+('Barangay Clearance'),
+('Travel Permit'),
+('Employment Certificate'),
+('Firearm License'),
+('Business Permit');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EDUCATIONAL STAGE
+============================================================================================= */
+
+DROP TABLE IF EXISTS educational_stage;
+
+CREATE TABLE educational_stage (
+  educational_stage_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  educational_stage_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EDUCATIONAL STAGE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EDUCATIONAL STAGE
+============================================================================================= */
+
+INSERT INTO educational_stage (educational_stage_name)
+VALUES 
+('Primary Education'),
+('Middle School'),
+('High School'),
+('Diploma'),
+('Bachelor'),
+('Master'),
+('Doctorate'),
+('Post-Doctorate'),
+('Vocational Training');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: GENDER
+============================================================================================= */
+
+DROP TABLE IF EXISTS gender;
+
+CREATE TABLE gender (
+  gender_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  gender_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: GENDER
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: GENDER
+============================================================================================= */
+
+INSERT INTO gender (gender_name)
+VALUES 
+('Male'),
+('Female');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: RELATIONSHIP
+============================================================================================= */
+
+DROP TABLE IF EXISTS relationship;
+
+CREATE TABLE relationship (
+  relationship_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  relationship_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: RELATIONSHIP
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: RELATIONSHIP
+============================================================================================= */
+
+INSERT INTO relationship (relationship_name)
+VALUES 
+('Father'),
+('Mother'),
+('Husband'),
+('Wife'),
+('Son'),
+('Daughter'),
+('Brother'),
+('Sister'),
+('Grandfather'),
+('Grandmother'),
+('Grandson'),
+('Granddaughter'),
+('Uncle'),
+('Aunt'),
+('Nephew'),
+('Niece'),
+('Cousin'),
+('Friend');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: RELIGION
+============================================================================================= */
+
+DROP TABLE IF EXISTS religion;
+
+CREATE TABLE religion (
+  religion_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  religion_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: RELIGION
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: RELIGION
+============================================================================================= */
+
+INSERT INTO religion (religion_name, last_log_by)
+VALUES
+('Christianity'),
+('Islam'),
+('Hinduism'),
+('Buddhism'),
+('Judaism'),
+('Sikhism'),
+('Atheism'),
+('Agnosticism'),
+('Baháʼí'),
+('Confucianism'),
+('Shinto'),
+('Taoism'),
+('Zoroastrianism'),
+('Jainism'),
+('Spiritualism'),
+('Paganism'),
+('Rastafarianism'),
+('Unitarian Universalism'),
+('Scientology'),
+('Druze');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

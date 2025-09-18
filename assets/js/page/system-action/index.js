@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#system-action-table');
-    initializeExportFeature('system_action');
-
     initializeDatatable({
         selector: '#system-action-table',
         ajaxUrl: './app/Controllers/SystemActionController.php',
@@ -23,66 +20,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $(document).on('click','#delete-system-action',function() {
-        let system_action_id = [];
-        const transaction = 'delete multiple system action';
+    initializeDatatableControls('#system-action-table');
+    initializeExportFeature('system_action');
 
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                system_action_id.push(element.value);
-            }
-        });
-    
-        if(system_action_id.length > 0){
-            Swal.fire({
-                title: 'Confirm Multiple System Actions Deletion',
-                text: 'Are you sure you want to delete these system actions?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    confirmButton: 'btn btn-danger',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/SystemActionController.php',
-                        dataType: 'json',
-                        data: {
-                            system_action_id: system_action_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#system-action-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
-            });
+    document.addEventListener('click', async (e) => {
+        if (!e.target.closest('#delete-system-action')) return;
+
+        const transaction       = 'delete multiple system action';
+        const system_action_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
+
+        if (system_action_id.length === 0) {
+            showNotification('Deletion Multiple System Action Error', 'Please select the system actions you wish to delete.','error');
+            return;
         }
-        else{
-            showNotification('Deletion Multiple System Action Error', 'Please select the system actions you wish to delete.', 'error');
+
+        const result = await Swal.fire({
+            title: 'Confirm Multiple System Actions Deletion',
+            text: 'Are you sure you want to delete these system actions?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
+        });
+
+        if (!result.value) return;
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            system_action_id.forEach(id => formData.append('system_action_id[]', id));
+
+            const response = await fetch('./app/Controllers/SystemActionController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                showNotification(data.title, data.message, data.message_type);
+                reloadDatatable('#system-action-table');
+            }
+            else if (data.invalid_session) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = data.redirect_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to delete multiple system actions: ${error.message}`);
         }
     });
 });

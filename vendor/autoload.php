@@ -8,18 +8,18 @@ spl_autoload_register(function (string $class): void {
     if (str_starts_with($class, 'PHPMailer\\PHPMailer')) {
         $relativePath = 'vendor/phpmailer/phpmailer/src/' . str_replace('PHPMailer\\PHPMailer\\', '', $class) . '.php';
     } 
-    elseif (str_starts_with($class, 'PhpOffice\\PhpSpreadsheet')) {
+    else if (str_starts_with($class, 'PhpOffice\\PhpSpreadsheet')) {
         $relativePath = 'vendor/PhpOffice/PhpSpreadsheet/' . str_replace('PhpOffice\\PhpSpreadsheet\\', '', $class) . '.php';
     }
-    elseif (str_starts_with($class, 'Psr\\SimpleCache')) {
+    else if (str_starts_with($class, 'Psr\\SimpleCache')) {
         $relativePath = 'vendor/Psr/SimpleCache/' . str_replace('Psr\\SimpleCache\\', '', $class) . '.php';
     }
-    elseif (str_starts_with($class, 'ZipStream\\')) {
+    else if (str_starts_with($class, 'ZipStream\\')) {
         // Remove the "ZipStream\" prefix and map to vendor/ZipStream/
         $relativePath = 'vendor/ZipStream/' . str_replace('ZipStream\\', '', $class) . '.php';
         $relativePath = str_replace('\\', '/', $relativePath);
     }
-    elseif (str_starts_with($class, 'MyCLabs\\Enum')) {
+    else if (str_starts_with($class, 'MyCLabs\\Enum')) {
         $relativePath = 'vendor/MyCLabs/Enum/' . str_replace('MyCLabs\\Enum\\', '', $class) . '.php';
     }
     else {

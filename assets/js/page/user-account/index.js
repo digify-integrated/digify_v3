@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#user-account-table');
-    initializeExportFeature('user_account');
-
     const datatableConfig = () => ({
         selector: '#user-account-table',
         ajaxUrl: './app/Controllers/UserAccountController.php',
@@ -30,30 +27,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    initializeDatatableControls('#user-account-table');
+    initializeExportFeature('user_account');
     initializeDatatable(datatableConfig());
 
-    $(document).on('click', '#apply-filter', function() {
-        initializeDatatable(datatableConfig());
-    });
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#apply-filter')) {
+            initializeDatatable(datatableConfig());
+        }
 
-    $(document).on('click', '#reset-filter', function() {
-        $('#user_account_status_filter').val(null).trigger('change');
+        if (event.target.closest('#reset-filter')) {
+            $('#user_account_status_filter').val(null).trigger('change');
+            initializeDatatable(datatableConfig());
+        }
 
-        initializeDatatable(datatableConfig());
-    });
+        if (event.target.closest('#activate-user-account')) {
+            const transaction       = 'activate multiple user account';
+            const checkboxes        = document.querySelectorAll('.datatable-checkbox-children:checked');
+            const user_account_id   = Array.from(checkboxes).map(cb => cb.value);
 
-    $(document).on('click','#activate-user-account',function() {
-        let user_account_id = [];
-        const transaction = 'activate multiple user account';
-
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                user_account_id.push(element.value);
+            if (user_account_id.length === 0) {
+                showNotification(
+                    'Activation Multiple User Account Error',
+                    'Please select the user accounts you wish to activate.',
+                    'error'
+                );
+                return;
             }
-        });
-    
-        if(user_account_id.length > 0){
-            Swal.fire({
+
+            const result = await Swal.fire({
                 title: 'Confirm Multiple User Accounts Activation',
                 text: 'Are you sure you want to activate these user accounts?',
                 icon: 'info',
@@ -64,59 +66,57 @@ document.addEventListener('DOMContentLoaded', () => {
                     confirmButton: 'btn btn-success',
                     cancelButton: 'btn btn-secondary'
                 },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/UserAccountController.php',
-                        dataType: 'json',
-                        data: {
-                            user_account_id: user_account_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#user-account-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
+                buttonsStyling: false
             });
-        }
-        else{
-            showNotification('Activate Multiple User Account Error', 'Please select the user accounts you wish to activate.', 'error');
-        }
-    });
 
-    $(document).on('click','#deactivate-user-account',function() {
-        let user_account_id = [];
-        const transaction = 'deactivate multiple user account';
+            if (!result.value) return;
 
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                user_account_id.push(element.value);
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                user_account_id.forEach(id => formData.append('user_account_id[]', id));
+
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    reloadDatatable('#user-account-table');
+                }
+                else if(datainvalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to activate multiple user account: ${error.message}`);
             }
-        });
-    
-        if(user_account_id.length > 0){
-            Swal.fire({
+        }
+
+        if (event.target.closest('#deactivate-user-account')) {
+            const transaction       = 'deactivate multiple user account';
+            const user_account_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                        .filter(checkbox => checkbox.checked)
+                                        .map(checkbox => checkbox.value);
+
+            if (user_account_id.length === 0) {
+                showNotification(
+                    'Deactivation Multiple User Account Error',
+                    'Please select the user accounts you wish to deactivate.',
+                    'error'
+                );
+                return;
+            }
+
+            const result = await Swal.fire({
                 title: 'Confirm Multiple User Accounts Deactivation',
                 text: 'Are you sure you want to deactivate these user accounts?',
                 icon: 'warning',
@@ -124,110 +124,99 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmButtonText: 'Deactivate',
                 cancelButtonText: 'Cancel',
                 customClass: {
-                    confirmButton: 'btn btn-danger',
+                    confirmButton: 'btn btn-success',
                     cancelButton: 'btn btn-secondary'
                 },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/UserAccountController.php',
-                        dataType: 'json',
-                        data: {
-                            user_account_id: user_account_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#user-account-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
+                buttonsStyling: false
             });
-        }
-        else{
-            showNotification('Deactivate Multiple User Account Error', 'Please select the user accounts you wish to deactivate.', 'error');
-        }
-    });
 
-    $(document).on('click','#delete-user-account',function() {
-        let user_account_id = [];
-        const transaction = 'delete multiple user account';
+            if (!result.value) return;
 
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                user_account_id.push(element.value);
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                user_account_id.forEach(id => formData.append('user_account_id[]', id));
+
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    reloadDatatable('#user-account-table');
+                }
+                else if(datainvalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to deactivate multiple user account: ${error.message}`);
             }
-        });
-    
-        if(user_account_id.length > 0){
-            Swal.fire({
+        }
+
+        if (event.target.closest('#delete-user-account')) {
+            const transaction       = 'delete multiple user account';
+            const user_account_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                        .filter(checkbox => checkbox.checked)
+                                        .map(checkbox => checkbox.value);
+
+            if (user_account_id.length === 0) {
+                showNotification('Deletion Multiple User Account Error', 'Please select the user accounts you wish to delete.', 'error');
+                return;
+            }
+
+            const result = await Swal.fire({
                 title: 'Confirm Multiple User Accounts Deletion',
                 text: 'Are you sure you want to delete these user accounts?',
                 icon: 'warning',
-                showCancelButton: !0,
+                showCancelButton: true,
                 confirmButtonText: 'Delete',
                 cancelButtonText: 'Cancel',
                 customClass: {
                     confirmButton: 'btn btn-danger',
                     cancelButton: 'btn btn-secondary'
                 },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/UserAccountController.php',
-                        dataType: 'json',
-                        data: {
-                            user_account_id: user_account_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#user-account-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
+                buttonsStyling: false
             });
-        }
-        else{
-            showNotification('Deletion Multiple User Account Error', 'Please select the user accounts you wish to delete.', 'error');
+
+            if (!result.value) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                user_account_id.forEach(id => formData.append('user_account_id[]', id));
+
+                const response = await fetch('./app/Controllers/UserAccountController.php', {
+                    method: 'POST',                    
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    reloadDatatable('#user-account-table');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to delete multiple user accounts: ${error.message}`);
+            }
         }
     });
 });

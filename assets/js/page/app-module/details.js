@@ -5,18 +5,13 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
         const transaction       = 'fetch app module details';
+        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
         const app_module_id     = document.getElementById('details-id')?.textContent.trim();
 
-        if (!app_module_id) {
-            showNotification('Error', 'App module ID not found', 'error');
-            return;
-        }
-
-        resetForm('app_module_form');
-
         try {
+            resetForm('app_module_form');
+            
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
             formData.append('app_module_id', app_module_id);
@@ -37,21 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('app_module_description').value     = data.appModuleDescription || '';
                 document.getElementById('order_sequence').value             = data.orderSequence || '';
 
-                const menuItemSelect = document.getElementById('menu_item_id');
-                if (menuItemSelect) {
-                    menuItemSelect.value = data.menuItemID || '';
-                    menuItemSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                }
+                $('#menu_item_id').val(data.menuItemID).trigger('change');
 
                 const thumbnail = document.getElementById('app_thumbnail');
                 if (thumbnail) thumbnail.style.backgroundImage = `url(${data.appLogo || ''})`;
-            } else {
-                if (data.notExist) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = page_link;
-                } else {
-                    showNotification(data.title, data.message, data.message_type);
-                }
+            }
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
             }
         } catch (error) {
             handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
@@ -65,112 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
         validateOnChange: true
     });
 
-    displayDetails();
-
     attachLogNotesHandler('#log-notes-main', '#details-id', 'app_module');
-
-    document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-app-module')) return;
-
-        const app_module_id = document.getElementById('details-id')?.textContent.trim();
-        const page_link = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const transaction = 'delete app module';
-
-        if (!app_module_id) {
-            showNotification('Error', 'App module ID not found', 'error');
-            return;
-        }
-
-        const result = await Swal.fire({
-            title: 'Confirm App Module Deletion',
-            text: 'Are you sure you want to delete this app module?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: false
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const formData = new URLSearchParams();
-                formData.append('app_module_id', app_module_id);
-                formData.append('transaction', transaction);
-
-                const response = await fetch('./app/Controllers/AppModuleController.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
-
-                const data = await response.json();
-
-                if (data.success) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = page_link;
-                } else {
-                    if (data.invalid_session) {
-                        setNotification(data.title, data.message, data.message_type);
-                        window.location.href = data.redirect_link;
-                    } else {
-                        showNotification(data.title, data.message, data.message_type);
-                    }
-                }
-            } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-            }
-        }
-    });
-
-    document.addEventListener('change', async (event) => {
-        if (!event.target.closest('#app_logo')) return;
-
-        const input = event.target;
-        if (input.files && input.files.length > 0) {
-            const transaction = 'update app module logo';
-            const app_module_id = document.getElementById('details-id')?.textContent.trim();
-
-            if (!app_module_id) {
-                showNotification('Error', 'App module ID not found', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('app_logo', input.files[0]);
-            formData.append('transaction', transaction);
-            formData.append('app_module_id', app_module_id);
-
-            try {
-                const response = await fetch('./app/Controllers/AppModuleController.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                    displayDetails();
-                } else {
-                    if (data.invalid_session) {
-                        setNotification(data.title, data.message, data.message_type);
-                        window.location.href = data.redirect_link;
-                    } else {
-                        showNotification(data.title, data.message, data.message_type);
-                    }
-                }
-            } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-            }
-        }
-    });
+    displayDetails();
 
     $('#app_module_form').validate({
         rules: {
@@ -221,41 +108,144 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const app_module_id = $('#details-id').text();
-            const transaction   = 'save app module';
+            const transaction       = 'save app module';
+            const app_module_id     = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/AppModuleController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&app_module_id=' + encodeURIComponent(app_module_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-data');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
-                        displayDetails();
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-data');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-data');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('app_module_id', app_module_id);
+
+            disableButton('submit-data');
+
+            try {
+                const response = await fetch('./app/Controllers/AppModuleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save app module failed with status: ${response.status}`);
                 }
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                    displayDetails();
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                }
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
+        }
+    });
+
+    document.addEventListener('click', async (event) => {
+        if (!event.target.closest('#delete-app-module')) return;
+
+        const transaction       = 'delete app module';
+        const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+
+        const result = await Swal.fire({
+            title: 'Confirm App Module Deletion',
+            text: 'Are you sure you want to delete this app module?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger mt-2',
+                cancelButton: 'btn btn-secondary ms-2 mt-2'
+            },
+            buttonsStyling: false
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('app_module_id', app_module_id);
+
+                const response = await fetch('./app/Controllers/AppModuleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = page_link;
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+    });
+
+    document.addEventListener('change', async (event) => {
+        if (!event.target.closest('#app_logo')) return;
+
+        const input = event.target;
+        if (input.files && input.files.length > 0) {
+            const transaction       = 'update app module logo';
+            const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+
+            if (!app_module_id) {
+                showNotification('Error', 'App module ID not found', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('transaction', transaction);
+            formData.append('app_module_id', app_module_id);
+            formData.append('app_logo', input.files[0]);
+
+            try {
+                const response = await fetch('./app/Controllers/AppModuleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    displayDetails();
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
         }
     });
 });

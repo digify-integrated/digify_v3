@@ -39,14 +39,13 @@ export const logNotes = async (database_table, reference_id) => {
             else {
                 console.warn('logNotes: #log-notes element not found, cannot display log notes.');
             }
-        } else {
-            if (data.invalid_session) {
-                setNotification(data.title, data.message, data.message_type);
-                window.location.href = data.redirect_link;
-            }
-            else {
-                showNotification(data.title, data.message, data.message_type);
-            }
+        }
+        else if (data.invalid_session) {
+            setNotification(data.title, data.message, data.message_type);
+            window.location.href = data.redirect_link;
+        }
+        else {
+            showNotification(data.title, data.message, data.message_type);
         }
   } catch (error) {
     handleSystemError(error, 'fetch_failed', `Log notes fetch failed: ${error.message}`);

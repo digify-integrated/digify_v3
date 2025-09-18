@@ -19,7 +19,7 @@
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
             <?php 
-                require_once('./app/Views/Partials/header.php');
+                require_once './app/Views/Partials/header.php';
             ?>
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
                 <div id="kt_app_toolbar" class="app-toolbar py-6">

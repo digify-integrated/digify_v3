@@ -5,49 +5,51 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const displayDetails = () => {
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+    const displayDetails = async () => {
         const transaction   = 'fetch role details';
-        const role_id       = $('#details-id').text();
-                
-        $.ajax({
-            url: './app/Controllers/RoleController.php',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                role_id : role_id,
-                transaction : transaction
-            },
-            beforeSend: function(){
-                resetForm('role_form');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#role_name').val(response.roleName);
-                    $('#role_description').val(response.roleDescription);
-                } 
-                else {
-                    if (response.notExist) {
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link;
-                    }
-                    else {
-                        showNotification(response.title, response.message, response.message_type);
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const role_id       = document.getElementById('details-id').textContent.trim();
+
+        try {
+            resetForm('role_form');
+
+            const formData = new URLSearchParams();
+            formData.append('role_id', role_id);
+            formData.append('transaction', transaction);
+
+            const response = await fetch('./app/Controllers/RoleController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
             }
-        });
-    }
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('role_name').value = data.roleName;
+                document.getElementById('role_description').value = data.roleDescription;
+            }
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
+    };
 
     initializeDatatable({
         selector: '#menu-item-permission-table',
         ajaxUrl: './app/Controllers/RoleController.php',
         transaction: 'generate role assigned menu item table',
         ajaxData: {
-            role_id: $('#details-id').text()
+            role_id: document.getElementById('details-id')?.textContent.trim()
         },
         columns: [
             { data: 'MENU_ITEM_NAME' },
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/RoleController.php',
         transaction: 'generate role assigned system action table',
         ajaxData: {
-            role_id: $('#details-id').text()
+            role_id: document.getElementById('details-id')?.textContent.trim()
         },
         columns: [
             { data: 'SYSTEM_ACTION_NAME' },
@@ -94,12 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
 
-    initializeSubDatatableControls('#menu-item-permission-datatable-search', '#menu-item-permission-datatable-length', '#menu-item-permission-table')
-    initializeSubDatatableControls('#system-action-permission-datatable-search', '#system-action-permission-datatable-length', '#system-action-permission-table')
-
-    displayDetails();
-
+    initializeSubDatatableControls('#menu-item-permission-datatable-search', '#menu-item-permission-datatable-length', '#menu-item-permission-table');
+    initializeSubDatatableControls('#system-action-permission-datatable-search', '#system-action-permission-datatable-length', '#system-action-permission-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'role');
+    displayDetails();
 
     $('#role_form').validate({
         rules: {
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 required: 'Enter the display name'
             },
             role_description: {
-                required: 'Ether the description'
+                required: 'Enter the description'
             }
         },
         errorPlacement: (error, element) => {
@@ -137,41 +137,45 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         submitHandler: async (form, event) => {
             event.preventDefault();
-    
-            const role_id       = $('#details-id').text();
+
             const transaction   = 'save role';
-    
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/RoleController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&role_id=' + encodeURIComponent(role_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-data');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
-                        displayDetails();
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-data');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-data');
-                    handleSystemError(xhr, status, error);
+            const role_id       = document.getElementById('details-id').textContent;
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('role_id', role_id);
+
+            disableButton('submit-data');
+
+            try {
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save failed with status: ${response.status}`);
                 }
-            });
-    
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                    displayDetails();
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                } else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                }
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
             return false;
         }
     });
@@ -197,40 +201,45 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const role_id       = $('#details-id').text();
             const transaction   = 'save role menu item permission';
+            const role_id       = document.getElementById('details-id').textContent;
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/RoleController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&role_id=' + encodeURIComponent(role_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-menu-item-assignment');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-menu-item-assignment');
-                        reloadDatatable('#menu-item-permission-table');
-                        $('#menu-item-permission-assignment-modal').modal('hide');
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-menu-item-assignment');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-menu-item-assignment');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('role_id', role_id);
+
+            disableButton('submit-menu-item-assignment');
+
+            try {
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status: ${response.status}`);
                 }
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-menu-item-assignment');
+                    reloadDatatable('#menu-item-permission-table');
+                    $('#menu-item-permission-assignment-modal').modal('hide');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-menu-item-assignment');
+                }
+            } catch (error) {
+                enableButton('submit-menu-item-assignment');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -257,299 +266,321 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const role_id       = $('#details-id').text();
             const transaction   = 'save role system action permission';
+            const role_id       = document.getElementById('details-id').textContent;
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/RoleController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&role_id=' + encodeURIComponent(role_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-system-action-assignment');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-system-action-assignment');
-                        reloadDatatable('#system-action-permission-table');
-                        $('#system-action-permission-assignment-modal').modal('hide');
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-system-action-assignment');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-system-action-assignment');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('role_id', role_id);
+
+            disableButton('submit-system-action-assignment');
+
+            try {
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status: ${response.status}`);
                 }
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-system-action-assignment');
+                    reloadDatatable('#system-action-permission-table');
+                    $('#system-action-permission-assignment-modal').modal('hide');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-system-action-assignment');
+                }
+            } catch (error) {
+                enableButton('submit-system-action-assignment');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
     });
 
-    $(document).on('click','#delete-role',function() {
-        const role_id       = $('#details-id').text();
-        const page_link     = document.getElementById('page-link').getAttribute('href'); 
-        const transaction   = 'delete role';
-    
-        Swal.fire({
-            title: 'Confirm Role Deletion',
-            text: 'Are you sure you want to delete this role?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/RoleController.php',
-                    dataType: 'json',
-                    data: {
-                        role_id : role_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location = page_link;
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#delete-role')){
+            const transaction   = 'delete role';
+            const role_id       = document.getElementById('details-id').textContent;
+            const page_link     = document.getElementById('page-link').getAttribute('href');
+
+            Swal.fire({
+                title: 'Confirm Role Deletion',
+                text: 'Are you sure you want to delete this role?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('role_id', role_id);
+
+                    const response = await fetch('./app/Controllers/RoleController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location = page_link;
                     }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Delete role failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#assign-menu-item-permission')){
+            generateDualListBox({
+                url: './app/Controllers/RoleController.php',
+                selectSelector: 'menu_item_id',
+                data: { 
+                    transaction: 'generate role menu item dual listbox options',
+                    role_id: document.getElementById('details-id').textContent
+                }
+            });
+        }
+
+        if (event.target.closest('#assign-menu-item-permission')){
+            generateDualListBox({
+                url: './app/Controllers/RoleController.php',
+                selectSelector: 'menu_item_id',
+                data: { 
+                    transaction: 'generate role menu item dual listbox options',
+                    role_id: document.getElementById('details-id').textContent
+                }
+            });
+        }
+        
+        if (event.target.closest('.update-menu-item-permission')){
+            const transaction           = 'update role menu item permission';
+            const button                = event.target.closest('.update-menu-item-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+            const access_type           = button.dataset.accessType;
+            const access                = button.checked ? '1' : '0';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('role_permission_id', role_permission_id);
+                formData.append('access_type', access_type);
+                formData.append('access', access);
+
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
                 });
-                return false;
-            }
-        });
-    });
 
-    $(document).on('click','#assign-menu-item-permission',function() {
-        generateDualListBox({
-            url: './app/Controllers/RoleController.php',
-            selectSelector: 'menu_item_id',
-            data: { 
-                transaction: 'generate role menu item dual listbox options',
-                role_id: $('#details-id').text()
-            }
-        });
-    });
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
-    $(document).on('click','.update-menu-item-permission',function() {
-        const role_permission_id    = $(this).data('role-permission-id');
-        const access_type           = $(this).data('access-type');
-        const access                = $(this).is(':checked') ? '1' : '0';
-        const transaction           = 'update role menu item permission';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/RoleController.php',
-            dataType: 'json',
-            data: {
-                role_permission_id : role_permission_id,
-                access_type : access_type,
-                access : access,
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
                 }
-                else{
-                    if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                    }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
                 }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Update menu item permission failed: ${error.message}`);
             }
-        });
-    });
+        }
 
-    $(document).on('click','.delete-menu-item-permission',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-        const transaction       = 'delete role menu item permission';
-    
-        Swal.fire({
-            title: 'Confirm Role Permission Deletion',
-            text: 'Are you sure you want to delete this role permission?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/RoleController.php',
-                    dataType: 'json',
-                    data: {
-                        role_permission_id : role_permission_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            reloadDatatable('#menu-item-permission-table');
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
+        if (event.target.closest('.delete-menu-item-permission')){
+            const transaction           = 'delete role menu item permission';
+            const button                = event.target.closest('.delete-menu-item-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+
+            Swal.fire({
+                title: 'Confirm Role Permission Deletion',
+                text: 'Are you sure you want to delete this role permission?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('role_permission_id', role_permission_id);
+
+                    const response = await fetch('./app/Controllers/RoleController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#menu-item-permission-table');
                     }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Delete menu item permission failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('.view-menu-item-permission-log-notes')){
+            const button                = event.target.closest('.view-menu-item-permission-log-notes');
+            const role_permission_id    = button.dataset.rolePermissionId;
+            attachLogNotesClassHandler('role_permission', role_permission_id);
+        }
+
+        if (event.target.closest('#assign-system-action-permission')){
+            generateDualListBox({
+                url: './app/Controllers/RoleController.php',
+                selectSelector: 'system_action_id',
+                data: { 
+                    transaction: 'generate role system action dual listbox options',
+                    role_id: document.getElementById('details-id')?.textContent.trim()
+                }
+            });
+        }        
+
+        if (event.target.closest('.update-system-action-permission')){
+            const transaction           = 'update role system action permission';
+            const button                = event.target.closest('.update-system-action-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+            const access_type           = button.dataset.accessType;
+            const access                = button.checked ? '1' : '0';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('role_permission_id', role_permission_id);
+                formData.append('access_type', access_type);
+                formData.append('access', access);
+
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
                 });
-                return false;
-            }
-        });
-    });
 
-    $(document).on('click','.view-menu-item-permission-log-notes',function() {
-        const role_permission_id = $(this).data('role-permission-id');
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
-        attachLogNotesClassHandler('role_permission', role_permission_id);
-    });
+                const data = await response.json();
 
-    $(document).on('click','#assign-system-action-permission',function() {
-        generateDualListBox({
-            url: './app/Controllers/RoleController.php',
-            selectSelector: 'system_action_id',
-            data: { 
-                transaction: 'generate role system action dual listbox options',
-                role_id: $('#details-id').text()
-            }
-        });
-    });
-
-    $(document).on('click','.update-system-action-permission',function() {
-        const role_permission_id    = $(this).data('role-permission-id');
-        const access_type           = $(this).data('access-type');
-        const access                = $(this).is(':checked') ? '1' : '0';
-        const transaction           = 'update role system action permission';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/RoleController.php',
-            dataType: 'json',
-            data: {
-                role_permission_id : role_permission_id,
-                access_type : access_type,
-                access : access,
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
                 }
-                else{
-                    if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
-                    }
-                    else{
-                        showNotification(response.title, response.message, response.message_type);
-                    }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
                 }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Update system action permission failed: ${error.message}`);
             }
-        });
-    });
+        }        
 
-    $(document).on('click','.delete-system-action-permission',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-        const transaction       = 'delete role system action permission';
-    
-        Swal.fire({
-            title: 'Confirm Role Permission Deletion',
-            text: 'Are you sure you want to delete this role permission?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/RoleController.php',
-                    dataType: 'json',
-                    data: {
-                        role_permission_id : role_permission_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            reloadDatatable('#system-action-permission-table');
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
+        if (event.target.closest('.delete-system-action-permission')){
+            const transaction           = 'delete role system action permission';
+            const button                = event.target.closest('.delete-system-action-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+
+            Swal.fire({
+                title: 'Confirm Role Permission Deletion',
+                text: 'Are you sure you want to delete this role permission?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('role_permission_id', role_permission_id);
+
+                    const response = await fetch('./app/Controllers/RoleController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#system-action-permission-table');
                     }
-                });
-                return false;
-            }
-        });
-    });
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Delete system action permission failed: ${error.message}`);
+                }
+            });
+        }
 
-    $(document).on('click','.view-system-action-permission-log-notes',function() {
-        const role_system_action_permission_id = $(this).data('role-permission-id');
-
-        attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
+        if (event.target.closest('.view-system-action-permission-log-notes')){
+            const button                            = event.target.closest('.view-system-action-permission-log-notes');
+            const role_system_action_permission_id  = button.dataset.rolePermissionId;
+            attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
+        }
     });
 });

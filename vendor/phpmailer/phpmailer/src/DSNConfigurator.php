@@ -147,7 +147,7 @@ class DSNConfigurator
 
         if (isset($config['port'])) {
             $mailer->Port = $config['port'];
-        } elseif ($isSMTPS) {
+        } else if ($isSMTPS) {
             $mailer->Port = SMTP::DEFAULT_SECURE_PORT;
         }
 

@@ -218,7 +218,7 @@ class Security
             if (!mkdir($directory, 0755, true)) {
                 return 'Error creating directory: ' . (error_get_last()['message'] ?? 'Unknown error');
             }
-        } elseif (!is_writable($directory)) {
+        } else if (!is_writable($directory)) {
             return 'Directory exists but is not writable.';
         }
 

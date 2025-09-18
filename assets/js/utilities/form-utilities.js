@@ -44,7 +44,6 @@ export const resetForm = (formId) => {
   form.reset();
 };
 
-
 export const generateDropdownOptions = async ({
   url,
   dropdownSelector,
@@ -82,6 +81,7 @@ export const generateDropdownOptions = async ({
     handleSystemError(error, 'fetch_failed', `Dropdown generation failed: ${error.message}`);
   }
 };
+
 export const generateDualListBox = async ({ url, selectSelector, data = {} }) => {
   try {
     const formData = new URLSearchParams();

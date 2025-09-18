@@ -5,14 +5,55 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#role-permission-table');
+    const displayDetails = async () => {
+        const transaction   = 'fetch menu item details';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
+        const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+
+        try {
+            resetForm('menu_item_form');
+
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('menu_item_id', menu_item_id);
+
+            const response = await fetch('./app/Controllers/MenuItemController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('menu_item_name').value = data.menuItemName;
+                document.getElementById('order_sequence').value = data.orderSequence;
+                document.getElementById('menu_item_url').value = data.menuItemURL;
+
+                $('#app_module_id').val(data.appModuleID).trigger('change');
+                $('#parent_id').val(data.parentID).trigger('change');
+                $('#menu_item_icon').val(data.menuItemIcon).trigger('change');
+                $('#table_name').val(data.tableName).trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
+    };
 
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#parent_id',
         data: { 
             transaction: 'generate menu item options',
-            menu_item_id: $('#details-id').text()
+            menu_item_id: document.getElementById('details-id')?.textContent.trim()
         }
     });
 
@@ -32,55 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const displayDetails = () => {
-        const page_link     = document.getElementById('page-link').getAttribute('href');
-        const transaction   = 'fetch menu item details';
-        const menu_item_id  = $('#details-id').text();
-                
-        $.ajax({
-            url: './app/Controllers/MenuItemController.php',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                menu_item_id : menu_item_id,
-                transaction : transaction
-            },
-            beforeSend: function(){
-                resetForm('menu_item_form');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#menu_item_name').val(response.menuItemName);
-                    $('#order_sequence').val(response.orderSequence);
-                    $('#menu_item_url').val(response.menuItemURL);
-                            
-                    $('#app_module_id').val(response.appModuleID).trigger('change');
-                    $('#parent_id').val(response.parentID).trigger('change');
-                    $('#menu_item_icon').val(response.menuItemIcon).trigger('change');
-                    $('#table_name').val(response.tableName).trigger('change');
-                } 
-                else {
-                    if (response.notExist) {
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link;
-                    }
-                    else {
-                        showNotification(response.title, response.message, response.message_type);
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
-            }
-        });
-    }
-
     initializeDatatable({
         selector: '#role-permission-table',
         ajaxUrl: './app/Controllers/MenuItemController.php',
         transaction: 'generate menu item assigned role table',
         ajaxData: {
-            menu_item_id: $('#details-id').text()
+            menu_item_id: document.getElementById('details-id')?.textContent.trim()
         },
         columns: [
             { data: 'ROLE_NAME' },
@@ -105,11 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
             { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
         ],
         order : [[0, 'asc']]
-    });
+    });    
 
-    displayDetails();
-
+    initializeDatatableControls('#role-permission-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
+    displayDetails();
     
     $('#menu_item_form').validate({
         rules: {
@@ -154,39 +152,44 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const menu_item_id  = $('#details-id').text();
             const transaction   = 'save menu item';
+            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/MenuItemController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + encodeURIComponent(menu_item_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-data');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-data');
-                        displayDetails();
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-data');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-data');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('menu_item_id', menu_item_id);
+
+            disableButton('submit-data');
+
+            try {
+                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save menu item failed with status: ${response.status}`);
                 }
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                    displayDetails();
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                }
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
@@ -213,196 +216,211 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const menu_item_id  = $('#details-id').text();
             const transaction   = 'save menu item role permission';
+            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/MenuItemController.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + encodeURIComponent(menu_item_id),
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-assignment');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification(response.title, response.message, response.message_type);
-                        enableButton('submit-assignment');
-                        reloadDatatable('#role-permission-table');
-                        $('#role-permission-assignment-modal').modal('hide');
-                    }
-                   else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-assignment');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    enableButton('submit-assignment');
-                    handleSystemError(xhr, status, error);
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('menu_item_id', menu_item_id);
+
+            disableButton('submit-assignment');
+
+            try {
+                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save role failed with status: ${response.status}`);
                 }
-            });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-assignment');
+                    reloadDatatable('#role-permission-table');
+                    $('#role-permission-assignment-modal').modal('hide');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-assignment');
+                }
+            } catch (error) {
+                enableButton('submit-assignment');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
 
             return false;
         }
     });
 
-    $(document).on('click','#delete-menu-item',function() {
-        const menu_item_id      = $('#details-id').text();
-        const page_link         = document.getElementById('page-link').getAttribute('href'); 
-        const transaction       = 'delete menu item';
-    
-        Swal.fire({
-            title: 'Confirm Menu Item Deletion',
-            text: 'Are you sure you want to delete this menu item?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#delete-menu-item')){
+            const transaction   = 'delete menu item';
+            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+            const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
+
+            if (!menu_item_id) {
+                showNotification('Error', 'Menu item ID not found', 'error');
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'Confirm Menu Item Deletion',
+                text: 'Are you sure you want to delete this menu item?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            });
+
             if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/MenuItemController.php',
-                    dataType: 'json',
-                    data: {
-                        menu_item_id : menu_item_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location = page_link;
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('menu_item_id', menu_item_id);
+
+                    const response = await fetch('./app/Controllers/MenuItemController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location = page_link;
                     }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','#assign-role-permission',function() {
-        generateDualListBox({
-            url: './app/Controllers/MenuItemController.php',
-            selectSelector: 'role_id',
-            data: { 
-                transaction: 'generate menu item role dual listbox options',
-                menu_item_id: $('#details-id').text()
-            }
-        });
-    });
-
-    $(document).on('click','.update-role-permission',function() {
-        const role_permission_id    = $(this).data('role-permission-id');
-        const access_type           = $(this).data('access-type');
-        const access                = $(this).is(':checked') ? '1' : '0';
-        const transaction           = 'update menu item role permission';
-    
-        $.ajax({
-            type: 'POST',
-            url: './app/Controllers/MenuItemController.php',
-            dataType: 'json',
-            data: {
-                role_permission_id : role_permission_id,
-                access_type : access_type,
-                access : access,
-                transaction : transaction
-            },
-            success: function (response) {
-                if (response.success) {
-                    showNotification(response.title, response.message, response.message_type);
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Failed to delete menu item: ${error.message}`);
                 }
-                else{
-                    if(response.invalid_session){
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location.href = response.redirect_link;
+            }
+        }
+
+        if (event.target.closest('#assign-role-permission')){
+            generateDualListBox({
+                url: './app/Controllers/MenuItemController.php',
+                selectSelector: 'role_id',
+                data: {
+                    transaction: 'generate menu item role dual listbox options',
+                    menu_item_id: document.getElementById('details-id')?.textContent.trim()
+                }
+            });
+        }
+
+        if (event.target.closest('.update-role-permission')){
+            const transaction           = 'update menu item role permission';
+            const button                = event.target.closest('.update-role-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+            const access_type           = button.dataset.accessType;
+            const access                = button.checked ? '1' : '0';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('role_permission_id', role_permission_id);
+                formData.append('access_type', access_type);
+                formData.append('access', access);
+
+                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to update role permission: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('.delete-role-permission')){
+            const transaction           = 'delete menu item role permission';
+            const button                = event.target.closest('.delete-role-permission');
+            const role_permission_id    = button.dataset.rolePermissionId;
+
+            const result = await Swal.fire({
+                title: 'Confirm Role Permission Deletion',
+                text: 'Are you sure you want to delete this role permission?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            });
+
+            if (result.value) {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('role_permission_id', role_permission_id);
+
+                    const response = await fetch('./app/Controllers/MenuItemController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#role-permission-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
                     }
                     else{
-                        showNotification(response.title, response.message, response.message_type);
+                        showNotification(data.title, data.message, data.message_type);
                     }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Failed to delete role permission: ${error.message}`);
                 }
-            },
-            error: function(xhr, status, error) {
-                handleSystemError(xhr, status, error);
             }
-        });
-    });
+        }
 
-    $(document).on('click','.delete-role-permission',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-        const transaction       = 'delete menu item role permission';
-    
-        Swal.fire({
-            title: 'Confirm Role Permission Deletion',
-            text: 'Are you sure you want to delete this role permission?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                confirmButton: 'btn btn-danger mt-2',
-                cancelButton: 'btn btn-secondary ms-2 mt-2'
-            },
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                 $.ajax({
-                    type: 'POST',
-                    url: './app/Controllers/MenuItemController.php',
-                    dataType: 'json',
-                    data: {
-                        role_permission_id : role_permission_id, 
-                        transaction : transaction
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showNotification(response.title, response.message, response.message_type);
-                            reloadDatatable('#role-permission-table');
-                        }
-                        else{
-                            if(response.invalid_session){
-                                setNotification(response.title, response.message, response.message_type);
-                                window.location.href = response.redirect_link;
-                            }
-                            else{
-                                showNotification(response.title, response.message, response.message_type);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        handleSystemError(xhr, status, error);
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','.view-role-permission-log-notes',function() {
-        const role_permission_id = $(this).data('role-permission-id');
-
-        attachLogNotesClassHandler('role_permission', role_permission_id);
+        if (event.target.closest('.view-role-permission-log-notes')){
+            const button                = event.target.closest('.view-role-permission-log-notes');
+            const role_permission_id    = button.dataset.rolePermissionId;
+            attachLogNotesClassHandler('role_permission', role_permission_id);
+        }
     });
 });

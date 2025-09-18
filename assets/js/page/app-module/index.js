@@ -26,20 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-app-module')) return;
 
-        const app_module_id = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-            .filter(el => el.checked)
-            .map(el => el.value);
+        const transaction       = 'delete multiple app module';
+        const app_module_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(el => el.checked)
+                                    .map(el => el.value);
 
         if (app_module_id.length === 0) {
-            showNotification(
-                'Deletion Multiple App Module Error', 
-                'Please select the app modules you wish to delete.', 
-                'error'
-            );
+            showNotification('Deletion Multiple App Module Error', 'Please select the app modules you wish to delete.', 'error');
             return;
         }
-
-        const transaction = 'delete multiple app module';
 
         const result = await Swal.fire({
             title: 'Confirm Multiple App Modules Deletion',
@@ -76,10 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 showNotification(data.title, data.message, data.message_type);
                 reloadDatatable('#app-module-table');
-            } else if (data.invalid_session) {
+            }
+            else if (data.invalid_session) {
                 setNotification(data.title, data.message, data.message_type);
                 window.location.href = data.redirect_link;
-            } else {
+            }
+            else {
                 showNotification(data.title, data.message, data.message_type);
             }
         } catch (error) {

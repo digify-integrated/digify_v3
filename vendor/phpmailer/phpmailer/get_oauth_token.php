@@ -93,7 +93,7 @@ if (array_key_exists('provider', $_POST)) {
     $_SESSION['clientId'] = $clientId;
     $_SESSION['clientSecret'] = $clientSecret;
     $_SESSION['tenantId'] = $tenantId;
-} elseif (array_key_exists('provider', $_SESSION)) {
+} else if (array_key_exists('provider', $_SESSION)) {
     $providerName = $_SESSION['provider'];
     $clientId = $_SESSION['clientId'];
     $clientSecret = $_SESSION['clientSecret'];
@@ -163,7 +163,7 @@ if (!isset($_GET['code'])) {
     header('Location: ' . $authUrl);
     exit;
     //Check given state against previously stored one to mitigate CSRF attack
-} elseif (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
+} else if (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
     unset($_SESSION['oauth2state']);
     unset($_SESSION['provider']);
     exit('Invalid state');

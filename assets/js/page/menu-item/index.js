@@ -4,27 +4,6 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#menu-item-table');
-    initializeExportFeature('menu_item');
-
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#parent_id_filter',
-        data: { 
-            transaction: 'generate menu item options',
-            multiple : true
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/AppModuleController.php',
-        dropdownSelector: '#app_module_filter',
-        data: { 
-            transaction: 'generate app module options',
-            multiple : true
-        }
-    });
-
     const datatableConfig = () => ({
         selector: '#menu-item-table',
         ajaxUrl: './app/Controllers/MenuItemController.php',
@@ -52,79 +31,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    generateDropdownOptions({
+        url: './app/Controllers/MenuItemController.php',
+        dropdownSelector: '#parent_id_filter',
+        data: { 
+            transaction: 'generate menu item options',
+            multiple : true
+        }
+    });
+
+    generateDropdownOptions({
+        url: './app/Controllers/AppModuleController.php',
+        dropdownSelector: '#app_module_filter',
+        data: { 
+            transaction: 'generate app module options',
+            multiple : true
+        }
+    });
+
+    initializeDatatableControls('#menu-item-table');
+    initializeExportFeature('menu_item');
     initializeDatatable(datatableConfig());
 
-    $(document).on('click', '#apply-filter', function() {
-        initializeDatatable(datatableConfig());
-    });
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#apply-filter')) {
+            initializeDatatable(datatableConfig());
+        }
 
-    $(document).on('click', '#reset-filter', function() {
-        $('#app_module_filter').val(null).trigger('change');
-        $('#parent_id_filter').val(null).trigger('change');
+        if (event.target.closest('#reset-filter')) {
+            $('#parent_id_filter').val(null).trigger('change');
+            $('#app_module_filter').val(null).trigger('change');
 
-        initializeDatatable(datatableConfig());
-    });
+            initializeDatatable(datatableConfig());
+        }
 
-    $(document).on('click','#delete-menu-item',function() {
-        let menu_item_id = [];
-        const transaction = 'delete multiple menu item';
+        if (event.target.closest('#delete-menu-item')){
+            const transaction       = 'delete multiple menu item';
+            const menu_item_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                        .filter(checkbox => checkbox.checked)
+                                        .map(checkbox => checkbox.value);
 
-        $('.datatable-checkbox-children').each((index, element) => {
-            if ($(element).is(':checked')) {
-                menu_item_id.push(element.value);
+            if (menu_item_id.length === 0) {
+                showNotification('Deletion Multiple Menu Items Error', 'Please select the menu items you wish to delete.', 'error');
+                return;
             }
-        });
-    
-        if(menu_item_id.length > 0){
-            Swal.fire({
+
+            const result = await Swal.fire({
                 title: 'Confirm Multiple Menu Items Deletion',
                 text: 'Are you sure you want to delete these menu items?',
                 icon: 'warning',
-                showCancelButton: !0,
+                showCancelButton: true,
                 confirmButtonText: 'Delete',
                 cancelButtonText: 'Cancel',
                 customClass: {
                     confirmButton: 'btn btn-danger',
                     cancelButton: 'btn btn-secondary'
                 },
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: './app/Controllers/MenuItemController.php',
-                        dataType: 'json',
-                        data: {
-                            menu_item_id: menu_item_id,
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification(response.title, response.message, response.message_type);
-                                reloadDatatable('#menu-item-table');
-                            }
-                            else{
-                                if(response.invalid_session){
-                                    setNotification(response.title, response.message, response.message_type);
-                                    window.location.href = response.redirect_link;
-                                }
-                                else{
-                                    showNotification(response.title, response.message, response.message_type);
-                                }
-                            
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            handleSystemError(xhr, status, error);
-                        }
-                    });
-                        
-                    return false;
-                }
+                buttonsStyling: false
             });
-        }
-        else{
-            showNotification('Deletion Multiple Menu Item Error', 'Please select the menu items you wish to delete.', 'error');
+
+            if (!result.value) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                menu_item_id.forEach(id => formData.append('menu_item_id[]', id));
+
+                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    reloadDatatable('#menu-item-table');
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to delete menu items: ${error.message}`);
+            }
         }
     });
 });

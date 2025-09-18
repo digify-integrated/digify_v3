@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 required: 'Enter the display name'
             },
             role_description: {
-                required: 'Ether the description'
+                required: 'Enter the description'
             }
         },
         errorPlacement: (error, element) => {
@@ -40,38 +40,40 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const page_link     = document.getElementById('page-link').getAttribute('href');
             const transaction   = 'save role';
+            const page_link     = document.getElementById('page-link').getAttribute('href');
 
-            $.ajax({
-                type: 'POST',
-                url: './app/Controllers/RoleController.php',
-                data: $(form).serialize() + '&transaction=' + transaction,
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableButton('submit-data');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        setNotification(response.title, response.message, response.message_type);
-                        window.location = page_link + '&id=' + response.role_id;
-                    }
-                    else{
-                        if(response.invalid_session){
-                            setNotification(response.title, response.message, response.message_type);
-                            window.location.href = response.redirect_link;
-                        }
-                        else{
-                            showNotification(response.title, response.message, response.message_type);
-                            enableButton('submit-data');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
+            const formData = new FormData(form);
+            formData.append('transaction', transaction);
+
+            disableButton('submit-data');
+
+            try {
+                const response = await fetch('./app/Controllers/RoleController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location = `${page_link}&id=${data.role_id}`;
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                } 
+                else {
+                    showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    handleSystemError(xhr, status, error);
                 }
-            });
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Save role failed: ${error.message}`);
+            }
 
             return false;
         }
