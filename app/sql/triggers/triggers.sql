@@ -1144,6 +1144,639 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: BLOOD TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_blood_type_update//
+
+CREATE TRIGGER trg_blood_type_update
+AFTER UPDATE ON blood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Blood type changed.<br/><br/>';
+
+    IF NEW.blood_type_name <> OLD.blood_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Blood Type Name: ", OLD.blood_type_name, " -> ", NEW.blood_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Blood type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_blood_type_insert//
+
+CREATE TRIGGER trg_blood_type_insert
+AFTER INSERT ON blood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Blood type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CIVIL STATUS
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_civil_status_update//
+
+CREATE TRIGGER trg_civil_status_update
+AFTER UPDATE ON civil_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Civil status changed.<br/><br/>';
+
+    IF NEW.civil_status_name <> OLD.civil_status_name THEN
+        SET audit_log = CONCAT(audit_log, "Civil Status Name: ", OLD.civil_status_name, " -> ", NEW.civil_status_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Civil status changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_civil_status_insert//
+
+CREATE TRIGGER trg_civil_status_insert
+AFTER INSERT ON civil_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Civil status created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CREDENTIAL TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_credential_type_update//
+
+CREATE TRIGGER trg_credential_type_update
+AFTER UPDATE ON credential_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Credential type changed.<br/><br/>';
+
+    IF NEW.credential_type_name <> OLD.credential_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Credential Type Name: ", OLD.credential_type_name, " -> ", NEW.credential_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Credential type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('credential_type', NEW.credential_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_credential_type_insert//
+
+CREATE TRIGGER trg_credential_type_insert
+AFTER INSERT ON credential_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Credential type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('credential_type', NEW.credential_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: EDUCATIONAL STAGE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_educational_stage_update//
+
+CREATE TRIGGER trg_educational_stage_update
+AFTER UPDATE ON educational_stage
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Educational stage changed.<br/><br/>';
+
+    IF NEW.educational_stage_name <> OLD.educational_stage_name THEN
+        SET audit_log = CONCAT(audit_log, "Educational Stage Name: ", OLD.educational_stage_name, " -> ", NEW.educational_stage_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Educational stage changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('educational_stage', NEW.educational_stage_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_educational_stage_insert//
+
+CREATE TRIGGER trg_educational_stage_insert
+AFTER INSERT ON educational_stage
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Educational stage created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('educational_stage', NEW.educational_stage_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: GENDER
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_gender_update//
+
+CREATE TRIGGER trg_gender_update
+AFTER UPDATE ON gender
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Gender changed.<br/><br/>';
+
+    IF NEW.gender_name <> OLD.gender_name THEN
+        SET audit_log = CONCAT(audit_log, "Gender Name: ", OLD.gender_name, " -> ", NEW.gender_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Gender changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_gender_insert//
+
+CREATE TRIGGER trg_gender_insert
+AFTER INSERT ON gender
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Gender created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: RELATIONSHIP
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_relationship_update//
+
+CREATE TRIGGER trg_relationship_update
+AFTER UPDATE ON relationship
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Relationship changed.<br/><br/>';
+
+    IF NEW.relationship_name <> OLD.relationship_name THEN
+        SET audit_log = CONCAT(audit_log, "Relationship Name: ", OLD.relationship_name, " -> ", NEW.relationship_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Relationship changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('relationship', NEW.relationship_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_relationship_insert//
+
+CREATE TRIGGER trg_relationship_insert
+AFTER INSERT ON relationship
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Relationship created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('relationship', NEW.relationship_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: RELIGION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_religion_update//
+
+CREATE TRIGGER trg_religion_update
+AFTER UPDATE ON religion
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Religion changed.<br/><br/>';
+
+    IF NEW.religion_name <> OLD.religion_name THEN
+        SET audit_log = CONCAT(audit_log, "Religion Name: ", OLD.religion_name, " -> ", NEW.religion_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Religion changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_religion_insert//
+
+CREATE TRIGGER trg_religion_insert
+AFTER INSERT ON religion
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Religion created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: LANGUAGE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_language_update//
+
+CREATE TRIGGER trg_language_update
+AFTER UPDATE ON language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language changed.<br/><br/>';
+
+    IF NEW.language_name <> OLD.language_name THEN
+        SET audit_log = CONCAT(audit_log, "Language Name: ", OLD.language_name, " -> ", NEW.language_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Language changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('language', NEW.language_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_language_insert//
+
+CREATE TRIGGER trg_language_insert
+AFTER INSERT ON language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('language', NEW.language_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: LANGUAGE PROFICIENCY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_language_proficiency_update//
+
+CREATE TRIGGER trg_language_proficiency_update
+AFTER UPDATE ON language_proficiency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language proficiency changed.<br/><br/>';
+
+    IF NEW.language_proficiency_name <> OLD.language_proficiency_name THEN
+        SET audit_log = CONCAT(audit_log, "Language Proficiency Name: ", OLD.language_proficiency_name, " -> ", NEW.language_proficiency_name, "<br/>");
+    END IF;
+
+    IF NEW.language_proficiency_description <> OLD.language_proficiency_description THEN
+        SET audit_log = CONCAT(audit_log, "Language Proficiency Description: ", OLD.language_proficiency_description, " -> ", NEW.language_proficiency_description, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Language proficiency changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('language_proficiency', NEW.language_proficiency_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_language_proficiency_insert//
+
+CREATE TRIGGER trg_language_proficiency_insert
+AFTER INSERT ON language_proficiency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language proficiency created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('language_proficiency', NEW.language_proficiency_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: ADDRESS TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_address_type_update//
+
+CREATE TRIGGER trg_address_type_update
+AFTER UPDATE ON address_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Address type changed.<br/><br/>';
+
+    IF NEW.address_type_name <> OLD.address_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Address Type Name: ", OLD.address_type_name, " -> ", NEW.address_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Address type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('address_type', NEW.address_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_address_type_insert//
+
+CREATE TRIGGER trg_address_type_insert
+AFTER INSERT ON address_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Address type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('address_type', NEW.address_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CONTACT INFORMATION TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_contact_information_type_update//
+
+CREATE TRIGGER trg_contact_information_type_update
+AFTER UPDATE ON contact_information_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact information type changed.<br/><br/>';
+
+    IF NEW.contact_information_type_name <> OLD.contact_information_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Contact Information Type Name: ", OLD.contact_information_type_name, " -> ", NEW.contact_information_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Contact information type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_information_type', NEW.contact_information_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_contact_information_type_insert//
+
+CREATE TRIGGER trg_contact_information_type_insert
+AFTER INSERT ON contact_information_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact information type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_information_type', NEW.contact_information_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: BANK
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_bank_update//
+
+CREATE TRIGGER trg_bank_update
+AFTER UPDATE ON bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank changed.<br/><br/>';
+
+    IF NEW.bank_name <> OLD.bank_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Name: ", OLD.bank_name, " -> ", NEW.bank_name, "<br/>");
+    END IF;
+
+    IF NEW.bank_identifier_code <> OLD.bank_identifier_code THEN
+        SET audit_log = CONCAT(audit_log, "Bank Identifier Code: ", OLD.bank_identifier_code, " -> ", NEW.bank_identifier_code, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Bank changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_bank_insert//
+
+CREATE TRIGGER trg_bank_insert
+AFTER INSERT ON bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: BANK ACCOUNT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_bank_account_type_update//
+
+CREATE TRIGGER trg_bank_account_type_update
+AFTER UPDATE ON bank_account_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank account type changed.<br/><br/>';
+
+    IF NEW.bank_account_type_name <> OLD.bank_account_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Account Type Name: ", OLD.bank_account_type_name, " -> ", NEW.bank_account_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Bank account type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_bank_account_type_insert//
+
+CREATE TRIGGER trg_bank_account_type_insert
+AFTER INSERT ON bank_account_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank account type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: 
 ============================================================================================= */
 
@@ -1158,5 +1791,3 @@ END //
 /* =============================================================================================
    END OF TRIGGERS
 ============================================================================================= */
-
-
