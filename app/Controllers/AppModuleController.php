@@ -295,7 +295,7 @@ class AppModuleController
             $appModuleId            = $row['app_module_id'];
             $appModuleName          = $row['app_module_name'];
             $appModuleDescription   = $row['app_module_description'];
-            $appLogo                = $this->systemHelper->checkImageExist(str_replace('../', './apps/', $row['app_logo'])  ?? null, 'app module logo');
+            $appLogo                = $this->systemHelper->checkImageExist($row['app_logo'] ?? null, 'app module logo');
             $appModuleIdEncrypted   = $this->security->encryptData($appModuleId);
 
             $response[] = [

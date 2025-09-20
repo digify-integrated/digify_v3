@@ -13,17 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'MENU_ITEM_NAME' },
-            { data: 'APP_MODULE_NAME' },
-            { data: 'PARENT_NAME' },
-            { data: 'ORDER_SEQUENCE' }
+            { data: 'CITY_NAME' },
+            { data: 'STATE_NAME' },
+            { data: 'COUNTRY_NAME' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
             { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', targets: 3, responsivePriority: 4 },
-            { width: 'auto', targets: 4, responsivePriority: 5 }
+            { width: 'auto', targets: 3, responsivePriority: 4 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');

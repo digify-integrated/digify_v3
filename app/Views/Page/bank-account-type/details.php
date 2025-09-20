@@ -26,7 +26,8 @@
         ?>
     </div>
     <div class="card-body">
-        <form id="bank-account-type-form" method="post" action="#">
+        <form id="bank_account_type_form" method="post" action="#">
+            <?= $security->csrfInput('bank_account_type_form'); ?>
             <div class="fv-row mb-4">
                 <label class="fs-6 fw-semibold form-label mt-3" for="bank_account_type_name">
                     <span class="required">Display Name</span>
@@ -40,7 +41,7 @@
     <?php
         echo ($permissions['write'] > 0) ? ' <div class="card-footer d-flex justify-content-end py-6 px-9">
                                                 <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-                                                <button type="submit" form="bank-account-type-form" class="btn btn-primary" id="submit-data">Save</button>
+                                                <button type="submit" form="bank_account_type_form" class="btn btn-primary" id="submit-data">Save</button>
                                             </div>' : '';
     ?>
 </div>

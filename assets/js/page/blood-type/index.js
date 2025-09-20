@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transaction: 'generate blood type table',
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'APP_MODULE_NAME' }
+            { data: 'BLOOD_TYPE_NAME' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
