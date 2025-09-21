@@ -6,11 +6,13 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
         selector: '#company-table',
-        ajaxUrl: './app/Controllers/MenuItemController.php',
-        transaction: 'generate menu item table',
+        ajaxUrl: './app/Controllers/CompanyController.php',
+        transaction: 'generate company table',
         ajaxData: {
-            app_module_filter: $('#app_module_filter').val(),
-            parent_id_filter: $('#parent_id_filter').val()
+            city_filter: $('#city_filter').val(),
+            state_filter: $('#state_filter').val(),
+            country_filter: $('#country_filter').val(),
+            currency_filter: $('#currency_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -26,25 +28,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#parent_id_filter',
+        url: './app/Controllers/CityController.php',
+        dropdownSelector: '#city_filter',
         data: { 
-            transaction: 'generate menu item options',
+            transaction: 'generate filter city options',
             multiple : true
         }
     });
 
     generateDropdownOptions({
-        url: './app/Controllers/AppModuleController.php',
-        dropdownSelector: '#app_module_filter',
+        url: './app/Controllers/StateController.php',
+        dropdownSelector: '#state_filter',
         data: { 
-            transaction: 'generate app module options',
+            transaction: 'generate state options',
+            multiple : true
+        }
+    });
+
+    generateDropdownOptions({
+        url: './app/Controllers/CountryController.php',
+        dropdownSelector: '#country_filter',
+        data: { 
+            transaction: 'generate country options',
+            multiple : true
+        }
+    });
+
+    generateDropdownOptions({
+        url: './app/Controllers/CurrencyController.php',
+        dropdownSelector: '#currency_filter',
+        data: { 
+            transaction: 'generate currency options',
             multiple : true
         }
     });
 
     initializeDatatableControls('#company-table');
-    initializeExportFeature('menu_item');
+    initializeExportFeature('company');
     initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
@@ -53,26 +73,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#parent_id_filter').val(null).trigger('change');
-            $('#app_module_filter').val(null).trigger('change');
+            $('#city_filter').val(null).trigger('change');
+            $('#state_filter').val(null).trigger('change');
+            $('#company_filter').val(null).trigger('change');
+            $('#currency_filter').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
         if (event.target.closest('#delete-company')){
-            const transaction       = 'delete multiple menu item';
-            const menu_item_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(checkbox => checkbox.checked)
-                                        .map(checkbox => checkbox.value);
+            const transaction   = 'delete multiple company';
+            const company_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
 
-            if (menu_item_id.length === 0) {
-                showNotification('Deletion Multiple Menu Items Error', 'Please select the menu items you wish to delete.', 'error');
+            if (company_id.length === 0) {
+                showNotification('Deletion Multiple Companies Error', 'Please select the companies you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple Menu Items Deletion',
-                text: 'Are you sure you want to delete these menu items?',
+                title: 'Confirm Multiple Companies Deletion',
+                text: 'Are you sure you want to delete these companies?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -89,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                menu_item_id.forEach(id => formData.append('menu_item_id[]', id));
+                company_id.forEach(id => formData.append('company_id[]', id));
 
-                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                const response = await fetch('./app/Controllers/CompanyController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -112,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to delete menu items: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete companies: ${error.message}`);
             }
         }
     });

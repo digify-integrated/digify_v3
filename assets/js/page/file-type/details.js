@@ -5,18 +5,18 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch educational stage details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction   = 'fetch file type details';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const file_type_id  = document.getElementById('details-id')?.textContent.trim();
 
         try {
-            resetForm('educational_stage_form');
+            resetForm('file_type_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('educational_stage_id', educational_stage_id);
+            formData.append('file_type_id', file_type_id);
 
-            const response = await fetch('./app/Controllers/EducationalStageController.php', {
+            const response = await fetch('./app/Controllers/FileTypeController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('educational_stage_name').value = data.educationalStageName || '';
+                document.getElementById('file_type_name').value = data.fileTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -42,17 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'educational_stage');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'file_type');
     displayDetails();
 
-    $('#educational_stage_form').validate({
+    $('#file_type_form').validate({
         rules: {
-            educational_stage_name: {
+            file_type_name: {
                 required: true
             }
         },
         messages: {
-            educational_stage_name: {
+            file_type_name: {
                 required: 'Enter the display name'
             }
         },
@@ -76,23 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save educational stage';
-            const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction       = 'save file type';
+            const file_type_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('educational_stage_id', educational_stage_id);
+            formData.append('file_type_id', file_type_id);
 
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/EducationalStageController.php', {
+                const response = await fetch('./app/Controllers/FileTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save educational stage failed with status: ${response.status}`);
+                    throw new Error(`Save file type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -120,15 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-educational-stage')) return;
+        if (!event.target.closest('#delete-file-type')) return;
 
-        const transaction   = 'delete educational stage';
-        const educational_stage_id    = document.getElementById('details-id')?.textContent.trim();
+        const transaction   = 'delete file type';
+        const file_type_id  = document.getElementById('details-id')?.textContent.trim();
         const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
-            title: 'Confirm Educational Stage Deletion',
-            text: 'Are you sure you want to delete this educational stage?',
+            title: 'Confirm File Type Deletion',
+            text: 'Are you sure you want to delete this file type?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -144,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('educational_stage_id', educational_stage_id);
+                formData.append('file_type_id', file_type_id);
 
-                const response = await fetch('./app/Controllers/EducationalStageController.php', {
+                const response = await fetch('./app/Controllers/FileTypeController.php', {
                     method: 'POST',
                     body: formData
                 });

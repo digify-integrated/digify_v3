@@ -4,27 +4,27 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Models\BloodType;
+use App\Models\Religion;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BloodTypeController
+class ReligionController
 {
-    protected BloodType $bloodType;
+    protected Religion $religion;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
-        BloodType $bloodType,
+        Religion $religion,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->bloodType        = $bloodType;
+        $this->religion         = $religion;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -70,12 +70,12 @@ class BloodTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save blood type'               => $this->saveBloodType($lastLogBy),
-            'delete blood type'             => $this->deleteBloodType(),
-            'delete multiple blood type'    => $this->deleteMultipleBloodType(),
-            'fetch blood type details'      => $this->fetchBloodTypeDetails(),
-            'generate blood type table'     => $this->generateBloodTypeTable(),
-            'generate blood type options'   => $this->generateBloodTypeOptions(),
+            'save religion'                 => $this->saveReligion($lastLogBy),
+            'delete religion'               => $this->deleteReligion(),
+            'delete multiple religion'      => $this->deleteMultipleReligion(),
+            'fetch religion details'        => $this->fetchReligionDetails(),
+            'generate religion table'       => $this->generateReligionTable(),
+            'generate religion options'     => $this->generateReligionOptions(),
             default                         => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -83,102 +83,102 @@ class BloodTypeController
         };
     }
 
-    public function saveBloodType($lastLogBy){
+    public function saveReligion($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'blood_type_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'religion_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
                 'Security check failed. Please refresh and try again.'
             );
         }
 
-        $bloodTypeId      = $_POST['blood_type_id'] ?? null;
-        $bloodTypeName    = $_POST['blood_type_name'] ?? null;
+        $religionId      = $_POST['religion_id'] ?? null;
+        $religionName    = $_POST['religion_name'] ?? null;
 
-        $bloodTypeId              = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
-        $encryptedBloodTypeId     = $this->security->encryptData($bloodTypeId);
+        $religionId           = $this->religion->saveReligion($religionId, $religionName, $lastLogBy);
+        $encryptedReligionId  = $this->security->encryptData($religionId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save Blood Type Success',
-            'The blood type has been saved successfully.',
-            ['blood_type_id' => $encryptedBloodTypeId]
+            'Save Religion Success',
+            'The religion has been saved successfully.',
+            ['religion_id' => $encryptedReligionId]
         );
     }
 
-    public function deleteBloodType(){
-        $bloodTypeId = $_POST['blood_type_id'] ?? null;
+    public function deleteReligion(){
+        $religionId = $_POST['religion_id'] ?? null;
 
-        $this->bloodType->deleteBloodType($bloodTypeId);
+        $this->religion->deleteReligion($religionId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Blood Type Success',
-            'The blood type has been deleted successfully.'
+            'Delete Religion Success',
+            'The religion has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleBloodType(){
-        $bloodTypeIds  = $_POST['blood_type_id'] ?? null;
+    public function deleteMultipleReligion(){
+        $religionIds  = $_POST['religion_id'] ?? null;
 
-        foreach($bloodTypeIds as $bloodTypeId){
-            $this->bloodType->deleteBloodType($bloodTypeId);
+        foreach($religionIds as $religionId){
+            $this->religion->deleteReligion($religionId);
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Blood Types Success',
-            'The selected blood types have been deleted successfully.'
+            'Delete Multiple Religions Success',
+            'The selected religions have been deleted successfully.'
         );
     }
 
-    public function fetchBloodTypeDetails(){
-        $bloodTypeId           = $_POST['blood_type_id'] ?? null;
-        $checkBloodTypeExist   = $this->bloodType->checkBloodTypeExist($bloodTypeId);
-        $total                 = $checkBloodTypeExist['total'] ?? 0;
+    public function fetchReligionDetails(){
+        $religionId             = $_POST['religion_id'] ?? null;
+        $checkReligionyExist    = $this->religion->checkReligionExist($religionId);
+        $total                  = $checkReligionyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
-                'Get Blood Type Details',
-                'The blood type does not exist'
+                'Get Religion Details',
+                'The religion does not exist'
             );
         }
 
-        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
+        $religionDetails   = $this->religion->fetchReligion($religionId);
 
         $response = [
-            'success'           => true,
-            'bloodTypeName'     => $bloodTypeDetails['blood_type_name'] ?? null
+            'success'       => true,
+            'religionName'  => $religionDetails['religion_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateBloodTypeTable()
+    public function generateReligionTable()
     {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bloodType->generateBloodTypeTable();
+        $countries = $this->religion->generateReligionTable();
 
         foreach ($countries as $row) {
-            $bloodTypeId      = $row['blood_type_id'];
-            $bloodTypeName    = $row['blood_type_name'];
+            $religionId      = $row['religion_id'];
+            $religionName    = $row['religion_name'];
 
-            $bloodTypeIdEncrypted = $this->security->encryptData($bloodTypeId);
+            $religionIdEncrypted = $this->security->encryptData($religionId);
 
             $response[] = [
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $bloodTypeId .'">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $religionId .'">
                                         </div>',
-                'BLOOD_TYPE_NAME'   => $bloodTypeName,
-                'LINK'              => $pageLink .'&id='. $bloodTypeIdEncrypted
+                'RELIGION_NAME'     => $religionName,
+                'LINK'              => $pageLink .'&id='. $religionIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateBloodTypeOptions()
+    public function generateReligionOptions()
     {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
@@ -190,12 +190,12 @@ class BloodTypeController
             ];
         }
 
-        $countries = $this->bloodType->generateBloodTypeOptions();
+        $countries = $this->religion->generateReligionOptions();
 
         foreach ($countries as $row) {
             $response[] = [
-                'id'    => $row['blood_type_id'],
-                'text'  => $row['blood_type_name']
+                'id'    => $row['religion_id'],
+                'text'  => $row['religion_name']
             ];
         }
 
@@ -204,8 +204,8 @@ class BloodTypeController
 }
 
 # Bootstrap the controller
-$controller = new BloodTypeController(
-    new BloodType(),
+$controller = new ReligionController(
+    new Religion(),
     new Authentication(),
     new Security(),
     new SystemHelper()

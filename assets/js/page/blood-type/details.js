@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('blood_type_name').value = data.appModuleName || '';
+                document.getElementById('blood_type_name').value = data.bloodTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

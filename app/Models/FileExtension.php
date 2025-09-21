@@ -35,7 +35,7 @@ class FileExtension extends Model {
             'p_last_log_by'             => $p_last_log_by
         ]);
 
-        return $row['new_app_module_id'] ?? null;
+        return $row['new_file_extension_id'] ?? null;
     }
     
     /* =============================================================================================
@@ -98,10 +98,16 @@ class FileExtension extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-    public function generateFileExtensionTable() {
-        $sql = 'CALL generateFileExtensionTable()';
+     public function generateFileExtensionTable(
+        $p_filter_by_file_type
+    ) {
+        $sql = 'CALL generateFileExtensionTable(
+            :p_filter_by_file_type
+        )';
         
-        return $this->fetchAll($sql);
+        return $this->fetchAll($sql, [
+            'p_filter_by_file_type' => $p_filter_by_file_type
+        ]);
     }
 
     public function generateFileExtensionOptions() {

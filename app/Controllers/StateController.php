@@ -74,16 +74,16 @@ class StateController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save state'               => $this->saveState($lastLogBy),
-            'delete state'             => $this->deleteState(),
-            'delete multiple state'    => $this->deleteMultipleState(),
-            'fetch state details'      => $this->fetchStateDetails(),
-            'generate state table'     => $this->generateStateTable(),
-            'generate state options'   => $this->generateStateOptions(),
-            default                      => $this->systemHelper::sendErrorResponse(
-                                                    'Transaction Failed',
-                                                    'We encountered an issue while processing your request.'
-                                                )
+            'save state'                => $this->saveState($lastLogBy),
+            'delete state'              => $this->deleteState(),
+            'delete multiple state'     => $this->deleteMultipleState(),
+            'fetch state details'       => $this->fetchStateDetails(),
+            'generate state table'      => $this->generateStateTable(),
+            'generate state options'    => $this->generateStateOptions(),
+            default                     => $this->systemHelper::sendErrorResponse(
+                                                'Transaction Failed',
+                                                'We encountered an issue while processing your request.'
+                                            )
         };
     }
 
@@ -139,8 +139,8 @@ class StateController
     }
 
     public function fetchStateDetails(){
-        $stateId          = $_POST['state_id'] ?? null;
-        $checkStateExist  = $this->state->checkStateExist($stateId);
+        $stateId            = $_POST['state_id'] ?? null;
+        $checkStateExist    = $this->state->checkStateExist($stateId);
         $total              = $checkStateExist['total'] ?? 0;
 
         if($total === 0){
@@ -154,8 +154,8 @@ class StateController
 
         $response = [
             'success'       => true,
-            'stateName'   => $stateDetails['state_name'] ?? null,
-            'countryId'   => $stateDetails['country_id'] ?? null
+            'stateName'     => $stateDetails['state_name'] ?? null,
+            'countryID'     => $stateDetails['country_id'] ?? null
         ];
 
         echo json_encode($response);

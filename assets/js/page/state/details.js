@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('state_name').value = data.appModuleName || '';
+                document.getElementById('state_name').value = data.stateName || '';
 
-                $('#country_id').val(data.menuItemID).trigger('change');
+                $('#country_id').val(data.countryID).trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

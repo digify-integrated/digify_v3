@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('credential_type_name').value = data.appModuleName || '';
+                document.getElementById('credential_type_name').value = data.credentialTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

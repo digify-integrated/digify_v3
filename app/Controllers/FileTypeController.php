@@ -4,27 +4,27 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Models\BloodType;
+use App\Models\FileType;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BloodTypeController
+class FileTypeController
 {
-    protected BloodType $bloodType;
+    protected FileType $fileType;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
-        BloodType $bloodType,
+        FileType $fileType,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->bloodType        = $bloodType;
+        $this->fileType         = $fileType;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -70,115 +70,115 @@ class BloodTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save blood type'               => $this->saveBloodType($lastLogBy),
-            'delete blood type'             => $this->deleteBloodType(),
-            'delete multiple blood type'    => $this->deleteMultipleBloodType(),
-            'fetch blood type details'      => $this->fetchBloodTypeDetails(),
-            'generate blood type table'     => $this->generateBloodTypeTable(),
-            'generate blood type options'   => $this->generateBloodTypeOptions(),
-            default                         => $this->systemHelper::sendErrorResponse(
+            'save file type'               => $this->saveFileType($lastLogBy),
+            'delete file type'             => $this->deleteFileType(),
+            'delete multiple file type'    => $this->deleteMultipleFileType(),
+            'fetch file type details'      => $this->fetchFileTypeDetails(),
+            'generate file type table'     => $this->generateFileTypeTable(),
+            'generate file type options'   => $this->generateFileTypeOptions(),
+            default                        => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
                                                 )
         };
     }
 
-    public function saveBloodType($lastLogBy){
+    public function saveFileType($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'blood_type_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'file_type_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
                 'Security check failed. Please refresh and try again.'
             );
         }
 
-        $bloodTypeId      = $_POST['blood_type_id'] ?? null;
-        $bloodTypeName    = $_POST['blood_type_name'] ?? null;
+        $fileTypeId      = $_POST['file_type_id'] ?? null;
+        $fileTypeName    = $_POST['file_type_name'] ?? null;
 
-        $bloodTypeId              = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
-        $encryptedBloodTypeId     = $this->security->encryptData($bloodTypeId);
+        $fileTypeId              = $this->fileType->saveFileType($fileTypeId, $fileTypeName, $lastLogBy);
+        $encryptedFileTypeId     = $this->security->encryptData($fileTypeId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save Blood Type Success',
-            'The blood type has been saved successfully.',
-            ['blood_type_id' => $encryptedBloodTypeId]
+            'Save File Type Success',
+            'The file type has been saved successfully.',
+            ['file_type_id' => $encryptedFileTypeId]
         );
     }
 
-    public function deleteBloodType(){
-        $bloodTypeId = $_POST['blood_type_id'] ?? null;
+    public function deleteFileType(){
+        $fileTypeId = $_POST['file_type_id'] ?? null;
 
-        $this->bloodType->deleteBloodType($bloodTypeId);
+        $this->fileType->deleteFileType($fileTypeId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Blood Type Success',
-            'The blood type has been deleted successfully.'
+            'Delete File Type Success',
+            'The file type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleBloodType(){
-        $bloodTypeIds  = $_POST['blood_type_id'] ?? null;
+    public function deleteMultipleFileType(){
+        $fileTypeIds  = $_POST['file_type_id'] ?? null;
 
-        foreach($bloodTypeIds as $bloodTypeId){
-            $this->bloodType->deleteBloodType($bloodTypeId);
+        foreach($fileTypeIds as $fileTypeId){
+            $this->fileType->deleteFileType($fileTypeId);
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Blood Types Success',
-            'The selected blood types have been deleted successfully.'
+            'Delete Multiple File Types Success',
+            'The selected file types have been deleted successfully.'
         );
     }
 
-    public function fetchBloodTypeDetails(){
-        $bloodTypeId           = $_POST['blood_type_id'] ?? null;
-        $checkBloodTypeExist   = $this->bloodType->checkBloodTypeExist($bloodTypeId);
-        $total                 = $checkBloodTypeExist['total'] ?? 0;
+    public function fetchFileTypeDetails(){
+        $fileTypeId           = $_POST['file_type_id'] ?? null;
+        $checkFileTypeExist   = $this->fileType->checkFileTypeExist($fileTypeId);
+        $total                = $checkFileTypeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
-                'Get Blood Type Details',
-                'The blood type does not exist'
+                'Get File Type Details',
+                'The file type does not exist'
             );
         }
 
-        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
+        $fileTypeDetails   = $this->fileType->fetchFileType($fileTypeId);
 
         $response = [
             'success'           => true,
-            'bloodTypeName'     => $bloodTypeDetails['blood_type_name'] ?? null
+            'fileTypeName'     => $fileTypeDetails['file_type_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateBloodTypeTable()
+    public function generateFileTypeTable()
     {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bloodType->generateBloodTypeTable();
+        $countries = $this->fileType->generateFileTypeTable();
 
         foreach ($countries as $row) {
-            $bloodTypeId      = $row['blood_type_id'];
-            $bloodTypeName    = $row['blood_type_name'];
+            $fileTypeId      = $row['file_type_id'];
+            $fileTypeName    = $row['file_type_name'];
 
-            $bloodTypeIdEncrypted = $this->security->encryptData($bloodTypeId);
+            $fileTypeIdEncrypted = $this->security->encryptData($fileTypeId);
 
             $response[] = [
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $bloodTypeId .'">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $fileTypeId .'">
                                         </div>',
-                'BLOOD_TYPE_NAME'   => $bloodTypeName,
-                'LINK'              => $pageLink .'&id='. $bloodTypeIdEncrypted
+                'FILE_TYPE_NAME'   => $fileTypeName,
+                'LINK'              => $pageLink .'&id='. $fileTypeIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateBloodTypeOptions()
+    public function generateFileTypeOptions()
     {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
@@ -190,12 +190,12 @@ class BloodTypeController
             ];
         }
 
-        $countries = $this->bloodType->generateBloodTypeOptions();
+        $countries = $this->fileType->generateFileTypeOptions();
 
         foreach ($countries as $row) {
             $response[] = [
-                'id'    => $row['blood_type_id'],
-                'text'  => $row['blood_type_name']
+                'id'    => $row['file_type_id'],
+                'text'  => $row['file_type_name']
             ];
         }
 
@@ -204,8 +204,8 @@ class BloodTypeController
 }
 
 # Bootstrap the controller
-$controller = new BloodTypeController(
-    new BloodType(),
+$controller = new FileTypeController(
+    new FileType(),
     new Authentication(),
     new Security(),
     new SystemHelper()

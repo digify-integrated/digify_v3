@@ -80,7 +80,7 @@ class CityController
             'fetch city details'            => $this->fetchCityDetails(),
             'generate city table'           => $this->generateCityTable(),
             'generate city options'         => $this->generateCityOptions(false),
-            'generate filter city options'  => $this->generateCityOptions(false),
+            'generate filter city options'  => $this->generateCityOptions(true),
             default                         => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -103,7 +103,7 @@ class CityController
         $stateId    = $_POST['state_id'] ?? null;
 
         $stateDetails       = $this->state->fetchState($stateId);
-        $stateName          = $stateDetails['states_name'] ?? '';
+        $stateName          = $stateDetails['state_name'] ?? '';
         $countryId          = $stateDetails['country_id'] ?? '';
         $countryName        = $stateDetails['country_name'] ?? '';
 
@@ -158,7 +158,7 @@ class CityController
         $response = [
             'success'   => true,
             'cityName'  => $cityDetails['city_name'] ?? null,
-            'stateId'   => $cityDetails['state_id'] ?? null
+            'stateID'   => $cityDetails['state_id'] ?? null
         ];
 
         echo json_encode($response);
@@ -183,12 +183,12 @@ class CityController
             $cityIdEncrypted = $this->security->encryptData($cityId);
 
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $cityId .'">
                                     </div>',
-                'CITY_NAME' => $cityName,
-                'STATE_NAME' => $stateName,
-                'COUNTRY_NAME' => $countryName,
+                'CITY_NAME'     => $cityName,
+                'STATE_NAME'    => $stateName,
+                'COUNTRY_NAME'  => $countryName,
                 'LINK'          => $pageLink .'&id='. $cityIdEncrypted
             ];
         }
@@ -211,7 +211,7 @@ class CityController
         $citys = $this->city->generateCityOptions();
 
         foreach ($citys as $row) {
-            $text = $isFilter ? "{$row['city_name']}, {$row['state_name']}, {$row['country_name']}" : $row['city_name'];
+            $text = !$isFilter ? "{$row['city_name']}, {$row['state_name']}, {$row['country_name']}" : $row['city_name'];
 
             $response[] = [
                 'id'    => $row['city_id'],

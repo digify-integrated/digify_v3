@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('country_name').value = data.appModuleName || '';
+                document.getElementById('country_name').value   = data.countryName || '';
+                document.getElementById('country_code').value   = data.countryCode || '';
+                document.getElementById('phone_code').value     = data.phoneCode || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

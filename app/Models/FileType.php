@@ -26,7 +26,7 @@ class FileType extends Model {
             'p_last_log_by'     => $p_last_log_by
         ]);
 
-        return $row['new_app_module_id'] ?? null;
+        return $row['new_file_type_id'] ?? null;
     }
     
     /* =============================================================================================

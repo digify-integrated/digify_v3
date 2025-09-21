@@ -3316,12 +3316,7 @@ BEGIN
         );
         
         SET v_new_city_id = LAST_INSERT_ID();
-    ELSE        
-        UPDATE work_location
-        SET city_name = p_city_name,
-            last_log_by = p_last_log_by
-        WHERE city_id = p_city_id;
-
+    ELSE
         UPDATE city
         SET city_name = p_city_name,
             state_id = p_state_id,
@@ -3667,7 +3662,7 @@ BEGIN
             p_country_id,
             p_country_name,
             p_tax_id,
-            p_currency_id
+            p_currency_id,
             p_currency_name,
             p_phone,
             p_telephone,
@@ -4302,7 +4297,7 @@ BEGIN
             last_log_by
         ) 
         VALUES(
-            p_educational_stage_name
+            p_educational_stage_name,
             p_last_log_by
         );
         
@@ -4607,9 +4602,9 @@ END //
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS getRelationship//
+DROP PROCEDURE IF EXISTS fetchRelationship//
 
-CREATE PROCEDURE getRelationship(
+CREATE PROCEDURE fetchRelationship(
     IN p_relationship_id INT
 )
 BEGIN

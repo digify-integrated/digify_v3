@@ -32,13 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                     .map(el => el.value);
 
         if (civil_status_id.length === 0) {
-            showNotification('Deletion Multiple Civil Statuss Error', 'Please select the civil statuss you wish to delete.', 'error');
+            showNotification('Deletion Multiple Civil Status Error', 'Please select the civil status you wish to delete.', 'error');
             return;
         }
 
         const result = await Swal.fire({
-            title: 'Confirm Multiple Civil Statuss Deletion',
-            text: 'Are you sure you want to delete these civil statuss?',
+            title: 'Confirm Multiple Civil Status Deletion',
+            text: 'Are you sure you want to delete these civil status?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',

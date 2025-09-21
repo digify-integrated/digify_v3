@@ -5,23 +5,21 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
-        selector: '#city-table',
-        ajaxUrl: './app/Controllers/CityController.php',
-        transaction: 'generate city table',
+        selector: '#file-extension-table',
+        ajaxUrl: './app/Controllers/FileExtensionController.php',
+        transaction: 'generate file extension table',
         ajaxData: {
-            state_filter: $('#state_filter').val(),
+            file_type_filter: $('#file_type_filter').val(),
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'CITY_NAME' },
-            { data: 'STATE_NAME' },
-            { data: 'COUNTRY_NAME' }
+            { data: 'FILE_EXTENSION_NAME' },
+            { data: 'FILE_TYPE_NAME' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', targets: 3, responsivePriority: 4 }
+            { width: 'auto', targets: 2, responsivePriority: 3 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -29,25 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     generateDropdownOptions({
-        url: './app/Controllers/StateController.php',
-        dropdownSelector: '#state_filter',
+        url: './app/Controllers/FileTypeController.php',
+        dropdownSelector: '#file_type_filter',
         data: { 
-            transaction: 'generate state options',
+            transaction: 'generate file type options',
             multiple : true
         }
     });
 
-    generateDropdownOptions({
-        url: './app/Controllers/CountryController.php',
-        dropdownSelector: '#country_filter',
-        data: { 
-            transaction: 'generate country options',
-            multiple : true
-        }
-    });
-
-    initializeDatatableControls('#city-table');
-    initializeExportFeature('city');
+    initializeDatatableControls('#file-extension-table');
+    initializeExportFeature('file_extension');
     initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
@@ -56,25 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#state_filter').val(null).trigger('change');
+            $('#file_type_filter').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
-        if (event.target.closest('#delete-city')){
-            const transaction   = 'delete multiple city';
-            const city_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(checkbox => checkbox.checked)
-                                        .map(checkbox => checkbox.value);
+        if (event.target.closest('#delete-file-extension')){
+            const transaction           = 'delete multiple file extension';
+            const file_extension_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(checkbox => checkbox.checked)
+                                            .map(checkbox => checkbox.value);
 
-            if (city_id.length === 0) {
-                showNotification('Deletion Multiple Cities Error', 'Please select the cities you wish to delete.', 'error');
+            if (file_extension_id.length === 0) {
+                showNotification('Deletion Multiple File Extensions Error', 'Please select the file extensions you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple Cities Deletion',
-                text: 'Are you sure you want to delete these cities?',
+                title: 'Confirm Multiple File Extensions Deletion',
+                text: 'Are you sure you want to delete these file extensions?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -91,9 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                city_id.forEach(id => formData.append('city_id[]', id));
+                file_extension_id.forEach(id => formData.append('file_extension_id[]', id));
 
-                const response = await fetch('./app/Controllers/CityController.php', {
+                const response = await fetch('./app/Controllers/FileExtensionController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -104,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    reloadDatatable('#city-table');
+                    reloadDatatable('#file-extension-table');
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -114,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to delete cities: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete file extensions: ${error.message}`);
             }
         }
     });

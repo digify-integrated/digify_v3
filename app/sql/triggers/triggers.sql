@@ -955,25 +955,26 @@ CREATE TRIGGER trg_city_update
 AFTER UPDATE ON city
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'City changed.<br/><br/>';
+    DECLARE v_audit_log TEXT DEFAULT 'City changed.<br/><br/>';
 
     IF NEW.city_name <> OLD.city_name THEN
-        SET audit_log = CONCAT(audit_log, "City Name: ", OLD.city_name, " -> ", NEW.city_name, "<br/>");
+        SET v_audit_log = CONCAT(v_audit_log, 'City Name: ', OLD.city_name, ' -> ', NEW.city_name, '<br/>');
     END IF;
 
     IF NEW.state_name <> OLD.state_name THEN
-        SET audit_log = CONCAT(audit_log, "State: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+        SET v_audit_log = CONCAT(v_audit_log, 'State: ', OLD.state_name, ' -> ', NEW.state_name, '<br/>');
     END IF;
 
     IF NEW.country_name <> OLD.country_name THEN
-        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+        SET v_audit_log = CONCAT(v_audit_log, 'Country: ', OLD.country_name, ' -> ', NEW.country_name, '<br/>');
     END IF;
     
-    IF audit_log <> 'City changed.<br/><br/>' THEN
+    IF v_audit_log <> 'City changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('city', NEW.city_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('city', NEW.city_id, v_audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
+
 
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS

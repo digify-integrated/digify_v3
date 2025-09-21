@@ -85,10 +85,10 @@ class SystemActionController
             'generate system action assigned role table'        => $this->generateSystemActionAssignedRoleTable($lastLogBy, $pageId),
             'generate system action options'                    => $this->generateSystemActionOptions(),
             'generate system action role dual listbox options'  => $this->generateSystemActionRoleDualListBoxOptions(),
-            default                                         => $this->systemHelper::sendErrorResponse(
-                                                                    'Transaction Failed',
-                                                                    'We encountered an issue while processing your request.'
-                                                                )
+            default                                             => $this->systemHelper::sendErrorResponse(
+                                                                        'Transaction Failed',
+                                                                        'We encountered an issue while processing your request.'
+                                                                    )
         };
     }
 
@@ -106,8 +106,8 @@ class SystemActionController
         $systemActionName           = $_POST['system_action_name'] ?? null;
         $systemActionDescription    = $_POST['system_action_description'] ?? null;
 
-        $systemActionId = $this->systemAction->saveSystemAction($systemActionId, $systemActionName, $systemActionDescription, $lastLogBy);
-        $encryptedSystemActionId = $this->security->encryptData($systemActionId);
+        $systemActionId             = $this->systemAction->saveSystemAction($systemActionId, $systemActionName, $systemActionDescription, $lastLogBy);
+        $encryptedSystemActionId    = $this->security->encryptData($systemActionId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save System Action Success',
@@ -140,8 +140,8 @@ class SystemActionController
         $systemActionName       = $systemActionDetails['system_action_name'] ?? '';
 
         foreach ($roleIds as $roleId) {
-            $roleDetails = $this->role->fetchRole($roleId);
-            $roleName = $roleDetails['role_name'] ?? null;
+            $roleDetails    = $this->role->fetchRole($roleId);
+            $roleName       = $roleDetails['role_name'] ?? null;
 
             $this->role->insertRoleSystemActionPermission($roleId, $roleName, $systemActionId, $systemActionName, $lastLogBy);
         }

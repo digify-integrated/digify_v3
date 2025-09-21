@@ -5,16 +5,16 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch relationship details';
+        const transaction       = 'fetch religion details';
         const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const relationship_id     = document.getElementById('details-id')?.textContent.trim();
+        const religion_id     = document.getElementById('details-id')?.textContent.trim();
 
         try {
-            resetForm('relationship_form');
+            resetForm('religion_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('relationship_id', relationship_id);
+            formData.append('religion_id', religion_id);
 
             const response = await fetch('./app/Controllers/ReligionController.php', {
                 method: 'POST',
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('relationship_name').value = data.appModuleName || '';
+                document.getElementById('religion_name').value = data.religionName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -42,17 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'relationship');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'religion');
     displayDetails();
 
-    $('#relationship_form').validate({
+    $('#religion_form').validate({
         rules: {
-            relationship_name: {
+            religion_name: {
                 required: true
             }
         },
         messages: {
-            relationship_name: {
+            religion_name: {
                 required: 'Enter the display name'
             }
         },
@@ -76,12 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save relationship';
-            const relationship_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction       = 'save religion';
+            const religion_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('relationship_id', relationship_id);
+            formData.append('religion_id', religion_id);
 
             disableButton('submit-data');
 
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save relationship failed with status: ${response.status}`);
+                    throw new Error(`Save religion failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -120,15 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-relationship')) return;
+        if (!event.target.closest('#delete-religion')) return;
 
-        const transaction   = 'delete relationship';
-        const relationship_id    = document.getElementById('details-id')?.textContent.trim();
+        const transaction   = 'delete religion';
+        const religion_id    = document.getElementById('details-id')?.textContent.trim();
         const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Religion Deletion',
-            text: 'Are you sure you want to delete this relationship?',
+            text: 'Are you sure you want to delete this religion?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('relationship_id', relationship_id);
+                formData.append('religion_id', religion_id);
 
                 const response = await fetch('./app/Controllers/ReligionController.php', {
                     method: 'POST',

@@ -4,27 +4,27 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Models\BloodType;
+use App\Models\Language;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BloodTypeController
+class LanguageController
 {
-    protected BloodType $bloodType;
+    protected Language $language;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
-        BloodType $bloodType,
+        Language $language,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->bloodType        = $bloodType;
+        $this->language        = $language;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -70,12 +70,12 @@ class BloodTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save blood type'               => $this->saveBloodType($lastLogBy),
-            'delete blood type'             => $this->deleteBloodType(),
-            'delete multiple blood type'    => $this->deleteMultipleBloodType(),
-            'fetch blood type details'      => $this->fetchBloodTypeDetails(),
-            'generate blood type table'     => $this->generateBloodTypeTable(),
-            'generate blood type options'   => $this->generateBloodTypeOptions(),
+            'save language'                 => $this->saveLanguage($lastLogBy),
+            'delete language'               => $this->deleteLanguage(),
+            'delete multiple language'      => $this->deleteMultipleLanguage(),
+            'fetch language details'        => $this->fetchLanguageDetails(),
+            'generate language table'       => $this->generateLanguageTable(),
+            'generate language options'     => $this->generateLanguageOptions(),
             default                         => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -83,102 +83,102 @@ class BloodTypeController
         };
     }
 
-    public function saveBloodType($lastLogBy){
+    public function saveLanguage($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'blood_type_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'language_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
                 'Security check failed. Please refresh and try again.'
             );
         }
 
-        $bloodTypeId      = $_POST['blood_type_id'] ?? null;
-        $bloodTypeName    = $_POST['blood_type_name'] ?? null;
+        $languageId      = $_POST['language_id'] ?? null;
+        $languageName    = $_POST['language_name'] ?? null;
 
-        $bloodTypeId              = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
-        $encryptedBloodTypeId     = $this->security->encryptData($bloodTypeId);
+        $languageId           = $this->language->saveLanguage($languageId, $languageName, $lastLogBy);
+        $encryptedLanguageId  = $this->security->encryptData($languageId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save Blood Type Success',
-            'The blood type has been saved successfully.',
-            ['blood_type_id' => $encryptedBloodTypeId]
+            'Save Language Success',
+            'The language has been saved successfully.',
+            ['language_id' => $encryptedLanguageId]
         );
     }
 
-    public function deleteBloodType(){
-        $bloodTypeId = $_POST['blood_type_id'] ?? null;
+    public function deleteLanguage(){
+        $languageId = $_POST['language_id'] ?? null;
 
-        $this->bloodType->deleteBloodType($bloodTypeId);
+        $this->language->deleteLanguage($languageId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Blood Type Success',
-            'The blood type has been deleted successfully.'
+            'Delete Language Success',
+            'The language has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleBloodType(){
-        $bloodTypeIds  = $_POST['blood_type_id'] ?? null;
+    public function deleteMultipleLanguage(){
+        $languageIds  = $_POST['language_id'] ?? null;
 
-        foreach($bloodTypeIds as $bloodTypeId){
-            $this->bloodType->deleteBloodType($bloodTypeId);
+        foreach($languageIds as $languageId){
+            $this->language->deleteLanguage($languageId);
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Blood Types Success',
-            'The selected blood types have been deleted successfully.'
+            'Delete Multiple Languages Success',
+            'The selected languages have been deleted successfully.'
         );
     }
 
-    public function fetchBloodTypeDetails(){
-        $bloodTypeId           = $_POST['blood_type_id'] ?? null;
-        $checkBloodTypeExist   = $this->bloodType->checkBloodTypeExist($bloodTypeId);
-        $total                 = $checkBloodTypeExist['total'] ?? 0;
+    public function fetchLanguageDetails(){
+        $languageId            = $_POST['language_id'] ?? null;
+        $checkLanguageyExist   = $this->language->checkLanguageExist($languageId);
+        $total                 = $checkLanguageyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
-                'Get Blood Type Details',
-                'The blood type does not exist'
+                'Get Language Details',
+                'The language does not exist'
             );
         }
 
-        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
+        $languageDetails   = $this->language->fetchLanguage($languageId);
 
         $response = [
-            'success'           => true,
-            'bloodTypeName'     => $bloodTypeDetails['blood_type_name'] ?? null
+            'success'          => true,
+            'languageName'     => $languageDetails['language_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateBloodTypeTable()
+    public function generateLanguageTable()
     {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bloodType->generateBloodTypeTable();
+        $countries = $this->language->generateLanguageTable();
 
         foreach ($countries as $row) {
-            $bloodTypeId      = $row['blood_type_id'];
-            $bloodTypeName    = $row['blood_type_name'];
+            $languageId      = $row['language_id'];
+            $languageName    = $row['language_name'];
 
-            $bloodTypeIdEncrypted = $this->security->encryptData($bloodTypeId);
+            $languageIdEncrypted = $this->security->encryptData($languageId);
 
             $response[] = [
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $bloodTypeId .'">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $languageId .'">
                                         </div>',
-                'BLOOD_TYPE_NAME'   => $bloodTypeName,
-                'LINK'              => $pageLink .'&id='. $bloodTypeIdEncrypted
+                'LANGUAGE_NAME'     => $languageName,
+                'LINK'              => $pageLink .'&id='. $languageIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateBloodTypeOptions()
+    public function generateLanguageOptions()
     {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
@@ -190,12 +190,12 @@ class BloodTypeController
             ];
         }
 
-        $countries = $this->bloodType->generateBloodTypeOptions();
+        $countries = $this->language->generateLanguageOptions();
 
         foreach ($countries as $row) {
             $response[] = [
-                'id'    => $row['blood_type_id'],
-                'text'  => $row['blood_type_name']
+                'id'    => $row['language_id'],
+                'text'  => $row['language_name']
             ];
         }
 
@@ -204,8 +204,8 @@ class BloodTypeController
 }
 
 # Bootstrap the controller
-$controller = new BloodTypeController(
-    new BloodType(),
+$controller = new LanguageController(
+    new Language(),
     new Authentication(),
     new Security(),
     new SystemHelper()

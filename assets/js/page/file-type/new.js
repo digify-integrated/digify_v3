@@ -1,45 +1,17 @@
-import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_id',
-        data: { 
-            transaction: 'generate city options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CurrencyController.php',
-        dropdownSelector: '#currency_id',
-        data: { 
-            transaction: 'generate currency options'
-        }
-    });
-    
-    $('#company_form').validate({
+document.addEventListener('DOMContentLoaded', () => {    
+    $('#file_type_form').validate({
         rules: {
-            company_name: {
-                required: true
-            },
-            address: {
-                required: true
-            },
-            city_id: {
+            file_type_name: {
                 required: true
             }
         },
         messages: {
-            company_name: {
+            file_type_name: {
                 required: 'Enter the display name'
-            },
-            address: {
-                required: 'Enter the address'
-            },
-            city_id: {
-                required: 'Choose the city'
             }
         },
         errorPlacement: (error, element) => {
@@ -62,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save company';
+            const transaction   = 'save file type';
             const page_link     = document.getElementById('page-link').getAttribute('href');
 
             const formData = new URLSearchParams(new FormData(form));
@@ -71,20 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/CompanyController.php', {
+                const response = await fetch('./app/Controllers/FileTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save company failed with status: ${response.status}`);
+                    throw new Error(`Save file type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.company_id}`;
+                    window.location = `${page_link}&id=${data.file_type_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

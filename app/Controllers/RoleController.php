@@ -114,8 +114,8 @@ class RoleController
         $roleName           = $_POST['role_name'] ?? null;
         $roleDescription    = $_POST['role_description'] ?? null;
 
-        $roleId = $this->role->saveRole($roleId, $roleName, $roleDescription, $lastLogBy);
-        $encryptedRoleId = $this->security->encryptData($roleId);
+        $roleId             = $this->role->saveRole($roleId, $roleName, $roleDescription, $lastLogBy);
+        $encryptedRoleId    = $this->security->encryptData($roleId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Role Success',
@@ -144,12 +144,12 @@ class RoleController
             );
         }
         
-        $roleDetails = $this->role->fetchRole($roleId);
-        $roleName = $roleDetails['role_name'] ?? null;
+        $roleDetails    = $this->role->fetchRole($roleId);
+        $roleName       = $roleDetails['role_name'] ?? null;
 
         foreach ($menuItemIds as $menuItemId) {            
-            $menuItemDetails = $this->menuItem->fetchMenuItem($menuItemId);
-            $menuItemName = $menuItemDetails['menu_item_name'] ?? '';
+            $menuItemDetails    = $this->menuItem->fetchMenuItem($menuItemId);
+            $menuItemName       = $menuItemDetails['menu_item_name'] ?? '';
 
             $this->role->insertRolePermission($roleId, $roleName, $menuItemId, $menuItemName, $lastLogBy);
         }
@@ -180,8 +180,8 @@ class RoleController
             );
         }
         
-        $roleDetails = $this->role->fetchRole($roleId);
-        $roleName = $roleDetails['role_name'] ?? null;
+        $roleDetails    = $this->role->fetchRole($roleId);
+        $roleName       = $roleDetails['role_name'] ?? null;
 
         foreach ($systemActionIds as $systemActionId) {
             $systemActionDetails    = $this->systemAction->fetchSystemAction($systemActionId);
@@ -333,7 +333,7 @@ class RoleController
                                     <a href="#" class="fs-5 text-gray-900 fw-bold">'. $roleName .'</a>
                                     <div class="fs-7 text-gray-500">'. $roleDescription .'</div>
                                 </div>',
-                'LINK' => $pageLink .'&id='. $roleIdEncrypted
+                'LINK'      => $pageLink .'&id='. $roleIdEncrypted
             ];
         }
 
@@ -470,12 +470,12 @@ class RoleController
                                     </div>';
 
             $response[] = [
-                'SYSTEM_ACTION_NAME'     => $systemActionName,
-                'ACCESS'        => $roleAccessButton,
-                'ACTION'        => '<div class="d-flex justify-content-end gap-3">
-                                        '. $logNotes .'
-                                        '. $deleteButton .'
-                                    </div>'
+                'SYSTEM_ACTION_NAME'    => $systemActionName,
+                'ACCESS'                => $roleAccessButton,
+                'ACTION'                => '<div class="d-flex justify-content-end gap-3">
+                                                '. $logNotes .'
+                                                '. $deleteButton .'
+                                            </div>'
             ];
         }
 
@@ -485,8 +485,8 @@ class RoleController
     public function generateRoleMenuItemDualListBoxOptions()
     {
         $roleId     = $_POST['role_id'] ?? null;
-        $response       = [];
-        $menuItems = $this->role->generateRoleMenuItemDualListBoxOptions($roleId);
+        $response   = [];
+        $menuItems  = $this->role->generateRoleMenuItemDualListBoxOptions($roleId);
 
         foreach ($menuItems as $row) {
             $response[] = [

@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('language_proficiency_name').value = data.appModuleName || '';
+                document.getElementById('language_proficiency_name').value          = data.languageProficiencyName || '';
+                document.getElementById('language_proficiency_description').value   = data.languageProficiencyDescription || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

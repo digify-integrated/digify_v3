@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('city_name').value = data.appModuleName || '';
+                document.getElementById('city_name').value = data.cityName || '';
 
-                $('#state_id').val(data.menuItemID).trigger('change');
+                $('#state_id').val(data.stateID).trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

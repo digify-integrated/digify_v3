@@ -4,42 +4,33 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_id',
-        data: { 
-            transaction: 'generate city options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CurrencyController.php',
-        dropdownSelector: '#currency_id',
-        data: { 
-            transaction: 'generate currency options'
-        }
+        url: './app/Controllers/FileTypeController.php',
+        dropdownSelector: '#file_type_id',
+        data: { transaction: 'generate file type options' },
+        validateOnChange: true
     });
     
-    $('#company_form').validate({
+    $('#file_extension_form').validate({
         rules: {
-            company_name: {
+            file_extension_name: {
                 required: true
             },
-            address: {
+            file_extension: {
                 required: true
             },
-            city_id: {
+            file_type_id: {
                 required: true
             }
         },
         messages: {
-            company_name: {
+            file_extension_name: {
                 required: 'Enter the display name'
             },
-            address: {
-                required: 'Enter the address'
+            file_extension: {
+                required: 'Enter the file extension'
             },
-            city_id: {
-                required: 'Choose the city'
+            file_type_id: {
+                required: 'Select the file type'
             }
         },
         errorPlacement: (error, element) => {
@@ -62,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save company';
+            const transaction   = 'save file extension';
             const page_link     = document.getElementById('page-link').getAttribute('href');
 
             const formData = new URLSearchParams(new FormData(form));
@@ -71,20 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/CompanyController.php', {
+                const response = await fetch('./app/Controllers/FileExtensionController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save company failed with status: ${response.status}`);
+                    throw new Error(`Save file extension failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.company_id}`;
+                    window.location = `${page_link}&id=${data.file_extension_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

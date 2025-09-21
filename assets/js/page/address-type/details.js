@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('address_type_name').value = data.appModuleName || '';
+                document.getElementById('address_type_name').value = data.addressTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

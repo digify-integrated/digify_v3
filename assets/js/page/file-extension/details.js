@@ -1,22 +1,22 @@
-import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions, resetForm } from '../../utilities/form-utilities.js';
 import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch educational stage details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction           = 'fetch file extension details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
 
         try {
-            resetForm('educational_stage_form');
+            resetForm('file_extension_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('educational_stage_id', educational_stage_id);
+            formData.append('file_extension_id', file_extension_id);
 
-            const response = await fetch('./app/Controllers/EducationalStageController.php', {
+            const response = await fetch('./app/Controllers/FileExtensionController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -28,7 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('educational_stage_name').value = data.educationalStageName || '';
+                document.getElementById('file_extension_name').value    = data.fileExtensionName || '';
+                document.getElementById('file_extension').value         = data.fileExtension || '';
+
+                $('#file_type_id').val(data.fileTypeID).trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -41,19 +44,38 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
         }
     };
+    
+    generateDropdownOptions({
+        url: './app/Controllers/FileTypeController.php',
+        dropdownSelector: '#file_type_id',
+        data: { transaction: 'generate file type options' },
+        validateOnChange: true
+    });
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'educational_stage');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'file_extension');
     displayDetails();
 
-    $('#educational_stage_form').validate({
+    $('#file_extension_form').validate({
         rules: {
-            educational_stage_name: {
+            file_extension_name: {
+                required: true
+            },
+            file_extension: {
+                required: true
+            },
+            file_type_id: {
                 required: true
             }
         },
         messages: {
-            educational_stage_name: {
+            file_extension_name: {
                 required: 'Enter the display name'
+            },
+            file_extension: {
+                required: 'Enter the file extension'
+            },
+            file_type_id: {
+                required: 'Select the file type'
             }
         },
         errorPlacement: (error, element) => {
@@ -76,23 +98,23 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save educational stage';
-            const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save file extension';
+            const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('educational_stage_id', educational_stage_id);
+            formData.append('file_extension_id', file_extension_id);
 
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/EducationalStageController.php', {
+                const response = await fetch('./app/Controllers/FileExtensionController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save educational stage failed with status: ${response.status}`);
+                    throw new Error(`Save file extension failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -120,15 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-educational-stage')) return;
+        if (!event.target.closest('#delete-file-extension')) return;
 
-        const transaction   = 'delete educational stage';
-        const educational_stage_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction           = 'delete file extension';
+        const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
-            title: 'Confirm Educational Stage Deletion',
-            text: 'Are you sure you want to delete this educational stage?',
+            title: 'Confirm File Extension Deletion',
+            text: 'Are you sure you want to delete this file extension?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -144,9 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('educational_stage_id', educational_stage_id);
+                formData.append('file_extension_id', file_extension_id);
 
-                const response = await fetch('./app/Controllers/EducationalStageController.php', {
+                const response = await fetch('./app/Controllers/FileExtensionController.php', {
                     method: 'POST',
                     body: formData
                 });

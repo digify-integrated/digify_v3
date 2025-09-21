@@ -36,13 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                     .map(el => el.value);
 
         if (currency_id.length === 0) {
-            showNotification('Deletion Multiple Currencys Error', 'Please select the currencys you wish to delete.', 'error');
+            showNotification('Deletion Multiple Currencies Error', 'Please select the currencies you wish to delete.', 'error');
             return;
         }
 
         const result = await Swal.fire({
-            title: 'Confirm Multiple Currencys Deletion',
-            text: 'Are you sure you want to delete these currencys?',
+            title: 'Confirm Multiple Currencies Deletion',
+            text: 'Are you sure you want to delete these currencies?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',

@@ -210,7 +210,7 @@ class AppModuleController
         $this->appModule->updateAppLogo($appModuleId, $filePath, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
-            'Yodate App Module Logo Success',
+            'Update App Module Logo Success',
             'The app module logo has been updated successfully.'
         );
     }
@@ -299,19 +299,19 @@ class AppModuleController
             $appModuleIdEncrypted   = $this->security->encryptData($appModuleId);
 
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $appModuleId .'">
-                                 </div>',
-                'APP_MODULE_NAME' => '<div class="d-flex align-items-center">
-                                        <img src="'. $appLogo .'" alt="app-logo" width="45" />
-                                        <div class="ms-3">
-                                            <div class="user-meta-info">
-                                                <h6 class="mb-0">'. $appModuleName .'</h6>
-                                                <small class="text-wrap fs-7 text-gray-500">'. $appModuleDescription .'</small>
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $appModuleId .'">
+                                        </div>',
+                'APP_MODULE_NAME'   => '<div class="d-flex align-items-center">
+                                            <img src="'. $appLogo .'" alt="app-logo" width="45" />
+                                            <div class="ms-3">
+                                                <div class="user-meta-info">
+                                                    <h6 class="mb-0">'. $appModuleName .'</h6>
+                                                    <small class="text-wrap fs-7 text-gray-500">'. $appModuleDescription .'</small>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>',
-                'LINK' => $pageLink .'&id='. $appModuleIdEncrypted
+                                        </div>',
+                'LINK'              => $pageLink .'&id='. $appModuleIdEncrypted
             ];
         }
 

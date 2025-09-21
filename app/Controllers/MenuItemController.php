@@ -409,7 +409,7 @@ class MenuItemController
     {
         $menuItemId     = $_POST['menu_item_id'] ?? null;
         $response       = [];
-        $menuItems = $this->menuItem->generateMenuItemRoleDualListBoxOptions($menuItemId);
+        $menuItems      = $this->menuItem->generateMenuItemRoleDualListBoxOptions($menuItemId);
 
         foreach ($menuItems as $row) {
             $response[] = [

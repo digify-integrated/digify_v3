@@ -33,7 +33,7 @@ class CompanyController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->company        = $company;
+        $this->company          = $company;
         $this->city             = $city;
         $this->currency         = $currency;
         $this->authentication   = $authentication;
@@ -206,8 +206,8 @@ class CompanyController
             );
         }
 
-        $companyDetails   = $this->company->fetchCompany($companyId);
-        $companyLogo            = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'null');
+        $companyDetails     = $this->company->fetchCompany($companyId);
+        $companyLogo        = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'null');
         $deleteImageFile    = $this->systemHelper->deleteFileIfExist($companyLogo);
 
         if(!$deleteImageFile){
@@ -227,7 +227,7 @@ class CompanyController
         $this->company->updateCompanyLogo($companyId, $filePath, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
-            'Yodate Company Logo Success',
+            'Update Company Logo Success',
             'The company logo has been updated successfully.'
         );
     }
@@ -275,7 +275,7 @@ class CompanyController
     public function fetchCompanyDetails(){
         $companyId            = $_POST['company_id'] ?? null;
         $checkCompanyExist    = $this->company->checkCompanyExist($companyId);
-        $total                  = $checkCompanyExist['total'] ?? 0;
+        $total                = $checkCompanyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -328,21 +328,21 @@ class CompanyController
             $companyIdEncrypted     = $this->security->encryptData($companyId);
 
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $companyId .'">
                                     </div>',
-                'COMPANY_NAME' => '<div class="d-flex align-items-center">
-                                    <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                        <div class="symbol-label">
-                                            <img src="'. $companyLogo .'" alt="'. $companyName .'" class="w-100">
+                'COMPANY_NAME'  => '<div class="d-flex align-items-center">
+                                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                            <div class="symbol-label">
+                                                <img src="'. $companyLogo .'" alt="'. $companyName .'" class="w-100">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-bold mb-1">'. $companyName .'</span>
-                                        <small class="text-gray-600">'. $companyAddress .'</small>
-                                    </div>
-                                </div>',
-                'LINK' => $pageLink .'&id='. $companyIdEncrypted
+                                        <div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-bold mb-1">'. $companyName .'</span>
+                                            <small class="text-gray-600">'. $companyAddress .'</small>
+                                        </div>
+                                    </div>',
+                'LINK'          => $pageLink .'&id='. $companyIdEncrypted
             ];
         }
 

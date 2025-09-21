@@ -4,7 +4,7 @@
         <div class="card card-flush">
             <div class="card-body text-center">
                 <div class="image-input image-input-outline" data-kt-image-input="true">
-                    <div class="image-input-wrapper w-125px h-125px" id="compay_logo_thumbnail" style="background-image: url(./assets/images/default/default-company-logo.png); background-size: cover; background-repeat: no-repeat; background-position: center;"></div>
+                    <div class="image-input-wrapper w-125px h-125px" id="company_logo_thumbnail" style="background-image: url(./assets/images/default/default-company-logo.png); background-size: cover; background-repeat: no-repeat; background-position: center;"></div>
 
                     <?php
                         echo ($permissions['write'] > 0) ? '<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change logo" data-bs-original-title="Change logo" data-kt-initialized="1">

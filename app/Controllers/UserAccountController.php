@@ -29,7 +29,7 @@ class UserAccountController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->userAccount         = $userAccount;
+        $this->userAccount      = $userAccount;
         $this->role             = $role;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
@@ -121,8 +121,8 @@ class UserAccountController
         $password           = $_POST['password'] ?? null;
         $hashedPassword     = password_hash($password, PASSWORD_BCRYPT);
 
-        $userAccountId = $this->userAccount->insertUserAccount($fileAs, $email, $hashedPassword, $phone, $lastLogBy);
-        $encryptedUserAccountId = $this->security->encryptData($userAccountId);
+        $userAccountId              = $this->userAccount->insertUserAccount($fileAs, $email, $hashedPassword, $phone, $lastLogBy);
+        $encryptedUserAccountId     = $this->security->encryptData($userAccountId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save User Account Success',
@@ -155,8 +155,8 @@ class UserAccountController
         $fileAs = $userAccountDetails['file_as'] ?? '';     
 
         foreach ($roleIds as $roleId) {
-        $roleDetails = $this->role->fetchRole($roleId);
-        $roleName = $roleDetails['role_name'] ?? null;
+        $roleDetails    = $this->role->fetchRole($roleId);
+        $roleName       = $roleDetails['role_name'] ?? null;
 
             $this->role->insertRoleUserAccount($roleId, $roleName, $userAccountId, $fileAs, $lastLogBy);
         }
@@ -314,8 +314,8 @@ class UserAccountController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(4);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(4);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(4);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
@@ -406,7 +406,7 @@ class UserAccountController
     }
     
     public function activateMultipleUserAccount($lastLogBy){
-        $userAccountIds  = $_POST['user_account_id'] ?? null;
+        $userAccountIds = $_POST['user_account_id'] ?? null;
 
         foreach($userAccountIds as $userAccountId){
             $this->userAccount->updateUserAccount($userAccountId, 'Yes', 'status', $lastLogBy);
@@ -507,19 +507,19 @@ class UserAccountController
         $activeBadge                = $userAccountDetails['active'] == 'Yes' ? '<span class="badge badge-light-success">Active</span>' : '<span class="badge badge-light-danger">Inactive</span>';
 
         $response = [
-            'success' => true,
-            'fileAs' => $userAccountDetails['file_as'] ?? null,
-            'email' => $userAccountDetails['email'] ?? null,
-            'phone' => $userAccountDetails['phone'] ?? null,
-            'phoneSummary' => $userAccountDetails['phone'] ?? '-',
-            'lastConnectionDate' => $lastConnectionDate,
-            'lastFailedConnectionDate' => $lastFailedConnectionDate,
-            'lastPasswordChange' => $lastPasswordChange,
-            'lastPasswordResetRequest' => $lastPasswordResetRequest,
-            'profilePicture' => $profilePicture,
-            'activeBadge' => $activeBadge,
-            'twoFactorAuthentication' => $userAccountDetails['two_factor_auth'],
-            'multipleSession' => $userAccountDetails['multiple_session']
+            'success'                   => true,
+            'fileAs'                    => $userAccountDetails['file_as'] ?? null,
+            'email'                     => $userAccountDetails['email'] ?? null,
+            'phone'                     => $userAccountDetails['phone'] ?? null,
+            'phoneSummary'              => $userAccountDetails['phone'] ?? '-',
+            'lastConnectionDate'        => $lastConnectionDate,
+            'lastFailedConnectionDate'  => $lastFailedConnectionDate,
+            'lastPasswordChange'        => $lastPasswordChange,
+            'lastPasswordResetRequest'  => $lastPasswordResetRequest,
+            'profilePicture'            => $profilePicture,
+            'activeBadge'               => $activeBadge,
+            'twoFactorAuthentication'   => $userAccountDetails['two_factor_auth'],
+            'multipleSession'           => $userAccountDetails['multiple_session']
         ];
 
         echo json_encode($response);
@@ -578,9 +578,9 @@ class UserAccountController
         $roles = $this->userAccount->generateUserAccountRoleList($userAccountId);
 
         foreach ($roles as $row) {
-            $roleUserAccountID = $row['role_user_account_id'];
-            $roleName = $row['role_name'];
-            $assignmentDate = $this->systemHelper->checkDate('empty', $row['date_assigned'], '', 'd M Y h:i a', '');
+            $roleUserAccountID  = $row['role_user_account_id'];
+            $roleName           = $row['role_name'];
+            $assignmentDate     = $this->systemHelper->checkDate('empty', $row['date_assigned'], '', 'd M Y h:i a', '');
 
             $deleteButton = '';
             if($deleteRoleUserAccount['total'] > 0){

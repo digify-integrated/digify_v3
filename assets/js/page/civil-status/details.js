@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('civil_status_name').value = data.appModuleName || '';
+                document.getElementById('civil_status_name').value = data.civilStatusName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);

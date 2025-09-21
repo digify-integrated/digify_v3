@@ -24,7 +24,7 @@ class CurrencyController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->currency          = $currency;
+        $this->currency         = $currency;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -133,9 +133,9 @@ class CurrencyController
     }
 
     public function fetchCurrencyDetails(){
-        $currencyId          = $_POST['currency_id'] ?? null;
-        $checkCurrencyExist  = $this->currency->checkCurrencyExist($currencyId);
-        $total              = $checkCurrencyExist['total'] ?? 0;
+        $currencyId             = $_POST['currency_id'] ?? null;
+        $checkCurrencyExist     = $this->currency->checkCurrencyExist($currencyId);
+        $total                  = $checkCurrencyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

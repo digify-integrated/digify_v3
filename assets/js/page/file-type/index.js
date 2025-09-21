@@ -3,16 +3,16 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#language-proficiency-table');
-    initializeExportFeature('language_proficiency');
+    initializeDatatableControls('#file-type-table');
+    initializeExportFeature('file_type');
 
     initializeDatatable({
-        selector: '#language-proficiency-table',
-        ajaxUrl: './app/Controllers/LanguageProficiencyController.php',
-        transaction: 'generate language proficiency table',
+        selector: '#file-type-table',
+        ajaxUrl: './app/Controllers/FileTypeController.php',
+        transaction: 'generate file type table',
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'LANGUAGE_PROFICIENCY_NAME' }
+            { data: 'FILE_TYPE_NAME' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -24,21 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-language-proficiency')) return;
+        if (!event.target.closest('#delete-file-type')) return;
 
-        const transaction       = 'delete multiple language proficiency';
-        const language_proficiency_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction   = 'delete multiple file type';
+        const file_type_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                .filter(el => el.checked)
+                                .map(el => el.value);
 
-        if (language_proficiency_id.length === 0) {
-            showNotification('Deletion Multiple Language Proficiencies Error', 'Please select the language proficiencies you wish to delete.', 'error');
+        if (file_type_id.length === 0) {
+            showNotification('Deletion Multiple File Types Error', 'Please select the file types you wish to delete.', 'error');
             return;
         }
 
         const result = await Swal.fire({
-            title: 'Confirm Multiple Language Proficiencies Deletion',
-            text: 'Are you sure you want to delete these language proficiencies?',
+            title: 'Confirm Multiple File Types Deletion',
+            text: 'Are you sure you want to delete these file types?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            language_proficiency_id.forEach(id => formData.append('language_proficiency_id[]', id));
+            file_type_id.forEach(id => formData.append('file_type_id[]', id));
 
-            const response = await fetch('./app/Controllers/LanguageProficiencyController.php', {
+            const response = await fetch('./app/Controllers/FileTypeController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 showNotification(data.title, data.message, data.message_type);
-                reloadDatatable('#language-proficiency-table');
+                reloadDatatable('#file-type-table');
             }
             else if (data.invalid_session) {
                 setNotification(data.title, data.message, data.message_type);
