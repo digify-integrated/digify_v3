@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('role-list').innerHTML = data[0].ROLE_USER_ACCOUNT;
 
         } catch (error) {
-            handleSystemError(error, 'fetch_failed', `Failed to fetch system action details: ${error.message}`);
+            handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
         }
     }
 
@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 url: './app/Controllers/UserAccountController.php',
                 selectSelector: 'role_id',
                 data: {
-                    transaction: 'user account role dual listbox options',
+                    transaction: 'generate user account role dual listbox options',
                     user_account_id: document.getElementById('details-id')?.textContent.trim()
                 }
             });

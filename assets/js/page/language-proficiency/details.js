@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch language proficiency details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const language_proficiency_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction               = 'fetch language proficiency details';
+        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const language_proficiency_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('language_proficiency_form');

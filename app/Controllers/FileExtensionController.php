@@ -210,7 +210,7 @@ class FileExtensionController
         foreach ($states as $row) {
             $response[] = [
                 'id'    => $row['file_extension_id'],
-                'text'  => $row['file_extensionname']
+                'text'  => $row['file_extension_name'] . ' (.' . $row['file_extension'] . ')'
             ];
         }
 

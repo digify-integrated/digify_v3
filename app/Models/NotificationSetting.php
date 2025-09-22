@@ -22,7 +22,7 @@ class NotificationSetting extends Model {
             :p_last_log_by
         )';
         
-        $row = $this->query($sql, [
+        $row = $this->fetch($sql, [
             'p_notification_setting_id'             => $p_notification_setting_id,
             'p_notification_setting_name'           => $p_notification_setting_name,
             'p_notification_setting_description'    => $p_notification_setting_description,
@@ -57,16 +57,12 @@ class NotificationSetting extends Model {
         $p_notification_setting_id,
         $p_email_notification_subject,
         $p_email_notification_body,
-        $p_email_setting_id,
-        $p_email_setting_name,
         $p_last_log_by
     ) {
         $sql = 'CALL saveEmailNotificationTemplate(
             :p_notification_setting_id,
             :p_email_notification_subject,
             :p_email_notification_body,
-            :p_email_setting_id,
-            :p_email_setting_name,
             :p_last_log_by
         )';
         
@@ -74,8 +70,6 @@ class NotificationSetting extends Model {
             'p_notification_setting_id'     => $p_notification_setting_id,
             'p_email_notification_subject'  => $p_email_notification_subject,
             'p_email_notification_body'     => $p_email_notification_body,
-            'p_email_setting_id'            => $p_email_setting_id,
-            'p_email_setting_name'          => $p_email_setting_name,
             'p_last_log_by'                 => $p_last_log_by
         ]);
     }

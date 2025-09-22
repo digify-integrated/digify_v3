@@ -1,0 +1,213 @@
+import { disableButton, enableButton, resetForm, generateDropdownOptions } from '../../utilities/form-utilities.js';
+import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
+import { handleSystemError } from '../../modules/system-errors.js';
+import { showNotification, setNotification } from '../../modules/notifications.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const displayDetails = async () => {
+        const transaction           = 'fetch upload setting details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+
+        try {
+            resetForm('upload_setting_form');
+            
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('upload_setting_id', upload_setting_id);
+
+            const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('upload_setting_name').value            = data.uploadSettingName || '';
+                document.getElementById('upload_setting_description').value     = data.uploadSettingDescription || '';
+                document.getElementById('max_file_size').value                  = data.maxFileSize || '';
+            }
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
+    };
+
+    const fileExtensionList = async () => {
+        const transaction           = 'generate assigned file extension list';
+        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim() || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('upload_setting_id', upload_setting_id);
+
+            const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('file-extension-list').innerHTML = data[0].FILE_EXTENSION;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch file extension list: ${error.message}`);
+        }
+    }
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'upload_setting');
+    displayDetails();
+    fileExtensionList();
+
+    $('#upload_setting_form').validate({
+        rules: {
+            upload_setting_name: {
+                required: true
+            }
+        },
+        messages: {
+            upload_setting_name: {
+                required: 'Enter the display name'
+            }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction               = 'save upload setting';
+            const upload_setting_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('upload_setting_id', upload_setting_id);
+
+            disableButton('submit-data');
+
+            try {
+                const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save upload setting failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                    displayDetails();
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                }
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#delete-upload-setting')){
+            const transaction           = 'delete upload setting';
+            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+            const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+
+            const result = await Swal.fire({
+                title: 'Confirm Upload Setting Deletion',
+                text: 'Are you sure you want to delete this upload setting?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('upload_setting_id', upload_setting_id);
+
+                    const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = page_link;
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            }
+        }
+
+        if (event.target.closest('#add-file-extension')){
+            generateDualListBox({
+                url: './app/Controllers/UploadSettingController.php',
+                selectSelector: 'role_id',
+                data: {
+                    transaction: 'generate file extension dual listbox options',
+                    upload_setting_id: document.getElementById('details-id')?.textContent.trim()
+                }
+            });
+        }
+    });
+});

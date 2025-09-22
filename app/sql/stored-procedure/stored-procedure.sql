@@ -760,8 +760,7 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_notification_setting_id IS NULL 
-       OR NOT EXISTS (SELECT 1 FROM notification_setting_system_template WHERE notification_setting_id = p_notification_setting_id) THEN
+    IF p_notification_setting_id IS NULL OR NOT EXISTS (SELECT 1 FROM notification_setting_system_template WHERE notification_setting_id = p_notification_setting_id) THEN
         
         INSERT INTO notification_setting_system_template (
             notification_setting_id, 
@@ -792,8 +791,6 @@ CREATE PROCEDURE saveEmailNotificationTemplate(
     IN p_notification_setting_id INT, 
     IN p_email_notification_subject VARCHAR(200),
     IN p_email_notification_body LONGTEXT,
-    IN p_email_setting_id INT,
-    IN p_email_setting_name VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -810,16 +807,12 @@ BEGIN
         INSERT INTO notification_setting_email_template (
             notification_setting_id, 
             email_notification_subject, 
-            email_notification_body, 
-            email_setting_id, 
-            email_setting_name, 
+            email_notification_body,
             last_log_by
         ) VALUES (
             p_notification_setting_id, 
             p_email_notification_subject, 
-            p_email_notification_body, 
-            p_email_setting_id, 
-            p_email_setting_name, 
+            p_email_notification_body,
             p_last_log_by
         );
 
@@ -827,8 +820,6 @@ BEGIN
         UPDATE notification_setting_email_template
         SET email_notification_subject = p_email_notification_subject,
             email_notification_body    = p_email_notification_body,
-            email_setting_id           = p_email_setting_id,
-            email_setting_name         = p_email_setting_name,
             last_log_by                = p_last_log_by
         WHERE notification_setting_id = p_notification_setting_id;
     END IF;
@@ -2556,8 +2547,7 @@ CREATE PROCEDURE saveUploadSetting(
     IN p_upload_setting_name VARCHAR(100), 
     IN p_upload_setting_description VARCHAR(200), 
     IN p_max_file_size DOUBLE, 
-    IN p_last_log_by INT, 
-    OUT p_new_upload_setting_id INT
+    IN p_last_log_by INT
 )
 BEGIN
     DECLARE v_new_upload_setting_id INT;

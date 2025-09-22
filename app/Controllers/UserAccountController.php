@@ -97,7 +97,7 @@ class UserAccountController
             'fetch user account details'                        => $this->fetchUserAccountDetails(),
             'generate user account table'                       => $this->generateUserAccountTable(),
             'generate assigned user account role list'          => $this->generateAssignedUserAccountRoleList($lastLogBy),
-            'user account role dual listbox options'            => $this->generateUserAccountRoleDualListBoxOptions(),
+            'generate user account role dual listbox options'   => $this->generateUserAccountRoleDualListBoxOptions(),
             default                                             => $this->systemHelper::sendErrorResponse(
                                                                         'Transaction Failed',
                                                                         'We encountered an issue while processing your request.'

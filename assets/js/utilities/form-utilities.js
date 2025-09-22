@@ -1,4 +1,5 @@
 import { initializeDualListBoxIcon } from '../utilities/export.js';
+import { handleSystemError } from '../modules/system-errors.js';
 
 export const disableButton = (buttonIds) => {
   const ids = Array.isArray(buttonIds) ? buttonIds : [buttonIds];
@@ -129,3 +130,28 @@ export const generateDualListBox = async ({ url, selectSelector, data = {} }) =>
     handleSystemError(error, 'fetch_failed', `Dual list box generation failed: ${error.message}`);
   }
 };
+
+export const initializeTinyMCE = (tiny_mce_id, disabled = 0) => {
+    let options = {
+        selector: tiny_mce_id,
+        height : "350",
+        toolbar: [
+            'styleselect fontselect fontsizeselect',
+            'undo redo | cut copy paste | bold italic | link image | alignleft aligncenter alignright alignjustify',
+            'bullist numlist | outdent indent | blockquote subscript superscript | advlist | autolink | lists charmap | preview |  code | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol'
+        ],
+        plugins: 'advlist autolink link image lists charmap preview table code',
+        license_key: 'gpl'
+    };
+
+    if (KTThemeMode.getMode() === "dark") {
+        options["skin"] = "oxide-dark";
+        options["content_css"] = "dark";
+    }
+
+    tinymce.init(options);
+
+    if(disabled){
+        tinymce.activeEditor.mode.set('readonly');
+    }
+}
