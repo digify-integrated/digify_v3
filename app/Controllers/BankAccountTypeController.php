@@ -63,7 +63,7 @@ class BankAccountTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -118,7 +118,7 @@ class BankAccountTypeController
     }
 
     public function deleteMultipleBankAccountType(){
-        $bankAccountTypeIds  = $_POST['bank_account_type_id'] ?? null;
+        $bankAccountTypeIds = $_POST['bank_account_type_id'] ?? null;
 
         foreach($bankAccountTypeIds as $bankAccountTypeId){
             $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
@@ -138,11 +138,12 @@ class BankAccountTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Bank Account Type Details',
-                'The bank account type does not exist'
+                'The bank account type does not exist',
+                ['notExist' => true]
             );
         }
 
-        $bankAccountTypeDetails   = $this->bankAccountType->fetchBankAccountType($bankAccountTypeId);
+        $bankAccountTypeDetails = $this->bankAccountType->fetchBankAccountType($bankAccountTypeId);
 
         $response = [
             'success'               => true,

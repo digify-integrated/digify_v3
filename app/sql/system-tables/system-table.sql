@@ -381,9 +381,11 @@ CREATE INDEX idx_app_module_menu_item_id ON app_module(menu_item_id);
   INITIAL VALUES: APP MODULE
 ============================================================================================= */
 
-INSERT INTO app_module (app_module_id, app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) VALUES
-(1, 'Settings', 'Centralized management hub for comprehensive organizational oversight and control.', './storage/uploads/app_module/1/Pboex.png', 1, 'App Module', 100),
-(2, 'Employee', 'Centralize employee information.', './storage/uploads/app_module/2/Jiwn.png', 24, 'Employee', 5);
+INSERT INTO app_module (app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) VALUES
+('Settings', 'Centralized management hub for comprehensive organizational oversight and control.', './storage/uploads/app_module/1/settings.png', 1, 'App Module', 100),
+('Employee', 'Centralize employee information.', './storage/uploads/app_module/2/employees.png', 22, 'Employee', 5),
+('Point of Sale', 'Handle checkouts and payments for shops and restaurants.', './storage/uploads/app_module/4/pos.png', 1, 'App Module', 10),
+('Inventory', 'Manage your stocks and logistics activities.', './storage/uploads/app_module/3/inventory.png', 1, 'App Module', 15);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -467,12 +469,12 @@ VALUES
 ('Relationship', 'relationship.php', '', 1, 'Settings', 34, 'Profile Attribute', 'relationship', 18),
 ('Religion', 'religion.php', '', 1, 'Settings', 34, 'Profile Attribute', 'religion', 19),
 ('HR Configurations', '', '', 2, 'Employee', NULL, '', '', 99),
-('Department', 'department.php', 'ki-outline ki-data', 2, 'Employee', 42, 'HR Configurations', 'department', 4),
-('Departure Reason', 'departure-reason.php', 'ki-outline ki-user-square', 2, 'Employee', 42, 'HR Configurations', 'departure_reason', 4),
-('Employment Location Type', 'employment-location-type.php', 'ki-outline ki-route', 2, 'Employee', 42, 'HR Configurations', 'employment_location_type', 5),
-('Employment Type', 'employment-type.php', 'ki-outline ki-briefcase', 2, 'Employee', 42, 'HR Configurations', 'employment_type', 5),
-('Job Position', 'job-position.php', 'ki-outline ki-questionnaire-tablet', 2, 'Employee', 42, 'HR Configurations', 'job_position', 10),
-('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 42, 'HR Configurations', 'work_location', 23);
+('Department', 'department.php', 'ki-outline ki-data', 2, 'Employee', 40, 'HR Configurations', 'department', 4),
+('Departure Reason', 'departure-reason.php', 'ki-outline ki-user-square', 2, 'Employee', 40, 'HR Configurations', 'departure_reason', 4),
+('Employment Location Type', 'employment-location-type.php', 'ki-outline ki-route', 2, 'Employee', 40, 'HR Configurations', 'employment_location_type', 5),
+('Employment Type', 'employment-type.php', 'ki-outline ki-briefcase', 2, 'Employee', 40, 'HR Configurations', 'employment_type', 5),
+('Job Position', 'job-position.php', 'ki-outline ki-questionnaire-tablet', 2, 'Employee', 40, 'HR Configurations', 'job_position', 10),
+('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 40, 'HR Configurations', 'work_location', 23);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

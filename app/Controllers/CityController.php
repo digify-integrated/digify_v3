@@ -67,7 +67,7 @@ class CityController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -129,7 +129,7 @@ class CityController
     }
 
     public function deleteMultipleCity(){
-        $cityIds  = $_POST['city_id'] ?? null;
+        $cityIds = $_POST['city_id'] ?? null;
 
         foreach($cityIds as $cityId){
             $this->city->deleteCity($cityId);
@@ -149,11 +149,12 @@ class CityController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get City Details',
-                'The city does not exist'
+                'The city does not exist',
+                ['notExist' => true]
             );
         }
 
-        $cityDetails   = $this->city->fetchCity($cityId);
+        $cityDetails = $this->city->fetchCity($cityId);
 
         $response = [
             'success'   => true,

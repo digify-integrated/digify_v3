@@ -44,9 +44,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-     generateDropdownOptions({
+    const displayFileExtensionDetails = async () => {
+        const transaction           = 'fetch upload setting file extension details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+
+        try {
+            resetForm('upload_setting_file_extension_form');
+            
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('upload_setting_id', upload_setting_id);
+
+            const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+               $('#file_extension_id').val(data.allowedFileExtension).trigger('change');
+            }
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
+    };
+
+    generateDropdownOptions({
         url: './app/Controllers/FileExtensionController.php',
-        dropdownSelector: '#allowed_file_extension',
+        dropdownSelector: '#file_extension_id',
         data: { 
             transaction: 'generate file extension options',
             multiple : true
@@ -55,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'upload_setting');
     displayDetails();
+    displayFileExtensionDetails();
 
     $('#upload_setting_form').validate({
         rules: {
@@ -123,6 +162,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#upload_setting_file_extension_form').validate({
+        rules: {
+            file_extension_id: {
+                required: true
+            }
+        },
+        messages: {
+            file_extension_id: {
+                required: 'Choose the file extension'
+            }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction           = 'save upload setting file extension';
+            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('upload_setting_id', upload_setting_id);
+
+            disableButton('submit-file-extension');
+
+            try {
+                const response = await fetch('./app/Controllers/UploadSettingController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save upload setting file extension failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-file-extension');
+                    displayDetails();
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-file-extension');
+                }
+            } catch (error) {
+                enableButton('submit-file-extension');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 

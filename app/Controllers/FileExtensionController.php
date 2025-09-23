@@ -102,11 +102,11 @@ class FileExtensionController
         $fileExtension      = $_POST['file_extension'] ?? null;
         $fileTypeId         = $_POST['file_type_id'] ?? null;
 
-        $fileTypeDetails     = $this->fileType->fetchFileType($fileTypeId);
-        $fileTypeName        = $fileTypeDetails['file_type_name'] ?? '';
+        $fileTypeDetails    = $this->fileType->fetchFileType($fileTypeId);
+        $fileTypeName       = $fileTypeDetails['file_type_name'] ?? '';
 
-        $fileExtensionId              = $this->fileExtension->saveFileExtension($fileExtensionId, $fileExtensionName, $fileExtension, $fileTypeId, $fileTypeName, $lastLogBy);
-        $encryptedfileExtensionId     = $this->security->encryptData($fileExtensionId);
+        $fileExtensionId            = $this->fileExtension->saveFileExtension($fileExtensionId, $fileExtensionName, $fileExtension, $fileTypeId, $fileTypeName, $lastLogBy);
+        $encryptedfileExtensionId   = $this->security->encryptData($fileExtensionId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save File Extension Success',
@@ -127,7 +127,7 @@ class FileExtensionController
     }
 
     public function deleteMultipleFileExtension(){
-        $fileExtensionIds  = $_POST['file_extension_id'] ?? null;
+        $fileExtensionIds = $_POST['file_extension_id'] ?? null;
 
         foreach($fileExtensionIds as $fileExtensionId){
             $this->fileExtension->deleteFileExtension($fileExtensionId);
@@ -147,11 +147,12 @@ class FileExtensionController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get File Extension Details',
-                'The file extension does not exist'
+                'The file extension does not exist',
+                ['notExist' => true]
             );
         }
 
-        $stateDetails   = $this->fileExtension->fetchFileExtension($fileExtensionId);
+        $stateDetails = $this->fileExtension->fetchFileExtension($fileExtensionId);
 
         $response = [
             'success'               => true,
@@ -166,9 +167,9 @@ class FileExtensionController
 
     public function generateFileExtensionTable()
     {
-        $pageLink       = $_POST['page_link'] ?? null;
-        $fileTypeFilter  = $this->systemHelper->checkFilter($_POST['file_type_filter'] ?? null);
-        $response       = [];
+        $pageLink           = $_POST['page_link'] ?? null;
+        $fileTypeFilter     = $this->systemHelper->checkFilter($_POST['file_type_filter'] ?? null);
+        $response           = [];
 
         $states = $this->fileExtension->generateFileExtensionTable($fileTypeFilter);
 
@@ -181,12 +182,12 @@ class FileExtensionController
             $fileExtensionIdEncrypted = $this->security->encryptData($fileExtensionId);
 
             $response[] = [
-                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $fileExtensionId .'">
-                                    </div>',
-                'FILE_EXTENSION_NAME'    => $fileExtensionName . ' (.' . $fileExtension . ')',
-                'FILE_TYPE_NAME'  => $fileTypeName,
-                'LINK'          => $pageLink .'&id='. $fileExtensionIdEncrypted
+                'CHECK_BOX'             => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                                <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $fileExtensionId .'">
+                                            </div>',
+                'FILE_EXTENSION_NAME'   => $fileExtensionName . ' (.' . $fileExtension . ')',
+                'FILE_TYPE_NAME'        => $fileTypeName,
+                'LINK'                  => $pageLink .'&id='. $fileExtensionIdEncrypted
             ];
         }
 

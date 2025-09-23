@@ -63,7 +63,7 @@ class CurrencyController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -98,8 +98,8 @@ class CurrencyController
         $symbol         = $_POST['symbol'] ?? null;
         $shorthand      = $_POST['shorthand'] ?? null;
 
-        $currencyId              = $this->currency->saveCurrency($currencyId, $currencyName, $symbol, $shorthand, $lastLogBy);
-        $encryptedcurrencyId     = $this->security->encryptData($currencyId);
+        $currencyId             = $this->currency->saveCurrency($currencyId, $currencyName, $symbol, $shorthand, $lastLogBy);
+        $encryptedcurrencyId    = $this->security->encryptData($currencyId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Currency Success',
@@ -120,7 +120,7 @@ class CurrencyController
     }
 
     public function deleteMultipleCurrency(){
-        $currencyIds  = $_POST['currency_id'] ?? null;
+        $currencyIds = $_POST['currency_id'] ?? null;
 
         foreach($currencyIds as $currencyId){
             $this->currency->deleteCurrency($currencyId);
@@ -140,11 +140,12 @@ class CurrencyController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Currency Details',
-                'The currency does not exist'
+                'The currency does not exist',
+                ['notExist' => true]
             );
         }
 
-        $currencyDetails   = $this->currency->fetchCurrency($currencyId);
+        $currencyDetails = $this->currency->fetchCurrency($currencyId);
 
         $response = [
             'success'       => true,
@@ -162,9 +163,9 @@ class CurrencyController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $currencys = $this->currency->generateCurrencyTable();
+        $currencies = $this->currency->generateCurrencyTable();
 
-        foreach ($currencys as $row) {
+        foreach ($currencies as $row) {
             $currencyId     = $row['currency_id'];
             $currencyName   = $row['currency_name'];
             $symbol         = $row['symbol'];
@@ -198,9 +199,9 @@ class CurrencyController
             ];
         }
 
-        $currencys = $this->currency->generateCurrencyOptions();
+        $currencies = $this->currency->generateCurrencyOptions();
 
-        foreach ($currencys as $row) {
+        foreach ($currencies as $row) {
             $response[] = [
                 'id'    => $row['currency_id'],
                 'text'  => $row['currency_name']

@@ -86,7 +86,7 @@
                 <?= $security->csrfInput('upload_setting_file_extension_form'); ?>
                 <div class="card-body border-top p-9">
                     <div class="fv-row mb-0">
-                        <select id="allowed_file_extension" name="allowed_file_extension" multiple="multiple" class="form-select form-select-solid" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                        <select id="file_extension_id" name="file_extension_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                     </div>
                 </div>
                 <?php

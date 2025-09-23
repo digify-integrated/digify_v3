@@ -63,7 +63,7 @@ class CredentialTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -93,11 +93,11 @@ class CredentialTypeController
             );
         }
 
-        $credentialTypeId      = $_POST['credential_type_id'] ?? null;
-        $credentialTypeName    = $_POST['credential_type_name'] ?? null;
+        $credentialTypeId       = $_POST['credential_type_id'] ?? null;
+        $credentialTypeName     = $_POST['credential_type_name'] ?? null;
 
-        $credentialTypeId              = $this->credentialType->saveCredentialType($credentialTypeId, $credentialTypeName, $lastLogBy);
-        $encryptedCredentialTypeId     = $this->security->encryptData($credentialTypeId);
+        $credentialTypeId           = $this->credentialType->saveCredentialType($credentialTypeId, $credentialTypeName, $lastLogBy);
+        $encryptedCredentialTypeId  = $this->security->encryptData($credentialTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Credential Type Success',
@@ -138,11 +138,12 @@ class CredentialTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Credential Type Details',
-                'The credential type does not exist'
+                'The credential type does not exist',
+                ['notExist' => true]
             );
         }
 
-        $credentialTypeDetails   = $this->credentialType->fetchCredentialType($credentialTypeId);
+        $credentialTypeDetails = $this->credentialType->fetchCredentialType($credentialTypeId);
 
         $response = [
             'success'               => true,

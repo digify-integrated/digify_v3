@@ -63,7 +63,7 @@ class GenderController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -93,8 +93,8 @@ class GenderController
             );
         }
 
-        $genderId      = $_POST['gender_id'] ?? null;
-        $genderName    = $_POST['gender_name'] ?? null;
+        $genderId       = $_POST['gender_id'] ?? null;
+        $genderName     = $_POST['gender_name'] ?? null;
 
         $genderId           = $this->gender->saveGender($genderId, $genderName, $lastLogBy);
         $encryptedGenderId  = $this->security->encryptData($genderId);
@@ -118,7 +118,7 @@ class GenderController
     }
 
     public function deleteMultipleGender(){
-        $genderIds  = $_POST['gender_id'] ?? null;
+        $genderIds = $_POST['gender_id'] ?? null;
 
         foreach($genderIds as $genderId){
             $this->gender->deleteGender($genderId);
@@ -138,11 +138,12 @@ class GenderController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Gender Details',
-                'The gender does not exist'
+                'The gender does not exist',
+                ['notExist' => true]
             );
         }
 
-        $genderDetails   = $this->gender->fetchGender($genderId);
+        $genderDetails = $this->gender->fetchGender($genderId);
 
         $response = [
             'success'       => true,
@@ -161,8 +162,8 @@ class GenderController
         $countries = $this->gender->generateGenderTable();
 
         foreach ($countries as $row) {
-            $genderId      = $row['gender_id'];
-            $genderName    = $row['gender_name'];
+            $genderId       = $row['gender_id'];
+            $genderName     = $row['gender_name'];
 
             $genderIdEncrypted = $this->security->encryptData($genderId);
 

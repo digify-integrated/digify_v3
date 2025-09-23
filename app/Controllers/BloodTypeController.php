@@ -63,7 +63,7 @@ class BloodTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -118,7 +118,7 @@ class BloodTypeController
     }
 
     public function deleteMultipleBloodType(){
-        $bloodTypeIds  = $_POST['blood_type_id'] ?? null;
+        $bloodTypeIds = $_POST['blood_type_id'] ?? null;
 
         foreach($bloodTypeIds as $bloodTypeId){
             $this->bloodType->deleteBloodType($bloodTypeId);
@@ -138,11 +138,12 @@ class BloodTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Blood Type Details',
-                'The blood type does not exist'
+                'The blood type does not exist',
+                ['notExist' => true]
             );
         }
 
-        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
+        $bloodTypeDetails = $this->bloodType->fetchBloodType($bloodTypeId);
 
         $response = [
             'success'           => true,

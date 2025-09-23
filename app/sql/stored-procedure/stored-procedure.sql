@@ -2765,7 +2765,7 @@ END //
 DROP PROCEDURE IF EXISTS deleteUploadSettingFileExtension//
 
 CREATE PROCEDURE deleteUploadSettingFileExtension(
-    IN p_upload_setting_file_extension_id INT
+    IN p_upload_setting_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -2776,7 +2776,7 @@ BEGIN
     START TRANSACTION;
 
     DELETE FROM upload_setting_file_extension 
-    WHERE upload_setting_file_extension_id = p_upload_setting_file_extension_id;
+    WHERE upload_setting_id = p_upload_setting_id;
 
     COMMIT;
 END //

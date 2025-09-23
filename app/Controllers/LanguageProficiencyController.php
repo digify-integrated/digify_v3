@@ -63,7 +63,7 @@ class LanguageProficiencyController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -119,7 +119,7 @@ class LanguageProficiencyController
     }
 
     public function deleteMultipleLanguageProficiency(){
-        $languageProficiencyIds  = $_POST['language_proficiency_id'] ?? null;
+        $languageProficiencyIds = $_POST['language_proficiency_id'] ?? null;
 
         foreach($languageProficiencyIds as $languageProficiencyId){
             $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
@@ -139,11 +139,12 @@ class LanguageProficiencyController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Language Proficiency Details',
-                'The language proficiency does not exist'
+                'The language proficiency does not exist',
+                ['notExist' => true]
             );
         }
 
-        $languageProficiencyDetails   = $this->languageProficiency->fetchLanguageProficiency($languageProficiencyId);
+        $languageProficiencyDetails = $this->languageProficiency->fetchLanguageProficiency($languageProficiencyId);
 
         $response = [
             'success'                           => true,

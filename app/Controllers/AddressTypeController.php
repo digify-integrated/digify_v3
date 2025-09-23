@@ -63,7 +63,7 @@ class AddressTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -118,7 +118,7 @@ class AddressTypeController
     }
 
     public function deleteMultipleAddressType(){
-        $addressTypeIds  = $_POST['address_type_id'] ?? null;
+        $addressTypeIds = $_POST['address_type_id'] ?? null;
 
         foreach($addressTypeIds as $addressTypeId){
             $this->addressType->deleteAddressType($addressTypeId);
@@ -138,11 +138,12 @@ class AddressTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Address Type Details',
-                'The address type does not exist'
+                'The address type does not exist',
+                ['notExist' => true]
             );
         }
 
-        $addressTypeDetails   = $this->addressType->fetchAddressType($addressTypeId);
+        $addressTypeDetails = $this->addressType->fetchAddressType($addressTypeId);
 
         $response = [
             'success'           => true,

@@ -63,7 +63,7 @@ class ContactInformationTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -138,7 +138,8 @@ class ContactInformationTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Contact Information Type Details',
-                'The contact information type does not exist'
+                'The contact information type does not exist',
+                ['notExist' => true]
             );
         }
 

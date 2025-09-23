@@ -63,7 +63,7 @@ class EducationalStageController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -94,7 +94,7 @@ class EducationalStageController
         }
 
         $educationalStageId      = $_POST['educational_stage_id'] ?? null;
-        $educationalStageName    = $_POST['educational_stage_name'] ?? null;
+        $educationalStageName   = $_POST['educational_stage_name'] ?? null;
 
         $educationalStageId             = $this->educationalStage->saveEducationalStage($educationalStageId, $educationalStageName, $lastLogBy);
         $encryptedEducationalStageId    = $this->security->encryptData($educationalStageId);
@@ -118,7 +118,7 @@ class EducationalStageController
     }
 
     public function deleteMultipleEducationalStage(){
-        $educationalStageIds  = $_POST['educational_stage_id'] ?? null;
+        $educationalStageIds = $_POST['educational_stage_id'] ?? null;
 
         foreach($educationalStageIds as $educationalStageId){
             $this->educationalStage->deleteEducationalStage($educationalStageId);
@@ -138,15 +138,16 @@ class EducationalStageController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Educational Stage Details',
-                'The educational stage does not exist'
+                'The educational stage does not exist',
+                ['notExist' => true]
             );
         }
 
         $educationalStageDetails = $this->educationalStage->fetchEducationalStage($educationalStageId);
 
         $response = [
-            'success'                   => true,
-            'educationalStageName'      => $educationalStageDetails['educational_stage_name'] ?? null
+            'success'               => true,
+            'educationalStageName'  => $educationalStageDetails['educational_stage_name'] ?? null
         ];
 
         echo json_encode($response);
@@ -162,7 +163,7 @@ class EducationalStageController
 
         foreach ($countries as $row) {
             $educationalStageId      = $row['educational_stage_id'];
-            $educationalStageName    = $row['educational_stage_name'];
+            $educationalStageName   = $row['educational_stage_name'];
 
             $educationalStageIdEncrypted = $this->security->encryptData($educationalStageId);
 

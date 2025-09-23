@@ -84,9 +84,14 @@ class UserAccountController
             'update user account email'                         => $this->updateUserAccountEmail($lastLogBy),
             'update user account phone'                         => $this->updateUserAccountPhone($lastLogBy),
             'update user account password'                      => $this->updateUserAccountPassword($lastLogBy),
+            'update account settings full name'                 => $this->updateAccountSettingsFullName($lastLogBy),
+            'update account settings email'                     => $this->updateAccountSettingsEmail($lastLogBy),
+            'update account settings phone'                     => $this->updateAccountSettingsPhone($lastLogBy),
+            'update account settings password'                  => $this->updateAccountSettingsPassword($lastLogBy),
             'update user account two factor authentication'     => $this->updateUserAccountTwoFactorAuthentication($lastLogBy),
             'update user account multiple login sessions'       => $this->updateUserAccountMultipleLoginSession($lastLogBy),
             'update user account profile picture'               => $this->updateUserAccountProfilePicture($lastLogBy),
+            'update account settings profile picture'           => $this->updateAccountSettingsProfilePicture($lastLogBy),
             'activate user account'                             => $this->activateUserAccount($lastLogBy),
             'activate multiple user account'                    => $this->activateMultipleUserAccount($lastLogBy),
             'deactivate user account'                           => $this->deactivateUserAccount($lastLogBy),
@@ -95,6 +100,7 @@ class UserAccountController
             'delete multiple user account'                      => $this->deleteMultipleUserAccount(),
             'delete user account role'                          => $this->deleteUserAccountRole(),
             'fetch user account details'                        => $this->fetchUserAccountDetails(),
+            'fetch account settings details'                    => $this->fetchAccountSettingsDetails($lastLogBy),
             'generate user account table'                       => $this->generateUserAccountTable(),
             'generate assigned user account role list'          => $this->generateAssignedUserAccountRoleList($lastLogBy),
             'generate user account role dual listbox options'   => $this->generateUserAccountRoleDualListBoxOptions(),
@@ -272,6 +278,107 @@ class UserAccountController
         );
     }
 
+    public function updateAccountSettingsFullName($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_full_name_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $fullName = $_POST['full_name'] ?? null;
+
+        $this->userAccount->updateUserAccount($lastLogBy, $fullName, 'full name', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Account Settings Full Name Success',
+            'The full name has been saved successfully.'
+        );
+    }
+
+    public function updateAccountSettingsEmail($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_email_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $email = $_POST['email'] ?? null;
+
+        $checkUserAccountEmailExist = $this->userAccount->checkUserAccountEmailExist($lastLogBy, $email);
+        $total                      = $checkUserAccountEmailExist['total'] ?? 0;
+
+        if($total > 0){
+            $this->systemHelper::sendErrorResponse(
+                'Save Account Setting Email Error',
+                'The new email address already exists.'
+            );  
+        }
+
+        $this->userAccount->updateUserAccount($lastLogBy, $email, 'email', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save User Account Email Success',
+            'The email has been saved successfully.'
+        );
+    }
+
+    public function updateAccountSettingsPhone($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_phone_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $phone = $_POST['phone'] ?? null;
+
+        $checkUserAccountPhoneExist = $this->userAccount->checkUserAccountPhoneExist($lastLogBy, $phone);
+        $total                      = $checkUserAccountPhoneExist['total'] ?? 0;
+
+        if($total > 0){
+            $this->systemHelper::sendErrorResponse(
+                'Save Account Settings Phone Error',
+                'The new phone already exists.'
+            );
+        }
+
+        $this->userAccount->updateUserAccount($lastLogBy, $phone, 'phone', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save User Account Phone Success',
+            'The phone has been saved successfully.'
+        );
+    }
+
+    public function updateAccountSettingsPassword($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_password_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $newPassword        = $_POST['new_password'] ?? null;
+        $hashedPassword     = password_hash($newPassword, PASSWORD_BCRYPT);
+
+        $this->userAccount->updateUserAccount($lastLogBy, $hashedPassword, 'password', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Account Settings Password Success',
+            'The password has been saved successfully.'
+        );
+    }
+
     public function updateUserAccountTwoFactorAuthentication($lastLogBy){
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
@@ -301,7 +408,6 @@ class UserAccountController
     }
 
     public function updateUserAccountProfilePicture($lastLogBy){
-
         $userAccountId = $_POST['user_account_id'] ?? null;
        
         $profilePictureFileName                = $_FILES['profile_picture']['name'];
@@ -390,6 +496,97 @@ class UserAccountController
 
         $this->systemHelper->sendSuccessResponse(
             'Update User Account Profile Picture Success',
+            'The user account profile picture has been updated successfully.'
+        );
+    }
+
+     public function updateAccountSettingsProfilePicture($lastLogBy){       
+        $profilePictureFileName                = $_FILES['profile_picture']['name'];
+        $profilePictureFileSize                = $_FILES['profile_picture']['size'];
+        $profilePictureFileError               = $_FILES['profile_picture']['error'];
+        $profilePictureTempName                = $_FILES['profile_picture']['tmp_name'];
+        $profilePictureFileExtension           = explode('.', $profilePictureFileName);
+        $profilePictureActualFileExtension     = strtolower(end($profilePictureFileExtension));
+
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(4);
+        $maxFileSize    = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(4);
+        $allowedFileExtensions          = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $allowedFileExtensions[] = $row['file_extension'];
+        }
+
+        if (!in_array($profilePictureActualFileExtension, $allowedFileExtensions)) {              
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The file uploaded is not supported.'
+            );
+        }
+            
+        if(empty($profilePictureTempName)){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'Please choose the profile picture.'
+            );
+        }
+            
+        if($profilePictureFileError){                
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'An error occurred while uploading the file.'
+            );
+        }
+            
+        if($profilePictureFileSize > ($maxFileSize * 1024)){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The user account profile image exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
+            );
+        }
+
+        $fileName   = $this->security->generateFileName();
+        $fileNew    = $fileName . '.' . $profilePictureActualFileExtension;
+            
+        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+
+        $uploadsDir         = PROJECT_BASE_DIR . '/storage/uploads/';
+        $directory          = $uploadsDir . 'user_account/' . $lastLogBy . '/';
+        $fileDestination    = $directory . $fileNew;
+        $filePath           = 'storage/uploads/user_account/' . $lastLogBy . '/' . $fileNew;
+
+        $directoryChecker = $this->security->directoryChecker($directory);
+
+        if ($directoryChecker !== true) {
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error',
+                $directoryChecker
+            );
+        }
+
+        $userAccountIdDetails   = $this->userAccount->fetchUserAccount($lastLogBy);
+        $profilePicture         = $this->systemHelper->checkImageExist($userAccountIdDetails['profile_picture'] ?? null, 'null');
+        $deleteImageFile        = $this->systemHelper->deleteFileIfExist($profilePicture);
+
+        if(!$deleteImageFile){
+            $this->systemHelper::sendErrorResponse(
+                'Update User Account Profile Picture Error', 
+                'The user account profile image cannot be deleted due to an error'
+            );
+        }
+
+        if(!move_uploaded_file($profilePictureTempName, $fileDestination)){
+            $this->systemHelper::sendErrorResponse(
+                'Update Account Settings Profile Picture Error', 
+                'The user account profile image cannot be uploaded due to an error'
+            );
+        }
+
+        $this->userAccount->updateUserAccount($lastLogBy, $filePath, 'profile picture', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Account Settings Profile Picture Success',
             'The user account profile picture has been updated successfully.'
         );
     }
@@ -494,7 +691,8 @@ class UserAccountController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get User Account Details',
-                'The user account does not exist'
+                'The user account does not exist',
+                ['notExist' => true]
             );
         }
 
@@ -520,6 +718,47 @@ class UserAccountController
             'activeBadge'               => $activeBadge,
             'twoFactorAuthentication'   => $userAccountDetails['two_factor_auth'],
             'multipleSession'           => $userAccountDetails['multiple_session']
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchAccountSettingsDetails($lastLogBy){
+        $checkUserAccountExist     = $this->userAccount->checkUserAccountExist($lastLogBy);
+        $total                     = $checkUserAccountExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper->sendErrorResponse(
+                'Get Account Settings Details',
+                'The account settings does not exist',
+                [
+                    'notExist' => true,
+                    'redirect_link' => 'logout.php?logout'
+                ]
+            );
+        }
+
+        $userAccountDetails         = $this->userAccount->fetchUserAccount($lastLogBy);
+        $profilePicture             = $this->systemHelper->checkImageExist($userAccountDetails['profile_picture'] ?? null, 'profile');
+        $lastConnectionDate         = (!empty($userAccountDetails['last_connection_date'])) ? date('d M Y h:i a', strtotime($userAccountDetails['last_connection_date'])) : 'Never Connected';
+        $lastFailedConnectionDate   = (!empty($userAccountDetails['last_failed_connection_date'])) ? date('d M Y h:i a', strtotime($userAccountDetails['last_failed_connection_date'])) : 'No record';
+        $lastPasswordChange         = (!empty($userAccountDetails['last_password_change'])) ? date('d M Y h:i a', strtotime($userAccountDetails['last_password_change'])) : 'Never Changed';
+        $lastPasswordResetRequest   = (!empty($userAccountDetails['last_password_reset_request'])) ? date('d M Y h:i a', strtotime($userAccountDetails['last_password_reset_request'])) : 'Never Requested';
+        $activeBadge                = $userAccountDetails['active'] == 'Yes' ? '<span class="badge badge-light-success">Active</span>' : '<span class="badge badge-light-danger">Inactive</span>';
+
+        $response = [
+            'success'                   => true,
+            'fileAs'                    => $userAccountDetails['file_as'] ?? null,
+            'email'                     => $userAccountDetails['email'] ?? null,
+            'phone'                     => $userAccountDetails['phone'] ?? null,
+            'phoneSummary'              => $userAccountDetails['phone'] ?? '-',
+            'lastConnectionDate'        => $lastConnectionDate,
+            'lastFailedConnectionDate'  => $lastFailedConnectionDate,
+            'lastPasswordChange'        => $lastPasswordChange,
+            'lastPasswordResetRequest'  => $lastPasswordResetRequest,
+            'profilePicture'            => $profilePicture,
+            'activeBadge'               => $activeBadge
         ];
 
         echo json_encode($response);

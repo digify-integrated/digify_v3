@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
-            resetForm('user_account_form');
-
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
             formData.append('user_account_id', user_account_id);
@@ -50,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification(data.title, data.message, data.message_type);
             }
         } catch (error) {
-            handleSystemError(error, 'fetch_failed', `Failed to fetch system action details: ${error.message}`);
+            handleSystemError(error, 'fetch_failed', `Failed to fetch user account details: ${error.message}`);
         }
     }
 

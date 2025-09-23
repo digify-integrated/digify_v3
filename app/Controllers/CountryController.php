@@ -63,7 +63,7 @@ class CountryController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -120,7 +120,7 @@ class CountryController
     }
 
     public function deleteMultipleCountry(){
-        $countryIds  = $_POST['country_id'] ?? null;
+        $countryIds = $_POST['country_id'] ?? null;
 
         foreach($countryIds as $countryId){
             $this->country->deleteCountry($countryId);
@@ -140,7 +140,8 @@ class CountryController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Country Details',
-                'The country does not exist'
+                'The country does not exist',
+                ['notExist' => true]
             );
         }
 

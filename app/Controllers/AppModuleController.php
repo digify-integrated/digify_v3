@@ -71,7 +71,7 @@ class AppModuleController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -102,17 +102,17 @@ class AppModuleController
             );
         }
 
-        $appModuleId   = $_POST['app_module_id'] ?? null;
-        $appModuleName   = $_POST['app_module_name'] ?? null;
-        $menuItemId   = $_POST['menu_item_id'] ?? null;
-        $orderSequence   = $_POST['order_sequence'] ?? null;
+        $appModuleId            = $_POST['app_module_id'] ?? null;
+        $appModuleName          = $_POST['app_module_name'] ?? null;
+        $menuItemId             = $_POST['menu_item_id'] ?? null;
+        $orderSequence          = $_POST['order_sequence'] ?? null;
         $appModuleDescription   = $_POST['app_module_description'] ?? null;
 
-        $menuItemDetains = $this->menuItem->fetchMenuItem($menuItemId);
-        $menuItemName = $menuItemDetains['menu_item_name'] ?? '';
+        $menuItemDetains    = $this->menuItem->fetchMenuItem($menuItemId);
+        $menuItemName       = $menuItemDetains['menu_item_name'] ?? '';
 
-        $appModuleId = $this->appModule->saveAppModule($appModuleId, $appModuleName, $appModuleDescription, $menuItemId, $menuItemName, $orderSequence, $lastLogBy);
-        $encryptedappModuleId = $this->security->encryptData($appModuleId);
+        $appModuleId            = $this->appModule->saveAppModule($appModuleId, $appModuleName, $appModuleDescription, $menuItemId, $menuItemName, $orderSequence, $lastLogBy);
+        $encryptedappModuleId   = $this->security->encryptData($appModuleId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save App Module Success',
@@ -263,7 +263,8 @@ class AppModuleController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get App Module Details',
-                'The app module does not exist'
+                'The app module does not exist',
+                ['notExist' => true]
             );
         }
 

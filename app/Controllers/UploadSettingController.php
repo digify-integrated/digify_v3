@@ -43,7 +43,6 @@ class UploadSettingController
         }
 
         $transaction    = $_POST['transaction'] ?? null;
-        $pageId         = $_POST['page_id'] ?? null;
         $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
@@ -67,7 +66,7 @@ class UploadSettingController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -79,6 +78,7 @@ class UploadSettingController
             'delete upload setting'                         => $this->deleteUploadSetting(),
             'delete multiple upload setting'                => $this->deleteMultipleUploadSetting(),
             'fetch upload setting details'                  => $this->fetchUploadSettingDetails(),
+            'fetch upload setting file extension details'   => $this->fetchUploadSettingFileExtensionDetails(),
             'generate upload setting table'                 => $this->generateUploadSettingTable(),
             default                                         => $this->systemHelper::sendErrorResponse(
                                                                     'Transaction Failed',
@@ -97,13 +97,13 @@ class UploadSettingController
             );
         }
 
-        $uploadSettingId                = $_POST['upload_setting_id'] ?? null;
-        $uploadSettingName              = $_POST['upload_setting_name'] ?? null;
-        $uploadSettingDescription       = $_POST['upload_setting_description'] ?? null;
-        $maxFileSize                    = $_POST['max_file_size'] ?? null;
+        $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
+        $uploadSettingName          = $_POST['upload_setting_name'] ?? null;
+        $uploadSettingDescription   = $_POST['upload_setting_description'] ?? null;
+        $maxFileSize                = $_POST['max_file_size'] ?? null;
 
-        $uploadSettingId              = $this->uploadSetting->saveUploadSetting($uploadSettingId, $uploadSettingName, $uploadSettingDescription, $maxFileSize, $lastLogBy);
-        $encryptedUploadSettingId     = $this->security->encryptData($uploadSettingId);
+        $uploadSettingId            = $this->uploadSetting->saveUploadSetting($uploadSettingId, $uploadSettingName, $uploadSettingDescription, $maxFileSize, $lastLogBy);
+        $encryptedUploadSettingId   = $this->security->encryptData($uploadSettingId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Upload Setting Success',
@@ -115,7 +115,7 @@ class UploadSettingController
     public function saveUploadSettingFileExtension($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'file_extension_add_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_setting_file_extension_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
                 'Security check failed. Please refresh and try again.'
@@ -123,7 +123,7 @@ class UploadSettingController
         }
 
         $uploadSettingId    = $_POST['upload_setting_id'] ?? null;
-        $fileExtensionIds   = $_POST['file_extension_id'] ?? null;
+        $fileExtensionIds   = $_POST['file_extension_id'] ?? [];
 
         if(empty($fileExtensionIds)){
             $this->systemHelper::sendErrorResponse(
@@ -131,6 +131,8 @@ class UploadSettingController
                 'Please select the file extension(s) you wish to assign to the upload setting.'
             );
         }
+
+        $this->uploadSetting->deleteUploadSettingFileExtension($uploadSettingId);
 
         $uploadSettingDetails   = $this->uploadSetting->fetchUploadSetting($uploadSettingId);
         $uploadSettingName      = $uploadSettingDetails['upload_setting_name'] ?? '';
@@ -161,7 +163,7 @@ class UploadSettingController
     }
 
     public function deleteMultipleUploadSetting(){
-        $uploadSettingIds  = $_POST['upload_setting_id'] ?? null;
+        $uploadSettingIds = $_POST['upload_setting_id'] ?? null;
 
         foreach($uploadSettingIds as $uploadSettingId){
             $this->uploadSetting->deleteUploadSetting($uploadSettingId);
@@ -174,24 +176,54 @@ class UploadSettingController
     }
 
     public function fetchUploadSettingDetails(){
-        $uploadSettingId          = $_POST['upload_setting_id'] ?? null;
-        $checkUploadSettingExist  = $this->uploadSetting->checkUploadSettingExist($uploadSettingId);
-        $total                          = $checkUploadSettingExist['total'] ?? 0;
+        $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
+        $checkUploadSettingExist    = $this->uploadSetting->checkUploadSettingExist($uploadSettingId);
+        $total                      = $checkUploadSettingExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Upload Setting Details',
-                'The upload setting does not exist'
+                'The upload setting does not exist',
+                ['notExist' => true]
             );
         }
 
-        $uploadSettingDetails   = $this->uploadSetting->fetchUploadSetting($uploadSettingId);
+        $uploadSettingDetails = $this->uploadSetting->fetchUploadSetting($uploadSettingId);
 
         $response = [
-            'success'                       => true,
-            'uploadSettingName'             => $uploadSettingDetails['upload_setting_name'] ?? null,
-            'uploadSettingDescription'      => $uploadSettingDetails['upload_setting_description'] ?? null,
-            'maxFileSize'                   => $uploadSettingDetails['max_file_size'] ?? null
+            'success'                   => true,
+            'uploadSettingName'         => $uploadSettingDetails['upload_setting_name'] ?? null,
+            'uploadSettingDescription'  => $uploadSettingDetails['upload_setting_description'] ?? null,
+            'maxFileSize'               => $uploadSettingDetails['max_file_size'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchUploadSettingFileExtensionDetails(){
+        $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
+        $checkUploadSettingExist    = $this->uploadSetting->checkUploadSettingExist($uploadSettingId);
+        $total                      = $checkUploadSettingExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper->sendErrorResponse(
+                'Get Upload Setting Details',
+                'The upload setting does not exist',
+                ['notExist' => true]
+            );
+        }
+
+        $uploadSettingDetails = $this->uploadSetting->fetchUploadSettingFileExtension($uploadSettingId);
+
+        $fileExtensions = [];
+        foreach ($uploadSettingDetails as $row) {
+            $fileExtensions[] = $row['file_extension_id'];
+        }
+
+        $response = [
+            'success'               => true,
+            'allowedFileExtension'  => $fileExtensions
         ];
 
         echo json_encode($response);
@@ -206,10 +238,10 @@ class UploadSettingController
         $countries = $this->uploadSetting->generateUploadSettingTable();
 
         foreach ($countries as $row) {
-            $uploadSettingId                = $row['upload_setting_id'];
-            $uploadSettingName              = $row['upload_setting_name'];
-            $uploadSettingDescription       = $row['upload_setting_description'];
-            $maxFileSize                    = $row['max_file_size'];
+            $uploadSettingId            = $row['upload_setting_id'];
+            $uploadSettingName          = $row['upload_setting_name'];
+            $uploadSettingDescription   = $row['upload_setting_description'];
+            $maxFileSize                = $row['max_file_size'];
 
             $uploadSettingIdEncrypted = $this->security->encryptData($uploadSettingId);
 

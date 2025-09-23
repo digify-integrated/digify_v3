@@ -71,7 +71,7 @@ class MenuItemController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -115,14 +115,14 @@ class MenuItemController
         $menuItemUrl    = $_POST['menu_item_url'] ?? null;
         $tableName      = $_POST['table_name'] ?? null;
 
-        $appModuleDetails = $this->appModule->fetchAppModule($appModuleId);
-        $appModuleName = $appModuleDetails['app_module_name'] ?? '';
+        $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
+        $appModuleName      = $appModuleDetails['app_module_name'] ?? '';
 
-        $parentDetails = $this->menuItem->fetchMenuItem($parentId);
-        $parentName = $parentDetails['menu_item_name'] ?? '';
+        $parentDetails  = $this->menuItem->fetchMenuItem($parentId);
+        $parentName     = $parentDetails['menu_item_name'] ?? '';
 
-        $menuItemId = $this->menuItem->saveMenuItem($menuItemId, $menuItemName, $menuItemUrl, $menuItemIcon, $appModuleId, $appModuleName, $parentId, $parentName, $tableName, $orderSequence, $lastLogBy);
-        $encryptedmenuItemId = $this->security->encryptData($menuItemId);
+        $menuItemId             = $this->menuItem->saveMenuItem($menuItemId, $menuItemName, $menuItemUrl, $menuItemIcon, $appModuleId, $appModuleName, $parentId, $parentName, $tableName, $orderSequence, $lastLogBy);
+        $encryptedmenuItemId    = $this->security->encryptData($menuItemId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Menu Item Success',
@@ -151,12 +151,12 @@ class MenuItemController
             );
         }
 
-        $menuItemDetails = $this->menuItem->fetchMenuItem($menuItemId);
-        $menuItemName = $menuItemDetails['menu_item_name'] ?? '';
+        $menuItemDetails    = $this->menuItem->fetchMenuItem($menuItemId);
+        $menuItemName       = $menuItemDetails['menu_item_name'] ?? '';
 
         foreach ($roleIds as $roleId) {
-            $roleDetails = $this->role->fetchRole($roleId);
-            $roleName = $roleDetails['role_name'] ?? null;
+            $roleDetails    = $this->role->fetchRole($roleId);
+            $roleName       = $roleDetails['role_name'] ?? null;
 
             $this->role->insertRolePermission($roleId, $roleName, $menuItemId, $menuItemName, $lastLogBy);
         }
@@ -202,7 +202,7 @@ class MenuItemController
     }
 
     public function deleteMultipleMenuItem(){
-        $menuItemIds  = $_POST['menu_item_id'] ?? null;
+        $menuItemIds = $_POST['menu_item_id'] ?? null;
 
         foreach($menuItemIds as $menuItemId){
             $this->menuItem->deleteMenuItem($menuItemId);
@@ -226,9 +226,9 @@ class MenuItemController
     }
 
     public function fetchMenuItemDetails(){
-        $menuItemId            = $_POST['menu_item_id'] ?? null;
-        $checkMenuItemExist    = $this->menuItem->checkMenuItemExist($menuItemId);
-        $total                 = $checkMenuItemExist['total'] ?? 0;
+        $menuItemId             = $_POST['menu_item_id'] ?? null;
+        $checkMenuItemExist     = $this->menuItem->checkMenuItemExist($menuItemId);
+        $total                  = $checkMenuItemExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

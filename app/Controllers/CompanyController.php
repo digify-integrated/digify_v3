@@ -75,7 +75,7 @@ class CompanyController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -255,7 +255,7 @@ class CompanyController
     }
 
     public function deleteMultipleCompany(){
-        $companyIds  = $_POST['company_id'] ?? null;
+        $companyIds = $_POST['company_id'] ?? null;
 
         foreach($companyIds as $companyId){
             $companyDetails     = $this->company->fetchCompany($companyId);
@@ -280,12 +280,13 @@ class CompanyController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Company Details',
-                'The company does not exist'
+                'The company does not exist',
+                ['notExist' => true]
             );
         }
 
         $companyDetails     = $this->company->fetchCompany($companyId);
-        $companyLogo            = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'company logo');
+        $companyLogo        = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'company logo');
 
         $response = [
             'success'       => true,
@@ -307,11 +308,11 @@ class CompanyController
 
     public function generateCompanyTable()
     {
-        $pageLink   = $_POST['page_link'] ?? null;
-        $cityFilter    = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter    = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter    = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $currencyFilter    = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
+        $pageLink           = $_POST['page_link'] ?? null;
+        $cityFilter         = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
+        $stateFilter        = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
+        $countryFilter      = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
+        $currencyFilter     = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
         $response   = [];
 
         $companys = $this->company->generateCompanyTable($cityFilter, $stateFilter, $countryFilter, $currencyFilter);

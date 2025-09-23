@@ -67,7 +67,7 @@ class StateController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -146,7 +146,8 @@ class StateController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get State Details',
-                'The state does not exist'
+                'The state does not exist',
+                ['notExist' => true]
             );
         }
 

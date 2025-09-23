@@ -67,7 +67,7 @@ class SystemActionController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -186,7 +186,7 @@ class SystemActionController
     }
 
     public function deleteMultipleSystemAction(){
-        $systemActionIds  = $_POST['system_action_id'] ?? null;
+        $systemActionIds = $_POST['system_action_id'] ?? null;
 
         foreach($systemActionIds as $systemActionId){
             $this->systemAction->deleteSystemAction($systemActionId);
@@ -217,11 +217,12 @@ class SystemActionController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get System Action Details',
-                'The system action does not exist'
+                'The system action does not exist',
+                ['notExist' => true]
             );
         }
 
-        $systemActionDetails   = $this->systemAction->fetchSystemAction($systemActionId);
+        $systemActionDetails = $this->systemAction->fetchSystemAction($systemActionId);
 
         $response = [
             'success'                   => true,
@@ -277,9 +278,9 @@ class SystemActionController
         $systemActions = $this->systemAction->generateSystemActionAssignedRoleTable($systemActionId);
 
         foreach ($systemActions as $row) {
-            $roleSystemActionPermissionId = $row['role_system_action_permission_id'];
-            $roleName = $row['role_name'];
-            $roleAccess = $row['system_action_access'];
+            $roleSystemActionPermissionId   = $row['role_system_action_permission_id'];
+            $roleName                       = $row['role_name'];
+            $roleAccess                     = $row['system_action_access'];
 
             $roleAccessChecked = $roleAccess ? 'checked' : '';
 

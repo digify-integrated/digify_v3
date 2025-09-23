@@ -63,7 +63,7 @@ class NotificationSettingController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -203,7 +203,7 @@ class NotificationSettingController
     }
 
     public function deleteMultipleNotificationSetting(){
-        $notificationSettingIds  = $_POST['notification_setting_id'] ?? null;
+        $notificationSettingIds = $_POST['notification_setting_id'] ?? null;
 
         foreach($notificationSettingIds as $notificationSettingId){
             $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
@@ -298,7 +298,8 @@ class NotificationSettingController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Notification Setting Details',
-                'The notification setting does not exist'
+                'The notification setting does not exist',
+                ['notExist' => true]
             );
         }
 

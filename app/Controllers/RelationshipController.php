@@ -63,7 +63,7 @@ class RelationshipController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -118,7 +118,7 @@ class RelationshipController
     }
 
     public function deleteMultipleRelationship(){
-        $relationshipIds  = $_POST['relationship_id'] ?? null;
+        $relationshipIds = $_POST['relationship_id'] ?? null;
 
         foreach($relationshipIds as $relationshipId){
             $this->relationship->deleteRelationship($relationshipId);
@@ -138,7 +138,8 @@ class RelationshipController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Relationship Details',
-                'The relationship does not exist'
+                'The relationship does not exist',
+                ['notExist' => true]
             );
         }
 

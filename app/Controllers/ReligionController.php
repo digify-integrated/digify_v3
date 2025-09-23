@@ -63,7 +63,7 @@ class ReligionController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -93,8 +93,8 @@ class ReligionController
             );
         }
 
-        $religionId      = $_POST['religion_id'] ?? null;
-        $religionName    = $_POST['religion_name'] ?? null;
+        $religionId     = $_POST['religion_id'] ?? null;
+        $religionName   = $_POST['religion_name'] ?? null;
 
         $religionId           = $this->religion->saveReligion($religionId, $religionName, $lastLogBy);
         $encryptedReligionId  = $this->security->encryptData($religionId);
@@ -138,11 +138,12 @@ class ReligionController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Religion Details',
-                'The religion does not exist'
+                'The religion does not exist',
+                ['notExist' => true]
             );
         }
 
-        $religionDetails   = $this->religion->fetchReligion($religionId);
+        $religionDetails = $this->religion->fetchReligion($religionId);
 
         $response = [
             'success'       => true,

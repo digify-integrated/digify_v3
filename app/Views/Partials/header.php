@@ -68,11 +68,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="menu-item px-5 my-1">
-                            <a href="account-settings.php" class="menu-link px-5">
-                                Account Settings
-                            </a>
-                        </div>
                         <div class="menu-item px-5">
                             <a href="logout.php?logout" class="menu-link px-5">
                                 Sign Out

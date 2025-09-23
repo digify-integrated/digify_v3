@@ -63,7 +63,7 @@ class BankController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -119,7 +119,7 @@ class BankController
     }
 
     public function deleteMultipleBank(){
-        $bankIds  = $_POST['bank_id'] ?? null;
+        $bankIds = $_POST['bank_id'] ?? null;
 
         foreach($bankIds as $bankId){
             $this->bank->deleteBank($bankId);
@@ -139,7 +139,8 @@ class BankController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Bank Details',
-                'The bank does not exist'
+                'The bank does not exist',
+                ['notExist' => true]
             );
         }
 

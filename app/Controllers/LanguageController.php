@@ -63,7 +63,7 @@ class LanguageController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -93,11 +93,11 @@ class LanguageController
             );
         }
 
-        $languageId      = $_POST['language_id'] ?? null;
-        $languageName    = $_POST['language_name'] ?? null;
+        $languageId     = $_POST['language_id'] ?? null;
+        $languageName   = $_POST['language_name'] ?? null;
 
-        $languageId           = $this->language->saveLanguage($languageId, $languageName, $lastLogBy);
-        $encryptedLanguageId  = $this->security->encryptData($languageId);
+        $languageId             = $this->language->saveLanguage($languageId, $languageName, $lastLogBy);
+        $encryptedLanguageId    = $this->security->encryptData($languageId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Language Success',
@@ -118,7 +118,7 @@ class LanguageController
     }
 
     public function deleteMultipleLanguage(){
-        $languageIds  = $_POST['language_id'] ?? null;
+        $languageIds = $_POST['language_id'] ?? null;
 
         foreach($languageIds as $languageId){
             $this->language->deleteLanguage($languageId);
@@ -131,22 +131,23 @@ class LanguageController
     }
 
     public function fetchLanguageDetails(){
-        $languageId            = $_POST['language_id'] ?? null;
-        $checkLanguageyExist   = $this->language->checkLanguageExist($languageId);
-        $total                 = $checkLanguageyExist['total'] ?? 0;
+        $languageId             = $_POST['language_id'] ?? null;
+        $checkLanguageyExist    = $this->language->checkLanguageExist($languageId);
+        $total                  = $checkLanguageyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Language Details',
-                'The language does not exist'
+                'The language does not exist',
+                ['notExist' => true]
             );
         }
 
-        $languageDetails   = $this->language->fetchLanguage($languageId);
+        $languageDetails = $this->language->fetchLanguage($languageId);
 
         $response = [
-            'success'          => true,
-            'languageName'     => $languageDetails['language_name'] ?? null
+            'success'       => true,
+            'languageName'  => $languageDetails['language_name'] ?? null
         ];
 
         echo json_encode($response);
@@ -161,8 +162,8 @@ class LanguageController
         $countries = $this->language->generateLanguageTable();
 
         foreach ($countries as $row) {
-            $languageId      = $row['language_id'];
-            $languageName    = $row['language_name'];
+            $languageId     = $row['language_id'];
+            $languageName   = $row['language_name'];
 
             $languageIdEncrypted = $this->security->encryptData($languageId);
 

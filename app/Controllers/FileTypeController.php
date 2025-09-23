@@ -63,7 +63,7 @@ class FileTypeController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -96,8 +96,8 @@ class FileTypeController
         $fileTypeId      = $_POST['file_type_id'] ?? null;
         $fileTypeName    = $_POST['file_type_name'] ?? null;
 
-        $fileTypeId              = $this->fileType->saveFileType($fileTypeId, $fileTypeName, $lastLogBy);
-        $encryptedFileTypeId     = $this->security->encryptData($fileTypeId);
+        $fileTypeId             = $this->fileType->saveFileType($fileTypeId, $fileTypeName, $lastLogBy);
+        $encryptedFileTypeId    = $this->security->encryptData($fileTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save File Type Success',
@@ -118,7 +118,7 @@ class FileTypeController
     }
 
     public function deleteMultipleFileType(){
-        $fileTypeIds  = $_POST['file_type_id'] ?? null;
+        $fileTypeIds = $_POST['file_type_id'] ?? null;
 
         foreach($fileTypeIds as $fileTypeId){
             $this->fileType->deleteFileType($fileTypeId);
@@ -138,11 +138,12 @@ class FileTypeController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get File Type Details',
-                'The file type does not exist'
+                'The file type does not exist',
+                ['notExist' => true]
             );
         }
 
-        $fileTypeDetails   = $this->fileType->fetchFileType($fileTypeId);
+        $fileTypeDetails = $this->fileType->fetchFileType($fileTypeId);
 
         $response = [
             'success'           => true,
@@ -170,7 +171,7 @@ class FileTypeController
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                             <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $fileTypeId .'">
                                         </div>',
-                'FILE_TYPE_NAME'   => $fileTypeName,
+                'FILE_TYPE_NAME'    => $fileTypeName,
                 'LINK'              => $pageLink .'&id='. $fileTypeIdEncrypted
             ];
         }

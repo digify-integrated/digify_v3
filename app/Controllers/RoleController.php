@@ -71,7 +71,7 @@ class RoleController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -253,7 +253,7 @@ class RoleController
     }
 
     public function deleteMultipleRole(){
-        $roleIds  = $_POST['role_id'] ?? null;
+        $roleIds = $_POST['role_id'] ?? null;
 
         foreach($roleIds as $roleId){
             $this->role->deleteRole($roleId);
@@ -295,11 +295,12 @@ class RoleController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Role Details',
-                'The role does not exist'
+                'The role does not exist',
+                ['notExist' => true]
             );
         }
 
-        $roleDetails   = $this->role->fetchRole($roleId);
+        $roleDetails = $this->role->fetchRole($roleId);
 
         $response = [
             'success'           => true,

@@ -115,14 +115,14 @@ class UploadSetting extends Model {
     }
 
     public function deleteUploadSettingFileExtension(
-        $p_upload_setting_file_extension_id
+        $p_upload_setting_id
     ) {
         $sql = 'CALL deleteUploadSettingFileExtension(
-            :p_upload_setting_file_extension_id
+            :p_upload_setting_id
         )';
         
         return $this->query($sql, [
-            'p_upload_setting_file_extension_id' => $p_upload_setting_file_extension_id
+            'p_upload_setting_id' => $p_upload_setting_id
         ]);
     }
 

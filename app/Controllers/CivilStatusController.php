@@ -63,7 +63,7 @@ class CivilStatusController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -118,7 +118,7 @@ class CivilStatusController
     }
 
     public function deleteMultipleCivilStatus(){
-        $civilStatusIds  = $_POST['civil_status_id'] ?? null;
+        $civilStatusIds = $_POST['civil_status_id'] ?? null;
 
         foreach($civilStatusIds as $civilStatusId){
             $this->civilStatus->deleteCivilStatus($civilStatusId);
@@ -138,11 +138,12 @@ class CivilStatusController
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
                 'Get Civil Status Details',
-                'The civil status does not exist'
+                'The civil status does not exist',
+                ['notExist' => true]
             );
         }
 
-        $civilStatusDetails   = $this->civilStatus->fetchCivilStatus($civilStatusId);
+        $civilStatusDetails = $this->civilStatus->fetchCivilStatus($civilStatusId);
 
         $response = [
             'success'           => true,
