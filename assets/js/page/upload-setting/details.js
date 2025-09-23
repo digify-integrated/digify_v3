@@ -44,34 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const fileExtensionList = async () => {
-        const transaction           = 'generate assigned file extension list';
-        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim() || '';
-
-        try {
-            const formData = new URLSearchParams();
-            formData.append('transaction', transaction);
-            formData.append('upload_setting_id', upload_setting_id);
-
-            const response = await fetch('./app/Controllers/UploadSettingController.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
-
-            const data = await response.json();
-            
-            document.getElementById('file-extension-list').innerHTML = data[0].FILE_EXTENSION;
-
-        } catch (error) {
-            handleSystemError(error, 'fetch_failed', `Failed to fetch file extension list: ${error.message}`);
+     generateDropdownOptions({
+        url: './app/Controllers/FileExtensionController.php',
+        dropdownSelector: '#allowed_file_extension',
+        data: { 
+            transaction: 'generate file extension options',
+            multiple : true
         }
-    }
+    });
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'upload_setting');
     displayDetails();
-    fileExtensionList();
 
     $('#upload_setting_form').validate({
         rules: {
@@ -104,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction               = 'save upload setting';
-            const upload_setting_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save upload setting';
+            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -197,17 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
                 }
             }
-        }
-
-        if (event.target.closest('#add-file-extension')){
-            generateDualListBox({
-                url: './app/Controllers/UploadSettingController.php',
-                selectSelector: 'role_id',
-                data: {
-                    transaction: 'generate file extension dual listbox options',
-                    upload_setting_id: document.getElementById('details-id')?.textContent.trim()
-                }
-            });
         }
     });
 });

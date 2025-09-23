@@ -2526,6 +2526,18 @@ BEGIN
     ORDER BY file_extension_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateFileExtensionDualListBoxOptions//
+
+CREATE PROCEDURE generateFileExtensionDualListBoxOptions(
+    IN p_upload_setting_id INT
+)
+BEGIN
+	SELECT file_extension_id, file_extension_name, file_extension
+    FROM file_extension 
+    WHERE file_extension_id NOT IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
+    ORDER BY file_extension_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -2776,6 +2788,18 @@ END //
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateUploadSettingFileExtensionList//
+
+CREATE PROCEDURE generateUploadSettingFileExtensionList(
+    IN p_upload_setting_id INT
+)
+BEGIN
+	SELECT upload_setting_file_extension_id, file_extension_id, file_extension_name, file_extension
+    FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id
+    ORDER BY file_extension_name;
+END //
 
 /* =============================================================================================
    END OF PROCEDURES

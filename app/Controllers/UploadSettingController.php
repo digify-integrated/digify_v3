@@ -26,11 +26,11 @@ class UploadSettingController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->uploadSetting        = $uploadSetting;
-        $this->fileExtension        = $fileExtension;
-        $this->authentication       = $authentication;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->uploadSetting    = $uploadSetting;
+        $this->fileExtension    = $fileExtension;
+        $this->authentication   = $authentication;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -43,6 +43,7 @@ class UploadSettingController
         }
 
         $transaction    = $_POST['transaction'] ?? null;
+        $pageId         = $_POST['page_id'] ?? null;
         $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
@@ -74,12 +75,11 @@ class UploadSettingController
 
         match ($transaction) {
             'save upload setting'                           => $this->saveUploadSetting($lastLogBy),
+            'save upload setting file extension'            => $this->saveUploadSettingFileExtension($lastLogBy),
             'delete upload setting'                         => $this->deleteUploadSetting(),
             'delete multiple upload setting'                => $this->deleteMultipleUploadSetting(),
             'fetch upload setting details'                  => $this->fetchUploadSettingDetails(),
             'generate upload setting table'                 => $this->generateUploadSettingTable(),
-            'generate assigned file extension list'         => $this->generateAssignedFileExtensionList($lastLogBy),
-            'generate file extension dual listbox options'  => $this->generateFileExtensionDualListBoxOptions(),
             default                                         => $this->systemHelper::sendErrorResponse(
                                                                     'Transaction Failed',
                                                                     'We encountered an issue while processing your request.'
@@ -109,6 +109,43 @@ class UploadSettingController
             'Save Upload Setting Success',
             'The upload setting has been saved successfully.',
             ['upload_setting_id' => $encryptedUploadSettingId]
+        );
+    }
+
+    public function saveUploadSettingFileExtension($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'file_extension_add_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $uploadSettingId    = $_POST['upload_setting_id'] ?? null;
+        $fileExtensionIds   = $_POST['file_extension_id'] ?? null;
+
+        if(empty($fileExtensionIds)){
+            $this->systemHelper::sendErrorResponse(
+                'Assign File Extension Error',
+                'Please select the file extension(s) you wish to assign to the upload setting.'
+            );
+        }
+
+        $uploadSettingDetails   = $this->uploadSetting->fetchUploadSetting($uploadSettingId);
+        $uploadSettingName      = $uploadSettingDetails['upload_setting_name'] ?? '';
+
+        foreach ($fileExtensionIds as $fileExtensionId) {
+            $fileExtensionDetails   = $this->fileExtension->fetchFileExtension($fileExtensionId);
+            $fileExtensionName      = $fileExtensionDetails['file_extension_name'] ?? null;
+            $fileExtension          = $fileExtensionDetails['file_extension'] ?? null;
+
+            $this->uploadSetting->insertUploadSettingFileExtension($uploadSettingId, $uploadSettingName, $fileExtensionId, $fileExtensionName, $fileExtension, $lastLogBy);
+        }
+
+        $this->systemHelper->sendSuccessResponse(
+            'Assign File Extension Success',
+            'The file extension has been assigned successfully.'
         );
     }
 
@@ -186,69 +223,6 @@ class UploadSettingController
                                             </div>',
                 'MAX_FILE_SIZE'         => $maxFileSize . ' kb',
                 'LINK'                  => $pageLink .'&id='. $uploadSettingIdEncrypted
-            ];
-        }
-
-        echo json_encode($response);
-    }
-
-    public function generateAssignedFileExtensionList()
-    {
-        $uploadSettingId    = $_POST['upload_setting_id'] ?? null;
-        $list               = '';
-
-        $fileExtensions = $this->uploadSetting->generateUploadSettingFileExtensionList($uploadSettingId);
-
-        foreach ($fileExtensions as $row) {
-            $roleUserAccountID  = $row['role_user_account_id'];
-            $roleName           = $row['role_name'];
-            $assignmentDate     = $this->systemHelper->checkDate('empty', $row['date_assigned'], '', 'd M Y h:i a', '');
-
-            $deleteButton = '';
-            if($deleteRoleUserAccount['total'] > 0){
-                $deleteButton = '<button class="btn btn-sm btn-danger btn-active-light-danger me-3 delete-role-user-account" data-role-user-account-id="' . $roleUserAccountID . '">Delete</button>';
-            }
-
-            $list .= '<div class="d-flex flex-stack">
-                        <div class="d-flex align-items-center flex-row-fluid flex-wrap">
-                            <div class="flex-grow-1 me-2">
-                                <div class="text-gray-800 fs-4 fw-bold">'. $roleName .'</div>
-                                                    
-                                <span class="text-gray-500 fw-semibold d-block fs-7">Date Assigned : '. $assignmentDate .'</span>
-                            </div>
-                            '. $deleteButton .'
-                        </div>
-                    </div>';
-        }
-
-        if(empty($list)){
-            $list = '<div class="d-flex flex-stack">
-                        <div class="d-flex align-items-center flex-row-fluid flex-wrap">
-                            <div class="flex-grow-1 me-2">
-                                <div class="text-gray-800 fs-4 fw-bold">No allowed file extension found</div>
-                            </div>
-                        </div>
-                    </div>';
-        }
-
-        $response[] = [
-            'ROLE_USER_ACCOUNT' => $list
-        ];
-
-
-        echo json_encode($response);
-    }
-
-    public function generateFileExtensionDualListBoxOptions()
-    {
-        $uploadSettingId    = $_POST['upload_setting_id'] ?? null;
-        $response           = [];
-        $roles              = $this->fileExtension->generateFileExtensionDualListBoxOptions($uploadSettingId);
-
-        foreach ($roles as $row) {
-            $response[] = [
-                'id'    => $row['file_extension_id'],
-                'text'  => $row['file_extension_name'] . ' (.' . $row['file_extension'] . ')'
             ];
         }
 

@@ -74,51 +74,27 @@
             </form>
         </div>
     </div>
-    <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-700px">
-        <div class="card card-flush py-4">
+    <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-600px">
+        <div class="card card-flush">
             <div class="card-header border-0">
                 <div class="card-title">
                     <h3 class="fw-bold m-0">Allowed File Extensions</h3>
                 </div>
-                <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <?php
-                            echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#file-extension-add-modal" id="add-file-extension"><i class="ki-outline ki-plus fs-2"></i> Add</button>' : '';
-                        ?>
+            </div>
+
+            <form id="upload_setting_file_extension_form" class="form" method="post" action="#">
+                <?= $security->csrfInput('upload_setting_file_extension_form'); ?>
+                <div class="card-body border-top p-9">
+                    <div class="fv-row mb-0">
+                        <select id="allowed_file_extension" name="allowed_file_extension" multiple="multiple" class="form-select form-select-solid" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                     </div>
                 </div>
-            </div>
-
-           <div class="card-body border-top" id="file-extension-list"></div>
-        </div>
-    </div>
-</div>
-
-<div id="file-extension-add-modal" class="modal fade" tabindex="-1" aria-labelledby="file-extension-add-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Add File Extension</h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-            </div>
-
-            <div class="modal-body">
-                <form id="file_extension_add_form" method="post" action="#">
-                    <?= $security->csrfInput('file_extension_add_form'); ?>
-                    <div class="row">
-                        <div class="col-12">
-                            <select multiple="multiple" size="20" id="file_extension_id" name="file_extension_id[]"></select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="file_extension_add_form" class="btn btn-primary" id="submit-add">Assign</button>
-            </div>
+                <?php
+                    echo ($permissions['write'] > 0) ? '<div class="card-footer d-flex justify-content-end py-6 px-9">
+                                                            <button type="submit" form="upload_setting_file_extension_form" class="btn btn-primary" id="submit-file-extension">Save</button>
+                                                        </div>' : '';
+                ?>
+            </form>
         </div>
     </div>
 </div>
