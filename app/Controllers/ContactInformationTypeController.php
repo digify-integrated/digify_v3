@@ -159,9 +159,9 @@ class ContactInformationTypeController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->contactInformationType->generateContactInformationTypeTable();
+        $contactInformationTypes = $this->contactInformationType->generateContactInformationTypeTable();
 
-        foreach ($countries as $row) {
+        foreach ($contactInformationTypes as $row) {
             $contactInformationTypeId      = $row['contact_information_type_id'];
             $contactInformationTypeName    = $row['contact_information_type_name'];
 
@@ -191,9 +191,9 @@ class ContactInformationTypeController
             ];
         }
 
-        $countries = $this->contactInformationType->generateContactInformationTypeOptions();
+        $contactInformationTypes = $this->contactInformationType->generateContactInformationTypeOptions();
 
-        foreach ($countries as $row) {
+        foreach ($contactInformationTypes as $row) {
             $response[] = [
                 'id'    => $row['contact_information_type_id'],
                 'text'  => $row['contact_information_type_name']

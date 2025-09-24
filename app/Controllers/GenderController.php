@@ -159,9 +159,9 @@ class GenderController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->gender->generateGenderTable();
+        $genders = $this->gender->generateGenderTable();
 
-        foreach ($countries as $row) {
+        foreach ($genders as $row) {
             $genderId       = $row['gender_id'];
             $genderName     = $row['gender_name'];
 
@@ -191,9 +191,9 @@ class GenderController
             ];
         }
 
-        $countries = $this->gender->generateGenderOptions();
+        $genders = $this->gender->generateGenderOptions();
 
-        foreach ($countries as $row) {
+        foreach ($genders as $row) {
             $response[] = [
                 'id'    => $row['gender_id'],
                 'text'  => $row['gender_name']

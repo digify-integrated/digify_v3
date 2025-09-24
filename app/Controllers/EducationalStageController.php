@@ -159,9 +159,9 @@ class EducationalStageController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->educationalStage->generateEducationalStageTable();
+        $educationalStages = $this->educationalStage->generateEducationalStageTable();
 
-        foreach ($countries as $row) {
+        foreach ($educationalStages as $row) {
             $educationalStageId      = $row['educational_stage_id'];
             $educationalStageName   = $row['educational_stage_name'];
 
@@ -191,9 +191,9 @@ class EducationalStageController
             ];
         }
 
-        $countries = $this->educationalStage->generateEducationalStageOptions();
+        $educationalStages = $this->educationalStage->generateEducationalStageOptions();
 
-        foreach ($countries as $row) {
+        foreach ($educationalStages as $row) {
             $response[] = [
                 'id'    => $row['educational_stage_id'],
                 'text'  => $row['educational_stage_name']

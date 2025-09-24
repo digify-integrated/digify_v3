@@ -161,9 +161,9 @@ class LanguageProficiencyController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->languageProficiency->generateLanguageProficiencyTable();
+        $languageProficiencies = $this->languageProficiency->generateLanguageProficiencyTable();
 
-        foreach ($countries as $row) {
+        foreach ($languageProficiencies as $row) {
             $languageProficiencyId              = $row['language_proficiency_id'];
             $languageProficiencyName            = $row['language_proficiency_name'];
             $languageProficiencyDescription     = $row['language_proficiency_description'];
@@ -197,9 +197,9 @@ class LanguageProficiencyController
             ];
         }
 
-        $countries = $this->languageProficiency->generateLanguageProficiencyOptions();
+        $languageProficiencies = $this->languageProficiency->generateLanguageProficiencyOptions();
 
-        foreach ($countries as $row) {
+        foreach ($languageProficiencies as $row) {
             $response[] = [
                 'id'    => $row['language_proficiency_id'],
                 'text'  => $row['language_proficiency_name']

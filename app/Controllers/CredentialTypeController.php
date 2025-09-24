@@ -159,9 +159,9 @@ class CredentialTypeController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->credentialType->generateCredentialTypeTable();
+        $credentialTypes = $this->credentialType->generateCredentialTypeTable();
 
-        foreach ($countries as $row) {
+        foreach ($credentialTypes as $row) {
             $credentialTypeId      = $row['credential_type_id'];
             $credentialTypeName    = $row['credential_type_name'];
 
@@ -191,9 +191,9 @@ class CredentialTypeController
             ];
         }
 
-        $countries = $this->credentialType->generateCredentialTypeOptions();
+        $credentialTypes = $this->credentialType->generateCredentialTypeOptions();
 
-        foreach ($countries as $row) {
+        foreach ($credentialTypes as $row) {
             $response[] = [
                 'id'    => $row['credential_type_id'],
                 'text'  => $row['credential_type_name']

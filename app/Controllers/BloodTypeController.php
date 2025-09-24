@@ -159,9 +159,9 @@ class BloodTypeController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bloodType->generateBloodTypeTable();
+        $bloodTypes = $this->bloodType->generateBloodTypeTable();
 
-        foreach ($countries as $row) {
+        foreach ($bloodTypes as $row) {
             $bloodTypeId      = $row['blood_type_id'];
             $bloodTypeName    = $row['blood_type_name'];
 
@@ -191,9 +191,9 @@ class BloodTypeController
             ];
         }
 
-        $countries = $this->bloodType->generateBloodTypeOptions();
+        $bloodTypes = $this->bloodType->generateBloodTypeOptions();
 
-        foreach ($countries as $row) {
+        foreach ($bloodTypes as $row) {
             $response[] = [
                 'id'    => $row['blood_type_id'],
                 'text'  => $row['blood_type_name']

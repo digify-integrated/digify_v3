@@ -7417,6 +7417,552 @@ VALUES
 
 
 /* =============================================================================================
+  TABLE: DEPARTMENT
+============================================================================================= */
+
+DROP TABLE IF EXISTS department;
+
+CREATE TABLE department (
+  department_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  department_name VARCHAR(100) NOT NULL,
+  parent_department_id INT,
+  parent_department_name VARCHAR(100),
+  manager_id INT,
+  manager_name VARCHAR(1000),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: DEPARTMENT
+============================================================================================= */
+
+CREATE INDEX idx_department_parent_department_id ON department(parent_department_id);
+CREATE INDEX idx_department_manager_id ON department(manager_id);
+
+/* =============================================================================================
+  INITIAL VALUES: DEPARTMENT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: DEPARTURE REASON
+============================================================================================= */
+
+DROP TABLE IF EXISTS departure_reason;
+
+CREATE TABLE departure_reason (
+  departure_reason_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  departure_reason_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: DEPARTURE REASON
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: DEPARTURE REASON
+============================================================================================= */
+
+INSERT INTO departure_reason (departure_reason_name)
+VALUES
+('Resigned'),
+('Retirement'),
+('Termination - Performance'),
+('Termination - Misconduct'),
+('Layoff / Redundancy'),
+('End of Contract'),
+('Mutual Agreement'),
+('Medical Reasons'),
+('Personal Reasons'),
+('Relocation'),
+('Career Change'),
+('Better Opportunity'),
+('Education / Study'),
+('Family Responsibilities'),
+('Deceased');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employment_location_type;
+
+CREATE TABLE employment_location_type (
+  employment_location_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employment_location_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+INSERT INTO employment_location_type (employment_location_type_name)
+VALUES
+('Head Office'),
+('Branch Office'),
+('Remote'),
+('Hybrid'),
+('Onsite'),
+('Regional Office'),
+('Field Location'),
+('Client Site'),
+('Warehouse'),
+('Factory / Plant'),
+('Store / Retail Location'),
+('Distribution Center');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYMENT TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employment_type;
+
+CREATE TABLE employment_type (
+  employment_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employment_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYMENT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYMENT TYPE
+============================================================================================= */
+
+INSERT INTO employment_type (employment_type_name)
+VALUES
+('Full-time'),
+('Part-time'),
+('Temporary'),
+('Contract'),
+('Internship'),
+('Apprenticeship'),
+('Seasonal'),
+('Casual'),
+('Consultant'),
+('Freelance');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: JOB POSITION
+============================================================================================= */
+
+DROP TABLE IF EXISTS job_position;
+
+CREATE TABLE job_position (
+  job_position_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  job_position_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: JOB POSITION
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: JOB POSITION
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: WORK LOCATION
+============================================================================================= */
+
+DROP TABLE IF EXISTS work_location;
+
+CREATE TABLE work_location(
+	work_location_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_location_name VARCHAR(100) NOT NULL,
+	address VARCHAR(1000),
+	city_id INT UNSIGNED NOT NULL,
+	city_name VARCHAR(100) NOT NULL,
+	state_id INT UNSIGNED NOT NULL,
+	state_name VARCHAR(100) NOT NULL,
+	country_id INT UNSIGNED NOT NULL,
+	country_name VARCHAR(100) NOT NULL,
+	phone VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(255),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id),
+  FOREIGN KEY (city_id) REFERENCES city(city_id),
+  FOREIGN KEY (state_id) REFERENCES state(state_id),
+  FOREIGN KEY (country_id) REFERENCES country(country_id)
+);
+
+/* =============================================================================================
+  INDEX: WORK LOCATION
+============================================================================================= */
+
+CREATE INDEX idx_work_location_city_id ON work_location(city_id);
+CREATE INDEX idx_work_location_state_id ON work_location(state_id);
+CREATE INDEX idx_work_location_country_id ON work_location(country_id);
+
+/* =============================================================================================
+  INITIAL VALUES: WORK LOCATION
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee;
+
+CREATE TABLE employee (
+  employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_image VARCHAR(500),
+  full_name VARCHAR(1000) NOT NULL,
+  first_name VARCHAR(300) NOT NULL,
+	middle_name VARCHAR(300),
+	last_name VARCHAR(300) NOT NULL,
+	suffix VARCHAR(10),
+	nickname VARCHAR(100),
+  private_address VARCHAR(500),
+  private_address_city_id INT UNSIGNED,
+	private_address_city_name VARCHAR(100),
+	private_address_state_id INT UNSIGNED,
+	private_address_state_name VARCHAR(100),
+	private_address_country_id INT UNSIGNED,
+	private_address_country_name VARCHAR(100),
+  private_phone VARCHAR(20),
+	private_telephone VARCHAR(20),
+	private_email VARCHAR(255),
+  civil_status_id INT UNSIGNED,
+  civil_status_name VARCHAR(100),
+  dependents INT DEFAULT 0,
+  nationality_id INT UNSIGNED,
+  nationality_name VARCHAR(100),
+  gender_id INT UNSIGNED,
+  gender_name VARCHAR(100),
+  religion_id INT UNSIGNED,
+  religion_name VARCHAR(100),
+  blood_type_id INT UNSIGNED,
+  blood_type_name VARCHAR(100),
+  birthday DATE,
+  place_of_birth VARCHAR(1000),
+  home_work_distance DOUBLE DEFAULT 0,
+  height FLOAT,
+  weight FLOAT,
+  employment_status VARCHAR(50) DEFAULT 'Active',
+  company_id INT UNSIGNED,
+  company_name VARCHAR(100),
+  department_id INT UNSIGNED,
+  department_name VARCHAR(100),
+  job_position_id INT UNSIGNED,
+  job_position_name VARCHAR(100),
+  work_phone VARCHAR(20),
+	work_telephone VARCHAR(20),
+	work_email VARCHAR(255),
+  manager_id INT UNSIGNED,
+  manager_name VARCHAR(1000),
+  work_location_id INT UNSIGNED,
+  work_location_name VARCHAR(100),
+  employment_type_id INT UNSIGNED,
+  employment_type_name VARCHAR(100),
+  pin_code VARCHAR(100),
+  badge_id VARCHAR(100),
+  on_board_date DATE,
+  off_board_date DATE,
+  time_off_approver_id INT UNSIGNED,
+  time_off_approver_name VARCHAR(300),
+  departure_reason_id INT UNSIGNED,
+  departure_reason_name VARCHAR(100),
+  detailed_departure_reason VARCHAR(5000),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE
+============================================================================================= */
+
+CREATE INDEX idx_employee_department_id ON employee(department_id);
+CREATE INDEX idx_employee_job_position_id ON employee(job_position_id);
+CREATE INDEX idx_employee_work_location_id ON employee(work_location_id);
+CREATE INDEX idx_employee_employment_type_id ON employee(employment_type_id);
+CREATE INDEX idx_employee_private_address_city_id ON employee(private_address_city_id);
+CREATE INDEX idx_employee_private_address_state_id ON employee(private_address_state_id);
+CREATE INDEX idx_employee_private_address_country_id ON employee(private_address_country_id);
+CREATE INDEX idx_employee_civil_status_id ON employee(civil_status_id);
+CREATE INDEX idx_employee_nationality_id ON employee(nationality_id);
+CREATE INDEX idx_employee_badge_id ON employee(badge_id);
+CREATE INDEX idx_employee_employment_status ON employee(employment_status);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE EXPERIENCE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_experience;
+
+CREATE TABLE employee_experience (
+  employee_experience_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  job_title VARCHAR(100) NOT NULL,
+  employment_type_id INT UNSIGNED,
+  employment_type_name VARCHAR(100),
+  company_name VARCHAR(200) NOT NULL,
+  location VARCHAR(200),
+  work_location_type_id INT UNSIGNED,
+  work_location_type_name VARCHAR(100),
+  start_month VARCHAR(20),
+  start_year VARCHAR(20),
+  end_month VARCHAR(20),
+  end_year VARCHAR(20),
+  job_description VARCHAR(5000),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE EXPERIENCE
+============================================================================================= */
+
+CREATE INDEX idx_employee_experience_employee_id ON employee_experience(employee_id);
+CREATE INDEX idx_employee_experience_employment_type_id ON employee_experience(employment_type_id);
+CREATE INDEX idx_employee_experience_work_location_type_id ON employee_experience(work_location_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE EXPERIENCE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE EDUCATION
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_education;
+
+CREATE TABLE employee_education (
+  employee_education_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  school VARCHAR(100) NOT NULL,
+  degree VARCHAR(100),
+  field_of_study VARCHAR(100),
+  start_month VARCHAR(20),
+  start_year VARCHAR(20),
+  end_month VARCHAR(20),
+  end_year VARCHAR(20),
+  activities_societies VARCHAR(5000),
+  education_description VARCHAR(5000),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE EDUCATION
+============================================================================================= */
+
+CREATE INDEX idx_employee_education_employee_id ON employee_education(employee_id);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE EDUCATION
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE LICENSE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_license;
+
+CREATE TABLE employee_license (
+  employee_license_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  licensed_profession VARCHAR(200) NOT NULL,
+  licensing_body VARCHAR(200) NOT NULL,
+  license_number VARCHAR(200) NOT NULL,
+  issue_date DATE NOT NULL,
+  expiration_date DATE,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE LICENSE
+============================================================================================= */
+
+CREATE INDEX idx_employee_license_employee_id ON employee_license(employee_id);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE LICENSE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE EMERGENCY CONTACT
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_emergency_contact;
+
+CREATE TABLE employee_emergency_contact (
+  employee_emergency_contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  emergency_contact_name VARCHAR(500) NOT NULL,
+  relationship_id INT UNSIGNED NOT NULL,
+  relationship_name VARCHAR(100) NOT NULL,
+  telephone VARCHAR(50),
+  mobile VARCHAR(50),
+  email VARCHAR(200),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (relationship_id) REFERENCES relationship(relationship_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE EMERGENCY CONTACT
+============================================================================================= */
+
+CREATE INDEX idx_employee_emergency_contact_employee_id ON employee_emergency_contact(employee_id);
+CREATE INDEX idx_employee_emergency_contact_relationship_id ON employee_emergency_contact(relationship_id);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE EMERGENCY CONTACT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE LANGUAGE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_language;
+
+CREATE TABLE employee_language (
+  employee_language_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  language_id INT UNSIGNED NOT NULL,
+  language_name VARCHAR(100) NOT NULL,
+  language_proficiency_id INT UNSIGNED NOT NULL,
+  language_proficiency_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (language_id) REFERENCES language(language_id),
+  FOREIGN KEY (language_proficiency_id) REFERENCES language_proficiency(language_proficiency_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE LANGUAGE
+============================================================================================= */
+
+CREATE INDEX idx_employee_language_employee_id ON employee_language(employee_id);
+CREATE INDEX idx_employee_language_language_id ON employee_language(language_id);
+CREATE INDEX idx_employee_language_language_proficiency_id ON employee_language(language_proficiency_id);
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE LANGUAGE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
   TABLE: 
 ============================================================================================= */
 

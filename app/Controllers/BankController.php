@@ -161,9 +161,9 @@ class BankController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bank->generateBankTable();
+        $banks = $this->bank->generateBankTable();
 
-        foreach ($countries as $row) {
+        foreach ($banks as $row) {
             $bankId                 = $row['bank_id'];
             $bankName               = $row['bank_name'];
             $bankIdentifierCode     = $row['bank_identifier_code'];
@@ -195,9 +195,9 @@ class BankController
             ];
         }
 
-        $countries = $this->bank->generateBankOptions();
+        $banks = $this->bank->generateBankOptions();
 
-        foreach ($countries as $row) {
+        foreach ($banks as $row) {
             $response[] = [
                 'id'    => $row['bank_id'],
                 'text'  => $row['bank_name']

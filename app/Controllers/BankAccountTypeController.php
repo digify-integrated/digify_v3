@@ -159,9 +159,9 @@ class BankAccountTypeController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->bankAccountType->generateBankAccountTypeTable();
+        $bankAccountTypes = $this->bankAccountType->generateBankAccountTypeTable();
 
-        foreach ($countries as $row) {
+        foreach ($bankAccountTypes as $row) {
             $bankAccountTypeId      = $row['bank_account_type_id'];
             $bankAccountTypeName    = $row['bank_account_type_name'];
 
@@ -191,9 +191,9 @@ class BankAccountTypeController
             ];
         }
 
-        $countries = $this->bankAccountType->generateBankAccountTypeOptions();
+        $bankAccountTypes = $this->bankAccountType->generateBankAccountTypeOptions();
 
-        foreach ($countries as $row) {
+        foreach ($bankAccountTypes as $row) {
             $response[] = [
                 'id'    => $row['bank_account_type_id'],
                 'text'  => $row['bank_account_type_name']

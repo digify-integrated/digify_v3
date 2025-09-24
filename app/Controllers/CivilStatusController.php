@@ -159,9 +159,9 @@ class CivilStatusController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->civilStatus->generateCivilStatusTable();
+        $civilStatus = $this->civilStatus->generateCivilStatusTable();
 
-        foreach ($countries as $row) {
+        foreach ($civilStatus as $row) {
             $civilStatusId      = $row['civil_status_id'];
             $civilStatusName    = $row['civil_status_name'];
 
@@ -191,9 +191,9 @@ class CivilStatusController
             ];
         }
 
-        $countries = $this->civilStatus->generateCivilStatusOptions();
+        $civilStatus = $this->civilStatus->generateCivilStatusOptions();
 
-        foreach ($countries as $row) {
+        foreach ($civilStatus as $row) {
             $response[] = [
                 'id'    => $row['civil_status_id'],
                 'text'  => $row['civil_status_name']

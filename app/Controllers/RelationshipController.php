@@ -159,9 +159,9 @@ class RelationshipController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->relationship->generateRelationshipTable();
+        $relationships = $this->relationship->generateRelationshipTable();
 
-        foreach ($countries as $row) {
+        foreach ($relationships as $row) {
             $relationshipId      = $row['relationship_id'];
             $relationshipName    = $row['relationship_name'];
 
@@ -191,9 +191,9 @@ class RelationshipController
             ];
         }
 
-        $countries = $this->relationship->generateRelationshipOptions();
+        $relationships = $this->relationship->generateRelationshipOptions();
 
-        foreach ($countries as $row) {
+        foreach ($relationships as $row) {
             $response[] = [
                 'id'    => $row['relationship_id'],
                 'text'  => $row['relationship_name']

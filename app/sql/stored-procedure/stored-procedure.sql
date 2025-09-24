@@ -923,7 +923,8 @@ CREATE PROCEDURE fetchNotificationSetting(
 BEGIN
     SELECT * 
     FROM notification_setting
-    WHERE notification_setting_id = p_notification_setting_id;
+    WHERE notification_setting_id = p_notification_setting_id
+    LIMIT 1;
 END //
 
 DROP PROCEDURE IF EXISTS fetchEmailNotificationTemplate//
@@ -934,7 +935,8 @@ CREATE PROCEDURE fetchEmailNotificationTemplate(
 BEGIN
     SELECT * 
     FROM notification_setting_email_template
-    WHERE notification_setting_id = p_notification_setting_id;
+    WHERE notification_setting_id = p_notification_setting_id
+    LIMIT 1;
 END //
 
 DROP PROCEDURE IF EXISTS fetchSystemNotificationTemplate//
@@ -945,7 +947,8 @@ CREATE PROCEDURE fetchSystemNotificationTemplate(
 BEGIN
     SELECT * 
     FROM notification_setting_system_template
-    WHERE notification_setting_id = p_notification_setting_id;
+    WHERE notification_setting_id = p_notification_setting_id
+    LIMIT 1;
 END //
 
 DROP PROCEDURE IF EXISTS fetchSmsNotificationTemplate//
@@ -956,7 +959,8 @@ CREATE PROCEDURE fetchSmsNotificationTemplate(
 BEGIN
     SELECT * 
     FROM notification_setting_sms_template
-    WHERE notification_setting_id = p_notification_setting_id;
+    WHERE notification_setting_id = p_notification_setting_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -2755,7 +2759,8 @@ CREATE PROCEDURE fetchUploadSettingFileExtension(
 )
 BEGIN
 	SELECT * FROM upload_setting_file_extension
-	WHERE upload_setting_id = p_upload_setting_id;
+	WHERE upload_setting_id = p_upload_setting_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3007,6 +3012,16 @@ BEGIN
         SET country_name = p_country_name,
             last_log_by = p_last_log_by
         WHERE country_id = p_country_id;
+
+        UPDATE company
+        SET country_name = p_country_name,
+            last_log_by = p_last_log_by
+        WHERE country_id = p_country_id;
+
+        UPDATE work_location
+        SET country_name = p_country_name,
+            last_log_by = p_last_log_by
+        WHERE country_id = p_country_id;
         
         UPDATE country
         SET country_name = p_country_name,
@@ -3042,7 +3057,8 @@ CREATE PROCEDURE fetchCountry(
 )
 BEGIN
 	SELECT * FROM country
-	WHERE country_id = p_country_id;
+	WHERE country_id = p_country_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3062,9 +3078,14 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM state WHERE country_id = p_country_id;
-    DELETE FROM city WHERE country_id = p_country_id;
-    DELETE FROM country WHERE country_id = p_country_id;
+    DELETE FROM state
+    WHERE country_id = p_country_id;
+
+    DELETE FROM city
+    WHERE country_id = p_country_id;
+
+    DELETE FROM country
+    WHERE country_id = p_country_id;
 
     COMMIT;
 END //
@@ -3160,6 +3181,16 @@ BEGIN
         SET state_name = p_state_name,
             last_log_by = p_last_log_by
         WHERE state_id = p_state_id;
+
+        UPDATE company
+        SET state_name = p_state_name,
+            last_log_by = p_last_log_by
+        WHERE state_id = p_state_id;
+
+        UPDATE work_location
+        SET state_name = p_state_name,
+            last_log_by = p_last_log_by
+        WHERE state_id = p_state_id;
         
         UPDATE state
         SET state_name = p_state_name,
@@ -3195,7 +3226,8 @@ CREATE PROCEDURE fetchState(
 )
 BEGIN
 	SELECT * FROM state
-	WHERE state_id = p_state_id;
+	WHERE state_id = p_state_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3331,6 +3363,16 @@ BEGIN
         
         SET v_new_city_id = LAST_INSERT_ID();
     ELSE
+        UPDATE work_location
+        SET city_name = p_city_name,
+            last_log_by = p_last_log_by
+        WHERE city_id = p_city_id;
+
+        UPDATE company
+        SET city_name = p_city_name,
+            last_log_by = p_last_log_by
+        WHERE city_id = p_city_id;
+
         UPDATE city
         SET city_name = p_city_name,
             state_id = p_state_id,
@@ -3368,7 +3410,8 @@ CREATE PROCEDURE fetchCity(
 )
 BEGIN
 	SELECT * FROM city
-	WHERE city_id = p_city_id;
+	WHERE city_id = p_city_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3540,7 +3583,8 @@ CREATE PROCEDURE fetchCurrency(
 )
 BEGIN
 	SELECT * FROM currency
-	WHERE currency_id = p_currency_id;
+	WHERE currency_id = p_currency_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3756,7 +3800,8 @@ CREATE PROCEDURE fetchCompany(
 )
 BEGIN
 	SELECT * FROM company
-	WHERE company_id = p_company_id;
+	WHERE company_id = p_company_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -3938,7 +3983,8 @@ CREATE PROCEDURE fetchBloodType(
 )
 BEGIN
 	SELECT * FROM blood_type
-	WHERE blood_type_id = p_blood_type_id;
+	WHERE blood_type_id = p_blood_type_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4075,7 +4121,8 @@ CREATE PROCEDURE fetchCivilStatus(
 )
 BEGIN
 	SELECT * FROM civil_status
-	WHERE civil_status_id = p_civil_status_id;
+	WHERE civil_status_id = p_civil_status_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4212,7 +4259,8 @@ CREATE PROCEDURE fetchCredentialType(
 )
 BEGIN
 	SELECT * FROM credential_type
-	WHERE credential_type_id = p_credential_type_id;
+	WHERE credential_type_id = p_credential_type_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4349,7 +4397,8 @@ CREATE PROCEDURE fetchEducationalStage(
 )
 BEGIN
 	SELECT * FROM educational_stage
-	WHERE educational_stage_id = p_educational_stage_id;
+	WHERE educational_stage_id = p_educational_stage_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4486,7 +4535,8 @@ CREATE PROCEDURE fetchGender(
 )
 BEGIN
 	SELECT * FROM gender
-	WHERE gender_id = p_gender_id;
+	WHERE gender_id = p_gender_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4623,7 +4673,8 @@ CREATE PROCEDURE fetchRelationship(
 )
 BEGIN
 	SELECT * FROM relationship
-	WHERE relationship_id = p_relationship_id;
+	WHERE relationship_id = p_relationship_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4760,7 +4811,8 @@ CREATE PROCEDURE fetchReligion(
 )
 BEGIN
 	SELECT * FROM religion
-	WHERE religion_id = p_religion_id;
+	WHERE religion_id = p_religion_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -4897,7 +4949,8 @@ CREATE PROCEDURE fetchLanguage(
 )
 BEGIN
 	SELECT * FROM language
-	WHERE language_id = p_language_id;
+	WHERE language_id = p_language_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5050,7 +5103,8 @@ CREATE PROCEDURE fetchLanguageProficiency(
 )
 BEGIN
 	SELECT * FROM language_proficiency
-	WHERE language_proficiency_id = p_language_proficiency_id;
+	WHERE language_proficiency_id = p_language_proficiency_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5187,7 +5241,8 @@ CREATE PROCEDURE fetchAddressType(
 )
 BEGIN
 	SELECT * FROM address_type
-	WHERE address_type_id = p_address_type_id;
+	WHERE address_type_id = p_address_type_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5324,7 +5379,8 @@ CREATE PROCEDURE fetchContactInformationType(
 )
 BEGIN
 	SELECT * FROM contact_information_type
-	WHERE contact_information_type_id = p_contact_information_type_id;
+	WHERE contact_information_type_id = p_contact_information_type_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5465,7 +5521,8 @@ CREATE PROCEDURE fetchBank(
 )
 BEGIN
 	SELECT * FROM bank
-	WHERE bank_id = p_bank_id;
+	WHERE bank_id = p_bank_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5600,7 +5657,8 @@ CREATE PROCEDURE fetchBankAccountType(
 )
 BEGIN
 	SELECT * FROM bank_account_type
-	WHERE bank_account_type_id = p_bank_account_type_id;
+	WHERE bank_account_type_id = p_bank_account_type_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -5620,7 +5678,8 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM bank_account_type WHERE bank_account_type_id = p_bank_account_type_id;
+    DELETE FROM bank_account_type
+    WHERE bank_account_type_id = p_bank_account_type_id;
 
     COMMIT;
 END //
@@ -5660,6 +5719,969 @@ BEGIN
 	SELECT bank_account_type_id, bank_account_type_name 
     FROM bank_account_type 
     ORDER BY bank_account_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: DEPARTMENT
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveDepartment//
+
+CREATE PROCEDURE saveDepartment(
+    IN p_department_id INT, 
+    IN p_department_name VARCHAR(100), 
+    IN p_parent_department_id INT, 
+    IN p_parent_department_name VARCHAR(100), 
+    IN p_manager_id INT, 
+    IN p_manager_name VARCHAR(1000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_department_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_department_id IS NULL OR NOT EXISTS (SELECT 1 FROM department WHERE department_id = p_department_id) THEN
+        INSERT INTO department (
+            department_name,
+            parent_department_id,
+            parent_department_name,
+            manager_id,
+            manager_name,
+            last_log_by) 
+        VALUES(
+            p_department_name,
+            p_parent_department_id,
+            p_parent_department_name,
+            p_manager_id,
+            p_manager_name,
+            p_last_log_by
+        );
+        
+        SET v_new_department_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE department
+        SET department_name = p_department_name,
+            parent_department_id = p_parent_department_id,
+            parent_department_name = p_parent_department_name,
+            manager_id = p_manager_id,
+            manager_name = p_manager_name,
+            last_log_by = p_last_log_by
+        WHERE department_id = p_department_id;
+
+        SET v_new_department_id = p_department_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_department_id AS new_department_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchDepartment//
+
+CREATE PROCEDURE fetchDepartment(
+    IN p_department_id INT
+)
+BEGIN
+	SELECT *
+    FROM department
+	WHERE department_id = p_department_id;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteDepartment//
+
+CREATE PROCEDURE deleteDepartment(
+    IN p_department_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM department
+    WHERE department_id = p_department_id;
+
+    COMMIT;
+END //
+
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkDepartmentExist//
+
+CREATE PROCEDURE checkDepartmentExist(
+    IN p_department_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM department
+    WHERE department_id = p_department_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateDepartmentTable//
+
+CREATE PROCEDURE generateDepartmentTable(
+    IN p_filter_by_parent_department TEXT,
+    IN p_filter_by_manager TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT department_id, department_name, parent_department_name, manager_name
+                FROM department ';
+
+    IF p_filter_by_parent_department IS NOT NULL AND p_filter_by_parent_department <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' parent_department_id IN (', p_filter_by_parent_department, ')');
+    END IF;
+
+    IF p_filter_by_manager IS NOT NULL AND p_filter_by_manager <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' manager_id IN (', p_filter_by_manager, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY department_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateDepartmentOptions//
+
+CREATE PROCEDURE generateDepartmentOptions()
+BEGIN
+	SELECT department_id, department_name
+    FROM department 
+    ORDER BY department_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateParentDepartmentOptions//
+
+CREATE PROCEDURE generateParentDepartmentOptions(
+    IN p_department_id INT
+)
+BEGIN
+	SELECT department_id, department_name
+    FROM department 
+    WHERE department_id != p_department_id
+    ORDER BY department_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: DEPARTURE REASON
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveDepartureReason//
+
+CREATE PROCEDURE saveDepartureReason(
+    IN p_departure_reason_id INT, 
+    IN p_departure_reason_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_departure_reason_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_departure_reason_id IS NULL OR NOT EXISTS (SELECT 1 FROM departure_reason WHERE departure_reason_id = p_departure_reason_id) THEN
+        INSERT INTO departure_reason (
+            departure_reason_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_departure_reason_name,
+            p_last_log_by
+        );
+        
+        SET v_new_departure_reason_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE departure_reason
+        SET departure_reason_name = p_departure_reason_name,
+            last_log_by = p_last_log_by
+        WHERE departure_reason_id = p_departure_reason_id;
+
+        SET v_new_departure_reason_id = p_departure_reason_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_departure_reason_id AS new_departure_reason_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchDepartureReason//
+
+CREATE PROCEDURE fetchDepartureReason(
+    IN p_departure_reason_id INT
+)
+BEGIN
+	SELECT * FROM departure_reason
+	WHERE departure_reason_id = p_departure_reason_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteDepartureReason//
+
+CREATE PROCEDURE deleteDepartureReason(
+    IN p_departure_reason_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkDepartureReasonExist//
+
+CREATE PROCEDURE checkDepartureReasonExist(
+    IN p_departure_reason_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateDepartureReasonTable//
+
+CREATE PROCEDURE generateDepartureReasonTable()
+BEGIN
+	SELECT departure_reason_id, departure_reason_name
+    FROM departure_reason 
+    ORDER BY departure_reason_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateDepartureReasonOptions//
+
+CREATE PROCEDURE generateDepartureReasonOptions()
+BEGIN
+	SELECT departure_reason_id, departure_reason_name 
+    FROM departure_reason 
+    ORDER BY departure_reason_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveEmploymentLocationType//
+
+CREATE PROCEDURE saveEmploymentLocationType(
+    IN p_employment_location_type_id INT, 
+    IN p_employment_location_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_employment_location_type_id INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_employment_location_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM employment_location_type WHERE employment_location_type_id = p_employment_location_type_id) THEN
+        INSERT INTO employment_location_type (
+            employment_location_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_employment_location_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_employment_location_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE employment_location_type
+        SET employment_location_type_name = p_employment_location_type_name,
+            last_log_by = p_last_log_by
+        WHERE employment_location_type_id = p_employment_location_type_id;
+
+        SET v_new_employment_location_type_id = p_employment_location_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_employment_location_type_id AS new_employment_location_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchEmploymentLocationType//
+
+CREATE PROCEDURE fetchEmploymentLocationType(
+    IN p_employment_location_type_id INT
+)
+BEGIN
+	SELECT * FROM employment_location_type
+	WHERE employment_location_type_id = p_employment_location_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteEmploymentLocationType//
+
+CREATE PROCEDURE deleteEmploymentLocationType(
+    IN p_employment_location_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employment_location_type
+    WHERE employment_location_type_id = p_employment_location_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkEmploymentLocationTypeExist//
+
+CREATE PROCEDURE checkEmploymentLocationTypeExist(
+    IN p_employment_location_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employment_location_type
+    WHERE employment_location_type_id = p_employment_location_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateEmploymentLocationTypeTable//
+
+CREATE PROCEDURE generateEmploymentLocationTypeTable()
+BEGIN
+	SELECT employment_location_type_id, employment_location_type_name
+    FROM employment_location_type 
+    ORDER BY employment_location_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmploymentLocationTypeOptions//
+
+CREATE PROCEDURE generateEmploymentLocationTypeOptions()
+BEGIN
+	SELECT employment_location_type_id, employment_location_type_name 
+    FROM employment_location_type 
+    ORDER BY employment_location_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: EMPLOYMENT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveEmploymentType//
+
+CREATE PROCEDURE saveEmploymentType(
+    IN p_employment_type_id INT, 
+    IN p_employment_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_employment_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_employment_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM employment_type WHERE employment_type_id = p_employment_type_id) THEN
+        INSERT INTO employment_type (
+            employment_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_employment_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_employment_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE employment_type
+        SET employment_type_name = p_employment_type_name,
+            last_log_by = p_last_log_by
+        WHERE employment_type_id = p_employment_type_id;
+
+        SET v_new_employment_type_id = p_employment_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_employment_type_id AS new_employment_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchEmploymentType//
+
+CREATE PROCEDURE fetchEmploymentType(
+    IN p_employment_type_id INT
+)
+BEGIN
+	SELECT * FROM employment_type
+	WHERE employment_type_id = p_employment_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteEmploymentType//
+
+CREATE PROCEDURE deleteEmploymentType(
+    IN p_employment_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employment_type
+    WHERE employment_type_id = p_employment_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkEmploymentTypeExist//
+
+CREATE PROCEDURE checkEmploymentTypeExist(
+    IN p_employment_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employment_type
+    WHERE employment_type_id = p_employment_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateEmploymentTypeTable//
+
+CREATE PROCEDURE generateEmploymentTypeTable()
+BEGIN
+	SELECT employment_type_id, employment_type_name
+    FROM employment_type 
+    ORDER BY employment_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmploymentTypeOptions//
+
+CREATE PROCEDURE generateEmploymentTypeOptions()
+BEGIN
+	SELECT employment_type_id, employment_type_name 
+    FROM employment_type 
+    ORDER BY employment_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: JOB POSITION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveJobPosition//
+CREATE PROCEDURE saveJobPosition(
+    IN p_job_position_id INT, 
+    IN p_job_position_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_job_position_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_job_position_id IS NULL OR NOT EXISTS (SELECT 1 FROM job_position WHERE job_position_id = p_job_position_id) THEN
+        INSERT INTO job_position (
+            job_position_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_job_position_name,
+            p_last_log_by
+        );
+        
+        SET v_new_job_position_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE job_position
+        SET job_position_name = p_job_position_name,
+            last_log_by = p_last_log_by
+        WHERE job_position_id = p_job_position_id;
+
+        SET v_new_job_position_id = p_job_position_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_job_position_id AS new_job_position_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchJobPosition//
+
+CREATE PROCEDURE fetchJobPosition(
+    IN p_job_position_id INT
+)
+BEGIN
+	SELECT * FROM job_position
+	WHERE job_position_id = p_job_position_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteJobPosition//
+
+CREATE PROCEDURE deleteJobPosition(
+    IN p_job_position_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM job_position
+    WHERE job_position_id = p_job_position_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkJobPositionExist//
+
+CREATE PROCEDURE checkJobPositionExist(
+    IN p_job_position_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_position
+    WHERE job_position_id = p_job_position_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateJobPositionTable//
+
+CREATE PROCEDURE generateJobPositionTable()
+BEGIN
+	SELECT job_position_id, job_position_name
+    FROM job_position 
+    ORDER BY job_position_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateJobPositionOptions//
+
+CREATE PROCEDURE generateJobPositionOptions()
+BEGIN
+	SELECT job_position_id, job_position_name 
+    FROM job_position 
+    ORDER BY job_position_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: WORK LOCATION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveWorkLocation//
+CREATE PROCEDURE saveWorkLocation(
+    IN p_work_location_id INT, 
+    IN p_work_location_name VARCHAR(100), 
+    IN p_address VARCHAR(1000), 
+    IN p_city_id INT, 
+    IN p_city_name VARCHAR(100), 
+    IN p_state_id INT, 
+    IN p_state_name VARCHAR(100), 
+    IN p_country_id INT, 
+    IN p_country_name VARCHAR(100), 
+    IN p_phone VARCHAR(20), 
+    IN p_telephone VARCHAR(20), 
+    IN p_email VARCHAR(255), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_work_location_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_work_location_id IS NULL OR NOT EXISTS (SELECT 1 FROM work_location WHERE work_location_id = p_work_location_id) THEN
+        INSERT INTO work_location (
+            work_location_name,
+            address,
+            city_id,
+            city_name,
+            state_id,
+            state_name,
+            country_id,
+            country_name,
+            phone,
+            telephone,
+            email,
+            last_log_by
+        ) 
+        VALUES(
+            p_work_location_name,
+            p_address,
+            p_city_id,
+            p_city_name,
+            p_state_id,
+            p_state_name,
+            p_country_id,
+            p_country_name,
+            p_phone,
+            p_telephone,
+            p_email,
+            p_last_log_by
+        );
+        
+        SET v_new_work_location_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE work_location
+        SET work_location_name = p_work_location_name,
+            address = p_address,
+            city_id = p_city_id,
+            city_name = p_city_name,
+            state_id = p_state_id,
+            state_name = p_state_name,
+            country_id = p_country_id,
+            country_name = p_country_name,
+            phone = p_phone,
+            telephone = p_telephone,
+            email = p_email,
+            last_log_by = p_last_log_by
+        WHERE work_location_id = p_work_location_id;
+
+        SET v_new_work_location_id = p_work_location_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_work_location_id AS new_work_location_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchWorkLocation//
+
+CREATE PROCEDURE fetchWorkLocation(
+    IN p_work_location_id INT
+)
+BEGIN
+	SELECT * FROM work_location
+	WHERE work_location_id = p_work_location_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteWorkLocation//
+
+CREATE PROCEDURE deleteWorkLocation(
+    IN p_work_location_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM work_location
+    WHERE work_location_id = p_work_location_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkWorkLocationExist//
+
+CREATE PROCEDURE checkWorkLocationExist(
+    IN p_work_location_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_location
+    WHERE work_location_id = p_work_location_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateWorkLocationTable//
+
+CREATE PROCEDURE generateWorkLocationTable(
+    IN p_filter_by_city TEXT,
+    IN p_filter_by_state TEXT,
+    IN p_filter_by_country TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT work_location_id, work_location_name, address, city_name, state_name, country_name 
+                FROM work_location ';
+
+    IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
+    END IF;
+
+    IF p_filter_by_state IS NOT NULL AND p_filter_by_state <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' state_id IN (', p_filter_by_state, ')');
+    END IF;
+
+    IF p_filter_by_country IS NOT NULL AND p_filter_by_country <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+        
+        SET filter_conditions = CONCAT(filter_conditions, ' country_id IN (', p_filter_by_country, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY work_location_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateWorkLocationOptions//
+
+CREATE PROCEDURE generateWorkLocationOptions()
+BEGIN
+	SELECT work_location_id, work_location_name 
+    FROM work_location 
+    ORDER BY work_location_name;
 END //
 
 /* =============================================================================================

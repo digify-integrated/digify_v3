@@ -159,9 +159,9 @@ class LanguageController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->language->generateLanguageTable();
+        $languages = $this->language->generateLanguageTable();
 
-        foreach ($countries as $row) {
+        foreach ($languages as $row) {
             $languageId     = $row['language_id'];
             $languageName   = $row['language_name'];
 
@@ -191,9 +191,9 @@ class LanguageController
             ];
         }
 
-        $countries = $this->language->generateLanguageOptions();
+        $languages = $this->language->generateLanguageOptions();
 
-        foreach ($countries as $row) {
+        foreach ($languages as $row) {
             $response[] = [
                 'id'    => $row['language_id'],
                 'text'  => $row['language_name']

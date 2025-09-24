@@ -1778,6 +1778,329 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: DEPARTMENT
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+DROP TRIGGER IF EXISTS trg_department_update//
+
+CREATE TRIGGER trg_department_update
+AFTER UPDATE ON department
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Department changed.<br/><br/>';
+
+    IF NEW.department_name <> OLD.department_name THEN
+        SET audit_log = CONCAT(audit_log, "Department Name: ", OLD.department_name, " -> ", NEW.department_name, "<br/>");
+    END IF;
+
+    IF NEW.parent_department_name <> OLD.parent_department_name THEN
+        SET audit_log = CONCAT(audit_log, "Parent Department: ", OLD.parent_department_name, " -> ", NEW.parent_department_name, "<br/>");
+    END IF;
+
+    IF NEW.manager_name <> OLD.manager_name THEN
+        SET audit_log = CONCAT(audit_log, "Manager: ", OLD.manager_name, " -> ", NEW.manager_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Department changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_department_insert//
+
+CREATE TRIGGER trg_department_insert
+AFTER INSERT ON department
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Department created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: DEPARTURE REASON
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_departure_reason_update//
+
+CREATE TRIGGER trg_departure_reason_update
+AFTER UPDATE ON departure_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Departure reason changed.<br/><br/>';
+
+    IF NEW.departure_reason_name <> OLD.departure_reason_name THEN
+        SET audit_log = CONCAT(audit_log, "Departure Reason Name: ", OLD.departure_reason_name, " -> ", NEW.departure_reason_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Departure reason changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_departure_reason_insert//
+
+CREATE TRIGGER trg_departure_reason_insert
+AFTER INSERT ON departure_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Departure reason created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employment_location_type_update//
+
+CREATE TRIGGER trg_employment_location_type_update
+AFTER UPDATE ON employment_location_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment location type changed.<br/><br/>';
+
+    IF NEW.employment_location_type_name <> OLD.employment_location_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employment Location Type Name: ", OLD.employment_location_type_name, " -> ", NEW.employment_location_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Employment location type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('employment_location_type', NEW.employment_location_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employment_location_type_insert//
+
+CREATE TRIGGER trg_employment_location_type_insert
+AFTER INSERT ON employment_location_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment location type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employment_location_type', NEW.employment_location_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: EMPLOYMENT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employment_type_update//
+
+CREATE TRIGGER trg_employment_type_update
+AFTER UPDATE ON employment_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment Type changed.<br/><br/>';
+
+    IF NEW.employment_type_name <> OLD.employment_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employment Type Name: ", OLD.employment_type_name, " -> ", NEW.employment_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Employment Type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('employment_type', NEW.employment_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employment_type_insert//
+
+CREATE TRIGGER trg_employment_type_insert
+AFTER INSERT ON employment_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment Type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employment_type', NEW.employment_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: JOB POSITION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_job_position_update//
+
+CREATE TRIGGER trg_job_position_update
+AFTER UPDATE ON job_position
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job position changed.<br/><br/>';
+
+    IF NEW.job_position_name <> OLD.job_position_name THEN
+        SET audit_log = CONCAT(audit_log, "Job Position Name: ", OLD.job_position_name, " -> ", NEW.job_position_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Job position changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_position', NEW.job_position_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_job_position_insert//
+
+CREATE TRIGGER trg_job_position_insert
+AFTER INSERT ON job_position
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job position created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_position', NEW.job_position_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: WORK LOCATION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_work_location_update//
+
+CREATE TRIGGER trg_work_location_update
+AFTER UPDATE ON work_location
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work location changed.<br/><br/>';
+
+    IF NEW.work_location_name <> OLD.work_location_name THEN
+        SET audit_log = CONCAT(audit_log, "Work Location Name: ", OLD.work_location_name, " -> ", NEW.work_location_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_name <> OLD.city_name THEN
+        SET audit_log = CONCAT(audit_log, "City: ", OLD.city_name, " -> ", NEW.city_name, "<br/>");
+    END IF;
+
+    IF NEW.state_name <> OLD.state_name THEN
+        SET audit_log = CONCAT(audit_log, "State: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+    END IF;
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Work location changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_location', NEW.work_location_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_work_location_insert//
+
+CREATE TRIGGER trg_work_location_insert
+AFTER INSERT ON work_location
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work location created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_location', NEW.work_location_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: 
 ============================================================================================= */
 

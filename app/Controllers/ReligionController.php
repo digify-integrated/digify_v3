@@ -159,9 +159,9 @@ class ReligionController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->religion->generateReligionTable();
+        $religions = $this->religion->generateReligionTable();
 
-        foreach ($countries as $row) {
+        foreach ($religions as $row) {
             $religionId      = $row['religion_id'];
             $religionName    = $row['religion_name'];
 
@@ -191,9 +191,9 @@ class ReligionController
             ];
         }
 
-        $countries = $this->religion->generateReligionOptions();
+        $religions = $this->religion->generateReligionOptions();
 
-        foreach ($countries as $row) {
+        foreach ($religions as $row) {
             $response[] = [
                 'id'    => $row['religion_id'],
                 'text'  => $row['religion_name']

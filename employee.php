@@ -30,7 +30,7 @@
                         <div class="d-flex flex-column flex-column-fluid">
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
-                                    /*if($newRecord){
+                                    if($newRecord){
                                         require_once './app/Views/Page/employee/new.php';
                                     }
                                     else if(!empty($detailID)){
@@ -41,7 +41,7 @@
                                     }
                                     else{
                                         require_once './app/Views/Page/employee/index.php';
-                                    }*/
+                                    }
                                 ?>
                             </div>
                         </div>
@@ -57,7 +57,7 @@
     <script src="./vendor/datatables/datatables.bundle.js"></script>
 
     <?php
-        /*$version = rand();
+        $version = rand();
         $scriptFile = './assets/js/page/employee/index.js';
 
         if ($newRecord) {
@@ -68,8 +68,10 @@
         }
         else if (isset($_GET['import']) && !empty($_GET['import'])) {
             $scriptFile = './assets/js/page/import/import.js'; 
-        }*/
+        }
     ?>
+
+    <script type="module" src="<?= $scriptFile ?>?v=<?= $version ?>"></script>
 
 </body>
 </html>

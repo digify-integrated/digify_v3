@@ -235,9 +235,9 @@ class UploadSettingController
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $countries = $this->uploadSetting->generateUploadSettingTable();
+        $uploadSettings = $this->uploadSetting->generateUploadSettingTable();
 
-        foreach ($countries as $row) {
+        foreach ($uploadSettings as $row) {
             $uploadSettingId            = $row['upload_setting_id'];
             $uploadSettingName          = $row['upload_setting_name'];
             $uploadSettingDescription   = $row['upload_setting_description'];
