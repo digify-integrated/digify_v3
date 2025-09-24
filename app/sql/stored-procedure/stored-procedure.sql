@@ -3653,6 +3653,143 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: NATIONALITY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveNationality//
+
+CREATE PROCEDURE saveNationality(
+    IN p_nationality_id INT, 
+    IN p_nationality_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_nationality_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_nationality_id IS NULL OR NOT EXISTS (SELECT 1 FROM nationality WHERE nationality_id = p_nationality_id) THEN
+        INSERT INTO nationality (
+            nationality_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_nationality_name,
+            p_last_log_by
+        );
+        
+        SET v_new_nationality_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE nationality
+        SET nationality_name = p_nationality_name,
+            last_log_by = p_last_log_by
+        WHERE nationality_id = p_nationality_id;
+
+        SET v_new_nationality_id = p_nationality_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_nationality_id AS new_nationality_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchNationality//
+
+CREATE PROCEDURE fetchNationality(
+    IN p_nationality_id INT
+)
+BEGIN
+	SELECT * FROM nationality
+	WHERE nationality_id = p_nationality_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteNationality//
+
+CREATE PROCEDURE deleteNationality(
+    IN p_nationality_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM nationality WHERE nationality_id = p_nationality_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkNationalityExist//
+
+CREATE PROCEDURE checkNationalityExist(
+    IN p_nationality_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM nationality
+    WHERE nationality_id = p_nationality_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateNationalityTable//
+
+CREATE PROCEDURE generateNationalityTable()
+BEGIN
+	SELECT nationality_id, nationality_name
+    FROM nationality 
+    ORDER BY nationality_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateNationalityOptions//
+
+CREATE PROCEDURE generateNationalityOptions()
+BEGIN
+	SELECT nationality_id, nationality_name 
+    FROM nationality 
+    ORDER BY nationality_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+/* =============================================================================================
    STORED PROCEDURE: COMPANY
 ============================================================================================= */
 
