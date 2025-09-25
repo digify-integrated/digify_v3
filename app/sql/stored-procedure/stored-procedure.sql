@@ -6828,6 +6828,129 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: EMPLOYEE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS insertEmployee//
+
+CREATE PROCEDURE insertEmployee(
+    IN p_full_name VARCHAR(1000),
+    IN p_first_name VARCHAR(300),
+    IN p_middle_name VARCHAR(300),
+    IN p_last_name VARCHAR(300),
+    IN p_suffix VARCHAR(10),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_employee_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO employee (
+        full_name,
+        first_name,
+        middle_name,
+        last_name,
+        suffix,
+        last_log_by
+    ) 
+    VALUES(
+        p_full_name,
+        p_first_name,
+        p_middle_name,
+        p_last_name,
+        p_suffix,
+        p_last_log_by
+    );
+
+    SET v_new_employee_id = LAST_INSERT_ID();
+
+    COMMIT;
+
+    SELECT v_new_employee_id AS new_employee_id;
+END //
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS getEmployee//
+
+CREATE PROCEDURE getEmployee(
+    IN p_employee_id INT
+)
+BEGIN
+	SELECT * FROM employee
+	WHERE employee_id = p_employee_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteEmployee//
+
+CREATE PROCEDURE deleteEmployee(
+    IN p_employee_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee
+    WHERE employee_id = p_employee_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkEmployeeExist//
+
+CREATE PROCEDURE checkEmployeeExist(
+    IN p_employee_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employee
+    WHERE employee_id = p_employee_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
    STORED PROCEDURE: 
 ============================================================================================= */
 

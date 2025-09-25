@@ -106,28 +106,14 @@ class EmployeeController
             );
         }
 
-        $employeeId      = $_POST['employee_id'] ?? null;
-        $employeeName    = $_POST['employee_name'] ?? null;
-        $address        = $_POST['address'] ?? null;
-        $cityId         = $_POST['city_id'] ?? null;
-        $taxId          = $_POST['tax_id'] ?? null;
-        $currencyId     = $_POST['currency_id'] ?? null;
-        $phone          = $_POST['phone'] ?? null;
-        $telephone      = $_POST['telephone'] ?? null;
-        $email          = $_POST['email'] ?? null;
-        $website        = $_POST['website'] ?? null;
+        $firstName      = $_POST['first_name'] ?? null;
+        $middleName     = $_POST['middle_name'] ?? null;
+        $lastName       = $_POST['last_name'] ?? null;
+        $suffix         = $_POST['suffix'] ?? null;
 
-        $cityDetails    = $this->city->fetchCity($cityId);
-        $cityName       = $cityDetails['city_name'] ?? null;
-        $stateId        = $cityDetails['state_id'] ?? null;
-        $stateName      = $cityDetails['state_name'] ?? null;
-        $countryId      = $cityDetails['country_id'] ?? null;
-        $countryName    = $cityDetails['country_name'] ?? null;
+        $fullName = $firstName . ' ' . $middleName . ' ' . $lastName . ' ' . $suffix;
 
-        $currencyDetails    = $this->currency->fetchCurrency($currencyId);
-        $currencyName       = $currencyDetails['currency_name'] ?? null;
-
-        $employeeId = $this->employee->saveEmployee($employeeId, $employeeName, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $taxId, $currencyId, $currencyName, $phone, $telephone, $email, $website, $lastLogBy);
+        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $lastLogBy);
 
         $encryptedemployeeId = $this->security->encryptData($employeeId);
 
@@ -142,12 +128,12 @@ class EmployeeController
 
         $employeeId   = $_POST['employee_id'] ?? null;
        
-        $employeeLogoFileName                = $_FILES['employee_logo']['name'];
-        $employeeLogoFileSize                = $_FILES['employee_logo']['size'];
-        $employeeLogoFileError               = $_FILES['employee_logo']['error'];
-        $employeeLogoTempName                = $_FILES['employee_logo']['tmp_name'];
-        $employeeLogoFileExtension           = explode('.', $employeeLogoFileName);
-        $employeeLogoActualFileExtension     = strtolower(end($employeeLogoFileExtension));
+        $employeeLogoFileName               = $_FILES['employee_logo']['name'];
+        $employeeLogoFileSize               = $_FILES['employee_logo']['size'];
+        $employeeLogoFileError              = $_FILES['employee_logo']['error'];
+        $employeeLogoTempName               = $_FILES['employee_logo']['tmp_name'];
+        $employeeLogoFileExtension          = explode('.', $employeeLogoFileName);
+        $employeeLogoActualFileExtension    = strtolower(end($employeeLogoFileExtension));
 
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(5);
         $maxFileSize    = $uploadSetting['max_file_size'];
@@ -233,9 +219,9 @@ class EmployeeController
     }
 
     public function deleteEmployee(){
-        $employeeId          = $_POST['employee_id'] ?? null;
-        $employeeDetails     = $this->employee->fetchEmployee($employeeId);
-        $employeeLogo        = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+        $employeeLogo       = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
 
         $deleteImageFile = $this->systemHelper->deleteFileIfExist($employeeLogo);
 
@@ -258,8 +244,8 @@ class EmployeeController
         $employeeIds = $_POST['employee_id'] ?? null;
 
         foreach($employeeIds as $employeeId){
-            $employeeDetails     = $this->employee->fetchEmployee($employeeId);
-            $employeeLogo        = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
+            $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+            $employeeLogo       = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
 
             $this->systemHelper->deleteFileIfExist($employeeLogo);
 
@@ -273,9 +259,9 @@ class EmployeeController
     }
 
     public function fetchEmployeeDetails(){
-        $employeeId            = $_POST['employee_id'] ?? null;
-        $checkEmployeeExist    = $this->employee->checkEmployeeExist($employeeId);
-        $total                = $checkEmployeeExist['total'] ?? 0;
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
+        $total                  = $checkEmployeeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -290,7 +276,7 @@ class EmployeeController
 
         $response = [
             'success'       => true,
-            'employeeName'   => $employeeDetails['employee_name'] ?? null,
+            'employeeName'  => $employeeDetails['employee_name'] ?? null,
             'address'       => $employeeDetails['address'] ?? null,
             'cityID'        => $employeeDetails['city_id'] ?? null,
             'taxID'         => $employeeDetails['tax_id'] ?? null,
@@ -299,7 +285,7 @@ class EmployeeController
             'telephone'     => $employeeDetails['telephone'] ?? null,
             'email'         => $employeeDetails['email'] ?? null,
             'website'       => $employeeDetails['website'] ?? null,
-            'employeeLogo'   => $employeeLogo
+            'employeeLogo'  => $employeeLogo
         ];
 
         echo json_encode($response);
@@ -318,15 +304,15 @@ class EmployeeController
         $employees = $this->employee->generateEmployeeTable($cityFilter, $stateFilter, $countryFilter, $currencyFilter);
 
         foreach ($employees as $row) {
-            $employeeId              = $row['employee_id'];
-            $employeeName            = $row['employee_name'];
+            $employeeId             = $row['employee_id'];
+            $employeeName           = $row['employee_name'];
             $address                = $row['address'];
             $cityName               = $row['city_name'];
             $stateName              = $row['state_name'];
             $countryName            = $row['country_name'];
-            $employeeAddress         = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
-            $employeeLogo            = $this->systemHelper->checkImageExist($row['employee_logo'] ?? null, 'employee logo');
-            $employeeIdEncrypted     = $this->security->encryptData($employeeId);
+            $employeeAddress        = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
+            $employeeLogo           = $this->systemHelper->checkImageExist($row['employee_logo'] ?? null, 'employee logo');
+            $employeeIdEncrypted    = $this->security->encryptData($employeeId);
 
             $response[] = [
                 'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">

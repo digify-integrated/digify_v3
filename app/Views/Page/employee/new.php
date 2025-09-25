@@ -3,7 +3,8 @@
         <h5 class="card-title mb-0">Employee Details</h5>
     </div>
     <div class="card-body">
-        <form id="employee-form" method="post" action="#">
+        <form id="employee_form" method="post" action="#">
+            <?= $security->csrfInput('employee_form'); ?>
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
@@ -50,6 +51,6 @@
     </div>
     <div class="card-footer d-flex justify-content-end py-6 px-9">
         <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-        <button type="submit" form="employee-form" class="btn btn-primary" id="submit-data">Save</button>
+        <button type="submit" form="employee_form" class="btn btn-primary" id="submit-data">Save</button>
     </div>
 </div>
