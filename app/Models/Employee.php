@@ -98,10 +98,73 @@ class Employee extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-    public function generateEmployeeTable() {
-        $sql = 'CALL generateEmployeeTable()';
-        
-        return $this->fetchAll($sql);
+    public function generateEmployeeCard(
+        $p_search_value,
+        $p_filter_by_company, 
+        $p_filter_by_department, 
+        $p_filter_by_job_position, 
+        $p_filter_by_employee_status, 
+        $p_filter_by_work_location, 
+        $p_filter_by_employment_type, 
+        $p_filter_by_gender, 
+        $p_limit, 
+        $p_offset
+    ) {
+        $sql = 'CALL generateEmployeeCard(
+            :p_search_value,
+            :p_filter_by_company,
+            :p_filter_by_department,
+            :p_filter_by_job_position,
+            :p_filter_by_employee_status,
+            :p_filter_by_work_location,
+            :p_filter_by_employment_type,
+            :p_filter_by_gender,
+            :p_limit,
+            :p_offset
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_search_value' => $p_search_value,
+            'p_filter_by_company' => $p_filter_by_company,
+            'p_filter_by_department' => $p_filter_by_department,
+            'p_filter_by_job_position' => $p_filter_by_job_position,
+            'p_filter_by_employee_status' => $p_filter_by_employee_status,
+            'p_filter_by_work_location' => $p_filter_by_work_location,
+            'p_filter_by_employment_type' => $p_filter_by_employment_type,
+            'p_filter_by_gender' => $p_filter_by_gender,
+            'p_limit' => $p_limit,
+            'p_offset' => $p_offset
+        ]);
+    }
+
+    public function generateEmployeeTable(
+        $p_filter_by_company, 
+        $p_filter_by_department, 
+        $p_filter_by_job_position, 
+        $p_filter_by_employee_status, 
+        $p_filter_by_work_location, 
+        $p_filter_by_employment_type, 
+        $p_filter_by_gender
+    ) {
+        $sql = 'CALL generateEmployeeCard(
+            :p_filter_by_company,
+            :p_filter_by_department,
+            :p_filter_by_job_position,
+            :p_filter_by_employee_status,
+            :p_filter_by_work_location,
+            :p_filter_by_employment_type,
+            :p_filter_by_gender
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_filter_by_company' => $p_filter_by_company,
+            'p_filter_by_department' => $p_filter_by_department,
+            'p_filter_by_job_position' => $p_filter_by_job_position,
+            'p_filter_by_employee_status' => $p_filter_by_employee_status,
+            'p_filter_by_work_location' => $p_filter_by_work_location,
+            'p_filter_by_employment_type' => $p_filter_by_employment_type,
+            'p_filter_by_gender' => $p_filter_by_gender
+        ]);
     }
 
     public function generateEmployeeOptions() {

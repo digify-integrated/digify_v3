@@ -2371,7 +2371,7 @@ BEGIN
     END IF;
 
     IF NEW.work_location_type_name <> OLD.work_location_type_name THEN
-        SET audit_log = CONCAT(audit_log, "Work Location Type: ", OLD.work_location_type_name, " -> ", NEW.locwork_location_type_nameation, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Work Location Type: ", OLD.work_location_type_name, " -> ", NEW.work_location_type_name, "<br/>");
     END IF;
 
     IF NEW.start_month <> OLD.start_month THEN

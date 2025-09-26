@@ -41,13 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const payload = {
                 page_id: pageId,
                 page_link: pageLink,
-                type: 'employee cards',
+                transaction: 'generate employee card',
                 limit: LIMIT,
                 offset,
                 ...filters
             };
 
-            const response = await fetch('apps/employee/employee/view/_employee_generation.php', {
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

@@ -87,9 +87,10 @@ class EmployeeController
             'delete employee'             => $this->deleteEmployee(),
             'delete multiple employee'    => $this->deleteMultipleEmployee(),
             'fetch employee details'      => $this->fetchEmployeeDetails(),
+            'generate employee card'      => $this->generateEmployeeCard(),
             'generate employee table'     => $this->generateEmployeeTable(),
             'generate employee options'   => $this->generateEmployeeOptions(),
-            default                      => $this->systemHelper::sendErrorResponse(
+            default                       => $this->systemHelper::sendErrorResponse(
                                                 'Transaction Failed',
                                                 'We encountered an issue while processing your request.'
                                             )
@@ -290,6 +291,62 @@ class EmployeeController
 
         echo json_encode($response);
         exit;
+    }
+
+    public function generateEmployeeCard()
+    {
+        $pageLink               = $_POST['page_link'] ?? null;
+        $searchValue            = $this->systemHelper->checkFilter($_POST['search_value'] ?? null);
+        $companyFilter          = $this->systemHelper->checkFilter($_POST['filter_by_company'] ?? null);
+        $departmentFilter       = $this->systemHelper->checkFilter($_POST['filter_by_department'] ?? null);
+        $jobPositionFilter      = $this->systemHelper->checkFilter($_POST['filter_by_job_position'] ?? null);
+        $employeeStatusFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employee_status'] ?? null);
+        $workLocationFilter     = $this->systemHelper->checkFilter($_POST['filter_by_work_location'] ?? null);
+        $employmentTypeFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employment_type'] ?? null);
+        $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
+        $limit                  = $this->systemHelper->checkFilter($_POST['limit'] ?? null);
+        $offset                 = $this->systemHelper->checkFilter($_POST['offset'] ?? null);
+        $card                   = [];
+
+        $employees = $this->employee->generateEmployeeCard($searchValue, $companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter, $limit, $offset);
+
+        foreach ($employees as $row) {
+            $employeeId         = $row['employee_id'];
+            $fullName           = $row['full_name'];
+            $departmentName     = $row['department_name'];
+            $jobPositionName    = $row['job_position_name'];
+            $employmentStatus   = $row['employment_status'];
+            $employeeImage      = $this->systemHelper->checkImageExist($row['employee_image'] ?? null, 'profile');
+
+            $badgeClass = $employmentStatus == 'Active' ? 'bg-success' : 'bg-danger';
+            $employmentStatusBadge = '<div class="'. $badgeClass .' position-absolute border border-4 border-body h-15px w-15px rounded-circle translate-middle start-100 top-100 ms-n3 mt-n3"></div>';
+
+            $employeeIdEncrypted = $this->security->encryptData($employeeId);
+
+            $card .= '<div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body d-flex flex-center flex-column pt-12 p-9">
+                                <a href="'. $pageLink .'&id='. $employeeIdEncrypted .'" class="cursor-pointer">
+                                    <div class="symbol symbol-65px symbol-circle mb-5">
+                                        <img src="'. $employeeImage .'" alt="image">
+                                        '. $employmentStatusBadge .'
+                                    </div>
+                                </a>
+
+                                <a href="'. $pageLink .'&id='. $employeeIdEncrypted .'" class="fs-4 text-gray-800 text-hover-primary fw-bold mb-0">'. $fullName .'</a>
+
+                                <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
+                                <div class="fw-semibold text-gray-500">'. $jobPositionName .'</div>
+                            </div>
+                        </div>
+                    </div>';
+        }
+
+        $response[] = [
+            'EMPLOYEE_CARD' => $card
+        ];
+
+        echo json_encode($response);
     }
 
     public function generateEmployeeTable()
