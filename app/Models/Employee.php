@@ -146,7 +146,7 @@ class Employee extends Model {
         $p_filter_by_employment_type, 
         $p_filter_by_gender
     ) {
-        $sql = 'CALL generateEmployeeCard(
+        $sql = 'CALL generateEmployeeTable(
             :p_filter_by_company,
             :p_filter_by_department,
             :p_filter_by_job_position,

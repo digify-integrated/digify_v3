@@ -33,7 +33,7 @@ class EmployeeController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->employee          = $employee;
+        $this->employee         = $employee;
         $this->city             = $city;
         $this->currency         = $currency;
         $this->authentication   = $authentication;
@@ -296,7 +296,7 @@ class EmployeeController
     public function generateEmployeeCard()
     {
         $pageLink               = $_POST['page_link'] ?? null;
-        $searchValue            = $this->systemHelper->checkFilter($_POST['search_value'] ?? null);
+        $searchValue            = $_POST['search_value'] ?? null;
         $companyFilter          = $this->systemHelper->checkFilter($_POST['filter_by_company'] ?? null);
         $departmentFilter       = $this->systemHelper->checkFilter($_POST['filter_by_department'] ?? null);
         $jobPositionFilter      = $this->systemHelper->checkFilter($_POST['filter_by_job_position'] ?? null);
@@ -304,9 +304,8 @@ class EmployeeController
         $workLocationFilter     = $this->systemHelper->checkFilter($_POST['filter_by_work_location'] ?? null);
         $employmentTypeFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employment_type'] ?? null);
         $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
-        $limit                  = $this->systemHelper->checkFilter($_POST['limit'] ?? null);
-        $offset                 = $this->systemHelper->checkFilter($_POST['offset'] ?? null);
-        $card                   = [];
+        $limit                  = $_POST['limit'] ?? null;
+        $offset                 = $_POST['offset'] ?? null;
 
         $employees = $this->employee->generateEmployeeCard($searchValue, $companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter, $limit, $offset);
 
@@ -323,69 +322,58 @@ class EmployeeController
 
             $employeeIdEncrypted = $this->security->encryptData($employeeId);
 
-            $card .= '<div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body d-flex flex-center flex-column pt-12 p-9">
-                                <a href="'. $pageLink .'&id='. $employeeIdEncrypted .'" class="cursor-pointer">
+            $card = '<div class="col-md-3">
+                        <a href="'. $pageLink .'&id='. $employeeIdEncrypted .'" class="cursor-pointer" target="_blank">
+                            <div class="card">
+                                <div class="card-body d-flex flex-center flex-column pt-12 p-9">
                                     <div class="symbol symbol-65px symbol-circle mb-5">
                                         <img src="'. $employeeImage .'" alt="image">
                                         '. $employmentStatusBadge .'
                                     </div>
-                                </a>
 
-                                <a href="'. $pageLink .'&id='. $employeeIdEncrypted .'" class="fs-4 text-gray-800 text-hover-primary fw-bold mb-0">'. $fullName .'</a>
-
-                                <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
-                                <div class="fw-semibold text-gray-500">'. $jobPositionName .'</div>
+                                    <div class="fs-4 text-gray-800 fw-bold mb-0" target="_blank">'. $fullName .'</div>
+                                    <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
+                                    <div class="fw-semibold text-gray-500">'. $jobPositionName .'</div>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>';
-        }
 
-        $response[] = [
-            'EMPLOYEE_CARD' => $card
-        ];
+            $response[] = ['EMPLOYEE_CARD' => $card];
+        }
 
         echo json_encode($response);
     }
 
     public function generateEmployeeTable()
     {
-        $pageLink           = $_POST['page_link'] ?? null;
-        $cityFilter         = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter        = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter      = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $currencyFilter     = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
-        $response   = [];
+        $pageLink               = $_POST['page_link'] ?? null;
+        $companyFilter          = $this->systemHelper->checkFilter($_POST['filter_by_company'] ?? null);
+        $departmentFilter       = $this->systemHelper->checkFilter($_POST['filter_by_department'] ?? null);
+        $jobPositionFilter      = $this->systemHelper->checkFilter($_POST['filter_by_job_position'] ?? null);
+        $employeeStatusFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employee_status'] ?? null);
+        $workLocationFilter     = $this->systemHelper->checkFilter($_POST['filter_by_work_location'] ?? null);
+        $employmentTypeFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employment_type'] ?? null);
+        $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
+        $response               = [];
 
-        $employees = $this->employee->generateEmployeeTable($cityFilter, $stateFilter, $countryFilter, $currencyFilter);
+        $employees = $this->employee->generateEmployeeTable($companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter);
 
         foreach ($employees as $row) {
-            $employeeId             = $row['employee_id'];
-            $employeeName           = $row['employee_name'];
-            $address                = $row['address'];
-            $cityName               = $row['city_name'];
-            $stateName              = $row['state_name'];
-            $countryName            = $row['country_name'];
-            $employeeAddress        = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
-            $employeeLogo           = $this->systemHelper->checkImageExist($row['employee_logo'] ?? null, 'employee logo');
-            $employeeIdEncrypted    = $this->security->encryptData($employeeId);
+            $employeeId         = $row['employee_id'];
+            $fullName           = $row['full_name'];
+            $departmentName     = $row['department_name'];
+            $jobPositionName    = $row['job_position_name'];
+
+            $employeeIdEncrypted = $this->security->encryptData($employeeId);
 
             $response[] = [
                 'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $employeeId .'">
                                     </div>',
-                'COMPANY_NAME'  => '<div class="d-flex align-items-center">
-                                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                            <div class="symbol-label">
-                                                <img src="'. $employeeLogo .'" alt="'. $employeeName .'" class="w-100">
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column">
-                                            <span class="text-gray-800 fw-bold mb-1">'. $employeeName .'</span>
-                                            <small class="text-gray-600">'. $employeeAddress .'</small>
-                                        </div>
-                                    </div>',
+                'EMPLOYEE'      => $fullName,
+                'DEPARTMENT'    => $departmentName,
+                'JOB_POSITION'  => $jobPositionName,
                 'LINK'          => $pageLink .'&id='. $employeeIdEncrypted
             ];
         }

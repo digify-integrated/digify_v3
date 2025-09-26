@@ -23,7 +23,7 @@ export const clearDatatable = (datatableSelector) => {
 export const readjustDatatableColumn = () => {
     const adjustColumns = () => {
         const tables = $.fn.dataTable.tables({ visible: true, api: true });
-        tables.columns.adjust().fixedColumns().relayout();
+        tables.columns.adjust().fixedColumns().update(); // ✅
     };
 
     $('a[data-bs-toggle="tab"], a[data-bs-toggle="pill"], #System-Modal')
@@ -148,14 +148,18 @@ export const initializeDatatableControls = (selector) => {
 };
 
 export const initializeSubDatatableControls = (search, length, selector) => {
-    $(length).off('change').on('change', function() {
-        const table = $(selector).DataTable();
-        const length = $(this).val();
-        table.page.len(length).draw();
-    });
+    const table = $(selector).DataTable();
 
-    $(search).off('keyup').on('keyup', function () {
-        const table = $(selector).DataTable();
-        table.search(this.value).draw();
+    document.addEventListener('click', e => {
+        const target = e.target;
+
+        if (target.matches(length)) {
+            const newLength = parseInt(target.value, 10) || 10;
+            table.page.len(newLength).draw();
+        }
+
+        if (target.matches(search)) {
+            table.search(target.value).draw();
+        }
     });
 };

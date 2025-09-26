@@ -430,11 +430,26 @@ class SystemHelper extends Security
         return './assets/js/page/'. $folderName .'/index.js';
     }
 
-    public static function checkFilter(?array $values): ?string {
-        if (!$values) return null;
-        $cleanValues = array_filter(array_map('trim', $values), fn($v) => $v !== '');
-        return $cleanValues ? "'" . implode("','", array_map('addslashes', $cleanValues)) . "'" : null;
+    public static function checkFilter($values): ?string
+    {
+        if ($values === null) {
+            return null;
+        }
+        
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        $cleanValues = array_filter(
+            array_map('trim', $values),
+            fn($v) => $v !== ''
+        );
+
+        return $cleanValues
+            ? "'" . implode("','", array_map('addslashes', $cleanValues)) . "'"
+            : null;
     }
+
 
     public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {
         $systemDate ??= date('Y-m-d');

@@ -1,103 +1,163 @@
 import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
+import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     let isFetching = false;
     let hasQueuedRequest = false;
     let offset = 0;
-    const LIMIT = 30;
+    const LIMIT = 16;
 
-    // Fetch employees in batches with queue support
-    const fetchEmployeeCards = async ({ clearExisting = false, containerId = 'employee-card' } = {}) => {
+    const datatableConfig = () => ({
+        selector: '#employee-table',
+        ajaxUrl: './app/Controllers/EmployeeController.php',
+        transaction: 'generate employee table',
+        ajaxData: {
+            filter_by_company: document.querySelector('#company_filter')?.value || [],
+            filter_by_department: document.querySelector('#department_filter')?.value || [],
+            filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
+            filter_by_employee_status: document.querySelector('#employee_status_filter')?.value || [],
+            filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
+            filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
+            filter_by_gender: document.querySelector('#gender_filter')?.value || []
+        },
+        columns: [
+            { data: 'CHECK_BOX' },
+            { data: 'EMPLOYEE' },
+            { data: 'DEPARTMENT' },
+            { data: 'JOB_POSITION' }
+        ],
+        columnDefs: [
+            { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 }
+        ],
+        onRowClick: (rowData) => {
+            if (rowData?.LINK) window.open(rowData.LINK, '_blank');
+        }
+    });
+
+    initializeDatatable(datatableConfig());
+
+    const containerId = 'employee-card';
+    const container = document.querySelector(`#${containerId}`);
+
+    const dropdownConfigs = [
+        { url: './app/Controllers/CompanyController.php', selector: '#company_filter', transaction: 'generate company options' },
+        { url: './app/Controllers/DepartmentController.php', selector: '#department_filter', transaction: 'generate department options' },
+        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_filter', transaction: 'generate job position options' },
+        { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_filter', transaction: 'generate work location options' },
+        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_filter', transaction: 'generate employment type options' },
+        { url: './app/Controllers/GenderController.php', selector: '#gender_filter', transaction: 'generate gender options' }
+    ];
+
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction, multiple: true }
+        });
+    });
+
+    const spinner = document.createElement('div');
+    spinner.id = 'loading-spinner';
+    spinner.className = 'text-center mt-10 d-none';
+    spinner.innerHTML = `
+        <span>
+            <span class="spinner-grow spinner-grow-md align-middle ms-0"></span>
+        </span>
+    `;
+    container?.appendChild(spinner);
+
+    function showSpinner() {
+        spinner.classList.remove('d-none');
+    }
+
+    function hideSpinner() {
+        spinner.classList.add('d-none');
+    }
+
+    const fetchEmployeeCards = async ({ clearExisting = false } = {}) => {
         if (isFetching) {
-            // 🚦 If already fetching, queue the request
             hasQueuedRequest = true;
             return;
         }
         isFetching = true;
+        showSpinner();
 
         try {
-            const pageId = document.querySelector('#page-id')?.value;
-            const pageLink = document.querySelector('#page-link')?.getAttribute('href');
-
-            const filters = {
-                search_value: document.querySelector('#datatable-search')?.value || '',
-                filter_by_company: document.querySelector('#company_filter')?.value || '',
-                filter_by_department: document.querySelector('#department_filter')?.value || '',
-                filter_by_job_position: document.querySelector('#job_position_filter')?.value || '',
-                filter_by_employee_status: document.querySelector('#employee_status_filter')?.value || '',
-                filter_by_work_location: document.querySelector('#work_location_filter')?.value || '',
-                filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || '',
-                filter_by_gender: document.querySelector('#gender_filter')?.value || ''
-            };
-
             if (clearExisting) {
-                document.querySelector(`#${containerId}`).innerHTML = '';
+                container.innerHTML = '';
+                container.appendChild(spinner);
                 offset = 0;
-                removeEndMessage();
+                container.appendChild(sentinel);
             }
 
             const payload = {
-                page_id: pageId,
-                page_link: pageLink,
+                page_id: document.querySelector('#page-id')?.value,
+                page_link: document.querySelector('#page-link')?.getAttribute('href'),
                 transaction: 'generate employee card',
                 limit: LIMIT,
                 offset,
-                ...filters
+                search_value: document.querySelector('#datatable-search')?.value || '',
+                filter_by_company: document.querySelector('#company_filter')?.value || [],
+                filter_by_department: document.querySelector('#department_filter')?.value || [],
+                filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
+                filter_by_employee_status: document.querySelector('#employee_status_filter')?.value || [],
+                filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
+                filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
+                filter_by_gender: document.querySelector('#gender_filter')?.value || []
             };
 
             const response = await fetch('./app/Controllers/EmployeeController.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: new URLSearchParams(payload)
             });
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const data = await response.json();
+
             if (!Array.isArray(data) || data.length === 0) {
                 stopInfiniteScroll();
-                showEndMessage(containerId);
                 return;
             }
 
-            const container = document.querySelector(`#${containerId}`);
             const htmlString = data.map(card => card.EMPLOYEE_CARD).join('');
-            container.insertAdjacentHTML('beforeend', htmlString);
+            sentinel.insertAdjacentHTML('beforebegin', htmlString);
 
-            // ✅ Update offset only after successful render
             offset += data.length;
 
-            // 🚦 If fewer than LIMIT returned, stop observing and show end message
             if (data.length < LIMIT) {
                 stopInfiniteScroll();
-                showEndMessage(containerId);
+            } else {
+                ensureScrollable();
             }
 
         } catch (error) {
             console.error('Error fetching employee cards:', error);
         } finally {
             isFetching = false;
+            hideSpinner();
 
-            // 🚀 Process queued request if any
             if (hasQueuedRequest) {
                 hasQueuedRequest = false;
-                fetchEmployeeCards({ clearExisting: false, containerId });
+                fetchEmployeeCards({ clearExisting: false });
             }
         }
     };
 
-    // ---- Helpers ----
     const sentinel = document.createElement('div');
     sentinel.id = 'scroll-sentinel';
-    document.body.appendChild(sentinel);
+    container.appendChild(sentinel);
 
     const observer = new IntersectionObserver(entries => {
         if (entries.some(entry => entry.isIntersecting)) {
-            fetchEmployeeCards({ clearExisting: false });
+            fetchEmployeeCards();
         }
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '300px' });
 
     observer.observe(sentinel);
 
@@ -105,39 +165,35 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.disconnect();
     }
 
-    function showEndMessage(containerId) {
-        if (!document.querySelector('#end-of-results')) {
-            const container = document.querySelector(`#${containerId}`);
-            const endMessage = document.createElement('div');
-            endMessage.id = 'end-of-results';
-            endMessage.textContent = 'No more employees to display.';
-            endMessage.style.textAlign = 'center';
-            endMessage.style.padding = '1rem';
-            endMessage.style.color = '#666';
-            container.insertAdjacentElement('afterend', endMessage);
+    async function ensureScrollable() {
+        if (container.scrollHeight <= window.innerHeight && !isFetching) {
+            await fetchEmployeeCards();
         }
     }
 
-    function removeEndMessage() {
-        const msg = document.querySelector('#end-of-results');
-        if (msg) msg.remove();
-    }
-
-    // ---- Filter button ----
-    document.addEventListener('click', e => {
-        if (e.target && e.target.id === 'apply-filter') {
-            offset = 0;
-            observer.observe(sentinel); // reset observer
+    document.addEventListener('click', event => {
+        if (event.target.closest('#apply-filter')) {
+            observer.observe(sentinel);
             fetchEmployeeCards({ clearExisting: true });
 
-            if (typeof employeeTable === 'function') {
-                employeeTable('#employee-table');
-            }
+            initializeDatatable(datatableConfig());
+        }
+
+        if (event.target.closest('#reset-filter')) {
+            $('#company_filter').val(null).trigger('change');
+            $('#department_filter').val(null).trigger('change');
+            $('#job_position_filter').val(null).trigger('change');
+            $('#job_position_filter').val(null).trigger('change');
+            $('#employee_status_filter').val(null).trigger('change');
+            $('#work_location_filter').val(null).trigger('change');
+            $('#employment_type_filter').val(null).trigger('change');
+
+            observer.observe(sentinel);
+            fetchEmployeeCards({ clearExisting: true });
+
+            initializeDatatable(datatableConfig());
         }
     });
 
-    // ---- Initial load ----
     fetchEmployeeCards({ clearExisting: true });
-
-
 });
