@@ -5,6 +5,8 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Employee;
+use App\Models\Department;
+use App\Models\JobPosition;
 use App\Models\City;
 use App\Models\Currency;
 use App\Models\Authentication;
@@ -17,8 +19,9 @@ require_once '../../config/config.php';
 class EmployeeController
 {
     protected Employee $employee;
+    protected Department $department;
+    protected JobPosition $jobPosition;
     protected City $city;
-    protected Currency $currency;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -26,16 +29,18 @@ class EmployeeController
 
     public function __construct(
         Employee $employee,
+        Department $department,
+        JobPosition $jobPosition,
         City $city,
-        Currency $currency,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->employee         = $employee;
+        $this->department       = $department;
+        $this->jobPosition      = $jobPosition;
         $this->city             = $city;
-        $this->currency         = $currency;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -111,10 +116,18 @@ class EmployeeController
         $middleName     = $_POST['middle_name'] ?? null;
         $lastName       = $_POST['last_name'] ?? null;
         $suffix         = $_POST['suffix'] ?? null;
+        $departmentId   = $_POST['department_id'] ?? null;
+        $jobPositionId  = $_POST['job_position_id'] ?? null;
 
         $fullName = $firstName . ' ' . $middleName . ' ' . $lastName . ' ' . $suffix;
 
-        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $lastLogBy);
+        $departmentDetails  = $this->department->fetchDepartment($departmentId);
+        $departmentName     = $departmentDetails['department_name'] ?? null;
+
+        $jobPositionDetails     = $this->jobPosition->fetchJobPosition($jobPositionId);
+        $jobPositionName        = $jobPositionDetails['job_position_name'] ?? null;
+
+        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $departmentId, $departmentName, $jobPositionId, $jobPositionName, $lastLogBy);
 
         $encryptedemployeeId = $this->security->encryptData($employeeId);
 
@@ -306,6 +319,7 @@ class EmployeeController
         $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
         $limit                  = $_POST['limit'] ?? null;
         $offset                 = $_POST['offset'] ?? null;
+        $response               = [];
 
         $employees = $this->employee->generateEmployeeCard($searchValue, $companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter, $limit, $offset);
 
@@ -317,8 +331,8 @@ class EmployeeController
             $employmentStatus   = $row['employment_status'];
             $employeeImage      = $this->systemHelper->checkImageExist($row['employee_image'] ?? null, 'profile');
 
-            $badgeClass = $employmentStatus == 'Active' ? 'bg-success' : 'bg-danger';
-            $employmentStatusBadge = '<div class="'. $badgeClass .' position-absolute border border-4 border-body h-15px w-15px rounded-circle translate-middle start-100 top-100 ms-n3 mt-n3"></div>';
+            $badgeClass             = $employmentStatus == 'Active' ? 'bg-success' : 'bg-danger';
+            $employmentStatusBadge  = '<div class="'. $badgeClass .' position-absolute border border-4 border-body h-15px w-15px rounded-circle translate-middle start-100 top-100 ms-n3 mt-n3"></div>';
 
             $employeeIdEncrypted = $this->security->encryptData($employeeId);
 
@@ -332,8 +346,8 @@ class EmployeeController
                                     </div>
 
                                     <div class="fs-4 text-gray-800 fw-bold mb-0" target="_blank">'. $fullName .'</div>
-                                    <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
                                     <div class="fw-semibold text-gray-500">'. $jobPositionName .'</div>
+                                    <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
                                 </div>
                             </div>
                         </a>
@@ -364,6 +378,11 @@ class EmployeeController
             $fullName           = $row['full_name'];
             $departmentName     = $row['department_name'];
             $jobPositionName    = $row['job_position_name'];
+            $employmentStatus   = $row['employment_status'];
+            $employeeImage      = $this->systemHelper->checkImageExist($row['employee_image'] ?? null, 'profile');
+
+            $badgeClass             = $employmentStatus == 'Active' ? 'bg-success' : 'bg-danger';
+            $employmentStatusBadge  = '<div class="'. $badgeClass .' position-absolute border border-4 border-body h-15px w-15px rounded-circle translate-middle start-100 top-100 ms-n3 mt-n3"></div>';
 
             $employeeIdEncrypted = $this->security->encryptData($employeeId);
 
@@ -371,9 +390,19 @@ class EmployeeController
                 'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $employeeId .'">
                                     </div>',
-                'EMPLOYEE'      => $fullName,
+                'EMPLOYEE'      => '<div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <div class="symbol symbol-65px symbol-circle mb-5">
+                                                <img src="'. $employeeImage .'" alt="image">
+                                                '. $employmentStatusBadge .'
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-gray-800 mb-1">'. $fullName .'</span>
+                                            <span class="text-gray-600">'. $jobPositionName .'</span>
+                                        </div>
+                                    </div>',
                 'DEPARTMENT'    => $departmentName,
-                'JOB_POSITION'  => $jobPositionName,
                 'LINK'          => $pageLink .'&id='. $employeeIdEncrypted
             ];
         }
@@ -409,8 +438,9 @@ class EmployeeController
 # Bootstrap the controller
 $controller = new EmployeeController(
     new Employee(),
+    new Department(),
+    new JobPosition(),
     new City(),
-    new Currency(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

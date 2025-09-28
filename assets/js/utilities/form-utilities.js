@@ -71,7 +71,34 @@ export const generateDropdownOptions = async ({
     const result = await response.json();
 
     const $dropdown = $(dropdownSelector);
-    $dropdown.select2({ data: result });
+
+    if ($dropdown.hasClass('select2-hidden-accessible')) {
+      $dropdown.select2('destroy');
+    }
+
+    const $menuParent = $dropdown.closest('[data-kt-menu="true"]');
+    const dropdownParent = $menuParent.length ? $menuParent : $(document.body);
+
+    $dropdown.select2({
+      data: result,
+      dropdownParent,
+      width: '100%'
+    });
+
+    $dropdown.on('select2:unselect select2:clear', function () {
+      const $this = $(this);
+      setTimeout(() => $this.select2('close'), 0);
+    });
+
+    $(document).off('mousedown.select2-remove-close').on('mousedown.select2-remove-close', '.select2-selection__choice__remove', function (e) {
+      const $container = $(this).closest('.select2');
+      const $select = $container.prevAll('select').first();
+
+      if ($select.length && $select.data('select2')) {
+        e.stopPropagation();
+        setTimeout(() => $select.select2('close'), 0);
+      }
+    });
 
     if (validateOnChange) {
       $dropdown.on('change', function () {
@@ -82,6 +109,7 @@ export const generateDropdownOptions = async ({
     handleSystemError(error, 'fetch_failed', `Dropdown generation failed: ${error.message}`);
   }
 };
+
 
 export const generateDualListBox = async ({ url, selectSelector, data = {} }) => {
   try {

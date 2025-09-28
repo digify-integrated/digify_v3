@@ -34,13 +34,13 @@
                         echo $action;
                     }
                 ?>
-            <div>
-                <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end"><i class="ki-outline ki-filter fs-2"></i> Filter</button>
-                <div class="menu menu-sub menu-sub-dropdown w-300px w-md-325px" data-kt-menu="true">
-                    <div class="px-7 py-5">
-                        <div class="fs-5 text-gray-900 fw-bold">Filter Options</div>
-                    </div>
-                    <div class="separator border-gray-200"></div>
+                <div>
+                    <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end"><i class="ki-outline ki-filter fs-2"></i> Filter</button>
+                    <div class="menu menu-sub menu-sub-dropdown w-300px w-md-325px" data-kt-menu="true">
+                        <div class="px-7 py-5">
+                            <div class="fs-5 text-gray-900 fw-bold">Filter Options</div>
+                        </div>
+                        <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-5">
                                 <label class="form-label fs-6 fw-semibold" for="app_module_filter">App Module:</label>

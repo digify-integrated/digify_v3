@@ -25,14 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
         columns: [
             { data: 'CHECK_BOX' },
             { data: 'EMPLOYEE' },
-            { data: 'DEPARTMENT' },
-            { data: 'JOB_POSITION' }
+            { data: 'DEPARTMENT' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', targets: 3, responsivePriority: 4 }
+            { width: 'auto', targets: 2, responsivePriority: 3 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');

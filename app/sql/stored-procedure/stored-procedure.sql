@@ -6847,6 +6847,10 @@ CREATE PROCEDURE insertEmployee(
     IN p_middle_name VARCHAR(300),
     IN p_last_name VARCHAR(300),
     IN p_suffix VARCHAR(10),
+    IN p_department_id INT,
+    IN p_department_name VARCHAR(100),
+    IN p_job_position_id INT,
+    IN p_job_position_name VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -6865,6 +6869,10 @@ BEGIN
         middle_name,
         last_name,
         suffix,
+        department_id,
+        department_name,
+        job_position_id,
+        job_position_name,
         last_log_by
     ) 
     VALUES(
@@ -6873,6 +6881,10 @@ BEGIN
         p_middle_name,
         p_last_name,
         p_suffix,
+        p_department_id,
+        p_department_name,
+        p_job_position_id,
+        p_job_position_name,
         p_last_log_by
     );
 

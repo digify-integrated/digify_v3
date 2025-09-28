@@ -15,6 +15,10 @@ class Employee extends Model {
         $p_middle_name,
         $p_last_name,
         $p_suffix,
+        $p_department_id,
+        $p_department_name,
+        $p_job_position_id,
+        $p_job_position_name,
         $p_last_log_by
     )    {
         $sql = 'CALL insertEmployee(
@@ -23,16 +27,24 @@ class Employee extends Model {
             :p_middle_name,
             :p_last_name,
             :p_suffix,
+            :p_department_id,
+            :p_department_name,
+            :p_job_position_id,
+            :p_job_position_name,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
-            'p_full_name'       => $p_full_name,
-            'p_first_name'      => $p_first_name,
-            'p_middle_name'     => $p_middle_name,
-            'p_last_name'       => $p_last_name,
-            'p_suffix'          => $p_suffix,
-            'p_last_log_by'     => $p_last_log_by
+            'p_full_name'           => $p_full_name,
+            'p_first_name'          => $p_first_name,
+            'p_middle_name'         => $p_middle_name,
+            'p_last_name'           => $p_last_name,
+            'p_suffix'              => $p_suffix,
+            'p_department_id'       => $p_department_id,
+            'p_department_name'     => $p_department_name,
+            'p_job_position_id'     => $p_job_position_id,
+            'p_job_position_name'   => $p_job_position_name,
+            'p_last_log_by'         => $p_last_log_by
         ]);
 
         return $row['new_employee_id'] ?? null;

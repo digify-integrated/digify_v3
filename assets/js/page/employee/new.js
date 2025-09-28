@@ -1,8 +1,22 @@
-import { disableButton, enableButton } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-document.addEventListener('DOMContentLoaded', () => {    
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const dropdownConfigs = [
+            { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
+            { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
+    });
+
     $('#employee_form').validate({
         rules: {
             first_name: {
@@ -10,7 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             last_name: {
                 required: true
-            }
+            },
+            department_id: {
+                required: true
+            },
+            job_position_id: {
+                required: true
+            },
         },
         messages: {
             first_name: {
@@ -18,7 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             last_name: {
                 required: 'Enter the last name'
-            }
+            },
+            department_id: {
+                required: 'Choose the department'
+            },
+            job_position_id: {
+                required: 'Choose the job position'
+            },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
