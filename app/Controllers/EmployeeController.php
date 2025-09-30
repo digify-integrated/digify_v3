@@ -391,8 +391,8 @@ class EmployeeController
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $employeeId .'">
                                     </div>',
                 'EMPLOYEE'      => '<div class="d-flex align-items-center">
-                                        <div class="me-3">
-                                            <div class="symbol symbol-65px symbol-circle mb-5">
+                                        <div class="me-4">
+                                            <div class="symbol symbol-50px symbol-circle mb-5">
                                                 <img src="'. $employeeImage .'" alt="image">
                                                 '. $employmentStatusBadge .'
                                             </div>

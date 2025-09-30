@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initializeDatatable(datatableConfig());
+    initializeDatatableControls('#employee-table');
 
     const containerId = 'employee-card';
     const container = document.querySelector(`#${containerId}`);
@@ -89,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (clearExisting) {
                 container.innerHTML = '';
                 container.appendChild(spinner);
-                offset = 0;
                 container.appendChild(sentinel);
+                offset = 0;
             }
 
             const payload = {
@@ -147,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const sentinel = document.createElement('div');
-    sentinel.id = 'scroll-sentinel';
+    const sentinel  = document.createElement('div');
+    sentinel.id     = 'scroll-sentinel';
     container.appendChild(sentinel);
 
     const observer = new IntersectionObserver(entries => {
@@ -190,6 +191,28 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchEmployeeCards({ clearExisting: true });
 
             initializeDatatable(datatableConfig());
+        }
+    });
+
+    document.addEventListener('keyup', event => {
+        const employeeTable     = $('#employee-table').DataTable();
+        const searchInput       = event.target.closest('#datatable-search');
+
+        if (searchInput) {
+            employeeTable.search(searchInput.value).draw();
+
+            observer.observe(sentinel);
+            fetchEmployeeCards({ clearExisting: true });
+        }
+    });
+
+    document.addEventListener('change', event => {
+        const employeeTable    = $('#employee-table').DataTable();
+        const lengthSelect     = event.target.closest('#datatable-length');
+
+        if (lengthSelect) {
+            const newLength = lengthSelect.value;
+            employeeTable.page.len(newLength).draw();
         }
     });
 

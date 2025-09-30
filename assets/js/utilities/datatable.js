@@ -20,16 +20,6 @@ export const clearDatatable = (datatableSelector) => {
     }
 };
 
-export const readjustDatatableColumn = () => {
-    const adjustColumns = () => {
-        const tables = $.fn.dataTable.tables({ visible: true, api: true });
-        tables.columns.adjust().fixedColumns().update(); // ✅
-    };
-
-    $('a[data-bs-toggle="tab"], a[data-bs-toggle="pill"], #System-Modal')
-        .on('shown.bs.tab shown.bs.modal', adjustColumns);
-};
-
 export const manageActionDropdown = (options = { hideOnly: false }) => {
     const actionDropdown    = document.querySelector('.action-dropdown');
     const masterCheckbox    = document.getElementById('datatable-checkbox');
@@ -104,8 +94,6 @@ export const initializeDatatable = ({
             loadingRecords: 'Just a moment while we fetch your data...'
         },
         fnDrawCallback: () => {
-            readjustDatatableColumn();
-
             if (typeof onRowClick === 'function') {
                 $(`${selector} tbody`).off('click').on('click', 'tr td:nth-child(n+2)', function () {
                     const rowData = $(selector).DataTable().row($(this).closest('tr')).data();
@@ -163,3 +151,4 @@ export const initializeSubDatatableControls = (search, length, selector) => {
         }
     });
 };
+
