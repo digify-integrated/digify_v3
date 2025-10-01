@@ -14,10 +14,10 @@
                         ?>
                     </div>
 
-                    <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee-name-summary"></span>
+                    <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee_name_summary"></span>
 
                     <div class="mb-0">
-                        <div class="badge badge-lg badge-light-primary d-inline" id="job-position-summary"></div>
+                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_summary"></div>
                     </div>
                 </div>
                 
@@ -40,49 +40,49 @@
 
                 <div id="employee_view_details" class="collapse show">
                     <div class="pb-5 fs-6">
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Nickname</div>
-                            <div class="text-gray-600" id="nickname-summary">--</div>
+                            <div class="text-gray-600" id="nickname_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Private Address</div>
-                            <div class="text-gray-600" id="private-address-summary">--</div>
+                            <div class="text-gray-600" id="private_address_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Civil Status</div>
-                            <div class="text-gray-600" id="civil-status-summary">--</div>
+                            <div class="text-gray-600" id="civil_status_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Number of Dependents</div>
-                            <div class="text-gray-600" id="dependents-summary">--</div>
+                            <div class="text-gray-600" id="dependents_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Religion</div>
-                            <div class="text-gray-600" id="religion-summary">--</div>
+                            <div class="text-gray-600" id="religion_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Blood Type</div>
-                            <div class="text-gray-600" id="blood-type-summary">--</div>
+                            <div class="text-gray-600" id="blood_type_summary">--</div>
                         </div>
                         
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Home-Work Distance</div>
-                            <div class="text-gray-600" id="home-work-distance-summary">--</div>
+                            <div class="text-gray-600" id="home_work_distance_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Height</div>
-                            <div class="text-gray-600" id="height-summary">--</div>
+                            <div class="text-gray-600" id="height_summary">--</div>
                         </div>
 
-                        <div class="personal-information-group d-none">
+                        <div class="personal-information-group">
                             <div class="fw-bold mt-5">Weight</div>
-                            <div class="text-gray-600" id="weight-summary">--</div>
+                            <div class="text-gray-600" id="weight_summary">--</div>
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                 <div class="d-flex flex-wrap align-items-center">
                     <div id="change_pin_code">
                         <div class="fs-6 fw-bold mb-1">PIN Code</div>
-                        <div class="fw-semibold text-gray-600" id="pin_code_summary"></div>
+                        <div class="fw-semibold text-gray-600">************</div>
                     </div>
                                         
                     <div id="change_pin_code_edit" class="flex-row-fluid d-none">
@@ -182,7 +182,7 @@
                 </div>
             </div>
             
-            <div class="card-body pb-5" id="language-summary"></div>
+            <div class="card-body pb-5" id="language_summary"></div>
         </div>
     </div>
     
@@ -601,7 +601,7 @@
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6" id="educational-background-summary"></div>
+                        <div class="row gx-9 gy-6" id="educational_background_summary"></div>
                     </div>
                 </div>
 
@@ -1270,7 +1270,7 @@
                         <div class="col-lg-8">
                             <div class="row">
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
-                                    <div class="input-group mb-5">
+                                    <div class="input-group">
                                         <input type="number" class="form-control" id="home_work_distance" name="home_work_distance" min="0" step="0.01">
                                         <span class="input-group-text">km</span>
                                     </div>
@@ -1284,7 +1284,7 @@
                         <div class="col-lg-8">
                             <div class="row">
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
-                                    <div class="input-group mb-5">
+                                    <div class="input-group">
                                         <input type="number" class="form-control" id="height" name="height" min="0" step="0.01">
                                         <span class="input-group-text">cm</span>
                                     </div>
@@ -1298,7 +1298,7 @@
                         <div class="col-lg-8">
                             <div class="row">
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
-                                    <div class="input-group mb-5">
+                                    <div class="input-group">
                                         <input type="number" class="form-control" id="weight" name="weight" min="0" step="0.01">
                                         <span class="input-group-text">kg</span>
                                     </div>
@@ -1415,7 +1415,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="start_month" name="start_month" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemModel->generateMonthOptions(); ?>
+                                        <?php echo $systemHelper->generateMonthOptions(); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1425,7 +1425,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="start_year" name="start_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
+                                        <?php echo $systemHelper->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1439,7 +1439,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="end_month" name="end_month" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemModel->generateMonthOptions(); ?>
+                                        <?php echo $systemHelper->generateMonthOptions(); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1449,7 +1449,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="end_year" name="end_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
+                                        <?php echo $systemHelper->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1488,4 +1488,4 @@
     </div>
 </div>
 
-<?php require_once('components/view/_log_notes_modal.php'); ?>
+<?php require_once './app/Views/Partials/log-notes-modal.php'; ?>

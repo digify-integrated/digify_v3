@@ -267,8 +267,8 @@ class EmployeeController
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Companies Success',
-            'The selected companies have been deleted successfully.'
+            'Delete Multiple Employees Success',
+            'The selected employees have been deleted successfully.'
         );
     }
 
@@ -285,21 +285,40 @@ class EmployeeController
             );
         }
 
-        $employeeDetails     = $this->employee->fetchEmployee($employeeId);
-        $employeeLogo        = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'employee logo');
+        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'profile');
+        $employeeAddress    = $employeeDetails['private_address'] . ', ' . $employeeDetails['private_address_city_name'] . ', ' . $employeeDetails['private_address_state_name'] . ', ' . $employeeDetails['private_address_country_name'];
 
         $response = [
-            'success'       => true,
-            'employeeName'  => $employeeDetails['employee_name'] ?? null,
-            'address'       => $employeeDetails['address'] ?? null,
-            'cityID'        => $employeeDetails['city_id'] ?? null,
-            'taxID'         => $employeeDetails['tax_id'] ?? null,
-            'currencyID'    => $employeeDetails['currency_id'] ?? null,
-            'phone'         => $employeeDetails['phone'] ?? null,
-            'telephone'     => $employeeDetails['telephone'] ?? null,
-            'email'         => $employeeDetails['email'] ?? null,
-            'website'       => $employeeDetails['website'] ?? null,
-            'employeeLogo'  => $employeeLogo
+            'success'               => true,
+            'fullName'              => $employeeDetails['full_name'] ?? null,
+            'firstName'             => $employeeDetails['first_name'] ?? null,
+            'middleName'            => $employeeDetails['middle_name'] ?? null,
+            'lastName'              => $employeeDetails['last_name'] ?? null,
+            'suffix'                => $employeeDetails['suffix'] ?? null,
+            'privateAddress'        => $employeeDetails['private_address'] ?? null,
+            'privateAddressCityID'  => $employeeDetails['private_address_city_id'] ?? null,
+            'civilStatusID'         => $employeeDetails['civil_status_id'] ?? null,
+            'religionID'            => $employeeDetails['religion_id'] ?? null,
+            'bloodTypeID'           => $employeeDetails['blood_type_id'] ?? null,
+            'height'                => $employeeDetails['height'] ?? null,
+            'weight'                => $employeeDetails['weight'] ?? null,
+            'nickname'              => $employeeDetails['nickname'] ?? null,
+            'dependents'            => $employeeDetails['dependents'] ?? null,
+            'homeWorkDistance'      => $employeeDetails['home_work_distance'] ?? null,
+            'civilStatusName'       => $employeeDetails['civil_status_name'] ?? null,
+            'religionName'          => $employeeDetails['religion_name'] ?? null,
+            'bloodTypeName'         => $employeeDetails['blood_type_name'] ?? null,
+            'badgeID'               => $employeeDetails['badge_id'] ?? null,
+            'privateEmail'          => $employeeDetails['private_email'] ?? null,
+            'privatePhone'          => $employeeDetails['private_phone'] ?? null,
+            'privateTelephone'      => $employeeDetails['private_telephone'] ?? null,
+            'nationalityName'       => $employeeDetails['nationality_name'] ?? null,
+            'genderName'            => $employeeDetails['gender_name'] ?? null,
+            'birthday'              => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y h:i a', ''),
+            'placeOfBirth'          => $employeeDetails['place_of_birth'] ?? null,
+            'employeeAddress'       => $employeeAddress,
+            'employeeImage'         => $employeeImage
         ];
 
         echo json_encode($response);
