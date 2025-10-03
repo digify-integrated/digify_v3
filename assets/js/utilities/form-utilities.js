@@ -69,30 +69,41 @@ export const generateDropdownOptions = async ({
     }
 
     const result = await response.json();
-
     const $dropdown = $(dropdownSelector);
 
     if ($dropdown.hasClass('select2-hidden-accessible')) {
       $dropdown.select2('destroy');
     }
 
-    const $menuParent     = $dropdown.closest('[data-kt-menu="true"]');
-    const dropdownParent  = $menuParent.length ? $menuParent : $(document.body);
+    const $modalParent     = $dropdown.closest('.modal');
+    const $offcanvasParent = $dropdown.closest('.offcanvas');
+    const $menuParent      = $dropdown.closest('[data-kt-menu="true"]');
+
+    let dropdownParent = $(document.body);
+    if ($modalParent.length) {
+      dropdownParent = $modalParent;
+    } else if ($offcanvasParent.length) {
+      dropdownParent = $offcanvasParent;
+    } else if ($menuParent.length) {
+      dropdownParent = $menuParent;
+    }
 
     $dropdown.select2({
       data: result,
       dropdownParent,
       width: '100%'
-    });
-
-    $dropdown.on('select2:unselect select2:clear', function () {
+    })
+    .on('select2:open', function () {
+      focusSelect2Search();
+    })
+    .on('select2:unselect select2:clear', function () {
       const $this = $(this);
       setTimeout(() => $this.select2('close'), 0);
     });
 
     $(document).off('mousedown.select2-remove-close').on('mousedown.select2-remove-close', '.select2-selection__choice__remove', function (e) {
-      const $container  = $(this).closest('.select2');
-      const $select     = $container.prevAll('select').first();
+      const $container = $(this).closest('.select2');
+      const $select    = $container.prevAll('select').first();
 
       if ($select.length && $select.data('select2')) {
         e.stopPropagation();
@@ -105,10 +116,20 @@ export const generateDropdownOptions = async ({
         $(this).valid();
       });
     }
+
   } catch (error) {
     handleSystemError(error, 'fetch_failed', `Dropdown generation failed: ${error.message}`);
   }
 };
+
+function focusSelect2Search() {
+  setTimeout(() => {
+    const searchField = document.querySelector('.select2-container--open .select2-search__field');
+    if (searchField) {
+      searchField.focus();
+    }
+  }, 100);
+}
 
 
 export const generateDualListBox = async ({ url, selectSelector, data = {} }) => {

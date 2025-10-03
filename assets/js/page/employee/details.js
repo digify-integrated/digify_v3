@@ -54,6 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#birthday_summary').text(data.birthday || '--');
                 $('#place_of_birth_summary').text(data.placeOfBirth || '--');
 
+                $('#company_summary').text(data.companyName || '--');
+                $('#department_summary').text(data.departmentName || '--');
+                $('#job_position_title_summary').text(data.jobPositionName || '--');
+                $('#job_position_summary').text(data.jobPositionName || '--');
+                $('#manager_summary').text(data.managerName || '--');
+                $('#time_off_approver_summary').text(data.timeOffApproverName || '--');
+                $('#work_location_summary').text(data.workLocationName || '--');
+                $('#on_board_date_summary').text(data.onBoardDate || '--');
+                $('#work_email_summary').text(data.workEmail || '--');
+                $('#work_phone_summary').text(data.workPhone || '--');
+                $('#work_telephone_summary').text(data.workTelephone || '--');
+
                 $('#private_address_city_id').val(data.privateAddressCityID).trigger('change');
                 $('#civil_status_id').val(data.civilStatusID).trigger('change');
                 $('#religion_id').val(data.religionID).trigger('change');
@@ -134,12 +146,40 @@ document.addEventListener('DOMContentLoaded', () => {
     //roleList();
     displayDetails();
 
-    /*$('#update_full_name_form').validate({
+    $('#personal_details_form').validate({
         rules: {
-            full_name: { required: true }
+            first_name: { 
+                required: true 
+            },
+            last_name: { 
+                required: true 
+            },
+            private_address: { 
+                required: true 
+            },
+            private_address_city_id: { 
+                required: true 
+            },
+            civil_status_id: { 
+                required: true 
+            }
         },
         messages: {
-            full_name: { required: 'Enter the full name' }
+            first_name: { 
+                required: 'Enter the first name' 
+            },
+            last_name: { 
+                required: 'Enter the last name' 
+            },
+            private_address: { 
+                required: 'Enter the private address' 
+            },
+            private_address_city_id: { 
+                required: 'Choose the private address city' 
+            },
+            civil_status_id: { 
+                required: 'Choose the civil status' 
+            }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -161,14 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee full name';
+            const transaction   = 'update employee personal details';
             const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
             formData.append('employee_id', employee_id);
 
-            disableButton('update_full_name_submit');
+            disableButton('submit-personal-details');
 
             try {
                 const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -182,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    toggleSection('change_full_name');
                     displayDetails();
                 }
                 else if (data.invalid_session) {
@@ -190,11 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = data.redirect_link;
                 }
                 else {
-                    enableButton('update_full_name_submit');
+                    enableButton('submit-personal-details');
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                enableButton('update_full_name_submit');
+                enableButton('submit-personal-details');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -202,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('#update_email_form').validate({
+    /*$('#update_email_form').validate({
         rules: {
             email: { required: true }
         },

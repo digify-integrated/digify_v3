@@ -27,7 +27,7 @@
                 <div class="w-lg-600px p-10">
                     <form class="form w-100" id="login_form" method="post" action="#">
                         <?= Security::csrfInput('login_form'); ?>
-                        <img src="./assets/images/logos/logo-dark.svg" class="mb-5" alt="Logo-Dark" />
+                        <img src="./assets/images/logos/logo-dark.svg" class="mb-5 system-logo" alt="Logo-Dark" />
                         <h2 class="mb-2 mt-4 fs-1 fw-bolder">Login to your account</h2>
                         <p class="mb-10 fs-5">Enter your email below to login to your account</p>
                         <div class="mb-3">

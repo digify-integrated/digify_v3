@@ -6847,6 +6847,8 @@ CREATE PROCEDURE insertEmployee(
     IN p_middle_name VARCHAR(300),
     IN p_last_name VARCHAR(300),
     IN p_suffix VARCHAR(10),
+    IN p_company_id INT,
+    IN p_company_name VARCHAR(100),
     IN p_department_id INT,
     IN p_department_name VARCHAR(100),
     IN p_job_position_id INT,
@@ -6869,6 +6871,8 @@ BEGIN
         middle_name,
         last_name,
         suffix,
+        company_id,
+        company_name,
         department_id,
         department_name,
         job_position_id,
@@ -6881,6 +6885,8 @@ BEGIN
         p_middle_name,
         p_last_name,
         p_suffix,
+        p_company_id,
+        p_company_name,
         p_department_id,
         p_department_name,
         p_job_position_id,
@@ -6898,6 +6904,73 @@ END //
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateEmployeePersonalDetails//
+
+CREATE PROCEDURE updateEmployeePersonalDetails(
+    IN p_employee_id INT,
+    IN p_full_name VARCHAR(1000),
+    IN p_first_name VARCHAR(300),
+    IN p_middle_name VARCHAR(300),
+    IN p_last_name VARCHAR(300),
+    IN p_suffix VARCHAR(10),
+    IN p_nickname VARCHAR(100),
+    IN p_private_address VARCHAR(500),
+    IN p_private_address_city_id INT,
+    IN p_private_address_city_name VARCHAR(100),
+    IN p_private_address_state_id INT,
+    IN p_private_address_state_name VARCHAR(100),
+    IN p_private_address_country_id INT,
+    IN p_private_address_country_name VARCHAR(100),
+    IN p_civil_status_id INT,
+    IN p_civil_status_name VARCHAR(100),
+    IN p_dependents INT,
+    IN p_religion_id INT,
+    IN p_religion_name VARCHAR(100),
+    IN p_blood_type_id INT,
+    IN p_blood_type_name VARCHAR(100),
+    IN p_home_work_distance DOUBLE,
+    IN p_height FLOAT,
+    IN p_weight FLOAT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET full_name                       = p_full_name,
+        first_name                      = p_first_name,
+        middle_name                     = p_middle_name,
+        last_name                       = p_last_name,
+        suffix                          = p_suffix,
+        nickname                        = p_nickname,
+        private_address                 = p_private_address,
+        private_address_city_id         = p_private_address_city_id,
+        p_private_address_city_name     = p_private_address_city_name,
+        p_private_address_state_id      = p_private_address_state_id,
+        p_private_address_state_name    = p_private_address_state_name,
+        p_private_address_country_id    = p_private_address_country_id,
+        p_private_address_country_name  = p_private_address_country_name,
+        p_civil_status_id               = p_civil_status_id,
+        p_civil_status_name             = p_civil_status_name,
+        p_dependents                    = p_dependents,
+        p_religion_id                   = p_religion_id,
+        p_religion_name                 = p_religion_name,
+        p_blood_type_id                 = p_blood_type_id,
+        p_blood_type_name               = p_blood_type_name,
+        p_home_work_distance            = p_home_work_distance,
+        p_height                        = p_height,
+        p_weight                        = p_weight,
+        last_log_by                     = p_last_log_by
+    WHERE employee_id = p_employee_id;
+
+    COMMIT;
+END //
 
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES

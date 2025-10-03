@@ -5,10 +5,13 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Employee;
+use App\Models\Company;
 use App\Models\Department;
 use App\Models\JobPosition;
 use App\Models\City;
-use App\Models\Currency;
+use App\Models\CivilStatus;
+use App\Models\Religion;
+use App\Models\BloodType;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -19,9 +22,13 @@ require_once '../../config/config.php';
 class EmployeeController
 {
     protected Employee $employee;
+    protected Company $company;
     protected Department $department;
     protected JobPosition $jobPosition;
     protected City $city;
+    protected CivilStatus $civilStatus;
+    protected Religion $religion;
+    protected BloodType $bloodType;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -29,18 +36,26 @@ class EmployeeController
 
     public function __construct(
         Employee $employee,
+        Company $company,
         Department $department,
         JobPosition $jobPosition,
         City $city,
+        CivilStatus $civilStatus,
+        Religion $religion,
+        BloodType $bloodType,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->employee         = $employee;
+        $this->company          = $company;
         $this->department       = $department;
         $this->jobPosition      = $jobPosition;
         $this->city             = $city;
+        $this->civilStatus      = $civilStatus;
+        $this->religion         = $religion;
+        $this->bloodType        = $bloodType;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -87,18 +102,19 @@ class EmployeeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save employee'               => $this->saveEmployee($lastLogBy),
-            'update employee logo'        => $this->updateEmployeeLogo($lastLogBy),
-            'delete employee'             => $this->deleteEmployee(),
-            'delete multiple employee'    => $this->deleteMultipleEmployee(),
-            'fetch employee details'      => $this->fetchEmployeeDetails(),
-            'generate employee card'      => $this->generateEmployeeCard(),
-            'generate employee table'     => $this->generateEmployeeTable(),
-            'generate employee options'   => $this->generateEmployeeOptions(),
-            default                       => $this->systemHelper::sendErrorResponse(
-                                                'Transaction Failed',
-                                                'We encountered an issue while processing your request.'
-                                            )
+            'save employee'                     => $this->saveEmployee($lastLogBy),
+            'update employee personal details'  => $this->updateEmployeePersonalDetails($lastLogBy),
+            'update employee logo'              => $this->updateEmployeeLogo($lastLogBy),
+            'delete employee'                   => $this->deleteEmployee(),
+            'delete multiple employee'          => $this->deleteMultipleEmployee(),
+            'fetch employee details'            => $this->fetchEmployeeDetails(),
+            'generate employee card'            => $this->generateEmployeeCard(),
+            'generate employee table'           => $this->generateEmployeeTable(),
+            'generate employee options'         => $this->generateEmployeeOptions(),
+            default                             => $this->systemHelper::sendErrorResponse(
+                                                        'Transaction Failed',
+                                                        'We encountered an issue while processing your request.'
+                                                    )
         };
     }
 
@@ -116,10 +132,14 @@ class EmployeeController
         $middleName     = $_POST['middle_name'] ?? null;
         $lastName       = $_POST['last_name'] ?? null;
         $suffix         = $_POST['suffix'] ?? null;
+        $companyId      = $_POST['company_id'] ?? null;
         $departmentId   = $_POST['department_id'] ?? null;
         $jobPositionId  = $_POST['job_position_id'] ?? null;
 
-        $fullName = $firstName . ' ' . $middleName . ' ' . $lastName . ' ' . $suffix;
+        $fullName = trim("{$firstName} {$middleName} {$lastName} {$suffix}");
+
+        $companyDetails     = $this->company->fetchCompany($companyId);
+        $companyName        = $companyDetails['company_name'] ?? null;
 
         $departmentDetails  = $this->department->fetchDepartment($departmentId);
         $departmentName     = $departmentDetails['department_name'] ?? null;
@@ -127,7 +147,7 @@ class EmployeeController
         $jobPositionDetails     = $this->jobPosition->fetchJobPosition($jobPositionId);
         $jobPositionName        = $jobPositionDetails['job_position_name'] ?? null;
 
-        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $departmentId, $departmentName, $jobPositionId, $jobPositionName, $lastLogBy);
+        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $companyId, $companyName, $departmentId, $departmentName, $jobPositionId, $jobPositionName, $lastLogBy);
 
         $encryptedemployeeId = $this->security->encryptData($employeeId);
 
@@ -138,8 +158,59 @@ class EmployeeController
         );
     }
 
-    public function updateEmployeeLogo($lastLogBy){
+    public function updateEmployeePersonalDetails($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
 
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'personal_details_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $firstName              = $_POST['first_name'] ?? null;
+        $middleName             = $_POST['middle_name'] ?? null;
+        $lastName               = $_POST['last_name'] ?? null;
+        $suffix                 = $_POST['suffix'] ?? null;
+        $privateAddress         = $_POST['private_address'] ?? null;
+        $privateAddressCityId   = $_POST['private_address_city_id'] ?? null;
+        $nickname               = $_POST['nickname'] ?? null;
+        $civilStatusId          = $_POST['civil_status_id'] ?? null;
+        $dependents             = $_POST['dependents'] ?? null;
+        $religionId             = $_POST['religion_id'] ?? null;
+        $bloodTypeId            = $_POST['blood_type_id'] ?? null;
+        $homeWorkDistance       = $_POST['home_work_distance'] ?? null;
+        $height                 = $_POST['height'] ?? null;
+        $weight                 = $_POST['weight'] ?? null;
+
+        $fullName = trim("{$firstName} {$middleName} {$lastName} {$suffix}");
+
+        $privateAddressCityDetails  = $this->city->fetchCity($privateAddressCityId);
+        $privateAddressCityName     = $privateAddressCityDetails['city_name'] ?? null;
+        $privateAddressStateId      = $privateAddressCityDetails['state_id'] ?? null;
+        $privateAddressStateName    = $privateAddressCityDetails['state_name'] ?? null;
+        $privateAddressCountryId    = $privateAddressCityDetails['country_id'] ?? null;
+        $privateAddressCountryName  = $privateAddressCityDetails['country_name'] ?? null;
+
+        $civilStatusDetails     = $this->civilStatus->fetchCivilStatus($civilStatusId);
+        $civilStatusName        = $civilStatusDetails['civil_status_name'] ?? null;
+
+        $religionDetails    = $this->religion->fetchReligion($religionId);
+        $religionName       = $religionDetails['religion_name'] ?? null;
+
+        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
+        $bloodTypeName      = $bloodTypeDetails['blood_type_name'] ?? null;
+
+        $this->employee->updateEmployeePersonalDetails($employeeId, $fullName, $firstName, $middleName, $lastName, $suffix, $nickname, $privateAddress, $privateAddressCityId, $privateAddressCityName, $privateAddressStateId, $privateAddressStateName, $privateAddressCountryId, $privateAddressCountryName, $civilStatusId, $civilStatusName, $dependents, $religionId, $religionName, $bloodTypeId, $bloodTypeName, $homeWorkDistance, $height, $weight, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Personal Details Success',
+            'The employee personal details has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeLogo($lastLogBy){
         $employeeId   = $_POST['employee_id'] ?? null;
        
         $employeeLogoFileName               = $_FILES['employee_logo']['name'];
@@ -287,7 +358,18 @@ class EmployeeController
 
         $employeeDetails    = $this->employee->fetchEmployee($employeeId);
         $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'profile');
-        $employeeAddress    = $employeeDetails['private_address'] . ', ' . $employeeDetails['private_address_city_name'] . ', ' . $employeeDetails['private_address_state_name'] . ', ' . $employeeDetails['private_address_country_name'];
+        $addressParts       = [
+                                $employeeDetails['private_address'],
+                                $employeeDetails['private_address_city_name'],
+                                $employeeDetails['private_address_state_name'],
+                                $employeeDetails['private_address_country_name']
+                            ];
+
+        $addressParts = array_filter($addressParts, function($part) {
+            return !empty($part);
+        });
+
+        $employeeAddress = !empty($addressParts) ? implode(', ', $addressParts) : '--';
 
         $response = [
             'success'               => true,
@@ -317,6 +399,16 @@ class EmployeeController
             'genderName'            => $employeeDetails['gender_name'] ?? null,
             'birthday'              => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y h:i a', ''),
             'placeOfBirth'          => $employeeDetails['place_of_birth'] ?? null,
+            'companyName'           => $employeeDetails['company_name'] ?? null,
+            'departmentName'        => $employeeDetails['department_name'] ?? null,
+            'jobPositionName'       => $employeeDetails['job_position_name'] ?? null,
+            'managerName'           => $employeeDetails['manager_name'] ?? null,
+            'timeOffApproverName'   => $employeeDetails['time_off_approver_name'] ?? null,
+            'workLocationName'      => $employeeDetails['work_location_name'] ?? null,
+            'onBoardDate'           => $this->systemHelper->checkDate('summary', $employeeDetails['on_board_date'] ?? null, '', 'd M Y h:i a', ''),
+            'workEmail'             => $employeeDetails['work_email'] ?? null,
+            'workPhone'             => $employeeDetails['work_phone'] ?? null,
+            'workTelephone'         => $employeeDetails['work_telephone'] ?? null,
             'employeeAddress'       => $employeeAddress,
             'employeeImage'         => $employeeImage
         ];
@@ -457,9 +549,13 @@ class EmployeeController
 # Bootstrap the controller
 $controller = new EmployeeController(
     new Employee(),
+    new Company(),
     new Department(),
     new JobPosition(),
     new City(),
+    new CivilStatus(),
+    new Religion(),
+    new BloodType(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

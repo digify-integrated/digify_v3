@@ -5941,6 +5941,14 @@ textarea.form-control-lg {
     filter: var(--bs-btn-close-white-filter)
 }
 
+[data-bs-theme="dark"] .system-logo {
+  content: url("../images/logos/logo-light.svg");
+}
+
+[data-bs-theme="dark"] .swal2-title {
+    color: var(--bs-text-gray-800) !important;
+}
+
 .toast {
     --bs-toast-zindex: 1090;
     --bs-toast-padding-x: 0.75rem;

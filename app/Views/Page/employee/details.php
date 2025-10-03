@@ -17,7 +17,7 @@
                     <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee_name_summary"></span>
 
                     <div class="mb-0">
-                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_summary"></div>
+                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_title_summary"></div>
                     </div>
                 </div>
                 
@@ -104,7 +104,8 @@
                     </div>
                                         
                     <div id="change_pin_code_edit" class="flex-row-fluid d-none">
-                        <form id="update-pin-code-form" method="post" action="#">
+                        <form id="update_pin_code_form" method="post" action="#">
+                            <?= $security->csrfInput('update_pin_code_form'); ?>
                             <div class="row mb-6">
                                 <div class="col-lg-12 mb-4 mb-lg-0">
                                     <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -116,7 +117,7 @@
                                         
                             <?php
                                 echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                        <button id="update_pin_code_submit" form="update-pin-code-form" type="submit" class="btn btn-primary me-2 px-6">Update PIN Code</button>
+                                                                        <button id="update_pin_code_submit" form="update_pin_code_form" type="submit" class="btn btn-primary me-2 px-6">Update PIN Code</button>
                                                                         <button id="update_pin_code_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_pin_code">Cancel</button>
                                                                     </div>' : '';
                             ?>
@@ -139,7 +140,8 @@
                     </div>
                                         
                     <div id="change_badge_id_edit" class="flex-row-fluid d-none">
-                        <form id="update-badge-id-form" method="post" action="#">
+                        <form id="update_badge_id_form" method="post" action="#">
+                            <?= $security->csrfInput('update_badge_id_form'); ?>
                             <div class="row mb-6">
                                 <div class="col-lg-12 mb-4 mb-lg-0">
                                     <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -151,7 +153,7 @@
                                         
                             <?php
                                 echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                        <button id="update_badge_id_submit" form="update-badge-id-form" type="submit" class="btn btn-primary me-2 px-6">Update Badge ID</button>
+                                                                        <button id="update_badge_id_submit" form="update_badge_id_form" type="submit" class="btn btn-primary me-2 px-6">Update Badge ID</button>
                                                                         <button id="update_badge_id_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_badge_id">Cancel</button>
                                                                     </div>' : '';
                             ?>
@@ -347,7 +349,8 @@
                             </div>
                                         
                             <div id="change_private_email_edit" class="flex-row-fluid d-none">
-                                <form id="update-private-email-form" method="post" action="#">
+                                <form id="update_private_email_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_private_email_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -359,7 +362,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_private_email_submit" form="update-private-email-form" type="submit" class="btn btn-primary me-2 px-6">Update Private Email</button>
+                                                                                <button id="update_private_email_submit" form="update_private_email_form" type="submit" class="btn btn-primary me-2 px-6">Update Private Email</button>
                                                                                 <button id="update_private_email_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_private_email">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -382,7 +385,8 @@
                             </div>
                                         
                             <div id="change_private_phone_edit" class="flex-row-fluid d-none">
-                                <form id="update-private-phone-form" method="post" action="#">
+                                <form id="update_private_phone_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_private_phone_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -394,7 +398,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_private_phone_submit" form="update-private-phone-form" type="submit" class="btn btn-primary me-2 px-6">Update Private Phone</button>
+                                                                                <button id="update_private_phone_submit" form="update_private_phone_form" type="submit" class="btn btn-primary me-2 px-6">Update Private Phone</button>
                                                                                 <button id="update_private_phone_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_private_phone">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -417,7 +421,8 @@
                             </div>
                                         
                             <div id="change_private_telephone_edit" class="flex-row-fluid d-none">
-                                <form id="update-private-telephone-form" method="post" action="#">
+                                <form id="update_private_telephone_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_private_telephone_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -429,7 +434,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_private_telephone_submit" form="update-private-telephone-form" type="submit" class="btn btn-primary me-2 px-6">Update Private Telephone</button>
+                                                                                <button id="update_private_telephone_submit" form="update_private_telephone_form" type="submit" class="btn btn-primary me-2 px-6">Update Private Telephone</button>
                                                                                 <button id="update_private_telephone_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_private_telephone">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -460,7 +465,8 @@
                             </div>
                                         
                             <div id="change_nationality_edit" class="flex-row-fluid d-none">
-                                <form id="update-nationality-form" method="post" action="#">
+                                <form id="update_nationality_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_nationality_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -472,7 +478,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_nationality_submit" form="update-nationality-form" type="submit" class="btn btn-primary me-2 px-6">Update Nationality</button>
+                                                                                <button id="update_nationality_submit" form="update_nationality_form" type="submit" class="btn btn-primary me-2 px-6">Update Nationality</button>
                                                                                 <button id="update_nationality_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_nationality">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -495,7 +501,8 @@
                             </div>
                                         
                             <div id="change_gender_edit" class="flex-row-fluid d-none">
-                                <form id="update-gender-form" method="post" action="#">
+                                <form id="update_gender_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_gender_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -507,7 +514,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_gender_submit" form="update-gender-form" type="submit" class="btn btn-primary me-2 px-6">Update Gender</button>
+                                                                                <button id="update_gender_submit" form="update_gender_form" type="submit" class="btn btn-primary me-2 px-6">Update Gender</button>
                                                                                 <button id="update_gender_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_gender">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -530,7 +537,8 @@
                             </div>
                                         
                             <div id="change_birthday_edit" class="flex-row-fluid d-none">
-                                <form id="update-birthday-form" method="post" action="#">
+                                <form id="update_birthday_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_birthday_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -542,7 +550,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_birthday_submit" form="update-birthday-form" type="submit" class="btn btn-primary me-2 px-6">Update Date of Birth</button>
+                                                                                <button id="update_birthday_submit" form="update_birthday_form" type="submit" class="btn btn-primary me-2 px-6">Update Date of Birth</button>
                                                                                 <button id="update_birthday_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_birthday">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -565,7 +573,8 @@
                             </div>
                                         
                             <div id="change_place_of_birth_edit" class="flex-row-fluid d-none">
-                                <form id="update-place-of-birth-form" method="post" action="#">
+                                <form id="update_place_of_birth_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_place_of_birth_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -577,7 +586,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_place_of_birth_submit" form="update-place-of-birth-form" type="submit" class="btn btn-primary me-2 px-6">Update Place of Birth</button>
+                                                                                <button id="update_place_of_birth_submit" form="update_place_of_birth_form" type="submit" class="btn btn-primary me-2 px-6">Update Place of Birth</button>
                                                                                 <button id="update_place_of_birth_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_place_of_birth">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -724,7 +733,8 @@
                             </div>
                                                 
                             <div id="change_company_edit" class="flex-row-fluid d-none">
-                                <form id="update-company-form" method="post" action="#">
+                                <form id="update_company_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_company_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -736,7 +746,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_company_submit" form="update-company-form" type="submit" class="btn btn-primary me-2 px-6">Update Company</button>
+                                                                                <button id="update_company_submit" form="update_company_form" type="submit" class="btn btn-primary me-2 px-6">Update Company</button>
                                                                                 <button id="update_company_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_company">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -759,7 +769,8 @@
                             </div>
                                                 
                             <div id="change_department_edit" class="flex-row-fluid d-none">
-                                <form id="update-department-form" method="post" action="#">
+                                <form id="update_department_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_department_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -771,7 +782,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_department_submit" form="update-department-form" type="submit" class="btn btn-primary me-2 px-6">Update Department</button>
+                                                                                <button id="update_department_submit" form="update_department_form" type="submit" class="btn btn-primary me-2 px-6">Update Department</button>
                                                                                 <button id="update_department_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_department">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -794,7 +805,8 @@
                             </div>
                                                 
                             <div id="change_job_position_edit" class="flex-row-fluid d-none">
-                                <form id="update-job-position-form" method="post" action="#">
+                                <form id="update_job_position_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_job_position_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -806,7 +818,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_job_position_submit" form="update-job-position-form" type="submit" class="btn btn-primary me-2 px-6">Update Job Position</button>
+                                                                                <button id="update_job_position_submit" form="update_job_position_form" type="submit" class="btn btn-primary me-2 px-6">Update Job Position</button>
                                                                                 <button id="update_job_position_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_job_position">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -829,7 +841,8 @@
                             </div>
                                                 
                             <div id="change_manager_edit" class="flex-row-fluid d-none">
-                                <form id="update-manager-form" method="post" action="#">
+                                <form id="update_manager_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_manager_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -841,7 +854,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_manager_submit" form="update-manager-form" type="submit" class="btn btn-primary me-2 px-6">Update Manager</button>
+                                                                                <button id="update_manager_submit" form="update_manager_form" type="submit" class="btn btn-primary me-2 px-6">Update Manager</button>
                                                                                 <button id="update_manager_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_manager">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -864,7 +877,8 @@
                             </div>
                                                 
                             <div id="change_time_off_approver_edit" class="flex-row-fluid d-none">
-                                <form id="update-time-off-approver-form" method="post" action="#">
+                                <form id="update_time_off_approver_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_time_off_approver_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -876,7 +890,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_time_off_approver_submit" form="update-time-off-approver-form" type="submit" class="btn btn-primary me-2 px-6">Update Time-Off Approver</button>
+                                                                                <button id="update_time_off_approver_submit" form="update_time_off_approver_form" type="submit" class="btn btn-primary me-2 px-6">Update Time-Off Approver</button>
                                                                                 <button id="update_time_off_approver_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_time_off_approver">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -899,7 +913,8 @@
                             </div>
                                                 
                             <div id="change_work_location_edit" class="flex-row-fluid d-none">
-                                <form id="update-work-location-form" method="post" action="#">
+                                <form id="update_work_location_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_work_location_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -911,7 +926,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_work_location_submit" form="update-work-location-form" type="submit" class="btn btn-primary me-2 px-6">Update Work Location</button>
+                                                                                <button id="update_work_location_submit" form="update_work_location_form" type="submit" class="btn btn-primary me-2 px-6">Update Work Location</button>
                                                                                 <button id="update_work_location_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_work_location">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -934,7 +949,8 @@
                             </div>
                                                 
                             <div id="change_on_board_date_edit" class="flex-row-fluid d-none">
-                                <form id="update-on-board-date-form" method="post" action="#">
+                                <form id="update_on_board_date_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_on_board_date_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -946,7 +962,7 @@
                                                 
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_on_board_date_submit" form="update-on-board-date-form" type="submit" class="btn btn-primary me-2 px-6">Update On-Board Date</button>
+                                                                                <button id="update_on_board_date_submit" form="update_on_board_date_form" type="submit" class="btn btn-primary me-2 px-6">Update On-Board Date</button>
                                                                                 <button id="update_on_board_date_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_on_board_date">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -977,7 +993,8 @@
                             </div>
                                         
                             <div id="change_work_email_edit" class="flex-row-fluid d-none">
-                                <form id="update-work-email-form" method="post" action="#">
+                                <form id="update_work_email_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_work_email_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -989,7 +1006,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_work_email_submit" form="update-work-email-form" type="submit" class="btn btn-primary me-2 px-6">Update Work Email</button>
+                                                                                <button id="update_work_email_submit" form="update_work_email_form" type="submit" class="btn btn-primary me-2 px-6">Update Work Email</button>
                                                                                 <button id="update_work_email_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_work_email">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -1012,7 +1029,8 @@
                             </div>
                                         
                             <div id="change_work_phone_edit" class="flex-row-fluid d-none">
-                                <form id="update-work-phone-form" method="post" action="#">
+                                <form id="update_work_phone_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_work_phone_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -1024,7 +1042,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_work_phone_submit" form="update-work-phone-form" type="submit" class="btn btn-primary me-2 px-6">Update Work Phone</button>
+                                                                                <button id="update_work_phone_submit" form="update_work_phone_form" type="submit" class="btn btn-primary me-2 px-6">Update Work Phone</button>
                                                                                 <button id="update_work_phone_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_work_phone">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -1047,7 +1065,8 @@
                             </div>
                                         
                             <div id="change_work_telephone_edit" class="flex-row-fluid d-none">
-                                <form id="update-work-telephone-form" method="post" action="#">
+                                <form id="update_work_telephone_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_work_telephone_form'); ?>
                                     <div class="row mb-6">
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
@@ -1059,7 +1078,7 @@
                                         
                                     <?php
                                         echo ($permissions['write'] > 0) ? '<div class="d-flex">
-                                                                                <button id="update_work_telephone_submit" form="update-work-telephone-form" type="submit" class="btn btn-primary me-2 px-6">Update Work Telephone</button>
+                                                                                <button id="update_work_telephone_submit" form="update_work_telephone_form" type="submit" class="btn btn-primary me-2 px-6">Update Work Telephone</button>
                                                                                 <button id="update_work_telephone_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_work_telephone">Cancel</button>
                                                                             </div>' : '';
                                     ?>
@@ -1143,7 +1162,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="personal-details-form" method="post" action="#">
+                <form id="personal_details_form" method="post" action="#">
+                    <?= $security->csrfInput('personal_details_form'); ?>
                     <div class="row mb-6">
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="first_name">First Name</label>
                         <div class="col-lg-8">
@@ -1222,7 +1242,7 @@
                     </div>
 
                     <div class="row mb-6">
-                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="civil_status_id">Civil Status</label>
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="civil_status_id">Civil Status</label>
                         <div class="col-lg-8">
                             <div class="row">
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
@@ -1311,7 +1331,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="personal-details-form" class="btn btn-primary" id="submit-personal-details">Save</button>
+                <button type="submit" form="personal_details_form" class="btn btn-primary" id="submit-personal-details">Save</button>
             </div>
         </div>
     </div>
@@ -1328,7 +1348,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="employee-language-form" method="post" action="#">
+                <form id="employee_language_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_language_form'); ?>
                     <input type="hidden" id="employee_language_id" name="employee_language_id">
                     <div class="row mb-6">
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="language_id">Language</label>
@@ -1356,7 +1377,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employee-language-form" class="btn btn-primary" id="submit-employee-language">Save</button>
+                <button type="submit" form="employee_language_form" class="btn btn-primary" id="submit-employee-language">Save</button>
             </div>
         </div>
     </div>
@@ -1373,7 +1394,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="employee-education-form" method="post" action="#">
+                <form id="employee_education_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_education_form'); ?>
                     <input type="hidden" id="employee_education_id" name="employee_education_id">
                     <div class="row mb-6">
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="school">School</label>
@@ -1482,7 +1504,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employee-education-form" class="btn btn-primary" id="submit-employee-education">Save</button>
+                <button type="submit" form="employee_education_form" class="btn btn-primary" id="submit-employee-education">Save</button>
             </div>
         </div>
     </div>
