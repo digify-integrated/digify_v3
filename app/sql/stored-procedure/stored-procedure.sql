@@ -2759,8 +2759,7 @@ CREATE PROCEDURE fetchUploadSettingFileExtension(
 )
 BEGIN
 	SELECT * FROM upload_setting_file_extension
-	WHERE upload_setting_id = p_upload_setting_id
-    LIMIT 1;
+	WHERE upload_setting_id = p_upload_setting_id;
 END //
 
 /* =============================================================================================
@@ -6951,23 +6950,499 @@ BEGIN
         nickname                        = p_nickname,
         private_address                 = p_private_address,
         private_address_city_id         = p_private_address_city_id,
-        p_private_address_city_name     = p_private_address_city_name,
-        p_private_address_state_id      = p_private_address_state_id,
-        p_private_address_state_name    = p_private_address_state_name,
-        p_private_address_country_id    = p_private_address_country_id,
-        p_private_address_country_name  = p_private_address_country_name,
-        p_civil_status_id               = p_civil_status_id,
-        p_civil_status_name             = p_civil_status_name,
-        p_dependents                    = p_dependents,
-        p_religion_id                   = p_religion_id,
-        p_religion_name                 = p_religion_name,
-        p_blood_type_id                 = p_blood_type_id,
-        p_blood_type_name               = p_blood_type_name,
-        p_home_work_distance            = p_home_work_distance,
-        p_height                        = p_height,
-        p_weight                        = p_weight,
+        private_address_city_name       = p_private_address_city_name,
+        private_address_state_id        = p_private_address_state_id,
+        private_address_state_name      = p_private_address_state_name,
+        private_address_country_id      = p_private_address_country_id,
+        private_address_country_name    = p_private_address_country_name,
+        civil_status_id                 = p_civil_status_id,
+        civil_status_name               = p_civil_status_name,
+        dependents                      = p_dependents,
+        religion_id                     = p_religion_id,
+        religion_name                   = p_religion_name,
+        blood_type_id                   = p_blood_type_id,
+        blood_type_name                 = p_blood_type_name,
+        home_work_distance              = p_home_work_distance,
+        height                          = p_height,
+        weight                          = p_weight,
         last_log_by                     = p_last_log_by
-    WHERE employee_id = p_employee_id;
+    WHERE employee_id                   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeePINCode//
+
+CREATE PROCEDURE updateEmployeePINCode(
+    IN p_employee_id INT,
+    IN p_pin_code VARCHAR(255),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET pin_code        = p_pin_code,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeBadgeId//
+
+CREATE PROCEDURE updateEmployeeBadgeId(
+    IN p_employee_id INT,
+    IN p_badge_id VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET badge_id        = p_badge_id,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeePrivateEmail//
+
+CREATE PROCEDURE updateEmployeePrivateEmail(
+    IN p_employee_id INT,
+    IN p_private_email VARCHAR(255),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET private_email   = p_private_email,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeePrivatePhone//
+
+CREATE PROCEDURE updateEmployeePrivatePhone(
+    IN p_employee_id INT,
+    IN p_private_phone VARCHAR(20),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET private_phone   = p_private_phone,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeePrivateTelephone//
+
+CREATE PROCEDURE updateEmployeePrivateTelephone(
+    IN p_employee_id INT,
+    IN p_private_telephone VARCHAR(20),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET private_telephone   = p_private_telephone,
+        last_log_by         = p_last_log_by
+    WHERE employee_id       = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeNationality//
+
+CREATE PROCEDURE updateEmployeeNationality(
+    IN p_employee_id INT,
+    IN p_nationality_id INT,
+    IN p_nationality_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET nationality_id      = p_nationality_id,
+        nationality_name    = p_nationality_name,
+        last_log_by         = p_last_log_by
+    WHERE employee_id       = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeGender//
+
+CREATE PROCEDURE updateEmployeeGender(
+    IN p_employee_id INT,
+    IN p_gender_id INT,
+    IN p_gender_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET gender_id       = p_gender_id,
+        gender_name     = p_gender_name,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeBirthday//
+
+CREATE PROCEDURE updateEmployeeBirthday(
+    IN p_employee_id INT,
+    IN p_birthday DATE,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET birthday        = p_birthday,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeePlaceOfBirth//
+
+CREATE PROCEDURE updateEmployeePlaceOfBirth(
+    IN p_employee_id INT,
+    IN p_place_of_birth VARCHAR(1000),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET place_of_birth  = p_place_of_birth,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeCompany//
+
+CREATE PROCEDURE updateEmployeeCompany(
+    IN p_employee_id INT,
+    IN p_company_id INT,
+    IN p_company_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET company_id      = p_company_id,
+        company_name    = p_company_name,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeDepartment//
+
+CREATE PROCEDURE updateEmployeeDepartment(
+    IN p_employee_id INT,
+    IN p_department_id INT,
+    IN p_department_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET department_id       = p_department_id,
+        department_name     = p_department_name,
+        last_log_by         = p_last_log_by
+    WHERE employee_id       = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeJobPosition//
+
+CREATE PROCEDURE updateEmployeeJobPosition(
+    IN p_employee_id INT,
+    IN p_job_position_id INT,
+    IN p_job_position_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET job_position_id     = p_job_position_id,
+        job_position_name   = p_job_position_name,
+        last_log_by         = p_last_log_by
+    WHERE employee_id       = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeManager//
+
+CREATE PROCEDURE updateEmployeeManager(
+    IN p_employee_id INT,
+    IN p_manager_id INT,
+    IN p_manager_name VARCHAR(1000),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET manager_id      = p_manager_id,
+        manager_name    = p_manager_name,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeTimeOffApprover//
+
+CREATE PROCEDURE updateEmployeeTimeOffApprover(
+    IN p_employee_id INT,
+    IN p_time_off_approver_id INT,
+    IN p_time_off_approver_name VARCHAR(1000),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET time_off_approver_id    = p_time_off_approver_id,
+        time_off_approver_name  = p_time_off_approver_name,
+        last_log_by             = p_last_log_by
+    WHERE employee_id           = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeWorkLocation//
+
+CREATE PROCEDURE updateEmployeeWorkLocation(
+    IN p_employee_id INT,
+    IN p_work_location_id INT,
+    IN p_work_location_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET work_location_id    = p_work_location_id,
+        work_location_name  = p_work_location_name,
+        last_log_by         = p_last_log_by
+    WHERE employee_id       = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeOnBoardDate//
+
+CREATE PROCEDURE updateEmployeeOnBoardDate(
+    IN p_employee_id INT,
+    IN p_on_board_date DATE,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET on_board_date   = p_on_board_date,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeWorkEmail//
+
+CREATE PROCEDURE updateEmployeeWorkEmail(
+    IN p_employee_id INT,
+    IN p_work_email VARCHAR(255),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET work_email      = p_work_email,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeWorkPhone//
+
+CREATE PROCEDURE updateEmployeeWorkPhone(
+    IN p_employee_id INT,
+    IN p_work_phone VARCHAR(20),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET work_phone      = p_work_phone,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeWorkTelephone//
+
+CREATE PROCEDURE updateEmployeeWorkTelephone(
+    IN p_employee_id INT,
+    IN p_work_telephone VARCHAR(20),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET work_telephone  = p_work_telephone,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeImage//
+
+CREATE PROCEDURE updateEmployeeImage(
+	IN p_employee_id INT, 
+	IN p_employee_image VARCHAR(500), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET employee_image  = p_employee_image,
+        last_log_by     = p_last_log_by
+    WHERE employee_id   = p_employee_id;
 
     COMMIT;
 END //
@@ -7167,6 +7642,15 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeOptions//
+
+CREATE PROCEDURE generateEmployeeOptions()
+BEGIN
+	SELECT employee_id, full_name
+    FROM employee 
+    ORDER BY full_name;
 END //
 
 /* =============================================================================================

@@ -966,12 +966,13 @@ CREATE TABLE upload_setting(
   INITIAL VALUES: UPLOAD SETTING
 ============================================================================================= */
 
-INSERT INTO upload_setting (upload_setting_id, upload_setting_name, upload_setting_description, max_file_size) VALUES
-(1, 'App Logo', 'Sets the upload setting when uploading app logo.', 800),
-(2, 'Internal Notes Attachment', 'Sets the upload setting when uploading internal notes attachement.', 800),
-(3, 'Import File', 'Sets the upload setting when importing data.', 800),
-(4, 'User Account Profile Picture', 'Sets the upload setting when uploading user account profile picture.', 800),
-(5, 'Company Logo', 'Sets the upload setting when uploading company logo.', 800);
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size) VALUES
+('App Logo', 'Sets the upload setting when uploading app logo.', 800),
+('Internal Notes Attachment', 'Sets the upload setting when uploading internal notes attachement.', 800),
+('Import File', 'Sets the upload setting when importing data.', 800),
+('User Account Profile Picture', 'Sets the upload setting when uploading user account profile picture.', 800),
+('Company Logo', 'Sets the upload setting when uploading company logo.', 800),
+('Employee Image', 'Sets the upload setting when uploading employee image.', 800);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -1012,28 +1013,31 @@ CREATE INDEX idx_upload_setting_file_ext_file_extension_id ON upload_setting_fil
   INITIAL VALUES: UPLOAD SETTING FILE EXTENSION
 ============================================================================================= */
 
-INSERT INTO upload_setting_file_extension (upload_setting_file_extension_id, upload_setting_id, upload_setting_name, file_extension_id, file_extension_name, file_extension) VALUES
-(1, 1, 'App Logo', 63, 'PNG', 'png'),
-(2, 1, 'App Logo', 61, 'JPG', 'jpg'),
-(3, 1, 'App Logo', 62, 'JPEG', 'jpeg'),
-(4, 2, 'Internal Notes Attachment', 63, 'PNG', 'png'),
-(5, 2, 'Internal Notes Attachment', 61, 'JPG', 'jpg'),
-(6, 2, 'Internal Notes Attachment', 62, 'JPEG', 'jpeg'),
-(7, 2, 'Internal Notes Attachment', 127, 'PDF', 'pdf'),
-(8, 2, 'Internal Notes Attachment', 125, 'DOC', 'doc'),
-(9, 2, 'Internal Notes Attachment', 125, 'DOCX', 'docx'),
-(10, 2, 'Internal Notes Attachment', 130, 'TXT', 'txt'),
-(11, 2, 'Internal Notes Attachment', 92, 'XLS', 'xls'),
-(12, 2, 'Internal Notes Attachment', 94, 'XLSX', 'xlsx'),
-(13, 2, 'Internal Notes Attachment', 89, 'PPT', 'ppt'),
-(14, 2, 'Internal Notes Attachment', 90, 'PPTX', 'pptx'),
-(15, 3, 'Import File', 25, 'CSV', 'csv'),
-(16, 4, 'User Account Profile Picture', 63, 'PNG', 'png'),
-(17, 4, 'User Account Profile Picture', 61, 'JPG', 'jpg'),
-(18, 4, 'User Account Profile Picture', 62, 'JPEG', 'jpeg'),
-(19, 5, 'Company Logo', 63, 'PNG', 'png'),
-(20, 5, 'Company Logo', 61, 'JPG', 'jpg'),
-(21, 5, 'Company Logo', 62, 'JPEG', 'jpeg');
+INSERT INTO upload_setting_file_extension (upload_setting_id, upload_setting_name, file_extension_id, file_extension_name, file_extension) VALUES
+(1, 'App Logo', 63, 'PNG', 'png'),
+(1, 'App Logo', 61, 'JPG', 'jpg'),
+(1, 'App Logo', 62, 'JPEG', 'jpeg'),
+(2, 'Internal Notes Attachment', 63, 'PNG', 'png'),
+(2, 'Internal Notes Attachment', 61, 'JPG', 'jpg'),
+(2, 'Internal Notes Attachment', 62, 'JPEG', 'jpeg'),
+(2, 'Internal Notes Attachment', 127, 'PDF', 'pdf'),
+(2, 'Internal Notes Attachment', 125, 'DOC', 'doc'),
+(2, 'Internal Notes Attachment', 125, 'DOCX', 'docx'),
+(2, 'Internal Notes Attachment', 130, 'TXT', 'txt'),
+(2, 'Internal Notes Attachment', 92, 'XLS', 'xls'),
+(2, 'Internal Notes Attachment', 94, 'XLSX', 'xlsx'),
+(2, 'Internal Notes Attachment', 89, 'PPT', 'ppt'),
+(2, 'Internal Notes Attachment', 90, 'PPTX', 'pptx'),
+(3, 'Import File', 25, 'CSV', 'csv'),
+(4, 'User Account Profile Picture', 63, 'PNG', 'png'),
+(4, 'User Account Profile Picture', 61, 'JPG', 'jpg'),
+(4, 'User Account Profile Picture', 62, 'JPEG', 'jpeg'),
+(5, 'Company Logo', 63, 'PNG', 'png'),
+(5, 'Company Logo', 61, 'JPG', 'jpg'),
+(5, 'Company Logo', 62, 'JPEG', 'jpeg'),
+(6, 'Employee Image', 63, 'PNG', 'png'),
+(6, 'Employee Image', 61, 'JPG', 'jpg'),
+(7, 'Employee Image', 62, 'JPEG', 'jpeg');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

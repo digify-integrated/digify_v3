@@ -2332,6 +2332,18 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
+DROP TRIGGER IF EXISTS trg_employee_insert//
+
+CREATE TRIGGER trg_employee_insert
+AFTER INSERT ON employee
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employee created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
+END //
+
 /* =============================================================================================
    END OF TRIGGERS
 ============================================================================================= */

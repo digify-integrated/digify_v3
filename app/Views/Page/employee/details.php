@@ -14,10 +14,10 @@
                         ?>
                     </div>
 
-                    <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee_name_summary"></span>
+                    <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee_name_summary">--</span>
 
                     <div class="mb-0">
-                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_title_summary"></div>
+                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_title_summary">--</div>
                     </div>
                 </div>
                 
@@ -136,7 +136,7 @@
                 <div class="d-flex flex-wrap align-items-center">
                     <div id="change_badge_id">
                         <div class="fs-6 fw-bold mb-1">Badge ID</div>
-                        <div class="fw-semibold text-gray-600" id="badge_id_summary"></div>
+                        <div class="fw-semibold text-gray-600" id="badge_id_summary">--</div>
                     </div>
                                         
                     <div id="change_badge_id_edit" class="flex-row-fluid d-none">
@@ -184,7 +184,7 @@
                 </div>
             </div>
             
-            <div class="card-body pb-5" id="language_summary"></div>
+            <div class="card-body pb-5" id="language_summary">--</div>
         </div>
     </div>
     
@@ -345,7 +345,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_private_email">
                                 <div class="fs-6 fw-bold mb-1">Private Email</div>
-                                <div class="fw-semibold text-gray-600" id="private_email_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="private_email_summary">--</div>
                             </div>
                                         
                             <div id="change_private_email_edit" class="flex-row-fluid d-none">
@@ -355,7 +355,7 @@
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
                                                 <label for="private_email" class="form-label fs-6 fw-bold mb-3">Enter New Private Email</label>
-                                                <input type="text" class="form-control" maxlength="300" id="private_email" name="private_email" autocomplete="off" <?php echo $disabled; ?>>
+                                                <input type="email" class="form-control" maxlength="300" id="private_email" name="private_email" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -381,7 +381,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_private_phone">
                                 <div class="fs-6 fw-bold mb-1">Private Phone</div>
-                                <div class="fw-semibold text-gray-600" id="private_phone_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="private_phone_summary">--</div>
                             </div>
                                         
                             <div id="change_private_phone_edit" class="flex-row-fluid d-none">
@@ -417,7 +417,7 @@
                         <div class="d-flex flex-wrap align-items-center mb-6">
                             <div id="change_private_telephone">
                                 <div class="fs-6 fw-bold mb-1">Private Telephone</div>
-                                <div class="fw-semibold text-gray-600" id="private_telephone_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="private_telephone_summary">--</div>
                             </div>
                                         
                             <div id="change_private_telephone_edit" class="flex-row-fluid d-none">
@@ -461,7 +461,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_nationality">
                                 <div class="fs-6 fw-bold mb-1">Nationality</div>
-                                <div class="fw-semibold text-gray-600" id="nationality_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="nationality_summary">--</div>
                             </div>
                                         
                             <div id="change_nationality_edit" class="flex-row-fluid d-none">
@@ -497,7 +497,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_gender">
                                 <div class="fs-6 fw-bold mb-1">Gender</div>
-                                <div class="fw-semibold text-gray-600" id="gender_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="gender_summary">--</div>
                             </div>
                                         
                             <div id="change_gender_edit" class="flex-row-fluid d-none">
@@ -533,7 +533,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_birthday">
                                 <div class="fs-6 fw-bold mb-1">Date of Birth</div>
-                                <div class="fw-semibold text-gray-600" id="birthday_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="birthday_summary">--</div>
                             </div>
                                         
                             <div id="change_birthday_edit" class="flex-row-fluid d-none">
@@ -543,7 +543,7 @@
                                         <div class="col-lg-12 mb-4 mb-lg-0">
                                             <div class="fv-row mb-0 fv-plugins-icon-container">
                                                 <label for="birthday" class="form-label fs-6 fw-bold mb-3">Enter New Date of Birth</label>
-                                                <input class="form-control mb-3 mb-lg-0 datepicker" id="birthday" name="birthday" type="text" readonly="readonly" <?php echo $disabled; ?>>
+                                                <input class="form-control mb-3 mb-lg-0" id="birthday" name="birthday" type="text" readonly="readonly" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -569,7 +569,7 @@
                         <div class="d-flex flex-wrap align-items-center mb-6">
                             <div id="change_place_of_birth">
                                 <div class="fs-6 fw-bold mb-1">Place of Birth</div>
-                                <div class="fw-semibold text-gray-600" id="place_of_birth_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="place_of_birth_summary">--</div>
                             </div>
                                         
                             <div id="change_place_of_birth_edit" class="flex-row-fluid d-none">
@@ -729,7 +729,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_company">
                                 <div class="fs-6 fw-bold mb-1">Company</div>
-                                <div class="fw-semibold text-gray-600" id="company_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="company_summary">--</div>
                             </div>
                                                 
                             <div id="change_company_edit" class="flex-row-fluid d-none">
@@ -765,7 +765,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_department">
                                 <div class="fs-6 fw-bold mb-1">Department</div>
-                                <div class="fw-semibold text-gray-600" id="department_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="department_summary">--</div>
                             </div>
                                                 
                             <div id="change_department_edit" class="flex-row-fluid d-none">
@@ -801,7 +801,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_job_position">
                                 <div class="fs-6 fw-bold mb-1">Job Position</div>
-                                <div class="fw-semibold text-gray-600" id="job_position_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="job_position_summary">--</div>
                             </div>
                                                 
                             <div id="change_job_position_edit" class="flex-row-fluid d-none">
@@ -837,7 +837,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_manager">
                                 <div class="fs-6 fw-bold mb-1">Manager</div>
-                                <div class="fw-semibold text-gray-600" id="manager_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="manager_summary">--</div>
                             </div>
                                                 
                             <div id="change_manager_edit" class="flex-row-fluid d-none">
@@ -873,7 +873,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_time_off_approver">
                                 <div class="fs-6 fw-bold mb-1">Time-Off Approver</div>
-                                <div class="fw-semibold text-gray-600" id="time_off_approver_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="time_off_approver_summary">--</div>
                             </div>
                                                 
                             <div id="change_time_off_approver_edit" class="flex-row-fluid d-none">
@@ -909,7 +909,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_work_location">
                                 <div class="fs-6 fw-bold mb-1">Work Location</div>
-                                <div class="fw-semibold text-gray-600" id="work_location_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="work_location_summary">--</div>
                             </div>
                                                 
                             <div id="change_work_location_edit" class="flex-row-fluid d-none">
@@ -945,7 +945,7 @@
                         <div class="d-flex flex-wrap align-items-center mb-6">
                             <div id="change_on_board_date">
                                 <div class="fs-6 fw-bold mb-1">On-Board Date</div>
-                                <div class="fw-semibold text-gray-600" id="on_board_date_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="on_board_date_summary">--</div>
                             </div>
                                                 
                             <div id="change_on_board_date_edit" class="flex-row-fluid d-none">
@@ -989,7 +989,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_work_email">
                                 <div class="fs-6 fw-bold mb-1">Work Email</div>
-                                <div class="fw-semibold text-gray-600" id="work_email_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="work_email_summary">--</div>
                             </div>
                                         
                             <div id="change_work_email_edit" class="flex-row-fluid d-none">
@@ -1025,7 +1025,7 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div id="change_work_phone">
                                 <div class="fs-6 fw-bold mb-1">Work Phone</div>
-                                <div class="fw-semibold text-gray-600" id="work_phone_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="work_phone_summary">--</div>
                             </div>
                                         
                             <div id="change_work_phone_edit" class="flex-row-fluid d-none">
@@ -1061,7 +1061,7 @@
                         <div class="d-flex flex-wrap align-items-center mb-6">
                             <div id="change_work_telephone">
                                 <div class="fs-6 fw-bold mb-1">Work Telephone</div>
-                                <div class="fw-semibold text-gray-600" id="work_telephone_summary"></div>
+                                <div class="fw-semibold text-gray-600" id="work_telephone_summary">--</div>
                             </div>
                                         
                             <div id="change_work_telephone_edit" class="flex-row-fluid d-none">

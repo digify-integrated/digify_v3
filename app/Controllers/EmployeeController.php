@@ -12,6 +12,9 @@ use App\Models\City;
 use App\Models\CivilStatus;
 use App\Models\Religion;
 use App\Models\BloodType;
+use App\Models\Nationality;
+use App\Models\Gender;
+use App\Models\WorkLocation;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -29,6 +32,9 @@ class EmployeeController
     protected CivilStatus $civilStatus;
     protected Religion $religion;
     protected BloodType $bloodType;
+    protected Nationality $nationality;
+    protected Gender $gender;
+    protected WorkLocation $workLocation;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -43,6 +49,9 @@ class EmployeeController
         CivilStatus $civilStatus,
         Religion $religion,
         BloodType $bloodType,
+        Nationality $nationality,
+        Gender $gender,
+        WorkLocation $workLocation,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -56,6 +65,9 @@ class EmployeeController
         $this->civilStatus      = $civilStatus;
         $this->religion         = $religion;
         $this->bloodType        = $bloodType;
+        $this->nationality      = $nationality;
+        $this->gender           = $gender;
+        $this->workLocation     = $workLocation;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -94,7 +106,7 @@ class EmployeeController
                 'Your session has expired. Please log in again to continue.',
                 [
                     'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'redirect_link' => 'imageut.php?imageut'
                 ]
             );
         }
@@ -102,16 +114,35 @@ class EmployeeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save employee'                     => $this->saveEmployee($lastLogBy),
-            'update employee personal details'  => $this->updateEmployeePersonalDetails($lastLogBy),
-            'update employee logo'              => $this->updateEmployeeLogo($lastLogBy),
-            'delete employee'                   => $this->deleteEmployee(),
-            'delete multiple employee'          => $this->deleteMultipleEmployee(),
-            'fetch employee details'            => $this->fetchEmployeeDetails(),
-            'generate employee card'            => $this->generateEmployeeCard(),
-            'generate employee table'           => $this->generateEmployeeTable(),
-            'generate employee options'         => $this->generateEmployeeOptions(),
-            default                             => $this->systemHelper::sendErrorResponse(
+            'save employee'                         => $this->saveEmployee($lastLogBy),
+            'update employee personal details'      => $this->updateEmployeePersonalDetails($lastLogBy),
+            'update employee pin code'              => $this->updateEmployeePINCode($lastLogBy),
+            'update employee badge id'              => $this->updateEmployeeBadgeId($lastLogBy),
+            'update employee private email'         => $this->updateEmployeePrivateEmail($lastLogBy),
+            'update employee private phone'         => $this->updateEmployeePrivatePhone($lastLogBy),
+            'update employee private telephone'     => $this->updateEmployeePrivateTelephone($lastLogBy),
+            'update employee nationality'           => $this->updateEmployeeNationality($lastLogBy),
+            'update employee gender'                => $this->updateEmployeeGender($lastLogBy),
+            'update employee birthday'              => $this->updateEmployeeBirthday($lastLogBy),
+            'update employee place of birth'        => $this->updateEmployeePlaceOfBirth($lastLogBy),
+            'update employee company'               => $this->updateEmployeeCompany($lastLogBy),
+            'update employee department'            => $this->updateEmployeeDepartment($lastLogBy),
+            'update employee job position'          => $this->updateEmployeeJobPosition($lastLogBy),
+            'update employee manager'               => $this->updateEmployeeManager($lastLogBy),
+            'update employee time off approver'     => $this->updateEmployeeTimeOffApprover($lastLogBy),
+            'update employee work location'         => $this->updateEmployeeWorkLocation($lastLogBy),
+            'update employee on board date'         => $this->updateEmployeeOnBoardDate($lastLogBy),
+            'update employee work email'            => $this->updateEmployeeWorkEmail($lastLogBy),
+            'update employee work phone'            => $this->updateEmployeeWorkPhone($lastLogBy),
+            'update employee work telephone'        => $this->updateEmployeeWorkTelephone($lastLogBy),
+            'update employee image'                 => $this->updateEmployeeImage($lastLogBy),
+            'delete employee'                       => $this->deleteEmployee(),
+            'delete multiple employee'              => $this->deleteMultipleEmployee(),
+            'fetch employee details'                => $this->fetchEmployeeDetails(),
+            'generate employee card'                => $this->generateEmployeeCard(),
+            'generate employee table'               => $this->generateEmployeeTable(),
+            'generate employee options'             => $this->generateEmployeeOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
                                                     )
@@ -210,56 +241,480 @@ class EmployeeController
         );
     }
 
-    public function updateEmployeeLogo($lastLogBy){
+    public function updateEmployeePINCode($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_pin_code_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $pinCode        = $_POST['pin_code'] ?? null;
+        $hashedPINCode  = password_hash($pinCode, PASSWORD_BCRYPT);
+
+        $this->employee->updateEmployeePINCode($employeeId, $hashedPINCode, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee PIN Code Success',
+            'The employee PIN code has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeBadgeId($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_badge_id_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $badgeId        = $_POST['badge_id'] ?? null;
+
+        $this->employee->updateEmployeeBadgeId($employeeId, $badgeId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Badge ID Success',
+            'The employee badge ID has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeePrivateEmail($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_email_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $privateEmail   = $_POST['private_email'] ?? null;
+
+        $this->employee->updateEmployeePrivateEmail($employeeId, $privateEmail, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Private Email Success',
+            'The employee private email has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeePrivatePhone($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_phone_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $privatePhone   = $_POST['private_phone'] ?? null;
+
+        $this->employee->updateEmployeePrivatePhone($employeeId, $privatePhone, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Private Phone Success',
+            'The employee private phone has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeePrivateTelephone($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_telephone_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $privateTelephone   = $_POST['private_telephone'] ?? null;
+
+        $this->employee->updateEmployeePrivateTelephone($employeeId, $privateTelephone, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Private Telephone Success',
+            'The employee private telephone has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeNationality($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_nationality_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $nationalityId  = $_POST['nationality_id'] ?? null;
+
+        $nationalityDetails = $this->nationality->fetchNationality($nationalityId);
+        $nationalityName = $nationalityDetails['nationality_name'] ?? null;
+
+        $this->employee->updateEmployeeNationality($employeeId, $nationalityId, $nationalityName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Nationality Success',
+            'The employee nationality has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeGender($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_gender_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $genderId       = $_POST['gender_id'] ?? null;
+
+        $genderDetails = $this->gender->fetchGender($genderId);
+        $genderName = $genderDetails['gender_name'] ?? null;
+
+        $this->employee->updateEmployeeGender($employeeId, $genderId, $genderName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Gender Success',
+            'The employee gender has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeBirthday($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_birthday_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $birthday       = $this->systemHelper->checkDate('empty', $_POST['birthday'], '', 'Y-m-d', '');
+
+        $this->employee->updateEmployeeBirthday($employeeId, $birthday, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Date of Birth Success',
+            'The employee date of birth has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeePlaceOfBirth($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_place_of_birth_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $placeOfBirth     = $_POST['place_of_birth'] ?? null;
+
+        $this->employee->updateEmployeePlaceOfBirth($employeeId, $placeOfBirth, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Place of Birth Success',
+            'The employee place of birth has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeCompany($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_company_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $companyId      = $_POST['company_id'] ?? null;
+
+        $companyDetails = $this->company->fetchCompany($companyId);
+        $companyName = $companyDetails['company_name'] ?? null;
+
+        $this->employee->updateEmployeeCompany($employeeId, $companyId, $companyName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Company Success',
+            'The employee company has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeDepartment($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_department_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $departmentId   = $_POST['department_id'] ?? null;
+
+        $departmentDetails  = $this->department->fetchDepartment($departmentId);
+        $departmentName     = $departmentDetails['department_name'] ?? null;
+
+        $this->employee->updateEmployeeDepartment($employeeId, $departmentId, $departmentName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Department Success',
+            'The employee department has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeJobPosition($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_job_position_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $jobPositionId  = $_POST['job_position_id'] ?? null;
+
+        $jobPositionDetails     = $this->jobPosition->fetchJobPosition($jobPositionId);
+        $jobPositionName        = $jobPositionDetails['job_position_name'] ?? null;
+
+        $this->employee->updateEmployeeJobPosition($employeeId, $jobPositionId, $jobPositionName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Job Position Success',
+            'The employee job position has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeManager($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_manager_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $managerId      = $_POST['manager_id'] ?? null;
+
+        $manageDetails     = $this->employee->fetchEmployee($managerId);
+        $manageName        = $manageDetails['full_name'] ?? null;
+
+        $this->employee->updateEmployeeManager($employeeId, $managerId, $manageName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Manager Success',
+            'The employee manager has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeTimeOffApprover($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_time_off_approver_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $timeOffApproverId  = $_POST['time_off_approver_id'] ?? null;
+
+        $timeOffApproverDetails     = $this->employee->fetchEmployee($timeOffApproverId);
+        $timeOffApproverName        = $timeOffApproverDetails['full_name'] ?? null;
+
+        $this->employee->updateEmployeeTimeOffApprover($employeeId, $timeOffApproverId, $timeOffApproverName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Time Off Approver Success',
+            'The employee time off approver has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeWorkLocation($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_location_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $wokLocationId  = $_POST['work_location_id'] ?? null;
+
+        $workLocationDetails    = $this->workLocation->fetchWorkLocation($wokLocationId);
+        $worlLocationName       = $workLocationDetails['work_location_name'] ?? null;
+
+        $this->employee->updateEmployeeWorkLocation($employeeId, $wokLocationId, $worlLocationName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Work Location Success',
+            'The employee work location has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeOnBoardDate($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_on_board_date_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $onBoardDate    = $this->systemHelper->checkDate('empty', $_POST['on_board_date'], '', 'Y-m-d', '');
+
+        $this->employee->updateEmployeeOnBoardDate($employeeId, $onBoardDate, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee On Board Date Success',
+            'The employee on board date has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeWorkEmail($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_email_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $workEmail      = $_POST['work_email'] ?? null;
+
+        $this->employee->updateEmployeeWorkEmail($employeeId, $workEmail, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Work Email Success',
+            'The employee work email has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeWorkPhone($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_phone_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $workPhone      = $_POST['work_phone'] ?? null;
+
+        $this->employee->updateEmployeeWorkPhone($employeeId, $workPhone, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Work Phone Success',
+            'The employee work phone has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeWorkTelephone($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_telephone_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $workTelephone  = $_POST['work_telephone'] ?? null;
+
+        $this->employee->updateEmployeeWorkTelephone($employeeId, $workTelephone, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Work Telephone Success',
+            'The employee work telephone has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeImage($lastLogBy){
         $employeeId   = $_POST['employee_id'] ?? null;
        
-        $employeeLogoFileName               = $_FILES['employee_logo']['name'];
-        $employeeLogoFileSize               = $_FILES['employee_logo']['size'];
-        $employeeLogoFileError              = $_FILES['employee_logo']['error'];
-        $employeeLogoTempName               = $_FILES['employee_logo']['tmp_name'];
-        $employeeLogoFileExtension          = explode('.', $employeeLogoFileName);
-        $employeeLogoActualFileExtension    = strtolower(end($employeeLogoFileExtension));
+        $employeeImageFileName               = $_FILES['employee_image']['name'];
+        $employeeImageFileSize               = $_FILES['employee_image']['size'];
+        $employeeImageFileError              = $_FILES['employee_image']['error'];
+        $employeeImageTempName               = $_FILES['employee_image']['tmp_name'];
+        $employeeImageFileExtension          = explode('.', $employeeImageFileName);
+        $employeeImageActualFileExtension    = strtolower(end($employeeImageFileExtension));
 
-        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(5);
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(6);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(5);
+        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(6);
         $allowedFileExtensions = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
         }
 
-        if (!in_array($employeeLogoActualFileExtension, $allowedFileExtensions)) {              
+        if (!in_array($employeeImageActualFileExtension, $allowedFileExtensions)) {              
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
+                'Update Employee Image Error', 
                 'The file uploaded is not supported.'
             );
         }
             
-        if(empty($employeeLogoTempName)){
+        if(empty($employeeImageTempName)){
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
-                'Please choose the app logo.'
+                'Update Employee Image Error', 
+                'Please choose the employee image.'
             );
         }
             
-        if($employeeLogoFileError){                
+        if($employeeImageFileError){                
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
+                'Update Employee Image Error', 
                 'An error occurred while uploading the file.'
             );
         }
             
-        if($employeeLogoFileSize > ($maxFileSize * 1024)){
+        if($employeeImageFileSize > ($maxFileSize * 1024)){
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
-                'The employee logo exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
+                'Update Employee Image Error', 
+                'The employee image exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
             );
         }
 
         $fileName   = $this->security->generateFileName();
-        $fileNew    = $fileName . '.' . $employeeLogoActualFileExtension;
+        $fileNew    = $fileName . '.' . $employeeImageActualFileExtension;
             
         define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
 
@@ -272,48 +727,48 @@ class EmployeeController
 
         if ($directoryChecker !== true) {
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error',
+                'Update Employee Image Error',
                 $directoryChecker
             );
         }
 
-        $employeeDetails     = $this->employee->fetchEmployee($employeeId);
-        $employeeLogo        = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
-        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($employeeLogo);
+        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
+        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($employeeImage);
 
         if(!$deleteImageFile){
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
-                'The employee logo cannot be deleted due to an error'
+                'Update Employee Image Error', 
+                'The employee image cannot be deleted due to an error'
             );
         }
 
-        if(!move_uploaded_file($employeeLogoTempName, $fileDestination)){
+        if(!move_uploaded_file($employeeImageTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
-                'Update Employee Logo Error', 
-                'The employee logo cannot be uploaded due to an error'
+                'Update Employee Image Error', 
+                'The employee image cannot be uploaded due to an error'
             );
         }
 
-        $this->employee->updateEmployeeLogo($employeeId, $filePath, $lastLogBy);
+        $this->employee->updateEmployeeImage($employeeId, $filePath, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
-            'Update Employee Logo Success',
-            'The employee logo has been updated successfully.'
+            'Update Employee Image Success',
+            'The employee image has been updated successfully.'
         );
     }
 
     public function deleteEmployee(){
         $employeeId         = $_POST['employee_id'] ?? null;
         $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-        $employeeLogo       = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
+        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
 
-        $deleteImageFile = $this->systemHelper->deleteFileIfExist($employeeLogo);
+        $deleteImageFile = $this->systemHelper->deleteFileIfExist($employeeImage);
 
         if(!$deleteImageFile){
             $this->systemHelper::sendErrorResponse(
                 'Delete Employee Error', 
-                'The app logo cannot be deleted due to an error'
+                'The employee image cannot be deleted due to an error'
             );
         }
 
@@ -330,9 +785,9 @@ class EmployeeController
 
         foreach($employeeIds as $employeeId){
             $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-            $employeeLogo       = $this->systemHelper->checkImageExist($employeeDetails['employee_logo'] ?? null, 'null');
+            $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
 
-            $this->systemHelper->deleteFileIfExist($employeeLogo);
+            $this->systemHelper->deleteFileIfExist($employeeImage);
 
             $this->employee->deleteEmployee($employeeId);
         }
@@ -397,7 +852,7 @@ class EmployeeController
             'privateTelephone'      => $employeeDetails['private_telephone'] ?? null,
             'nationalityName'       => $employeeDetails['nationality_name'] ?? null,
             'genderName'            => $employeeDetails['gender_name'] ?? null,
-            'birthday'              => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y h:i a', ''),
+            'birthday'              => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y', ''),
             'placeOfBirth'          => $employeeDetails['place_of_birth'] ?? null,
             'companyName'           => $employeeDetails['company_name'] ?? null,
             'departmentName'        => $employeeDetails['department_name'] ?? null,
@@ -405,7 +860,7 @@ class EmployeeController
             'managerName'           => $employeeDetails['manager_name'] ?? null,
             'timeOffApproverName'   => $employeeDetails['time_off_approver_name'] ?? null,
             'workLocationName'      => $employeeDetails['work_location_name'] ?? null,
-            'onBoardDate'           => $this->systemHelper->checkDate('summary', $employeeDetails['on_board_date'] ?? null, '', 'd M Y h:i a', ''),
+            'onBoardDate'           => $this->systemHelper->checkDate('summary', $employeeDetails['on_board_date'] ?? null, '', 'd M Y', ''),
             'workEmail'             => $employeeDetails['work_email'] ?? null,
             'workPhone'             => $employeeDetails['work_phone'] ?? null,
             'workTelephone'         => $employeeDetails['work_telephone'] ?? null,
@@ -538,7 +993,7 @@ class EmployeeController
         foreach ($employees as $row) {
             $response[] = [
                 'id'    => $row['employee_id'],
-                'text'  => $row['employee_name']
+                'text'  => $row['full_name']
             ];
         }
 
@@ -556,6 +1011,9 @@ $controller = new EmployeeController(
     new CivilStatus(),
     new Religion(),
     new BloodType(),
+    new Nationality(),
+    new Gender(),
+     new WorkLocation(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

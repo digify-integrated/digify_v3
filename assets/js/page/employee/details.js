@@ -1,4 +1,4 @@
-import { disableButton, enableButton, generateDropdownOptions, resetForm } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions, resetForm, initializeDatePicker } from '../../utilities/form-utilities.js';
 import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_id', transaction: 'generate work location options' },
         { url: './app/Controllers/LanguageController.php', selector: '#language_id', transaction: 'generate language options' },
         { url: './app/Controllers/LanguageProficiencyController.php', selector: '#language_proficiency_id', transaction: 'generate language proficiency options' },
+        { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' },
+        { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -143,6 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'employee');
+    initializeDatePicker('#birthday');
+    initializeDatePicker('#on_board_date');
     //roleList();
     displayDetails();
 
@@ -223,6 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     displayDetails();
+                    enableButton('submit-personal-details');
+                    $('#update_personal_details_modal').modal('hide');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -241,12 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /*$('#update_email_form').validate({
+    $('#update_pin_code_form').validate({
         rules: {
-            email: { required: true }
+            pin_code: { required: true }
         },
         messages: {
-            email: { required: 'Enter the email' }
+            pin_code: { required: 'Enter the PIN code' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -268,14 +274,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee email';
+            const transaction   = 'update employee pin code';
             const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
             formData.append('employee_id', employee_id);
 
-            disableButton('update_email_submit');
+            disableButton('update_pin_code_submit');
 
             try {
                 const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -289,8 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    toggleSection('change_email');
+                    toggleSection('change_pin_code');
                     displayDetails();
+                    enableButton('update_pin_code_submit');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -298,10 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
-                    enableButton('update_email_submit');
+                    enableButton('update_pin_code_submit');
                 }
             } catch (error) {
-                enableButton('update_email_submit');
+                enableButton('update_pin_code_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -309,12 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('#update_phone_form').validate({
+    $('#update_badge_id_form').validate({
         rules: {
-            phone: { required: true }
+            badge_id: { required: true }
         },
         messages: {
-            phone: { required: 'Enter the phone' }
+            badge_id: { required: 'Enter the badge ID' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -336,14 +343,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee phone';
+            const transaction   = 'update employee badge id';
             const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
             formData.append('employee_id', employee_id);
 
-            disableButton('update_phone_submit');
+            disableButton('update_badge_id_submit');
 
             try {
                 const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -357,19 +364,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    toggleSection('change_phone');
+                    toggleSection('change_badge_id');
                     displayDetails();
-                } 
+                    enableButton('update_badge_id_submit');
+                }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
                     window.location.href = data.redirect_link;
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
-                    enableButton('update_phone_submit');
+                    enableButton('update_badge_id_submit');
                 }
             } catch (error) {
-                enableButton('update_phone_submit');
+                enableButton('update_badge_id_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -377,15 +385,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('#update_password_form').validate({
+    $('#update_private_email_form').validate({
         rules: {
-            new_password: {
-                required: true,
-                password_strength: true
-            }
+            private_email: { required: true }
         },
         messages: {
-            new_password: { required: 'Enter the new password' }
+            private_email: { required: 'Enter the private email' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -407,14 +412,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee password';
+            const transaction   = 'update employee private email';
             const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('employee_id', encodeURIComponent(employee_id));
+            formData.append('employee_id', employee_id);
 
-            disableButton('update_password_submit');
+            disableButton('update_private_email_submit');
 
             try {
                 const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -428,8 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_private_email');
                     displayDetails();
-                    toggleSection('change_password');
+                    enableButton('update_private_email_submit');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -437,9 +443,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_private_email_submit');
                 }
             } catch (error) {
-                enableButton('update_password_submit');
+                enableButton('update_private_email_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -447,7 +454,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('#role_assignment_form').validate({
+    $('#update_private_phone_form').validate({
+        rules: {
+            private_phone: { required: true }
+        },
+        messages: {
+            private_phone: { required: 'Enter the private phone' }
+        },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
@@ -468,14 +481,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee role';
+            const transaction   = 'update employee private phone';
             const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('employee_id', encodeURIComponent(employee_id));
+            formData.append('employee_id', employee_id);
 
-            disableButton('submit-assignment');
+            disableButton('update_private_phone_submit');
 
             try {
                 const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -489,8 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    $('#role-assignment-modal').modal('hide');
-                    roleList();
+                    toggleSection('change_private_phone');
+                    displayDetails();
+                    enableButton('update_private_phone_submit');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -498,16 +512,1051 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
-                    enableButton('submit-assignment');
+                    enableButton('update_private_phone_submit');
                 }
             } catch (error) {
-                enableButton('submit-assignment');
+                enableButton('update_private_phone_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
             return false;
         }
-    });*/
+    });
+
+    $('#update_private_telephone_form').validate({
+        rules: {
+            private_telephone: { required: true }
+        },
+        messages: {
+            private_telephone: { required: 'Enter the private telephone' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee private telephone';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_private_telephone_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_private_telephone');
+                    displayDetails();
+                    enableButton('update_private_telephone_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_private_telephone_submit');
+                }
+            } catch (error) {
+                enableButton('update_private_telephone_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_nationality_form').validate({
+        rules: {
+            nationality_id: { required: true }
+        },
+        messages: {
+            nationality_id: { required: 'Choose the nationality' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee nationality';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_nationality_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_nationality');
+                    displayDetails();
+                    enableButton('update_nationality_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_nationality_submit');
+                }
+            } catch (error) {
+                enableButton('update_nationality_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_gender_form').validate({
+        rules: {
+            gender_id: { required: true }
+        },
+        messages: {
+            gender_id: { required: 'Choose the gender' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee gender';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_gender_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_gender');
+                    displayDetails();
+                    enableButton('update_gender_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_gender_submit');
+                }
+            } catch (error) {
+                enableButton('update_gender_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_birthday_form').validate({
+        rules: {
+            birthday: { required: true }
+        },
+        messages: {
+            birthday: { required: 'Choose the date of birth' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee birthday';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_birthday_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_birthday');
+                    displayDetails();
+                    enableButton('update_birthday_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_birthday_submit');
+                }
+            } catch (error) {
+                enableButton('update_birthday_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_place_of_birth_form').validate({
+        rules: {
+            place_of_birth: { required: true }
+        },
+        messages: {
+            place_of_birth: { required: 'Enter the place of birth' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee place of birth';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_place_of_birth_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_place_of_birth');
+                    displayDetails();
+                    enableButton('update_place_of_birth_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_place_of_birth_submit');
+                }
+            } catch (error) {
+                enableButton('update_place_of_birth_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_company_form').validate({
+        rules: {
+            company_id: { required: true }
+        },
+        messages: {
+            company_id: { required: 'Choose the company' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee company';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_company_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_company');
+                    displayDetails();
+                    enableButton('update_company_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_company_submit');
+                }
+            } catch (error) {
+                enableButton('update_company_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_department_form').validate({
+        rules: {
+            department_id: { required: true }
+        },
+        messages: {
+            department_id: { required: 'Choose the department' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee department';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_department_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_department');
+                    displayDetails();
+                    enableButton('update_department_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_department_submit');
+                }
+            } catch (error) {
+                enableButton('update_department_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_job_position_form').validate({
+        rules: {
+            job_position_id: { required: true }
+        },
+        messages: {
+            job_position_id: { required: 'Choose the job position' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee job position';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_job_position_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_job_position');
+                    displayDetails();
+                    enableButton('update_job_position_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_job_position_submit');
+                }
+            } catch (error) {
+                enableButton('update_job_position_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_manager_form').validate({
+        rules: {
+            manager_id: { required: true }
+        },
+        messages: {
+            manager_id: { required: 'Choose the manager' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee manager';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_manager_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_manager');
+                    displayDetails();
+                    enableButton('update_manager_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_manager_submit');
+                }
+            } catch (error) {
+                enableButton('update_manager_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_time_off_approver_form').validate({
+        rules: {
+            time_off_approver_id: { required: true }
+        },
+        messages: {
+            time_off_approver_id: { required: 'Choose the time off approver' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee time off approver';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_time_off_approver_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_time_off_approver');
+                    displayDetails();
+                    enableButton('update_time_off_approver_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_time_off_approver_submit');
+                }
+            } catch (error) {
+                enableButton('update_time_off_approver_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_work_location_form').validate({
+        rules: {
+            work_location_id: { required: true }
+        },
+        messages: {
+            work_location_id: { required: 'Choose the work location' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee work location';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_work_location_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_work_location');
+                    displayDetails();
+                    enableButton('update_work_location_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_work_location_submit');
+                }
+            } catch (error) {
+                enableButton('update_work_location_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_on_board_date_form').validate({
+        rules: {
+            on_board_date: { required: true }
+        },
+        messages: {
+            on_board_date: { required: 'Choose the on board date' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee on board date';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_on_board_date_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_on_board_date');
+                    displayDetails();
+                    enableButton('update_on_board_date_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_on_board_date_submit');
+                }
+            } catch (error) {
+                enableButton('update_on_board_date_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_work_email_form').validate({
+        rules: {
+            work_email: { required: true }
+        },
+        messages: {
+            work_email: { required: 'Enter the work email' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee work email';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_work_email_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_work_email');
+                    displayDetails();
+                    enableButton('update_work_email_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_work_email_submit');
+                }
+            } catch (error) {
+                enableButton('update_work_email_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_work_phone_form').validate({
+        rules: {
+            work_phone: { required: true }
+        },
+        messages: {
+            work_phone: { required: 'Enter the work phone' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee work phone';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_work_phone_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_work_phone');
+                    displayDetails();
+                    enableButton('update_work_phone_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_work_phone_submit');
+                }
+            } catch (error) {
+                enableButton('update_work_phone_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_work_telephone_form').validate({
+        rules: {
+            work_telephone: { required: true }
+        },
+        messages: {
+            work_telephone: { required: 'Enter the work telephone' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee work telephone';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_work_telephone_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_work_telephone');
+                    displayDetails();
+                    enableButton('update_work_telephone_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_work_telephone_submit');
+                }
+            } catch (error) {
+                enableButton('update_work_telephone_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
@@ -518,16 +1567,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('change', async (event) => {
-        const input = event.target.closest('#profile_picture');
+        const input = event.target.closest('#employee_image');
         if (!input || !input.files.length) return;
 
-        const transaction   = 'update employee profile picture';
+        const transaction   = 'update employee image';
         const employee_id   = document.getElementById('details-id')?.textContent.trim();
 
         const formData = new FormData();
         formData.append('transaction', transaction);
         formData.append('employee_id', employee_id);
-        formData.append('profile_picture', input.files[0]);
+        formData.append('employee_image', input.files[0]);
 
         try {
             const response = await fetch('./app/Controllers/EmployeeController.php', {

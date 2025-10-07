@@ -148,6 +148,390 @@ class Employee extends Model {
         ]);
     }
 
+    public function updateEmployeePINCode(
+        $p_employee_id,
+        $p_pin_code,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeePINCode(
+            :p_employee_id,
+            :p_pin_code,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_pin_code'        => $p_pin_code,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeBadgeId(
+        $p_employee_id,
+        $p_badge_id,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeBadgeId(
+            :p_employee_id,
+            :p_badge_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_badge_id'        => $p_badge_id,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeePrivateEmail(
+        $p_employee_id,
+        $p_private_email,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeePrivateEmail(
+            :p_employee_id,
+            :p_private_email,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_private_email'   => $p_private_email,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeePrivatePhone(
+        $p_employee_id,
+        $p_private_phone,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeePrivatePhone(
+            :p_employee_id,
+            :p_private_phone,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_private_phone'   => $p_private_phone,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeePrivateTelephone(
+        $p_employee_id,
+        $p_private_telephone,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeePrivateTelephone(
+            :p_employee_id,
+            :p_private_telephone,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'         => $p_employee_id,
+            'p_private_telephone'   => $p_private_telephone,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeNationality(
+        $p_employee_id,
+        $p_nationality_id,
+        $p_nationality_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeNationality(
+            :p_employee_id,
+            :p_nationality_id,
+            :p_nationality_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'         => $p_employee_id,
+            'p_nationality_id'      => $p_nationality_id,
+            'p_nationality_name'    => $p_nationality_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeGender(
+        $p_employee_id,
+        $p_gender_id,
+        $p_gender_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeGender(
+            :p_employee_id,
+            :p_gender_id,
+            :p_gender_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_gender_id'       => $p_gender_id,
+            'p_gender_name'     => $p_gender_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeBirthday(
+        $p_employee_id,
+        $p_birthday,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeBirthday(
+            :p_employee_id,
+            :p_birthday,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_birthday'        => $p_birthday,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeePlaceOfBirth(
+        $p_employee_id,
+        $p_place_of_birth,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeePlaceOfBirth(
+            :p_employee_id,
+            :p_place_of_birth,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_place_of_birth'  => $p_place_of_birth,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeCompany(
+        $p_employee_id,
+        $p_company_id,
+        $p_company_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeCompany(
+            :p_employee_id,
+            :p_company_id,
+            :p_company_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_company_id'      => $p_company_id,
+            'p_company_name'    => $p_company_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeDepartment(
+        $p_employee_id,
+        $p_department_id,
+        $p_department_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeDepartment(
+            :p_employee_id,
+            :p_department_id,
+            :p_department_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'         => $p_employee_id,
+            'p_department_id'       => $p_department_id,
+            'p_department_name'     => $p_department_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeJobPosition(
+        $p_employee_id,
+        $p_job_position_id,
+        $p_job_position_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeJobPosition(
+            :p_employee_id,
+            :p_job_position_id,
+            :p_job_position_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'         => $p_employee_id,
+            'p_job_position_id'     => $p_job_position_id,
+            'p_job_position_name'   => $p_job_position_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeManager(
+        $p_employee_id,
+        $p_manager_id,
+        $p_manager_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeManager(
+            :p_employee_id,
+            :p_manager_id,
+            :p_manager_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_manager_id'      => $p_manager_id,
+            'p_manager_name'    => $p_manager_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeTimeOffApprover(
+        $p_employee_id,
+        $p_time_off_approver_id,
+        $p_time_off_approver_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeTimeOffApprover(
+            :p_employee_id,
+            :p_time_off_approver_id,
+            :p_time_off_approver_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'             => $p_employee_id,
+            'p_time_off_approver_id'    => $p_time_off_approver_id,
+            'p_time_off_approver_name'  => $p_time_off_approver_name,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeWorkLocation(
+        $p_employee_id,
+        $p_work_location_id,
+        $p_work_location_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeWorkLocation(
+            :p_employee_id,
+            :p_work_location_id,
+            :p_work_location_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'         => $p_employee_id,
+            'p_work_location_id'    => $p_work_location_id,
+            'p_work_location_name'  => $p_work_location_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeOnBoardDate(
+        $p_employee_id,
+        $p_on_board_date,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeOnBoardDate(
+            :p_employee_id,
+            :p_on_board_date,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_on_board_date'   => $p_on_board_date,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeWorkEmail(
+        $p_employee_id,
+        $p_work_email,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeWorkEmail(
+            :p_employee_id,
+            :p_work_email,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_work_email'      => $p_work_email,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeWorkPhone(
+        $p_employee_id,
+        $p_work_phone,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeWorkPhone(
+            :p_employee_id,
+            :p_work_phone,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_work_phone'      => $p_work_phone,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeWorkTelephone(
+        $p_employee_id,
+        $p_work_telephone,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeWorkTelephone(
+            :p_employee_id,
+            :p_work_telephone,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_work_telephone'  => $p_work_telephone,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeImage(
+        $p_employee_id,
+        $p_employee_image,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeImage(
+            :p_employee_id,
+            :p_employee_image,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'     => $p_employee_id,
+            'p_employee_image'  => $p_employee_image,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 4: FETCH METHODS
     ============================================================================================= */

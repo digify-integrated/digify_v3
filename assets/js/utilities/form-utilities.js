@@ -204,3 +204,10 @@ export const initializeTinyMCE = (tiny_mce_id, disabled = 0) => {
         tinymce.activeEditor.mode.set('readonly');
     }
 }
+
+export const initializeDatePicker = (selector, enableTime = false, dateFormat = "M d, Y") => {
+  $(selector).flatpickr({
+    enableTime: enableTime,
+    dateFormat: dateFormat
+  });
+}
