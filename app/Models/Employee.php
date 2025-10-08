@@ -9,6 +9,37 @@ class Employee extends Model {
         SECTION 1: SAVE METHODS
     ============================================================================================= */
 
+    public function saveEmployeeLanguage(
+        $p_employee_id,
+        $p_language_id,
+        $p_language_name,
+        $p_language_proficiency_id,
+        $p_language_proficiency_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveEmployeeLanguage(
+            :p_employee_id,
+            :p_language_id,
+            :p_language_name,
+            :p_language_proficiency_id,
+            :p_language_proficiency_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'                 => $p_employee_id,
+            'p_language_id'                 => $p_language_id,
+            'p_language_name'               => $p_language_name,
+            'p_language_proficiency_id'     => $p_language_proficiency_id,
+            'p_language_proficiency_name'   => $p_language_proficiency_name,
+            'p_last_log_by'                 => $p_last_log_by
+        ]);
+    }
+    
+    /* =============================================================================================
+        SECTION 2: INSERT METHODS
+    ============================================================================================= */
+
     public function insertEmployee(
         $p_full_name,
         $p_first_name,
@@ -55,10 +86,6 @@ class Employee extends Model {
 
         return $row['new_employee_id'] ?? null;
     }
-    
-    /* =============================================================================================
-        SECTION 2: INSERT METHODS
-    ============================================================================================= */
 
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
@@ -564,6 +591,18 @@ class Employee extends Model {
         ]);
     }
 
+    public function deleteEmployeeLanguage(
+        $p_employee_language_id
+    ) {
+        $sql = 'CALL deleteEmployeeLanguage(
+            :p_employee_language_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_language_id' => $p_employee_language_id
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 6: CHECK METHODS
     ============================================================================================= */
@@ -657,6 +696,18 @@ class Employee extends Model {
         $sql = 'CALL generateEmployeeOptions()';
         
         return $this->fetchAll($sql);
+    }
+
+    public function generateEmployeeLanguageList(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeLanguageList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
     }
 
     /* =============================================================================================

@@ -202,7 +202,7 @@ class LanguageProficiencyController
         foreach ($languageProficiencies as $row) {
             $response[] = [
                 'id'    => $row['language_proficiency_id'],
-                'text'  => $row['language_proficiency_name']
+                'text'  => $row['language_proficiency_name'] . ' - ' . $row['language_proficiency_description']
             ];
         }
 

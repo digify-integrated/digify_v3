@@ -6834,6 +6834,52 @@ END //
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
 
+DROP PROCEDURE IF EXISTS saveEmployeeLanguage//
+
+CREATE PROCEDURE saveEmployeeLanguage(
+    IN p_employee_id INT, 
+    IN p_language_id INT, 
+    IN p_language_name VARCHAR(100), 
+    IN p_language_proficiency_id INT, 
+    IN p_language_proficiency_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM employee_language WHERE employee_id = p_employee_id AND language_id = p_language_id) THEN
+       INSERT INTO employee_language (
+            employee_id,
+            language_id,
+            language_name,
+            language_proficiency_id,
+            language_proficiency_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_id,
+            p_language_id,
+            p_language_name,
+            p_language_proficiency_id,
+            p_language_proficiency_name,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE employee_language
+        SET language_proficiency_id = p_language_proficiency_id,
+            language_proficiency_name = p_language_proficiency_name,
+            last_log_by = p_last_log_by
+        WHERE employee_id = p_employee_id AND language_id = p_language_id;
+    END IF;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
 ============================================================================================= */
@@ -7485,6 +7531,25 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteEmployeeLanguage//
+
+CREATE PROCEDURE deleteEmployeeLanguage(
+    IN p_employee_language_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_language
+    WHERE employee_language_id = p_employee_language_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
@@ -7651,6 +7716,18 @@ BEGIN
 	SELECT employee_id, full_name
     FROM employee 
     ORDER BY full_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeLanguageList//
+
+CREATE PROCEDURE generateEmployeeLanguageList(
+    IN p_employee_id INT
+)
+BEGIN
+	SELECT employee_language_id, language_name, language_proficiency_name
+    FROM employee_language
+    WHERE employee_id = p_employee_id
+    ORDER BY language_name;
 END //
 
 /* =============================================================================================

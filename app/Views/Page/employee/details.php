@@ -184,7 +184,15 @@
                 </div>
             </div>
             
-            <div class="card-body pb-5" id="language_summary">--</div>
+            <div class="card-body pb-5" id="language_summary">
+                <div class="d-flex flex-stack">
+                    <div class="d-flex align-items-center flex-row-fluid flex-wrap mb-4">
+                        <div class="flex-grow-1 me-2">
+                             <div class="text-gray-800 fs-5 fw-bold">No language found</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1377,7 +1385,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employee_language_form" class="btn btn-primary" id="submit-employee-language">Save</button>
+                <button type="submit" form="employee_language_form" class="btn btn-primary" id="submit_employee_language">Save</button>
             </div>
         </div>
     </div>

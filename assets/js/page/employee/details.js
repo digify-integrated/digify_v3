@@ -110,14 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const roleList = async () => {
-        const transaction   = 'generate assigned employee role list';
+    const languageList = async () => {
+        const transaction   = 'generate employee language list';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const page_id       = document.getElementById('page-id')?.value || '';
 
         try {
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
             formData.append('employee_id', employee_id);
+            formData.append('page_id', page_id);
 
             const response = await fetch('./app/Controllers/EmployeeController.php', {
                 method: 'POST',
@@ -128,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            document.getElementById('role-list').innerHTML = data[0].ROLE_employee;
+            document.getElementById('language_summary').innerHTML = data[0].LANGUAGE_LIST;
 
         } catch (error) {
             handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLogNotesHandler('#log-notes-main', '#details-id', 'employee');
     initializeDatePicker('#birthday');
     initializeDatePicker('#on_board_date');
-    //roleList();
+    languageList();
     displayDetails();
 
     $('#personal_details_form').validate({
@@ -1558,11 +1560,134 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#employee_language_form').validate({
+        rules: {
+            language_id: { required: true },
+            language_proficiency_id: { required: true }
+        },
+        messages: {
+            language_id: { required: 'Choose the language' },
+            language_proficiency_id: { required: 'Choose the language proficiency' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee language';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_language');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    languageList();
+                    $('#employee_language_modal').modal('hide');
+                    enableButton('submit_employee_language');
+                    resetForm('employee_language_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_language');
+                }
+            } catch (error) {
+                enableButton('submit_employee_language');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
             const section           = event.target.closest('[data-toggle-section]');
             const toggle_section    = section.dataset.toggleSection;
             toggleSection(toggle_section);
+        }
+
+        if (event.target.closest('.delete-employee-language')){
+            const transaction           = 'delete employee language';
+            const button                = event.target.closest('.delete-employee-language');
+            const employee_language_id  = button.dataset.employeeLanguageId;
+
+            Swal.fire({
+                title: 'Confirm Employee Language Deletion',
+                text: 'Are you sure you want to delete this employee language?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_language_id', employee_language_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        languageList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
         }
     });
 

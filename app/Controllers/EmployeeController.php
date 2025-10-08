@@ -15,6 +15,8 @@ use App\Models\BloodType;
 use App\Models\Nationality;
 use App\Models\Gender;
 use App\Models\WorkLocation;
+use App\Models\Language;
+use App\Models\LanguageProficiency;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -35,6 +37,8 @@ class EmployeeController
     protected Nationality $nationality;
     protected Gender $gender;
     protected WorkLocation $workLocation;
+    protected Language $language;
+    protected LanguageProficiency $languageProficiency;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -52,26 +56,30 @@ class EmployeeController
         Nationality $nationality,
         Gender $gender,
         WorkLocation $workLocation,
+        Language $language,
+        LanguageProficiency $languageProficiency,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->employee         = $employee;
-        $this->company          = $company;
-        $this->department       = $department;
-        $this->jobPosition      = $jobPosition;
-        $this->city             = $city;
-        $this->civilStatus      = $civilStatus;
-        $this->religion         = $religion;
-        $this->bloodType        = $bloodType;
-        $this->nationality      = $nationality;
-        $this->gender           = $gender;
-        $this->workLocation     = $workLocation;
-        $this->authentication   = $authentication;
-        $this->uploadSetting    = $uploadSetting;
-        $this->security         = $security;
-        $this->systemHelper     = $systemHelper;
+        $this->employee                 = $employee;
+        $this->company                  = $company;
+        $this->department               = $department;
+        $this->jobPosition              = $jobPosition;
+        $this->city                     = $city;
+        $this->civilStatus              = $civilStatus;
+        $this->religion                 = $religion;
+        $this->bloodType                = $bloodType;
+        $this->nationality              = $nationality;
+        $this->gender                   = $gender;
+        $this->workLocation             = $workLocation;
+        $this->language                 = $language;
+        $this->languageProficiency      = $languageProficiency;
+        $this->authentication           = $authentication;
+        $this->uploadSetting            = $uploadSetting;
+        $this->security                 = $security;
+        $this->systemHelper             = $systemHelper;
     }
 
     public function handleRequest(): void
@@ -84,6 +92,7 @@ class EmployeeController
         }
 
         $transaction    = $_POST['transaction'] ?? null;
+        $pageId         = $_POST['page_id'] ?? null;
         $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
@@ -115,6 +124,7 @@ class EmployeeController
 
         match ($transaction) {
             'save employee'                         => $this->saveEmployee($lastLogBy),
+            'save employee language'                => $this->saveEmployeeLanguage($lastLogBy),
             'update employee personal details'      => $this->updateEmployeePersonalDetails($lastLogBy),
             'update employee pin code'              => $this->updateEmployeePINCode($lastLogBy),
             'update employee badge id'              => $this->updateEmployeeBadgeId($lastLogBy),
@@ -138,10 +148,12 @@ class EmployeeController
             'update employee image'                 => $this->updateEmployeeImage($lastLogBy),
             'delete employee'                       => $this->deleteEmployee(),
             'delete multiple employee'              => $this->deleteMultipleEmployee(),
+            'delete employee language'              => $this->deleteEmployeeLanguage(),
             'fetch employee details'                => $this->fetchEmployeeDetails(),
             'generate employee card'                => $this->generateEmployeeCard(),
             'generate employee table'               => $this->generateEmployeeTable(),
             'generate employee options'             => $this->generateEmployeeOptions(),
+            'generate employee language list'       => $this->generateEmployeeLanguageList($lastLogBy, $pageId),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -186,6 +198,34 @@ class EmployeeController
             'Save Employee Success',
             'The employee has been saved successfully.',
             ['employee_id' => $encryptedemployeeId]
+        );
+    }
+
+    public function saveEmployeeLanguage($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_language_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $languageId             = $_POST['language_id'] ?? null;
+        $languageProficiencyId  = $_POST['language_proficiency_id'] ?? null;
+
+        $languageDetails     = $this->language->fetchLanguage($languageId);
+        $languageName        = $languageDetails['language_name'] ?? null;
+
+        $languageProficiency        = $this->languageProficiency->fetchLanguageProficiency($languageProficiencyId);
+        $languageProficiencyname    = $languageProficiency['language_proficiency_name'] ?? null;
+
+        $this->employee->saveEmployeeLanguage( $employeeId, $languageId, $languageName, $languageProficiencyId, $languageProficiencyname, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Language Success',
+            'The employee language has been saved successfully.'
         );
     }
 
@@ -798,6 +838,17 @@ class EmployeeController
         );
     }
 
+    public function deleteEmployeeLanguage(){
+        $employeeLanguageId = $_POST['employee_language_id'] ?? null;
+
+        $this->employee->deleteEmployeeLanguage($employeeLanguageId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee Language Success',
+            'The employee language has been deleted successfully.'
+        );
+    }
+
     public function fetchEmployeeDetails(){
         $employeeId             = $_POST['employee_id'] ?? null;
         $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
@@ -999,6 +1050,63 @@ class EmployeeController
 
         echo json_encode($response);
     }
+
+    public function generateEmployeeLanguageList($lastLogBy, $pageId)
+    {
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $writeAccess    = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $list           = '';
+
+        $roles = $this->employee->generateEmployeeLanguageList($employeeId);
+
+        $lastRole = end($roles);
+        reset($roles);
+
+        foreach ($roles as $row) {
+            $employeeLanguageId         = $row['employee_language_id'];
+            $languageName               = $row['language_name'];
+            $languageProficiencyName    = $row['language_proficiency_name'];
+
+            $deleteButton = '';
+            if($writeAccess > 0){
+                $deleteButton = '<button type="button" class="btn btn-icon btn-active-light-primary ms-auto delete-employee-language" data-employee-language-id="' . $employeeLanguageId . '">
+                                        <i class="ki-outline ki-trash fs-3"></i>
+                                    </button>';
+            }
+
+            $list .= '<div class="d-flex flex-stack">
+                                    <div class="d-flex flex-column">
+                                        <span class="fs-6">'. $languageName .'</span>
+                                        <span class="text-muted">'. $languageProficiencyName .'</span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end align-items-center">
+                                        '. $deleteButton .'
+                                    </div>
+                                </div>';
+
+            if ($row !== $lastRole) {
+                $list .= '<div class="separator separator-dashed my-5"></div>';
+            }
+        }
+
+       if(empty($list)){
+            $list = '<div class="d-flex flex-stack">
+                            <div class="d-flex align-items-center flex-row-fluid flex-wrap mb-4">
+                                <div class="flex-grow-1 me-2">
+                                    <div class="text-gray-800 fs-5 fw-bold">No language found</div>
+                                </div>
+                            </div>
+                        </div>';
+        }
+
+        $response[] = [
+            'LANGUAGE_LIST' => $list
+        ];
+
+
+        echo json_encode($response);
+    }
 }
 
 # Bootstrap the controller
@@ -1014,6 +1122,8 @@ $controller = new EmployeeController(
     new Nationality(),
     new Gender(),
      new WorkLocation(),
+     new Language(),
+     new LanguageProficiency(),
     new Authentication(),
     new UploadSetting(),
     new Security(),
