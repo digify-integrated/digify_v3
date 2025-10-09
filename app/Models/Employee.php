@@ -448,6 +448,48 @@ class Employee extends Model {
         ]);
     }
 
+    public function updateEmployeeEmploymentType(
+        $p_employee_id,
+        $p_employment_type_id,
+        $p_employment_type_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeEmploymentType(
+            :p_employee_id,
+            :p_employment_type_id,
+            :p_employment_type_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'             => $p_employee_id,
+            'p_employment_type_id'      => $p_employment_type_id,
+            'p_employment_type_name'    => $p_employment_type_name,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeEmploymentLocationType(
+        $p_employee_id,
+        $p_employment_location_type_id,
+        $p_employment_location_type_name,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeEmploymentLocationType(
+            :p_employee_id,
+            :p_employment_location_type_id,
+            :p_employment_location_type_name,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'                     => $p_employee_id,
+            'p_employment_location_type_id'     => $p_employment_location_type_id,
+            'p_employment_location_type_name'   => $p_employment_location_type_name,
+            'p_last_log_by'                     => $p_last_log_by
+        ]);
+    }
+
     public function updateEmployeeWorkLocation(
         $p_employee_id,
         $p_work_location_id,

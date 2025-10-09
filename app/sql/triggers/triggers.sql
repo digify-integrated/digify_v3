@@ -2155,8 +2155,9 @@ END //
    SECTION 1: UPDATE TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS employee_trigger_update//
-CREATE TRIGGER employee_trigger_update
+DROP TRIGGER IF EXISTS trg_employee_update//
+
+CREATE TRIGGER trg_employee_update
 AFTER UPDATE ON employee
 FOR EACH ROW
 BEGIN
@@ -2296,6 +2297,10 @@ BEGIN
 
     IF NEW.employment_type_name <> OLD.employment_type_name THEN
         SET audit_log = CONCAT(audit_log, "Employment Type: ", OLD.employment_type_name, " -> ", NEW.employment_type_name, "<br/>");
+    END IF;
+
+    IF NEW.employment_location_type_name <> OLD.employment_location_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employment Location Type: ", OLD.employment_location_type_name, " -> ", NEW.employment_location_type_name, "<br/>");
     END IF;
 
     IF NEW.badge_id <> OLD.badge_id THEN

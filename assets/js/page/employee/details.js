@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#job_position_summary').text(data.jobPositionName || '--');
                 $('#manager_summary').text(data.managerName || '--');
                 $('#time_off_approver_summary').text(data.timeOffApproverName || '--');
+                $('#employment_type_summary').text(data.employmentTypeName || '--');
+                $('#employment_location_type_summary').text(data.employmentLocationTypeName || '--');
                 $('#work_location_summary').text(data.workLocationName || '--');
                 $('#on_board_date_summary').text(data.onBoardDate || '--');
                 $('#work_email_summary').text(data.workEmail || '--');
@@ -95,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
         { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
         { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
+        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_id', transaction: 'generate employment type options' },
+        { url: './app/Controllers/EmploymentLocationTypeController.php', selector: '#employment_location_type_id', transaction: 'generate employment location type options' },
         { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_id', transaction: 'generate work location options' },
         { url: './app/Controllers/LanguageController.php', selector: '#language_id', transaction: 'generate language options' },
         { url: './app/Controllers/LanguageProficiencyController.php', selector: '#language_proficiency_id', transaction: 'generate language proficiency options' },
@@ -1208,6 +1212,144 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 enableButton('update_time_off_approver_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_employment_type_form').validate({
+        rules: {
+            employment_type_id: { required: true }
+        },
+        messages: {
+            employment_type_id: { required: 'Choose the employment type' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee employment type';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_employment_type_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_employment_type');
+                    displayDetails();
+                    enableButton('update_employment_type_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_employment_type_submit');
+                }
+            } catch (error) {
+                enableButton('update_employment_type_submit');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#update_employment_location_type_form').validate({
+        rules: {
+            employment_location_type_id: { required: true }
+        },
+        messages: {
+            employment_location_type_id: { required: 'Choose the employment location type' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee employment location type';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('update_employment_location_type_submit');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    toggleSection('change_employment_location_type');
+                    displayDetails();
+                    enableButton('update_employment_location_type_submit');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_employment_location_type_submit');
+                }
+            } catch (error) {
+                enableButton('update_employment_location_type_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 

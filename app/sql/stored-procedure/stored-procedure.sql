@@ -506,46 +506,46 @@ BEGIN
     CASE p_update_type
         WHEN 'email' THEN
             UPDATE user_account
-            SET email = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET email               = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         WHEN 'phone' THEN
             UPDATE user_account
-            SET phone = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET phone               = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         WHEN 'password' THEN
             UPDATE user_account
-            SET password = p_value,
-                last_password_change = NOW(),
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET password                = p_value,
+                last_password_change    = NOW(),
+                last_log_by             = p_last_log_by
+            WHERE user_account_id       = p_user_account_id;
 
         WHEN 'profile picture' THEN
             UPDATE user_account
-            SET profile_picture = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET profile_picture     = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         WHEN 'two factor auth' THEN
             UPDATE user_account
-            SET two_factor_auth = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET two_factor_auth     = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         WHEN 'multiple session' THEN
             UPDATE user_account
-            SET multiple_session = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET multiple_session    = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         WHEN 'status' THEN
             UPDATE user_account
-            SET active = p_value,
-                last_log_by = p_last_log_by
-            WHERE user_account_id = p_user_account_id;
+            SET active              = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
 
         ELSE
             UPDATE role_user_account
@@ -776,10 +776,10 @@ BEGIN
 
     ELSE
         UPDATE notification_setting_system_template
-        SET system_notification_title   = p_system_notification_title,
-            system_notification_message = p_system_notification_message,
-            last_log_by                 = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET system_notification_title       = p_system_notification_title,
+            system_notification_message     = p_system_notification_message,
+            last_log_by                     = p_last_log_by
+        WHERE notification_setting_id       = p_notification_setting_id;
     END IF;
 
     COMMIT;
@@ -857,9 +857,9 @@ BEGIN
 
     ELSE
         UPDATE notification_setting_sms_template
-        SET sms_notification_message = p_sms_notification_message,
-            last_log_by              = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET sms_notification_message    = p_sms_notification_message,
+            last_log_by                 = p_last_log_by
+        WHERE notification_setting_id   = p_notification_setting_id;
     END IF;
 
     COMMIT;
@@ -1125,9 +1125,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE app_module
-    SET app_logo        = p_app_logo,
-        last_log_by     = p_last_log_by
-    WHERE app_module_id = p_app_module_id;
+    SET app_logo            = p_app_logo,
+        last_log_by         = p_last_log_by
+    WHERE app_module_id     = p_app_module_id;
 
     COMMIT;
 END //
@@ -1413,15 +1413,15 @@ BEGIN
 
     UPDATE role_permission
     SET 
-        read_access      = CASE WHEN p_access_type = 'read'      THEN p_access ELSE read_access END,
-        write_access     = CASE WHEN p_access_type = 'write'     THEN p_access ELSE write_access END,
-        create_access    = CASE WHEN p_access_type = 'create'    THEN p_access ELSE create_access END,
-        delete_access    = CASE WHEN p_access_type = 'delete'    THEN p_access ELSE delete_access END,
-        import_access    = CASE WHEN p_access_type = 'import'    THEN p_access ELSE import_access END,
-        export_access    = CASE WHEN p_access_type = 'export'    THEN p_access ELSE export_access END,
-        log_notes_access = CASE WHEN p_access_type = 'log notes' THEN p_access ELSE log_notes_access END,
-        last_log_by      = p_last_log_by
-    WHERE role_permission_id = p_role_permission_id;
+        read_access             = CASE WHEN p_access_type = 'read'      THEN p_access ELSE read_access END,
+        write_access            = CASE WHEN p_access_type = 'write'     THEN p_access ELSE write_access END,
+        create_access           = CASE WHEN p_access_type = 'create'    THEN p_access ELSE create_access END,
+        delete_access           = CASE WHEN p_access_type = 'delete'    THEN p_access ELSE delete_access END,
+        import_access           = CASE WHEN p_access_type = 'import'    THEN p_access ELSE import_access END,
+        export_access           = CASE WHEN p_access_type = 'export'    THEN p_access ELSE export_access END,
+        log_notes_access        = CASE WHEN p_access_type = 'log notes' THEN p_access ELSE log_notes_access END,
+        last_log_by             = p_last_log_by
+    WHERE role_permission_id    = p_role_permission_id;
 
     COMMIT;
 END //
@@ -3003,31 +3003,36 @@ BEGIN
         SET v_new_country_id = LAST_INSERT_ID();
     ELSE
         UPDATE state
-        SET country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE country_id = p_country_id;
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
 
         UPDATE city
-        SET country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE country_id = p_country_id;
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
 
         UPDATE company
-        SET country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE country_id = p_country_id;
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
 
         UPDATE work_location
-        SET country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE country_id = p_country_id;
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
+
+        UPDATE employee
+        SET private_address_country_name    = p_country_name,
+            last_log_by                     = p_last_log_by
+        WHERE country_id                    = p_country_id;
         
         UPDATE country
-        SET country_name = p_country_name,
-            country_code = p_country_code,
-            phone_code = p_phone_code,
-            last_log_by = p_last_log_by
-        WHERE country_id = p_country_id;
+        SET country_name    = p_country_name,
+            country_code    = p_country_code,
+            phone_code      = p_phone_code,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
 
          SET v_new_country_id = p_country_id;
     END IF;
@@ -3177,26 +3182,31 @@ BEGIN
        SET v_new_state_id = LAST_INSERT_ID();
     ELSE
         UPDATE city
-        SET state_name = p_state_name,
-            last_log_by = p_last_log_by
-        WHERE state_id = p_state_id;
+        SET state_name      = p_state_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
 
         UPDATE company
-        SET state_name = p_state_name,
-            last_log_by = p_last_log_by
-        WHERE state_id = p_state_id;
+        SET state_name      = p_state_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
 
         UPDATE work_location
-        SET state_name = p_state_name,
-            last_log_by = p_last_log_by
-        WHERE state_id = p_state_id;
+        SET state_name      = p_state_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
+
+        UPDATE employee
+        SET private_address_state_name  = p_state_name,
+            last_log_by                 = p_last_log_by
+        WHERE state_id                  = p_state_id;
         
         UPDATE state
-        SET state_name = p_state_name,
-            country_id = p_country_id,
-            country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE state_id = p_state_id;
+        SET state_name      = p_state_name,
+            country_id      = p_country_id,
+            country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
 
         SET v_new_state_id = p_state_id;
     END IF;
@@ -3363,24 +3373,29 @@ BEGIN
         SET v_new_city_id = LAST_INSERT_ID();
     ELSE
         UPDATE work_location
-        SET city_name = p_city_name,
-            last_log_by = p_last_log_by
-        WHERE city_id = p_city_id;
+        SET city_name       = p_city_name,
+            last_log_by     = p_last_log_by
+        WHERE city_id       = p_city_id;
 
         UPDATE company
-        SET city_name = p_city_name,
-            last_log_by = p_last_log_by
-        WHERE city_id = p_city_id;
+        SET city_name       = p_city_name,
+            last_log_by     = p_last_log_by
+        WHERE city_id       = p_city_id;
+
+        UPDATE employee
+        SET private_address_city_name   = p_city_name,
+            last_log_by                 = p_last_log_by
+        WHERE city_id                   = p_city_id;
 
         UPDATE city
-        SET city_name = p_city_name,
-            state_id = p_state_id,
-            state_name = p_state_name,
-            country_name = p_country_name,
-            country_id = p_country_id,
-            country_name = p_country_name,
-            last_log_by = p_last_log_by
-        WHERE city_id = p_city_id;
+        SET city_name       = p_city_name,
+            state_id        = p_state_id,
+            state_name      = p_state_name,
+            country_name    = p_country_name,
+            country_id      = p_country_id,
+            country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE city_id       = p_city_id;
 
         SET v_new_city_id = p_city_id;
     END IF;
@@ -3548,12 +3563,17 @@ BEGIN
         
         SET v_new_currency_id = LAST_INSERT_ID();
     ELSE        
+        UPDATE company
+        SET currency_name   = p_currency_name,
+            last_log_by     = p_last_log_by
+        WHERE currency_id   = p_currency_id;
+
         UPDATE currency
-        SET currency_name = p_currency_name,
-            symbol = p_symbol,
-            shorthand = p_shorthand,
-            last_log_by = p_last_log_by
-        WHERE currency_id = p_currency_id;
+        SET currency_name   = p_currency_name,
+            symbol          = p_symbol,
+            shorthand       = p_shorthand,
+            last_log_by     = p_last_log_by
+        WHERE currency_id   = p_currency_id;
 
         SET v_new_currency_id = p_currency_id;
     END IF;
@@ -3687,11 +3707,16 @@ BEGIN
         );
         
         SET v_new_nationality_id = LAST_INSERT_ID();
-    ELSE
+    ELSE        
+        UPDATE employee
+        SET nationality_name    = p_nationality_name,
+            last_log_by         = p_last_log_by
+        WHERE nationality_id    = p_nationality_id;
+
         UPDATE nationality
-        SET nationality_name = p_nationality_name,
-            last_log_by = p_last_log_by
-        WHERE nationality_id = p_nationality_id;
+        SET nationality_name    = p_nationality_name,
+            last_log_by         = p_last_log_by
+        WHERE nationality_id    = p_nationality_id;
 
         SET v_new_nationality_id = p_nationality_id;
     END IF;
@@ -3867,24 +3892,29 @@ BEGIN
         
         SET v_new_company_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET company_name    = p_company_name,
+            last_log_by     = p_last_log_by
+        WHERE company_id    = p_company_id;
+        
         UPDATE company
-        SET company_name = p_company_name,
-            address = p_address,
-            city_id = p_city_id,
-            city_name = p_city_name,
-            state_id = p_state_id,
-            state_name = p_state_name,
-            country_id = p_country_id,
-            country_name = p_country_name,
-            tax_id = p_tax_id,
-            currency_id = p_currency_id,
-            currency_name = p_currency_name,
-            phone = p_phone,
-            telephone = p_telephone,
-            email = p_email,
-            website = p_website,
-            last_log_by = p_last_log_by
-        WHERE company_id = p_company_id;
+        SET company_name    = p_company_name,
+            address         = p_address,
+            city_id         = p_city_id,
+            city_name       = p_city_name,
+            state_id        = p_state_id,
+            state_name      = p_state_name,
+            country_id      = p_country_id,
+            country_name    = p_country_name,
+            tax_id          = p_tax_id,
+            currency_id     = p_currency_id,
+            currency_name   = p_currency_name,
+            phone           = p_phone,
+            telephone       = p_telephone,
+            email           = p_email,
+            website         = p_website,
+            last_log_by     = p_last_log_by
+        WHERE company_id    = p_company_id;
 
         SET v_new_company_id = p_company_id;
     END IF;
@@ -3918,9 +3948,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE company
-    SET company_logo = p_company_logo,
-        last_log_by = p_last_log_by
-    WHERE company_id = p_company_id;
+    SET company_logo    = p_company_logo,
+        last_log_by     = p_last_log_by
+    WHERE company_id    = p_company_id;
 
     COMMIT;
 END //
@@ -4087,10 +4117,15 @@ BEGIN
         
         SET v_new_blood_type_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET blood_type_name     = p_blood_type_name,
+            last_log_by         = p_last_log_by
+        WHERE blood_type_id     = p_blood_type_id;
+
         UPDATE blood_type
-        SET blood_type_name = p_blood_type_name,
-            last_log_by = p_last_log_by
-        WHERE blood_type_id = p_blood_type_id;
+        SET blood_type_name     = p_blood_type_name,
+            last_log_by         = p_last_log_by
+        WHERE blood_type_id     = p_blood_type_id;
 
         SET v_new_blood_type_id = p_blood_type_id;
     END IF;
@@ -4226,9 +4261,14 @@ BEGIN
         SET v_new_civil_status_id = LAST_INSERT_ID();
     ELSE
         UPDATE civil_status
-        SET civil_status_name = p_civil_status_name,
-            last_log_by = p_last_log_by
-        WHERE civil_status_id = p_civil_status_id;
+        SET civil_status_name   = p_civil_status_name,
+            last_log_by         = p_last_log_by
+        WHERE civil_status_id   = p_civil_status_id;
+
+        UPDATE employee
+        SET civil_status_name   = p_civil_status_name,
+            last_log_by         = p_last_log_by
+        WHERE civil_status_id   = p_civil_status_id;
 
         SET v_new_civil_status_id = p_civil_status_id;
     END IF;
@@ -4364,9 +4404,9 @@ BEGIN
         SET v_new_credential_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE credential_type
-        SET credential_type_name = p_credential_type_name,
-            last_log_by = p_last_log_by
-        WHERE credential_type_id = p_credential_type_id;
+        SET credential_type_name    = p_credential_type_name,
+            last_log_by             = p_last_log_by
+        WHERE credential_type_id    = p_credential_type_id;
 
         SET v_new_credential_type_id = p_credential_type_id;
     END IF;
@@ -4502,9 +4542,9 @@ BEGIN
         SET v_new_educational_stage_id = LAST_INSERT_ID();
     ELSE
         UPDATE educational_stage
-        SET educational_stage_name = p_educational_stage_name,
-            last_log_by = p_last_log_by
-        WHERE educational_stage_id = p_educational_stage_id;
+        SET educational_stage_name  = p_educational_stage_name,
+            last_log_by             = p_last_log_by
+        WHERE educational_stage_id  = p_educational_stage_id;
 
         SET v_new_educational_stage_id = p_educational_stage_id;
     END IF;
@@ -4639,10 +4679,15 @@ BEGIN
         
         SET v_new_gender_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET gender_name     = p_gender_name,
+            last_log_by     = p_last_log_by
+        WHERE gender_id     = p_gender_id;
+
         UPDATE gender
-        SET gender_name = p_gender_name,
-            last_log_by = p_last_log_by
-        WHERE gender_id = p_gender_id;
+        SET gender_name     = p_gender_name,
+            last_log_by     = p_last_log_by
+        WHERE gender_id     = p_gender_id;
 
         SET v_new_gender_id = p_gender_id;
     END IF;
@@ -4778,9 +4823,9 @@ BEGIN
         SET v_new_relationship_id = LAST_INSERT_ID();
     ELSE
         UPDATE relationship
-        SET relationship_name = p_relationship_name,
-            last_log_by = p_last_log_by
-        WHERE relationship_id = p_relationship_id;
+        SET relationship_name   = p_relationship_name,
+            last_log_by         = p_last_log_by
+        WHERE relationship_id   = p_relationship_id;
 
         SET v_new_relationship_id = p_relationship_id;
     END IF;
@@ -4915,10 +4960,15 @@ BEGIN
         
         SET v_new_religion_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET religion_name   = p_religion_name,
+            last_log_by     = p_last_log_by
+        WHERE religion_id   = p_religion_id;
+
         UPDATE religion
-        SET religion_name = p_religion_name,
-            last_log_by = p_last_log_by
-        WHERE religion_id = p_religion_id;
+        SET religion_name   = p_religion_name,
+            last_log_by     = p_last_log_by
+        WHERE religion_id   = p_religion_id;
 
         SET v_new_religion_id = p_religion_id;
     END IF;
@@ -5053,10 +5103,15 @@ BEGIN
         
         SET v_new_language_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee_language
+        SET language_name   = p_language_name,
+            last_log_by     = p_last_log_by
+        WHERE language_id   = p_language_id;
+
         UPDATE language
-        SET language_name = p_language_name,
-            last_log_by = p_last_log_by
-        WHERE language_id = p_language_id;
+        SET language_name   = p_language_name,
+            last_log_by     = p_last_log_by
+        WHERE language_id   = p_language_id;
 
         SET v_new_language_id = p_language_id;
     END IF;
@@ -5206,11 +5261,16 @@ BEGIN
         
         SET v_new_language_proficiency_id = LAST_INSERT_ID();
     ELSE        
+        UPDATE employee_language
+        SET language_proficiency_name           = p_language_proficiency_name,
+            last_log_by                         = p_last_log_by
+        WHERE language_proficiency_id           = p_language_proficiency_id;
+
         UPDATE language_proficiency
-        SET language_proficiency_name = p_language_proficiency_name,
-            language_proficiency_description = p_language_proficiency_description,
-            last_log_by = p_last_log_by
-        WHERE language_proficiency_id = p_language_proficiency_id;
+        SET language_proficiency_name           = p_language_proficiency_name,
+            language_proficiency_description    = p_language_proficiency_description,
+            last_log_by                         = p_last_log_by
+        WHERE language_proficiency_id           = p_language_proficiency_id;
 
         SET v_new_language_proficiency_id = p_language_proficiency_id;
     END IF;
@@ -5346,9 +5406,9 @@ BEGIN
         SET v_new_address_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE address_type
-        SET address_type_name = p_address_type_name,
-            last_log_by = p_last_log_by
-        WHERE address_type_id = p_address_type_id;
+        SET address_type_name   = p_address_type_name,
+            last_log_by         = p_last_log_by
+        WHERE address_type_id   = p_address_type_id;
 
         SET v_new_address_type_id = p_address_type_id;
     END IF;
@@ -5484,9 +5544,9 @@ BEGIN
         SET v_new_contact_information_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE contact_information_type
-        SET contact_information_type_name = p_contact_information_type_name,
-            last_log_by = p_last_log_by
-        WHERE contact_information_type_id = p_contact_information_type_id;
+        SET contact_information_type_name   = p_contact_information_type_name,
+            last_log_by                     = p_last_log_by
+        WHERE contact_information_type_id   = p_contact_information_type_id;
 
         SET v_new_contact_information_type_id = p_contact_information_type_id;
     END IF;
@@ -5625,10 +5685,10 @@ BEGIN
         SET v_new_bank_id = LAST_INSERT_ID();
     ELSE        
         UPDATE bank
-        SET bank_name = p_bank_name,
-            bank_identifier_code = p_bank_identifier_code,
-            last_log_by = p_last_log_by
-        WHERE bank_id = p_bank_id;
+        SET bank_name               = p_bank_name,
+            bank_identifier_code    = p_bank_identifier_code,
+            last_log_by             = p_last_log_by
+        WHERE bank_id               = p_bank_id;
 
         SET v_new_bank_id = p_bank_id;
     END IF;
@@ -5762,9 +5822,9 @@ BEGIN
         SET v_new_bank_account_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE bank_account_type
-        SET bank_account_type_name = p_bank_account_type_name,
-            last_log_by = p_last_log_by
-        WHERE bank_account_type_id = p_bank_account_type_id;
+        SET bank_account_type_name  = p_bank_account_type_name,
+            last_log_by             = p_last_log_by
+        WHERE bank_account_type_id  = p_bank_account_type_id;
 
         SET v_new_bank_account_type_id = p_bank_account_type_id;
     END IF;
@@ -5911,14 +5971,19 @@ BEGIN
         
         SET v_new_department_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET department_name     = p_department_name,
+            last_log_by         = p_last_log_by
+        WHERE department_id     = p_department_id;
+
         UPDATE department
-        SET department_name = p_department_name,
-            parent_department_id = p_parent_department_id,
-            parent_department_name = p_parent_department_name,
-            manager_id = p_manager_id,
-            manager_name = p_manager_name,
-            last_log_by = p_last_log_by
-        WHERE department_id = p_department_id;
+        SET department_name         = p_department_name,
+            parent_department_id    = p_parent_department_id,
+            parent_department_name  = p_parent_department_name,
+            manager_id              = p_manager_id,
+            manager_name            = p_manager_name,
+            last_log_by             = p_last_log_by
+        WHERE department_id         = p_department_id;
 
         SET v_new_department_id = p_department_id;
     END IF;
@@ -6094,10 +6159,15 @@ BEGIN
         
         SET v_new_departure_reason_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET departure_reason_name   = p_departure_reason_name,
+            last_log_by             = p_last_log_by
+        WHERE departure_reason_id   = p_departure_reason_id;
+        
         UPDATE departure_reason
-        SET departure_reason_name = p_departure_reason_name,
-            last_log_by = p_last_log_by
-        WHERE departure_reason_id = p_departure_reason_id;
+        SET departure_reason_name   = p_departure_reason_name,
+            last_log_by             = p_last_log_by
+        WHERE departure_reason_id   = p_departure_reason_id;
 
         SET v_new_departure_reason_id = p_departure_reason_id;
     END IF;
@@ -6233,10 +6303,15 @@ BEGIN
         
         SET v_new_employment_location_type_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET employment_location_type_name   = p_employment_location_type_name,
+            last_log_by                     = p_last_log_by
+        WHERE employment_location_type_id   = p_employment_location_type_id;
+
         UPDATE employment_location_type
-        SET employment_location_type_name = p_employment_location_type_name,
-            last_log_by = p_last_log_by
-        WHERE employment_location_type_id = p_employment_location_type_id;
+        SET employment_location_type_name   = p_employment_location_type_name,
+            last_log_by                     = p_last_log_by
+        WHERE employment_location_type_id   = p_employment_location_type_id;
 
         SET v_new_employment_location_type_id = p_employment_location_type_id;
     END IF;
@@ -6372,10 +6447,15 @@ BEGIN
         
         SET v_new_employment_type_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET employment_type_name    = p_employment_type_name,
+            last_log_by             = p_last_log_by
+        WHERE employment_type_id    = p_employment_type_id;
+
         UPDATE employment_type
-        SET employment_type_name = p_employment_type_name,
-            last_log_by = p_last_log_by
-        WHERE employment_type_id = p_employment_type_id;
+        SET employment_type_name    = p_employment_type_name,
+            last_log_by             = p_last_log_by
+        WHERE employment_type_id    = p_employment_type_id;
 
         SET v_new_employment_type_id = p_employment_type_id;
     END IF;
@@ -6510,10 +6590,15 @@ BEGIN
         
         SET v_new_job_position_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET job_position_name   = p_job_position_name,
+            last_log_by         = p_last_log_by
+        WHERE job_position_id   = p_job_position_id;
+
         UPDATE job_position
-        SET job_position_name = p_job_position_name,
-            last_log_by = p_last_log_by
-        WHERE job_position_id = p_job_position_id;
+        SET job_position_name   = p_job_position_name,
+            last_log_by         = p_last_log_by
+        WHERE job_position_id   = p_job_position_id;
 
         SET v_new_job_position_id = p_job_position_id;
     END IF;
@@ -6678,20 +6763,25 @@ BEGIN
         
         SET v_new_work_location_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee
+        SET work_location_name  = p_work_location_name,
+            last_log_by         = p_last_log_by
+        WHERE work_location_id  = p_work_location_id;
+
         UPDATE work_location
-        SET work_location_name = p_work_location_name,
-            address = p_address,
-            city_id = p_city_id,
-            city_name = p_city_name,
-            state_id = p_state_id,
-            state_name = p_state_name,
-            country_id = p_country_id,
-            country_name = p_country_name,
-            phone = p_phone,
-            telephone = p_telephone,
-            email = p_email,
-            last_log_by = p_last_log_by
-        WHERE work_location_id = p_work_location_id;
+        SET work_location_name  = p_work_location_name,
+            address             = p_address,
+            city_id             = p_city_id,
+            city_name           = p_city_name,
+            state_id            = p_state_id,
+            state_name          = p_state_name,
+            country_id          = p_country_id,
+            country_name        = p_country_name,
+            phone               = p_phone,
+            telephone           = p_telephone,
+            email               = p_email,
+            last_log_by         = p_last_log_by
+        WHERE work_location_id  = p_work_location_id;
 
         SET v_new_work_location_id = p_work_location_id;
     END IF;
@@ -6871,10 +6961,10 @@ BEGIN
         );
     ELSE
         UPDATE employee_language
-        SET language_proficiency_id = p_language_proficiency_id,
-            language_proficiency_name = p_language_proficiency_name,
-            last_log_by = p_last_log_by
-        WHERE employee_id = p_employee_id AND language_id = p_language_id;
+        SET language_proficiency_id     = p_language_proficiency_id,
+            language_proficiency_name   = p_language_proficiency_name,
+            last_log_by                 = p_last_log_by
+        WHERE employee_id               = p_employee_id AND language_id = p_language_id;
     END IF;
 
     COMMIT;
@@ -6986,6 +7076,16 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    UPDATE employee
+    SET manager_name    = p_full_name,
+        last_log_by     = p_last_log_by
+    WHERE manager_id    = p_employee_id;
+
+    UPDATE employee
+    SET time_off_approver_name  = p_full_name,
+        last_log_by             = p_last_log_by
+    WHERE time_off_approver_id  = p_employee_id;
 
     UPDATE employee
     SET full_name                       = p_full_name,
@@ -7349,6 +7449,56 @@ BEGIN
         time_off_approver_name  = p_time_off_approver_name,
         last_log_by             = p_last_log_by
     WHERE employee_id           = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeEmploymentType//
+
+CREATE PROCEDURE updateEmployeeEmploymentType(
+    IN p_employee_id INT,
+    IN p_employment_type_id INT,
+    IN p_employment_type_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET employment_type_id      = p_employment_type_id,
+        employment_type_name    = p_employment_type_name,
+        last_log_by             = p_last_log_by
+    WHERE employee_id           = p_employee_id;
+
+     COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeEmploymentLocationType//
+
+CREATE PROCEDURE updateEmployeeEmploymentLocationType(
+    IN p_employee_id INT,
+    IN p_employment_location_type_id INT,
+    IN p_employment_location_type_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET employment_location_type_id     = p_employment_location_type_id,
+        employment_location_type_name   = p_employment_location_type_name,
+        last_log_by                     = p_last_log_by
+    WHERE employee_id                   = p_employee_id;
 
     COMMIT;
 END //

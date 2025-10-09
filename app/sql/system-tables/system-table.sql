@@ -7945,6 +7945,8 @@ CREATE TABLE employee (
   work_location_name VARCHAR(100),
   employment_type_id INT UNSIGNED,
   employment_type_name VARCHAR(100),
+  employment_location_type_id INT UNSIGNED,
+  employment_location_type_name VARCHAR(100),
   pin_code VARCHAR(255),
   badge_id VARCHAR(100),
   on_board_date DATE,

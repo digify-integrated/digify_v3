@@ -615,10 +615,39 @@
                         <div class="card-title">
                             <h3>Educational Background</h3>
                         </div>
+
+                        <div class="card-toolbar">
+                            <?php
+                                echo ($permissions['write'] > 0) ? '<button type="button" class="btn btn-light-primary btn-sm" id="add-language" data-bs-toggle="modal" data-bs-target="#employee_education_modal">
+                                                                        Add Educational Background
+                                                                    </button>' : '';
+                            ?>
+                        </div>
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6" id="educational_background_summary"></div>
+                        <div class="row gx-9 gy-6" id="educational_background_summary"><div class="col-xl-12">
+                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                                    <div class="d-flex flex-column py-2">
+                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                           CIC
+                                        </div>
+                                        BSIT
+                                        <div class="fs-6 fw-semibold text-gray-600">2023 - 2024</div>
+                                        N/A
+                                        N/A
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center py-2">
+                                       <button class="btn btn-sm btn-light btn-active-light-primary me-3" data-employee-education-id="' . $employeeEducationID . '">
+                                            <span class="indicator-label"> Delete</span>
+                                        </button>
+                                        <button class="btn btn-sm btn-light btn-active-light-primary" data-bs-toggle="modal" data-bs-target="#employee_education_modal" data-employee-education-id="' . $employeeEducationID . '">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div></div>
                     </div>
                 </div>
 
@@ -907,6 +936,78 @@
 
                             <?php
                                 echo ($permissions['write'] > 0) ? '<div id="change_time_off_approver_button" class="ms-auto" data-toggle-section="change_time_off_approver">
+                                                                        <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
+                                                                    </div>' : '';
+                            ?>
+                        </div>
+
+                        <div class="separator separator-dashed my-6"></div>
+
+                        <div class="d-flex flex-wrap align-items-center">
+                            <div id="change_employment_type">
+                                <div class="fs-6 fw-bold mb-1">Employment Type</div>
+                                <div class="fw-semibold text-gray-600" id="employment_type_summary">--</div>
+                            </div>
+                                                
+                            <div id="change_employment_type_edit" class="flex-row-fluid d-none">
+                                <form id="update_employment_type_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_employment_type_form'); ?>
+                                    <div class="row mb-6">
+                                        <div class="col-lg-12 mb-4 mb-lg-0">
+                                            <div class="fv-row mb-0 fv-plugins-icon-container">
+                                                <label for="employment_type_id" class="form-label fs-6 fw-bold mb-3">Choose New Employment Type</label>
+                                                <select id="employment_type_id" name="employment_type_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                                
+                                    <?php 
+                                        echo ($permissions['write'] > 0) ? '<div class="d-flex">
+                                                                                <button id="update_employment_type_submit" form="update_employment_type_form" type="submit" class="btn btn-primary me-2 px-6">Update Employment Type</button>
+                                                                                <button id="update_employment_type_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_employment_type">Cancel</button>
+                                                                            </div>' : '';
+                                    ?>
+                                </form>
+                            </div>
+
+                            <?php
+                                echo ($permissions['write'] > 0) ? '<div id="change_employment_type_button" class="ms-auto" data-toggle-section="change_employment_type">
+                                                                        <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
+                                                                    </div>' : '';
+                            ?>
+                        </div>
+
+                        <div class="separator separator-dashed my-6"></div>
+
+                        <div class="d-flex flex-wrap align-items-center">
+                            <div id="change_employment_location_type">
+                                <div class="fs-6 fw-bold mb-1">Employment Location Type</div>
+                                <div class="fw-semibold text-gray-600" id="employment_location_type_summary">--</div>
+                            </div>
+                                                
+                            <div id="change_employment_location_type_edit" class="flex-row-fluid d-none">
+                                <form id="update_employment_location_type_form" method="post" action="#">
+                                    <?= $security->csrfInput('update_employment_location_type_form'); ?>
+                                    <div class="row mb-6">
+                                        <div class="col-lg-12 mb-4 mb-lg-0">
+                                            <div class="fv-row mb-0 fv-plugins-icon-container">
+                                                <label for="employment_location_type_id" class="form-label fs-6 fw-bold mb-3">Choose New Employment Location Type</label>
+                                                <select id="employment_location_type_id" name="employment_location_type_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                                
+                                    <?php
+                                        echo ($permissions['write'] > 0) ? '<div class="d-flex">
+                                                                                <button id="update_employment_location_type_submit" form="update_employment_location_type_form" type="submit" class="btn btn-primary me-2 px-6">Update Employment Location Type</button>
+                                                                                <button id="update_employment_location_type_cancel" type="button" class="btn btn-color-gray-500 btn-active-light-primary  px-6" data-toggle-section="change_employment_location_type">Cancel</button>
+                                                                            </div>' : '';
+                                    ?>
+                                </form>
+                            </div>
+
+                            <?php
+                                echo ($permissions['write'] > 0) ? '<div id="change_employment_location_type_button" class="ms-auto" data-toggle-section="change_employment_location_type">
                                                                         <button class="btn btn-icon btn-light btn-active-light-primary"><i class="ki-outline ki-pencil fs-3"></i></button>
                                                                     </div>' : '';
                             ?>

@@ -14,6 +14,8 @@ use App\Models\Religion;
 use App\Models\BloodType;
 use App\Models\Nationality;
 use App\Models\Gender;
+use App\Models\EmploymentType;
+use App\Models\EmploymentLocationType;
 use App\Models\WorkLocation;
 use App\Models\Language;
 use App\Models\LanguageProficiency;
@@ -36,6 +38,8 @@ class EmployeeController
     protected BloodType $bloodType;
     protected Nationality $nationality;
     protected Gender $gender;
+    protected EmploymentType $employmentType;
+    protected EmploymentLocationType $employmentLocationType;
     protected WorkLocation $workLocation;
     protected Language $language;
     protected LanguageProficiency $languageProficiency;
@@ -55,6 +59,8 @@ class EmployeeController
         BloodType $bloodType,
         Nationality $nationality,
         Gender $gender,
+        EmploymentType $employmentType,
+        EmploymentLocationType $employmentLocationType,
         WorkLocation $workLocation,
         Language $language,
         LanguageProficiency $languageProficiency,
@@ -73,6 +79,8 @@ class EmployeeController
         $this->bloodType                = $bloodType;
         $this->nationality              = $nationality;
         $this->gender                   = $gender;
+        $this->employmentType           = $employmentType;
+        $this->employmentLocationType   = $employmentLocationType;
         $this->workLocation             = $workLocation;
         $this->language                 = $language;
         $this->languageProficiency      = $languageProficiency;
@@ -123,41 +131,43 @@ class EmployeeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save employee'                         => $this->saveEmployee($lastLogBy),
-            'save employee language'                => $this->saveEmployeeLanguage($lastLogBy),
-            'update employee personal details'      => $this->updateEmployeePersonalDetails($lastLogBy),
-            'update employee pin code'              => $this->updateEmployeePINCode($lastLogBy),
-            'update employee badge id'              => $this->updateEmployeeBadgeId($lastLogBy),
-            'update employee private email'         => $this->updateEmployeePrivateEmail($lastLogBy),
-            'update employee private phone'         => $this->updateEmployeePrivatePhone($lastLogBy),
-            'update employee private telephone'     => $this->updateEmployeePrivateTelephone($lastLogBy),
-            'update employee nationality'           => $this->updateEmployeeNationality($lastLogBy),
-            'update employee gender'                => $this->updateEmployeeGender($lastLogBy),
-            'update employee birthday'              => $this->updateEmployeeBirthday($lastLogBy),
-            'update employee place of birth'        => $this->updateEmployeePlaceOfBirth($lastLogBy),
-            'update employee company'               => $this->updateEmployeeCompany($lastLogBy),
-            'update employee department'            => $this->updateEmployeeDepartment($lastLogBy),
-            'update employee job position'          => $this->updateEmployeeJobPosition($lastLogBy),
-            'update employee manager'               => $this->updateEmployeeManager($lastLogBy),
-            'update employee time off approver'     => $this->updateEmployeeTimeOffApprover($lastLogBy),
-            'update employee work location'         => $this->updateEmployeeWorkLocation($lastLogBy),
-            'update employee on board date'         => $this->updateEmployeeOnBoardDate($lastLogBy),
-            'update employee work email'            => $this->updateEmployeeWorkEmail($lastLogBy),
-            'update employee work phone'            => $this->updateEmployeeWorkPhone($lastLogBy),
-            'update employee work telephone'        => $this->updateEmployeeWorkTelephone($lastLogBy),
-            'update employee image'                 => $this->updateEmployeeImage($lastLogBy),
-            'delete employee'                       => $this->deleteEmployee(),
-            'delete multiple employee'              => $this->deleteMultipleEmployee(),
-            'delete employee language'              => $this->deleteEmployeeLanguage(),
-            'fetch employee details'                => $this->fetchEmployeeDetails(),
-            'generate employee card'                => $this->generateEmployeeCard(),
-            'generate employee table'               => $this->generateEmployeeTable(),
-            'generate employee options'             => $this->generateEmployeeOptions(),
-            'generate employee language list'       => $this->generateEmployeeLanguageList($lastLogBy, $pageId),
-            default                                 => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'save employee'                             => $this->saveEmployee($lastLogBy),
+            'save employee language'                    => $this->saveEmployeeLanguage($lastLogBy),
+            'update employee personal details'          => $this->updateEmployeePersonalDetails($lastLogBy),
+            'update employee pin code'                  => $this->updateEmployeePINCode($lastLogBy),
+            'update employee badge id'                  => $this->updateEmployeeBadgeId($lastLogBy),
+            'update employee private email'             => $this->updateEmployeePrivateEmail($lastLogBy),
+            'update employee private phone'             => $this->updateEmployeePrivatePhone($lastLogBy),
+            'update employee private telephone'         => $this->updateEmployeePrivateTelephone($lastLogBy),
+            'update employee nationality'               => $this->updateEmployeeNationality($lastLogBy),
+            'update employee gender'                    => $this->updateEmployeeGender($lastLogBy),
+            'update employee birthday'                  => $this->updateEmployeeBirthday($lastLogBy),
+            'update employee place of birth'            => $this->updateEmployeePlaceOfBirth($lastLogBy),
+            'update employee company'                   => $this->updateEmployeeCompany($lastLogBy),
+            'update employee department'                => $this->updateEmployeeDepartment($lastLogBy),
+            'update employee job position'              => $this->updateEmployeeJobPosition($lastLogBy),
+            'update employee manager'                   => $this->updateEmployeeManager($lastLogBy),
+            'update employee time off approver'         => $this->updateEmployeeTimeOffApprover($lastLogBy),
+            'update employee employment type'           => $this->updateEmployeeEmploymentType($lastLogBy),
+            'update employee employment location type'  => $this->updateEmployeeEmploymentLocationType($lastLogBy),
+            'update employee work location'             => $this->updateEmployeeWorkLocation($lastLogBy),
+            'update employee on board date'             => $this->updateEmployeeOnBoardDate($lastLogBy),
+            'update employee work email'                => $this->updateEmployeeWorkEmail($lastLogBy),
+            'update employee work phone'                => $this->updateEmployeeWorkPhone($lastLogBy),
+            'update employee work telephone'            => $this->updateEmployeeWorkTelephone($lastLogBy),
+            'update employee image'                     => $this->updateEmployeeImage($lastLogBy),
+            'delete employee'                           => $this->deleteEmployee(),
+            'delete multiple employee'                  => $this->deleteMultipleEmployee(),
+            'delete employee language'                  => $this->deleteEmployeeLanguage(),
+            'fetch employee details'                    => $this->fetchEmployeeDetails(),
+            'generate employee card'                    => $this->generateEmployeeCard(),
+            'generate employee table'                   => $this->generateEmployeeTable(),
+            'generate employee options'                 => $this->generateEmployeeOptions(),
+            'generate employee language list'           => $this->generateEmployeeLanguageList($lastLogBy, $pageId),
+            default                                     => $this->systemHelper::sendErrorResponse(
+                                                                'Transaction Failed',
+                                                                'We encountered an issue while processing your request.'
+                                                            )
         };
     }
 
@@ -597,6 +607,54 @@ class EmployeeController
         );
     }
 
+    public function updateEmployeeEmploymentType($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_employment_type_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $employmentTypeId   = $_POST['employment_type_id'] ?? null;
+
+        $employmentTypeDetails      = $this->employmentType->fetchEmploymentType($employmentTypeId);
+        $employmentTypeName         = $employmentTypeDetails['employment_type_name'] ?? null;
+
+        $this->employee->updateEmployeeEmploymentType($employeeId, $employmentTypeId, $employmentTypeName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Employment Type Success',
+            'The employee employment type has been saved successfully.'
+        );
+    }
+
+    public function updateEmployeeEmploymentLocationType($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_employment_location_type_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId                 = $_POST['employee_id'] ?? null;
+        $employmentLocationTypeId   = $_POST['employment_location_type_id'] ?? null;
+
+        $employmentTLocationypeDetails      = $this->employmentLocationType->fetchEmploymentLocationType($employmentLocationTypeId);
+        $employmentLocationTypeName         = $employmentTLocationypeDetails['employment_location_type_name'] ?? null;
+
+        $this->employee->updateEmployeeEmploymentLocationType($employeeId, $employmentLocationTypeId, $employmentLocationTypeName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Employment Location Type Success',
+            'The employee employment location type has been saved successfully.'
+        );
+    }
+
     public function updateEmployeeWorkLocation($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -607,13 +665,13 @@ class EmployeeController
             );
         }
 
-        $employeeId         = $_POST['employee_id'] ?? null;
+        $employeeId     = $_POST['employee_id'] ?? null;
         $wokLocationId  = $_POST['work_location_id'] ?? null;
 
         $workLocationDetails    = $this->workLocation->fetchWorkLocation($wokLocationId);
-        $worlLocationName       = $workLocationDetails['work_location_name'] ?? null;
+        $workLocationName       = $workLocationDetails['work_location_name'] ?? null;
 
-        $this->employee->updateEmployeeWorkLocation($employeeId, $wokLocationId, $worlLocationName, $lastLogBy);
+        $this->employee->updateEmployeeWorkLocation($employeeId, $wokLocationId, $workLocationName, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Employee Work Location Success',
@@ -878,45 +936,47 @@ class EmployeeController
         $employeeAddress = !empty($addressParts) ? implode(', ', $addressParts) : '--';
 
         $response = [
-            'success'               => true,
-            'fullName'              => $employeeDetails['full_name'] ?? null,
-            'firstName'             => $employeeDetails['first_name'] ?? null,
-            'middleName'            => $employeeDetails['middle_name'] ?? null,
-            'lastName'              => $employeeDetails['last_name'] ?? null,
-            'suffix'                => $employeeDetails['suffix'] ?? null,
-            'privateAddress'        => $employeeDetails['private_address'] ?? null,
-            'privateAddressCityID'  => $employeeDetails['private_address_city_id'] ?? null,
-            'civilStatusID'         => $employeeDetails['civil_status_id'] ?? null,
-            'religionID'            => $employeeDetails['religion_id'] ?? null,
-            'bloodTypeID'           => $employeeDetails['blood_type_id'] ?? null,
-            'height'                => $employeeDetails['height'] ?? null,
-            'weight'                => $employeeDetails['weight'] ?? null,
-            'nickname'              => $employeeDetails['nickname'] ?? null,
-            'dependents'            => $employeeDetails['dependents'] ?? null,
-            'homeWorkDistance'      => $employeeDetails['home_work_distance'] ?? null,
-            'civilStatusName'       => $employeeDetails['civil_status_name'] ?? null,
-            'religionName'          => $employeeDetails['religion_name'] ?? null,
-            'bloodTypeName'         => $employeeDetails['blood_type_name'] ?? null,
-            'badgeID'               => $employeeDetails['badge_id'] ?? null,
-            'privateEmail'          => $employeeDetails['private_email'] ?? null,
-            'privatePhone'          => $employeeDetails['private_phone'] ?? null,
-            'privateTelephone'      => $employeeDetails['private_telephone'] ?? null,
-            'nationalityName'       => $employeeDetails['nationality_name'] ?? null,
-            'genderName'            => $employeeDetails['gender_name'] ?? null,
-            'birthday'              => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y', ''),
-            'placeOfBirth'          => $employeeDetails['place_of_birth'] ?? null,
-            'companyName'           => $employeeDetails['company_name'] ?? null,
-            'departmentName'        => $employeeDetails['department_name'] ?? null,
-            'jobPositionName'       => $employeeDetails['job_position_name'] ?? null,
-            'managerName'           => $employeeDetails['manager_name'] ?? null,
-            'timeOffApproverName'   => $employeeDetails['time_off_approver_name'] ?? null,
-            'workLocationName'      => $employeeDetails['work_location_name'] ?? null,
-            'onBoardDate'           => $this->systemHelper->checkDate('summary', $employeeDetails['on_board_date'] ?? null, '', 'd M Y', ''),
-            'workEmail'             => $employeeDetails['work_email'] ?? null,
-            'workPhone'             => $employeeDetails['work_phone'] ?? null,
-            'workTelephone'         => $employeeDetails['work_telephone'] ?? null,
-            'employeeAddress'       => $employeeAddress,
-            'employeeImage'         => $employeeImage
+            'success'                       => true,
+            'fullName'                      => $employeeDetails['full_name'] ?? null,
+            'firstName'                     => $employeeDetails['first_name'] ?? null,
+            'middleName'                    => $employeeDetails['middle_name'] ?? null,
+            'lastName'                      => $employeeDetails['last_name'] ?? null,
+            'suffix'                        => $employeeDetails['suffix'] ?? null,
+            'privateAddress'                => $employeeDetails['private_address'] ?? null,
+            'privateAddressCityID'          => $employeeDetails['private_address_city_id'] ?? null,
+            'civilStatusID'                 => $employeeDetails['civil_status_id'] ?? null,
+            'religionID'                    => $employeeDetails['religion_id'] ?? null,
+            'bloodTypeID'                   => $employeeDetails['blood_type_id'] ?? null,
+            'height'                        => $employeeDetails['height'] ?? null,
+            'weight'                        => $employeeDetails['weight'] ?? null,
+            'nickname'                      => $employeeDetails['nickname'] ?? null,
+            'dependents'                    => $employeeDetails['dependents'] ?? null,
+            'homeWorkDistance'              => $employeeDetails['home_work_distance'] ?? null,
+            'civilStatusName'               => $employeeDetails['civil_status_name'] ?? null,
+            'religionName'                  => $employeeDetails['religion_name'] ?? null,
+            'bloodTypeName'                 => $employeeDetails['blood_type_name'] ?? null,
+            'badgeID'                       => $employeeDetails['badge_id'] ?? null,
+            'privateEmail'                  => $employeeDetails['private_email'] ?? null,
+            'privatePhone'                  => $employeeDetails['private_phone'] ?? null,
+            'privateTelephone'              => $employeeDetails['private_telephone'] ?? null,
+            'nationalityName'               => $employeeDetails['nationality_name'] ?? null,
+            'genderName'                    => $employeeDetails['gender_name'] ?? null,
+            'birthday'                      => $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y', ''),
+            'placeOfBirth'                  => $employeeDetails['place_of_birth'] ?? null,
+            'companyName'                   => $employeeDetails['company_name'] ?? null,
+            'departmentName'                => $employeeDetails['department_name'] ?? null,
+            'jobPositionName'               => $employeeDetails['job_position_name'] ?? null,
+            'managerName'                   => $employeeDetails['manager_name'] ?? null,
+            'timeOffApproverName'           => $employeeDetails['time_off_approver_name'] ?? null,
+            'employmentTypeName'            => $employeeDetails['employment_type_name'] ?? null,
+            'employmentLocationTypeName'    => $employeeDetails['employment_location_type_name'] ?? null,
+            'workLocationName'              => $employeeDetails['work_location_name'] ?? null,
+            'onBoardDate'                   => $this->systemHelper->checkDate('summary', $employeeDetails['on_board_date'] ?? null, '', 'd M Y', ''),
+            'workEmail'                     => $employeeDetails['work_email'] ?? null,
+            'workPhone'                     => $employeeDetails['work_phone'] ?? null,
+            'workTelephone'                 => $employeeDetails['work_telephone'] ?? null,
+            'employeeAddress'               => $employeeAddress,
+            'employeeImage'                 => $employeeImage
         ];
 
         echo json_encode($response);
@@ -1121,9 +1181,11 @@ $controller = new EmployeeController(
     new BloodType(),
     new Nationality(),
     new Gender(),
-     new WorkLocation(),
-     new Language(),
-     new LanguageProficiency(),
+    new EmploymentType(),
+    new EmploymentLocationType(),
+    new WorkLocation(),
+    new Language(),
+    new LanguageProficiency(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

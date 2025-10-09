@@ -40,7 +40,7 @@ export const resetForm = (formId) => {
   const form = document.getElementById(formId);
   if (!form) return;
 
-  $(form).find('.select2').val(null).trigger('change');
+  $(form).find('.form-select').val('').trigger('change');
   form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
   form.reset();
 };
