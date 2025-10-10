@@ -823,7 +823,9 @@ class UserAccountController
 
             $deleteButton = '';
             if($deleteRoleUserAccount['total'] > 0){
-                $deleteButton = '<button class="btn btn-sm btn-danger btn-active-light-danger me-3 delete-role-user-account" data-role-user-account-id="' . $roleUserAccountID . '">Delete</button>';
+                $deleteButton = '<button type="button" class="btn btn-icon btn-light btn-active-light-danger ms-auto delete-role-user-account" data-role-user-account-id="' . $roleUserAccountID . '">
+                                        <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                    </button>';
             }
 
             $list .= '<div class="d-flex flex-stack">

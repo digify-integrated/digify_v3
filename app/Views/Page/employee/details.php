@@ -615,39 +615,14 @@
                         <div class="card-title">
                             <h3>Educational Background</h3>
                         </div>
-
-                        <div class="card-toolbar">
-                            <?php
-                                echo ($permissions['write'] > 0) ? '<button type="button" class="btn btn-light-primary btn-sm" id="add-language" data-bs-toggle="modal" data-bs-target="#employee_education_modal">
-                                                                        Add Educational Background
-                                                                    </button>' : '';
-                            ?>
-                        </div>
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6" id="educational_background_summary"><div class="col-xl-12">
-                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
-                                    <div class="d-flex flex-column py-2">
-                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                           CIC
-                                        </div>
-                                        BSIT
-                                        <div class="fs-6 fw-semibold text-gray-600">2023 - 2024</div>
-                                        N/A
-                                        N/A
-                                    </div>
-                                    
-                                    <div class="d-flex align-items-center py-2">
-                                       <button class="btn btn-sm btn-light btn-active-light-primary me-3" data-employee-education-id="' . $employeeEducationID . '">
-                                            <span class="indicator-label"> Delete</span>
-                                        </button>
-                                        <button class="btn btn-sm btn-light btn-active-light-primary" data-bs-toggle="modal" data-bs-target="#employee_education_modal" data-employee-education-id="' . $employeeEducationID . '">
-                                            Edit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div></div>
+                        <div class="row gx-9 gy-6" id="educational_background_summary">
+                            <span class="text-center">
+                                <span class="spinner-grow spinner-grow-md align-middle ms-0"></span>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -659,45 +634,10 @@
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6">
-                            <div class="col-xl-6" data-kt-billing-element="address">
-                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
-                                    <div class="d-flex flex-column py-2">
-                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                            Address 1
-                                        </div>
-
-                                        <div class="fs-6 fw-semibold text-gray-600">
-                                            Ap #285-7193 Ullamcorper Avenue<br />
-                                            Amesbury HI 93373<br />
-                                            US
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex align-items-center py-2">
-                                        <button class="btn btn-sm btn-light btn-active-light-primary me-3" data-kt-billing-action="address-delete">
-                                            <span class="indicator-label"> Delete</span>
-                                            
-                                            <span class="indicator-progress"> Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span> </span>
-                                        </button>
-                                        <button class="btn btn-sm btn-light btn-active-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address">Edit</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-6">
-                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
-                                    <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                                        <div class="mb-3 mb-md-0 fw-semibold">
-                                            <h4 class="text-gray-900 fw-bold">This is a very important note!</h4>
-
-                                            <div class="fs-6 text-gray-700 pe-7">Writing headlines for blog posts is much science and probably cool audience</div>
-                                        </div>
-                                        
-                                        <a href="#" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address"> New Emergency Contact</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="row gx-9 gy-6" id="emergency_contact_summary">
+                            <span class="text-center">
+                                <span class="spinner-grow spinner-grow-md align-middle ms-0"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -710,45 +650,10 @@
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6">
-                            <div class="col-xl-6" data-kt-billing-element="address">
-                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
-                                    <div class="d-flex flex-column py-2">
-                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                            Address 1
-                                        </div>
-
-                                        <div class="fs-6 fw-semibold text-gray-600">
-                                            Ap #285-7193 Ullamcorper Avenue<br />
-                                            Amesbury HI 93373<br />
-                                            US
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex align-items-center py-2">
-                                        <button class="btn btn-sm btn-light btn-active-light-primary me-3" data-kt-billing-action="address-delete">
-                                            <span class="indicator-label"> Delete</span>
-                                            
-                                            <span class="indicator-progress"> Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span> </span>
-                                        </button>
-                                        <button class="btn btn-sm btn-light btn-active-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address">Edit</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-6">
-                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
-                                    <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                                        <div class="mb-3 mb-md-0 fw-semibold">
-                                            <h4 class="text-gray-900 fw-bold">This is a very important note!</h4>
-
-                                            <div class="fs-6 text-gray-700 pe-7">Writing headlines for blog posts is much science and probably cool audience</div>
-                                        </div>
-                                        
-                                        <a href="#" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address"> New License</a>
-                                    </div>
-                                </div>
-                            </div>
+                       <div class="row gx-9 gy-6" id="license_summary">
+                            <span class="text-center">
+                                <span class="spinner-grow spinner-grow-md align-middle ms-0"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -1213,45 +1118,10 @@
                     </div>
                     
                     <div class="card-body">
-                        <div class="row gx-9 gy-6">
-                            <div class="col-xl-12" data-kt-billing-element="address">
-                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
-                                    <div class="d-flex flex-column py-2">
-                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                            Address 1
-                                        </div>
-
-                                        <div class="fs-6 fw-semibold text-gray-600">
-                                            Ap #285-7193 Ullamcorper Avenue<br />
-                                            Amesbury HI 93373<br />
-                                            US
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex align-items-center py-2">
-                                        <button class="btn btn-sm btn-light btn-active-light-primary me-3" data-kt-billing-action="address-delete">
-                                            <span class="indicator-label"> Delete</span>
-                                            
-                                            <span class="indicator-progress"> Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span> </span>
-                                        </button>
-                                        <button class="btn btn-sm btn-light btn-active-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address">Edit</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-12">
-                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
-                                    <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                                        <div class="mb-3 mb-md-0 fw-semibold">
-                                            <h4 class="text-gray-900 fw-bold">This is a very important note!</h4>
-
-                                            <div class="fs-6 text-gray-700 pe-7">Writing headlines for blog posts is much science and probably cool audience</div>
-                                        </div>
-                                        
-                                        <a href="#" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#kt_modal_new_address"> New Work Experience</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="row gx-9 gy-6" id="work_experience_summary">
+                            <span class="text-center">
+                                <span class="spinner-grow spinner-grow-md align-middle ms-0"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -1556,7 +1426,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="start_year" name="start_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemHelper->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
+                                        <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1580,7 +1450,7 @@
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">
                                     <select id="end_year" name="end_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
-                                        <?php echo $systemHelper->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')); ?>
+                                       <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
                                     </select>
                                 </div>
                             </div>
@@ -1613,7 +1483,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employee_education_form" class="btn btn-primary" id="submit-employee-education">Save</button>
+                <button type="submit" form="employee_education_form" class="btn btn-primary" id="submit_employee_education">Save</button>
             </div>
         </div>
     </div>

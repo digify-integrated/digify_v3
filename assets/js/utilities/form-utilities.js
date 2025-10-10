@@ -41,8 +41,16 @@ export const resetForm = (formId) => {
   if (!form) return;
 
   $(form).find('.form-select').val('').trigger('change');
+
   form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
   form.reset();
+
+  form.querySelectorAll('input[type="hidden"]').forEach(hidden => {
+    if (hidden.name !== 'csrf_token') {
+      hidden.value = '';
+    }
+  });
 };
 
 export const generateDropdownOptions = async ({

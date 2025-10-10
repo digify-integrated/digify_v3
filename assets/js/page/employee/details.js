@@ -1,5 +1,5 @@
 import { disableButton, enableButton, generateDropdownOptions, resetForm, initializeDatePicker } from '../../utilities/form-utilities.js';
-import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
+import { attachLogNotesHandler, attachLogNotesClassHandler } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
@@ -87,6 +87,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const displayEducationDetails = async (employee_education_id) => {
+        const transaction   = 'fetch employee education details';
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('employee_education_id', employee_education_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#employee_education_id').val(employee_education_id);
+                $('#school').val(data.school);
+                $('#degree').val(data.degree);
+                $('#field_of_study').val(data.fieldOfStudy);
+                $('#activities_societies').val(data.activitiesSocieties);
+                $('#education_description').val(data.educationDescription);
+
+                $('#start_month').val(data.startMonth).trigger('change');
+                $('#start_year').val(data.startYear).trigger('change');
+                $('#end_month').val(data.endMonth).trigger('change');
+                $('#end_year').val(data.endYear).trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch employee details: ${error.message}`);
+        }
+    }
+
     const dropdownConfigs = [
         { url: './app/Controllers/CityController.php', selector: '#private_address_city_id', transaction: 'generate city options' },
         { url: './app/Controllers/NationalityController.php', selector: '#nationality_id', transaction: 'generate nationality options' },
@@ -141,6 +186,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const educationList = async () => {
+        const transaction   = 'generate employee education list';
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const page_id       = document.getElementById('page-id')?.value || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('page_id', page_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('educational_background_summary').innerHTML = data[0].EDUCATION_LIST;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
+        }
+    }
+
     const toggleSection = (section) => {
         $(`#${section}_button`).toggleClass('d-none');
         $(`#${section}`).toggleClass('d-none');
@@ -154,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDatePicker('#birthday');
     initializeDatePicker('#on_board_date');
     languageList();
+    educationList();
     displayDetails();
 
     $('#personal_details_form').validate({
@@ -1774,6 +1847,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#employee_education_form').validate({
+        rules: {
+            school: { required: true },
+            start_month: { required: true },
+            start_year: { required: true }
+        },
+        messages: {
+            school: { required: 'Enter the school' },
+            start_month: { required: 'Choose the start month' },
+            start_year: { required: 'Choose the start year' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee education';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_education');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    educationList();
+                    $('#employee_education_modal').modal('hide');
+                    enableButton('submit_employee_education');
+                    resetForm('employee_education_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_education');
+                }
+            } catch (error) {
+                enableButton('submit_employee_education');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
             const section           = event.target.closest('[data-toggle-section]');
@@ -1818,6 +1965,75 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         languageList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-employee-education')){
+            resetForm('employee_education_form');
+        }
+
+        if (event.target.closest('.update-employee-education')){
+            const button                    = event.target.closest('.update-employee-education');
+            const employee_education_id     = button.dataset.employeeEducationId;
+
+            displayEducationDetails(employee_education_id);
+        }
+
+        if (event.target.closest('.view-employee-education-log-notes')){
+            const button                    = event.target.closest('.view-employee-education-log-notes');
+            const employee_education_id     = button.dataset.employeeEducationId;
+
+            attachLogNotesClassHandler('employee_education_id', employee_education_id);
+        }
+
+        if (event.target.closest('.delete-employee-education')){
+            const transaction               = 'delete employee education';
+            const button                    = event.target.closest('.delete-employee-education');
+            const employee_education_id     = button.dataset.employeeEducationId;
+
+            Swal.fire({
+                title: 'Confirm Employee Educational Backgound Deletion',
+                text: 'Are you sure you want to delete this employee educational background?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_education_id', employee_education_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        educationList();
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

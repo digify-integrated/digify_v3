@@ -375,14 +375,14 @@ class RoleController
             $logNotesAccessChecked  = $logNotesAccessRights ? 'checked' : '';
 
             if($deleteRoleAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-icon btn-light-danger btn-active-danger  delete-menu-item-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
-                                    <i class="ki-outline ki-trash m-0 fs-5"></i>
+                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-menu-item-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                 </a>';
             }
 
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-sm btn-icon btn-light btn-active-light-primary view-menu-item-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
-                                <i class="ki-outline ki-shield-search m-0 fs-5"></i>
+                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-menu-item-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
                             </a>';
             }
 
@@ -455,14 +455,14 @@ class RoleController
             $roleAccessChecked = $roleAccess ? 'checked' : '';
 
             if($deleteRoleSystemActionAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-icon btn-light-danger btn-active-danger  delete-system-action-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
-                                        <i class="ki-outline ki-trash m-0 fs-5"></i>
+                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-system-action-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
+                                        <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                     </a>';
             }
 
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-sm btn-icon btn-light btn-active-light-primary view-system-action-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
-                                    <i class="ki-outline ki-shield-search m-0 fs-5"></i>
+                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-system-action-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
                                 </a>';
             }
 

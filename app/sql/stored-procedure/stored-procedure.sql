@@ -6970,6 +6970,75 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS saveEmployeeEducation//
+
+CREATE PROCEDURE saveEmployeeEducation(
+    IN p_employee_education_id INT, 
+    IN p_employee_id INT, 
+    IN p_school VARCHAR(100), 
+    IN p_degree VARCHAR(100), 
+    IN p_field_of_study VARCHAR(100), 
+    IN p_start_month VARCHAR(20), 
+    IN p_start_year VARCHAR(20), 
+    IN p_end_month VARCHAR(20), 
+    IN p_end_year VARCHAR(20), 
+    IN p_activities_societies VARCHAR(5000), 
+    IN p_education_description VARCHAR(5000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM employee_education WHERE employee_education_id = p_employee_education_id) THEN
+       INSERT INTO employee_education (
+            employee_id,
+            school,
+            degree,
+            field_of_study,
+            start_month,
+            start_year,
+            end_month,
+            end_year,
+            activities_societies,
+            education_description,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_id,
+            p_school,
+            p_degree,
+            p_field_of_study,
+            p_start_month,
+            p_start_year,
+            p_end_month,
+            p_end_year,
+            p_activities_societies,
+            p_education_description,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE employee_education
+        SET school                      = p_school,
+            degree                      = p_degree,
+            field_of_study              = p_field_of_study,
+            start_month                 = p_start_month,
+            start_year                  = p_start_year,
+            end_month                   = p_end_month,
+            end_year                    = p_end_year,
+            activities_societies        = p_activities_societies,
+            education_description       = p_education_description,
+            last_log_by                 = p_last_log_by
+        WHERE employee_education_id     = p_employee_education_id;
+    END IF;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
 ============================================================================================= */
@@ -7658,6 +7727,17 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchEmployeeEducation//
+
+CREATE PROCEDURE fetchEmployeeEducation(
+    IN p_employee_education_id INT
+)
+BEGIN
+	SELECT * FROM employee_education
+	WHERE employee_education_id = p_employee_education_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -7696,6 +7776,25 @@ BEGIN
 
     DELETE FROM employee_language
     WHERE employee_language_id = p_employee_language_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteEmployeeEducation//
+
+CREATE PROCEDURE deleteEmployeeEducation(
+    IN p_employee_education_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_education
+    WHERE employee_education_id = p_employee_education_id;
 
     COMMIT;
 END //
@@ -7880,6 +7979,33 @@ BEGIN
     ORDER BY language_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateEmployeeEducationList//
+
+CREATE PROCEDURE generateEmployeeEducationList(
+    IN p_employee_id INT
+)
+BEGIN
+    SELECT 
+        employee_education_id, 
+        school, 
+        degree, 
+        field_of_study, 
+        start_month, 
+        start_year, 
+        end_month, 
+        end_year, 
+        activities_societies, 
+        education_description
+    FROM employee_education
+    WHERE employee_id = p_employee_id
+    ORDER BY
+        CASE 
+            WHEN (end_year IS NULL OR end_year = '' OR end_month IS NULL OR end_month = '') THEN 1
+            ELSE 0
+        END DESC,
+        COALESCE(NULLIF(end_year, ''), start_year) DESC,
+        COALESCE(NULLIF(end_month, ''), start_month) DESC;
+END //
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */

@@ -35,6 +35,51 @@ class Employee extends Model {
             'p_last_log_by'                 => $p_last_log_by
         ]);
     }
+
+    public function saveEmployeeEducation(
+        $p_employee_education_id,
+        $p_employee_id,
+        $p_school,
+        $p_degree,
+        $p_field_of_study,
+        $p_start_month,
+        $p_start_year,
+        $p_end_month,
+        $p_end_year,
+        $p_activities_societies,
+        $p_education_description,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveEmployeeEducation(
+            :p_employee_education_id,
+            :p_employee_id,
+            :p_school,
+            :p_degree,
+            :p_field_of_study,
+            :p_start_month,
+            :p_start_year,
+            :p_end_month,
+            :p_end_year,
+            :p_activities_societies,
+            :p_education_description,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_education_id'   => $p_employee_education_id,
+            'p_employee_id'             => $p_employee_id,
+            'p_school'                  => $p_school,
+            'p_degree'                  => $p_degree,
+            'p_field_of_study'          => $p_field_of_study,
+            'p_start_month'             => $p_start_month,
+            'p_start_year'              => $p_start_year,
+            'p_end_month'               => $p_end_month,
+            'p_end_year'                => $p_end_year,
+            'p_activities_societies'    => $p_activities_societies,
+            'p_education_description'   => $p_education_description,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -616,6 +661,18 @@ class Employee extends Model {
             'p_employee_id' => $p_employee_id
         ]);
     }
+
+    public function fetchEmployeeEducation(
+        $p_employee_educatuib_id
+    ): array|null {
+        $sql = 'CALL fetchEmployeeEducation(
+            :p_employee_educatuib_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_employee_educatuib_id' => $p_employee_educatuib_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -642,6 +699,18 @@ class Employee extends Model {
         
         return $this->query($sql, [
             'p_employee_language_id' => $p_employee_language_id
+        ]);
+    }
+
+    public function deleteEmployeeEducation(
+        $p_employee_education_id
+    ) {
+        $sql = 'CALL deleteEmployeeEducation(
+            :p_employee_education_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_education_id' => $p_employee_education_id
         ]);
     }
 
@@ -744,6 +813,18 @@ class Employee extends Model {
         $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeLanguageList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
+    }
+
+    public function generateEmployeeEducationList(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeEducationList(
             :p_employee_id
         )';
 

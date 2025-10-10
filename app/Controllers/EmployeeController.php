@@ -133,6 +133,7 @@ class EmployeeController
         match ($transaction) {
             'save employee'                             => $this->saveEmployee($lastLogBy),
             'save employee language'                    => $this->saveEmployeeLanguage($lastLogBy),
+            'save employee education'                   => $this->saveEmployeeEducation($lastLogBy),
             'update employee personal details'          => $this->updateEmployeePersonalDetails($lastLogBy),
             'update employee pin code'                  => $this->updateEmployeePINCode($lastLogBy),
             'update employee badge id'                  => $this->updateEmployeeBadgeId($lastLogBy),
@@ -159,11 +160,14 @@ class EmployeeController
             'delete employee'                           => $this->deleteEmployee(),
             'delete multiple employee'                  => $this->deleteMultipleEmployee(),
             'delete employee language'                  => $this->deleteEmployeeLanguage(),
+            'delete employee education'                 => $this->deleteEmployeeEducation(),
             'fetch employee details'                    => $this->fetchEmployeeDetails(),
+            'fetch employee education details'          => $this->fetchEmployeeEducationDetails(),
             'generate employee card'                    => $this->generateEmployeeCard(),
             'generate employee table'                   => $this->generateEmployeeTable(),
             'generate employee options'                 => $this->generateEmployeeOptions(),
             'generate employee language list'           => $this->generateEmployeeLanguageList($lastLogBy, $pageId),
+            'generate employee education list'          => $this->generateEmployeeEducationList($lastLogBy, $pageId),
             default                                     => $this->systemHelper::sendErrorResponse(
                                                                 'Transaction Failed',
                                                                 'We encountered an issue while processing your request.'
@@ -236,6 +240,36 @@ class EmployeeController
         $this->systemHelper->sendSuccessResponse(
             'Save Employee Language Success',
             'The employee language has been saved successfully.'
+        );
+    }
+
+    public function saveEmployeeEducation($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_education_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $employeeEducationId    = $_POST['employee_education_id'] ?? null;
+        $school                 = $_POST['school'] ?? null;
+        $degree                 = $_POST['degree'] ?? null;
+        $fieldOfStudy           = $_POST['field_of_study'] ?? null;
+        $startMonth             = $_POST['start_month'] ?? null;
+        $startYear              = $_POST['start_year'] ?? null;
+        $endMonth               = $_POST['end_month'] ?? null;
+        $endYear                = $_POST['end_year'] ?? null;
+        $activitiesSocieties    = $_POST['activities_societies'] ?? null;
+        $educationDescription   = $_POST['education_description'] ?? null;
+
+        $this->employee->saveEmployeeEducation($employeeEducationId, $employeeId, $school, $degree, $fieldOfStudy, $startMonth, $startYear, $endMonth, $endYear, $activitiesSocieties, $educationDescription, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Educational Background Success',
+            'The employee educational background has been saved successfully.'
         );
     }
 
@@ -907,6 +941,17 @@ class EmployeeController
         );
     }
 
+    public function deleteEmployeeEducation(){
+        $employeeEducationId = $_POST['employee_education_id'] ?? null;
+
+        $this->employee->deleteEmployeeEducation($employeeEducationId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee Educational Background Success',
+            'The employee educational background has been deleted successfully.'
+        );
+    }
+
     public function fetchEmployeeDetails(){
         $employeeId             = $_POST['employee_id'] ?? null;
         $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
@@ -977,6 +1022,28 @@ class EmployeeController
             'workTelephone'                 => $employeeDetails['work_telephone'] ?? null,
             'employeeAddress'               => $employeeAddress,
             'employeeImage'                 => $employeeImage
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchEmployeeEducationDetails(){
+        $employeeEducationId = $_POST['employee_education_id'] ?? null;
+
+        $employeeDetails = $this->employee->fetchEmployeeEducation($employeeEducationId);
+
+        $response = [
+            'success'                   => true,
+            'school'                    => $employeeDetails['school'] ?? null,
+            'degree'                    => $employeeDetails['degree'] ?? null,
+            'fieldOfStudy'              => $employeeDetails['field_of_study'] ?? null,
+            'startMonth'                => $employeeDetails['start_month'] ?? null,
+            'startYear'                 => $employeeDetails['start_year'] ?? null,
+            'endMonth'                  => $employeeDetails['end_month'] ?? null,
+            'endYear'                   => $employeeDetails['end_year'] ?? null,
+            'activitiesSocieties'       => $employeeDetails['activities_societies'] ?? null,
+            'educationDescription'      => $employeeDetails['education_description'] ?? null
         ];
 
         echo json_encode($response);
@@ -1129,8 +1196,8 @@ class EmployeeController
 
             $deleteButton = '';
             if($writeAccess > 0){
-                $deleteButton = '<button type="button" class="btn btn-icon btn-active-light-primary ms-auto delete-employee-language" data-employee-language-id="' . $employeeLanguageId . '">
-                                        <i class="ki-outline ki-trash fs-3"></i>
+                $deleteButton = '<button type="button" class="btn btn-icon btn-light btn-active-light-danger ms-auto delete-employee-language" data-employee-language-id="' . $employeeLanguageId . '">
+                                        <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                     </button>';
             }
 
@@ -1162,6 +1229,94 @@ class EmployeeController
 
         $response[] = [
             'LANGUAGE_LIST' => $list
+        ];
+
+
+        echo json_encode($response);
+    }
+
+    public function generateEmployeeEducationList($lastLogBy, $pageId)
+    {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
+        $list               = '';
+
+        $roles = $this->employee->generateEmployeeEducationList($employeeId);
+
+        reset($roles);
+
+        foreach ($roles as $row) {
+            $employeeEducationId    = $row['employee_education_id'];
+            $school                 = $row['school'];
+            $degree                 = $row['degree'];
+            $fieldOfStudy           = $row['field_of_study'];
+            $startMonth             = $row['start_month'];
+            $startYear              = $row['start_year'];
+            $endMonth               = $row['end_month'];
+            $endYear                = $row['end_year'];
+            $activitiesSocieties    = $row['activities_societies'];
+            $educationDescription   = $row['education_description'];
+
+            $degreeFieldOfStudy     = (!empty($degree) || !empty($fieldOfStudy)) ? '<div class="fs-6 fw-semibold text-gray-600">' . trim($degree . (!empty($degree) && !empty($fieldOfStudy) ? ' · ' : '') . $fieldOfStudy) . '</div>' : '';
+            $activitiesSocieties    = !empty($activitiesSocieties) ? '<div class="fs-6 fw-semibold text-gray-600">Activities and societies: ' . $activitiesSocieties . '</div>' : '';
+            $educationDescription   = !empty($educationDescription) ? '<div class="fs-6 fw-semibold text-gray-600">' . $educationDescription . '</div>' : '';
+            $startDate              = $startMonth . ' ' . $startYear;                
+            $endDate                = (!empty($endMonth) && !empty($endYear)) ? $endMonth . ' ' . $endYear : 'Present';
+
+            $button = '';
+            if($writeAccess > 0){
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-education" data-bs-toggle="modal" data-bs-target="#employee_education_modal" data-employee-education-id="' . $employeeEducationId . '">
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-education" data-employee-education-id="' . $employeeEducationId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-education-log-notes" data-employee-education-id="' . $employeeEducationId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $list .= '<div class="col-xl-12">
+                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                                    <div class="d-flex flex-column py-2">
+                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                           '. $school .'
+                                        </div>
+                                        '. $degreeFieldOfStudy .'
+                                        <div class="fs-6 fw-semibold text-gray-600">'. $startDate .' - '. $endDate .'</div>
+                                        '. $activitiesSocieties .'
+                                        '. $educationDescription .'
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center py-2">
+                                        '. $logNotes .'
+                                        '. $button .'
+                                    </div>
+                                </div>
+                            </div>';
+        }
+
+        if($writeAccess > 0){
+                    $list .= ' <div class="col-xl-12">
+                                    <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
+                                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                            <div class="mb-3 mb-md-0 fw-semibold">
+                                                <h4 class="text-gray-900 fw-bold">Add New Educational Background for Employee</h4>
+                                                <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s educational background, including school, degree, and field of study.</div>
+                                            </div>
+                                            <a href="javascript:void(0);" id="add-employee-education" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_education_modal"> New Educational Background</a>
+                                        </div>
+                                    </div>
+                                </div>';
+
+                }
+
+        $response[] = [
+            'EDUCATION_LIST' => $list
         ];
 
 
