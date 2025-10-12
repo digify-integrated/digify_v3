@@ -132,6 +132,132 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const displayEmergencyContactDetails = async (employee_emergency_contact_id) => {
+        const transaction   = 'fetch employee emergency contact details';
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('employee_emergency_contact_id', employee_emergency_contact_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#employee_emergency_contact_id').val(employee_emergency_contact_id);
+                $('#emergency_contact_name').val(data.emergencyContactName);
+                $('#emergency_contact_telephone').val(data.telephone);
+                $('#emergency_contact_mobile').val(data.mobile);
+                $('#emergency_contact_email').val(data.email);
+
+                $('#relationship_id').val(data.relationshipId).trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch employee details: ${error.message}`);
+        }
+    }
+
+    const displayLicenseDetails = async (employee_license_id) => {
+        const transaction   = 'fetch employee license details';
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('employee_license_id', employee_license_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#employee_license_id').val(employee_license_id);
+                $('#licensed_profession').val(data.licensedProfession);
+                $('#licensing_body').val(data.licensingBody);
+                $('#license_number').val(data.licenseNumber);
+                $('#issue_date').val(data.issueDate);
+                $('#expiration_date').val(data.expirationDate);
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch employee details: ${error.message}`);
+        }
+    }
+
+    const displayExperienceDetails = async (employee_license_id) => {
+        const transaction   = 'fetch employee experience details';
+        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('employee_experience_id', employee_license_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#employee_experience_id').val(employee_experience_id);
+                $('#job_title').val(data.jobTitle);
+                $('#company_name').val(data.companyName);
+                $('#location').val(data.location);
+                $('#job_description').val(data.jobDescription);
+
+                $('#employee_experience_employment_type_id').val(data.employmentTypeId).trigger('change');
+                $('#employee_experience_start_month').val(data.startMonth).trigger('change');
+                $('#employee_experience_start_year').val(data.startYear).trigger('change');
+                $('#employee_experience_end_month').val(data.endMonth).trigger('change');
+                $('#employee_experience_end_year').val(data.endYear).trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch employee details: ${error.message}`);
+        }
+    }
+
     const dropdownConfigs = [
         { url: './app/Controllers/CityController.php', selector: '#private_address_city_id', transaction: 'generate city options' },
         { url: './app/Controllers/NationalityController.php', selector: '#nationality_id', transaction: 'generate nationality options' },
@@ -143,12 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
         { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
         { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_id', transaction: 'generate employment type options' },
+        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employee_experience_employment_type_id', transaction: 'generate employment type options' },
         { url: './app/Controllers/EmploymentLocationTypeController.php', selector: '#employment_location_type_id', transaction: 'generate employment location type options' },
         { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_id', transaction: 'generate work location options' },
         { url: './app/Controllers/LanguageController.php', selector: '#language_id', transaction: 'generate language options' },
         { url: './app/Controllers/LanguageProficiencyController.php', selector: '#language_proficiency_id', transaction: 'generate language proficiency options' },
         { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' },
         { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
+        { url: './app/Controllers/RelationshipController.php', selector: '#relationship_id', transaction: 'generate relationship options' },
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -213,6 +341,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const emergencyContactList = async () => {
+        const transaction   = 'generate employee emergency contact list';
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const page_id       = document.getElementById('page-id')?.value || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('page_id', page_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('emergency_contact_summary').innerHTML = data[0].EMERGENCY_CONTACT_LIST;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
+        }
+    }
+
+    const licenseList = async () => {
+        const transaction   = 'generate employee license list';
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const page_id       = document.getElementById('page-id')?.value || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('page_id', page_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('license_summary').innerHTML = data[0].LICENSE_LIST;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
+        }
+    }
+
+    const experienceList = async () => {
+        const transaction   = 'generate employee experience list';
+        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const page_id       = document.getElementById('page-id')?.value || '';
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+            formData.append('page_id', page_id);
+
+            const response = await fetch('./app/Controllers/EmployeeController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+            
+            document.getElementById('work_experience_summary').innerHTML = data[0].EXPERIENCE_LIST;
+
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch role list: ${error.message}`);
+        }
+    }
+
     const toggleSection = (section) => {
         $(`#${section}_button`).toggleClass('d-none');
         $(`#${section}`).toggleClass('d-none');
@@ -225,9 +434,14 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLogNotesHandler('#log-notes-main', '#details-id', 'employee');
     initializeDatePicker('#birthday');
     initializeDatePicker('#on_board_date');
+    initializeDatePicker('#issue_date');
+    initializeDatePicker('#expiration_date');
+    displayDetails();
     languageList();
     educationList();
-    displayDetails();
+    emergencyContactList();
+    licenseList();
+    experienceList();
 
     $('#personal_details_form').validate({
         rules: {
@@ -1921,6 +2135,326 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#employee_emergency_contact_form').validate({
+        rules: {
+            emergency_contact_name: {
+                required: true
+            },
+            relationship_id: {
+                required: true
+            },
+            emergency_contact_telephone: {
+                contactEmergencyContactRequired: true,
+            },
+            emergency_contact_mobile: {
+                contactEmergencyContactRequired: true,
+            },
+            emergency_contact_email: {
+                contactEmergencyContactRequired: true,
+                email: true
+            },
+        },
+        messages: {
+            emergency_contact_name: {
+                required: 'Enter the emergency contact name'
+            },
+            relationship_id: {
+                required: 'Choose the relationship'
+            },
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee emergency contact';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_emergency_contact');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    emergencyContactList();
+                    $('#employee_emergency_contact_modal').modal('hide');
+                    enableButton('submit_employee_emergency_contact');
+                    resetForm('employee_emergency_contact_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_emergency_contact');
+                }
+            } catch (error) {
+                enableButton('submit_employee_emergency_contact');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#employee_license_form').validate({
+        rules: {
+            licensed_profession: { required: true },
+            licensing_body: { required: true },
+            license_number: { required: true },
+            issue_date: { required: true }
+        },
+        messages: {
+            licensed_profession: { required: 'Enter the licensed profession' },
+            licensing_body: { required: 'Enter the licensing body' },
+            license_number: { required: 'Enter the license number' },
+            issue_date: { required: 'Choose the issue date' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee license';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_license');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    licenseList();
+                    $('#employee_license_modal').modal('hide');
+                    enableButton('submit_employee_license');
+                    resetForm('employee_license_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_license');
+                }
+            } catch (error) {
+                enableButton('submit_employee_license');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#employee_experience_form').validate({
+        rules: {
+            school: { required: true },
+            start_month: { required: true },
+            start_year: { required: true }
+        },
+        messages: {
+            school: { required: 'Enter the school' },
+            start_month: { required: 'Choose the start month' },
+            start_year: { required: 'Choose the start year' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee education';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_education');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    educationList();
+                    $('#employee_education_modal').modal('hide');
+                    enableButton('submit_employee_education');
+                    resetForm('employee_education_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_education');
+                }
+            } catch (error) {
+                enableButton('submit_employee_education');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#employee_experience_form').validate({
+        rules: {
+            job_title: { required: true },
+            company_name: { required: true },
+            location: { required: true },
+            employee_experience_employment_type_id: { required: true },
+            employee_experience_start_month: { required: true },
+            employee_experience_start_year: { required: true }
+        },
+        messages: {
+            job_title: { required: 'Enter the job title' },
+            company_name: { required: 'Enter the company name' },
+            location: { required: 'Enter the location' },
+            employee_experience_employment_type_id: { required: 'Choose the employment type' },
+            employee_experience_start_month: { required: 'Choose the start month' },
+            employee_experience_start_year: { required: 'Choose the start year' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'save employee experience';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_experience');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    experienceList();
+                    $('#employee_experience_modal').modal('hide');
+                    enableButton('submit_employee_experience');
+                    resetForm('employee_experience_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_experience');
+                }
+            } catch (error) {
+                enableButton('submit_employee_experience');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
             const section           = event.target.closest('[data-toggle-section]');
@@ -2003,7 +2537,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const employee_education_id     = button.dataset.employeeEducationId;
 
             Swal.fire({
-                title: 'Confirm Employee Educational Backgound Deletion',
+                title: 'Confirm Employee Educational Background Deletion',
                 text: 'Are you sure you want to delete this employee educational background?',
                 icon: 'warning',
                 showCancelButton: true,
@@ -2034,6 +2568,213 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         educationList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-employee-emergency-contact')){
+            resetForm('employee_emergency_contact_form');
+        }
+
+        if (event.target.closest('.update-employee-emergency-contact')){
+            const button                            = event.target.closest('.update-employee-emergency-contact');
+            const employee_emergency_contact_id     = button.dataset.employeeEmergencyContactId;
+
+            displayEmergencyContactDetails(employee_emergency_contact_id);
+        }
+
+        if (event.target.closest('.view-employee-emergency-contact-log-notes')){
+            const button                            = event.target.closest('.view-employee-emergency-contact-log-notes');
+            const employee_emergency_contact_id     = button.dataset.employeeEmergencyContactId;
+
+            attachLogNotesClassHandler('employee_emergency_contact_id', employee_emergency_contact_id);
+        }
+
+        if (event.target.closest('.delete-employee-emergency-contact')){
+            const transaction                       = 'delete employee emergency contact';
+            const button                            = event.target.closest('.delete-employee-emergency-contact');
+            const employee_emergency_contact_id     = button.dataset.employeeEmergencyContactId;
+
+            Swal.fire({
+                title: 'Confirm Employee Emergency Contact Deletion',
+                text: 'Are you sure you want to delete this employee emergency contact?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_emergency_contact_id', employee_emergency_contact_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        emergencyContactList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-employee-license')){
+            resetForm('employee_license_form');
+        }
+
+        if (event.target.closest('.update-employee-license')){
+            const button                = event.target.closest('.update-employee-license');
+            const employee_license_id   = button.dataset.employeeLicenseId;
+
+            displayLicenseDetails(employee_license_id);
+        }
+
+        if (event.target.closest('.view-employee-license-log-notes')){
+            const button                = event.target.closest('.view-employee-license-log-notes');
+            const employee_license_id   = button.dataset.employeeLicenseId;
+
+            attachLogNotesClassHandler('employee_license_id', employee_license_id);
+        }
+
+        if (event.target.closest('.delete-employee-license')){
+            const transaction           = 'delete employee license';
+            const button                = event.target.closest('.delete-employee-license');
+            const employee_license_id   = button.dataset.employeeLicenseId;
+
+            Swal.fire({
+                title: 'Confirm Employee License Deletion',
+                text: 'Are you sure you want to delete this employee license?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_license_id', employee_license_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        licenseList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-employee-experience')){
+            resetForm('employee_experience_form');
+        }
+
+        if (event.target.closest('.update-employee-experience')){
+            const button                    = event.target.closest('.update-employee-experience');
+            const employee_experience_id    = button.dataset.employeeExperienceId;
+
+            displayExperienceDetails(employee_experience_id);
+        }
+
+        if (event.target.closest('.view-employee-experience-log-notes')){
+            const button                    = event.target.closest('.view-employee-experience-log-notes');
+            const employee_experience_id    = button.dataset.employeeExperienceId;
+
+            attachLogNotesClassHandler('employee_experience_id', employee_experience_id);
+        }
+
+        if (event.target.closest('.delete-employee-experience')){
+            const transaction               = 'delete employee experience';
+            const button                    = event.target.closest('.delete-employee-experience');
+            const employee_experience_id    = button.dataset.employeeExperienceId;
+
+            Swal.fire({
+                title: 'Confirm Employee Experience Deletion',
+                text: 'Are you sure you want to delete this employee experience?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_experience_id', employee_experience_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        experienceList();
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

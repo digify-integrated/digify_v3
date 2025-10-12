@@ -210,6 +210,10 @@
                 <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#work_experience_tab" aria-selected="false" tabindex="-1" role="tab">Work Experience</a>
             </li>
             
+            <li class="nav-item" role="presentation">
+                <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#employee_document_tab" aria-selected="false" tabindex="-1" role="tab">Employee Documents</a>
+            </li>
+            
             <li class="nav-item ms-auto">
                 <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                     Actions
@@ -1488,5 +1492,283 @@
         </div>
     </div>
 </div>
+
+<div id="employee_emergency_contact_modal" class="modal fade" tabindex="-1" aria-labelledby="employee_emergency_contact_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Employee Emergency Contact</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="employee_emergency_contact_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_emergency_contact_form'); ?>
+                    <input type="hidden" id="employee_emergency_contact_id" name="employee_emergency_contact_id">
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="emergency_contact_name">Emergency Contact Name</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="emergency_contact_name" name="emergency_contact_name" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="relationship_id">Relationship</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="relationship_id" name="relationship_id" data-dropdown-parent="#employee_emergency_contact_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_telephone">Telephone</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="50" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_mobile">Mobile</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="50" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_email">Email</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_email" name="emergency_contact_email" maxlength="200" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employee_emergency_contact_form" class="btn btn-primary" id="submit_employee_emergency_contact">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="employee_license_modal" class="modal fade" tabindex="-1" aria-labelledby="employee_license_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Employee License</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="employee_license_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_license_form'); ?>
+                    <input type="hidden" id="employee_license_id" name="employee_license_id">
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="licensed_profession">Licensed Profession</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="licensed_profession" name="licensed_profession" maxlength="200" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="licensing_body">Licensing Body</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="licensing_body" name="licensing_body" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="license_number">License Number</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="license_number" name="license_number" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="issue_date">Issuance Date</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input class="form-control mb-3 mb-lg-0" id="issue_date" name="issue_date" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="expiration_date">Expiration Date</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input class="form-control mb-3 mb-lg-0" id="expiration_date" name="expiration_date" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employee_license_form" class="btn btn-primary" id="submit_employee_license">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="employee_experience_modal" class="modal fade" tabindex="-1" aria-labelledby="employee_experience_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Employee Work Experience</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="employee_experience_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_experience_form'); ?>
+                    <input type="hidden" id="employee_experience_id" name="employee_experience_id">
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="job_title">School</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="job_title" name="job_title" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="company_name">Company Name</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="company_name" name="company_name" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="location">Location</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="location" name="location" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="employee_experience_employment_type_id">Employment Type</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_experience_employment_type_id" name="employee_experience_employment_type_id" data-dropdown-parent="#employee_experience_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="start_month">Start Date</label>
+                        <div class="col-lg-4">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_experience_start_month" name="employee_experience_start_month" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <?php echo $systemHelper->generateMonthOptions(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_experience_start_year" name="employee_experience_start_year" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="end_month">End Date (or expected)</label>
+                        <div class="col-lg-4">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_experience_end_month" name="employee_experience_end_month" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <?php echo $systemHelper->generateMonthOptions(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_experience_end_year" name="employee_experience_end_year" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                       <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label fw-semibold fs-6" for="job_description">Job Description</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <textarea class="form-control" id="job_description" name="job_description" maxlength="5000"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employee_experience_form" class="btn btn-primary" id="submit_employee_experience">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <?php require_once './app/Views/Partials/log-notes-modal.php'; ?>

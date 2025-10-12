@@ -8002,8 +8002,6 @@ CREATE TABLE employee_experience (
   employment_type_name VARCHAR(100),
   company_name VARCHAR(200) NOT NULL,
   location VARCHAR(200),
-  work_location_type_id INT UNSIGNED,
-  work_location_type_name VARCHAR(100),
   start_month VARCHAR(20),
   start_year VARCHAR(20),
   end_month VARCHAR(20),
@@ -8022,7 +8020,6 @@ CREATE TABLE employee_experience (
 
 CREATE INDEX idx_employee_experience_employee_id ON employee_experience(employee_id);
 CREATE INDEX idx_employee_experience_employment_type_id ON employee_experience(employment_type_id);
-CREATE INDEX idx_employee_experience_work_location_type_id ON employee_experience(work_location_type_id);
 
 /* =============================================================================================
   INITIAL VALUES: EMPLOYEE EXPERIENCE

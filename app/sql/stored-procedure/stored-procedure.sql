@@ -8006,6 +8006,72 @@ BEGIN
         COALESCE(NULLIF(end_year, ''), start_year) DESC,
         COALESCE(NULLIF(end_month, ''), start_month) DESC;
 END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeEmergencyContactList//
+
+CREATE PROCEDURE generateEmployeeEmergencyContactList(
+    IN p_employee_id INT
+)
+BEGIN
+    SELECT 
+        employee_emergency_contact_id, 
+        emergency_contact_name, 
+        relationship_name, 
+        telephone, 
+        mobile, 
+        email
+    FROM employee_emergency_contact
+    WHERE employee_id = p_employee_id
+    ORDER BY emergency_contact_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeLicenseList//
+
+CREATE PROCEDURE generateEmployeeLicenseList(
+    IN p_employee_id INT
+)
+BEGIN
+    SELECT 
+        employee_license_id, 
+        licensed_profession, 
+        licensing_body, 
+        license_number, 
+        issue_date, 
+        expiration_date
+    FROM employee_license
+    WHERE employee_id = p_employee_id
+    ORDER BY licensed_profession;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeExperienceList//
+
+CREATE PROCEDURE generateEmployeeExperienceList(
+    IN p_employee_id INT
+)
+BEGIN
+    SELECT 
+        employee_experience_id, 
+        job_title, 
+        employment_type_name, 
+        company_name, 
+        location, 
+        work_location_type_name, 
+        start_month, 
+        start_year, 
+        end_month, 
+        end_year, 
+        job_description
+    FROM employee_experience
+    WHERE employee_id = p_employee_id
+    ORDER BY
+        CASE 
+            WHEN (end_year IS NULL OR end_year = '' OR end_month IS NULL OR end_month = '') THEN 1
+            ELSE 0
+        END DESC,
+        COALESCE(NULLIF(end_year, ''), start_year) DESC,
+        COALESCE(NULLIF(end_month, ''), start_month) DESC;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */

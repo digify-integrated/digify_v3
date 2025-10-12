@@ -833,6 +833,42 @@ class Employee extends Model {
         ]);
     }
 
+    public function generateEmployeeEmergencyContactList(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeEmergencyContactList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
+    }
+
+    public function generateEmployeeLicenseList(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeLicenseList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
+    }
+
+    public function generateEmployeeExperienceList(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeExperienceList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

@@ -139,7 +139,6 @@ function focusSelect2Search() {
   }, 100);
 }
 
-
 export const generateDualListBox = async ({ url, selectSelector, data = {} }) => {
   try {
     const formData = new URLSearchParams();

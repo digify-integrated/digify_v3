@@ -19,6 +19,7 @@ use App\Models\EmploymentLocationType;
 use App\Models\WorkLocation;
 use App\Models\Language;
 use App\Models\LanguageProficiency;
+use App\Models\Relationship;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -43,6 +44,7 @@ class EmployeeController
     protected WorkLocation $workLocation;
     protected Language $language;
     protected LanguageProficiency $languageProficiency;
+    protected Relationship $relationship;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -64,6 +66,7 @@ class EmployeeController
         WorkLocation $workLocation,
         Language $language,
         LanguageProficiency $languageProficiency,
+        Relationship $relationship,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -84,6 +87,7 @@ class EmployeeController
         $this->workLocation             = $workLocation;
         $this->language                 = $language;
         $this->languageProficiency      = $languageProficiency;
+        $this->relationship      = $relationship;
         $this->authentication           = $authentication;
         $this->uploadSetting            = $uploadSetting;
         $this->security                 = $security;
@@ -134,6 +138,9 @@ class EmployeeController
             'save employee'                             => $this->saveEmployee($lastLogBy),
             'save employee language'                    => $this->saveEmployeeLanguage($lastLogBy),
             'save employee education'                   => $this->saveEmployeeEducation($lastLogBy),
+            'save employee emergency contact'           => $this->saveEmployeeEmergencyContact($lastLogBy),
+            'save employee license'                     => $this->saveEmployeeLicense($lastLogBy),
+            'save employee experience'                  => $this->saveEmployeeExperience($lastLogBy),
             'update employee personal details'          => $this->updateEmployeePersonalDetails($lastLogBy),
             'update employee pin code'                  => $this->updateEmployeePINCode($lastLogBy),
             'update employee badge id'                  => $this->updateEmployeeBadgeId($lastLogBy),
@@ -161,13 +168,22 @@ class EmployeeController
             'delete multiple employee'                  => $this->deleteMultipleEmployee(),
             'delete employee language'                  => $this->deleteEmployeeLanguage(),
             'delete employee education'                 => $this->deleteEmployeeEducation(),
+            'delete employee emergency contact'         => $this->deleteEmployeeEmergencyContact(),
+            'delete employee license'                   => $this->deleteEmployeeLicense(),
+            'delete employee experience'                => $this->deleteEmployeeExperience(),
             'fetch employee details'                    => $this->fetchEmployeeDetails(),
             'fetch employee education details'          => $this->fetchEmployeeEducationDetails(),
+            'fetch employee emergency contact details'  => $this->fetchEmployeeEmergencyContactDetails(),
+            'fetch employee license details'            => $this->fetchEmployeeLicenseDetails(),
+            'fetch employee experience details'         => $this->fetchEmployeeExperienceDetails(),
             'generate employee card'                    => $this->generateEmployeeCard(),
             'generate employee table'                   => $this->generateEmployeeTable(),
             'generate employee options'                 => $this->generateEmployeeOptions(),
             'generate employee language list'           => $this->generateEmployeeLanguageList($lastLogBy, $pageId),
             'generate employee education list'          => $this->generateEmployeeEducationList($lastLogBy, $pageId),
+            'generate employee emergency contact list'  => $this->generateEmployeeEmergencyContactList($lastLogBy, $pageId),
+            'generate employee license list'            => $this->generateEmployeeLicenseList($lastLogBy, $pageId),
+            'generate employee experience list'         => $this->generateEmployeeExperienceList($lastLogBy, $pageId),
             default                                     => $this->systemHelper::sendErrorResponse(
                                                                 'Transaction Failed',
                                                                 'We encountered an issue while processing your request.'
@@ -270,6 +286,94 @@ class EmployeeController
         $this->systemHelper->sendSuccessResponse(
             'Save Employee Educational Background Success',
             'The employee educational background has been saved successfully.'
+        );
+    }
+
+    public function saveEmployeeEmergencyContact($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_emergency_contact_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId                     = $_POST['employee_id'] ?? null;
+        $employeeEmergencyContactId     = $_POST['employee_emergency_contact_id'] ?? null;
+        $emergencyContactName           = $_POST['emergency_contact_name'] ?? null;
+        $relationshipId                 = $_POST['relationship_id'] ?? null;
+        $telephone                      = $_POST['emergency_contact_telephone'] ?? null;
+        $mobile                         = $_POST['emergency_contact_mobile'] ?? null;
+        $email                          = $_POST['emergency_contact_email'] ?? null;
+
+        $relationshipDetails = $this->relationship->fetchRelationship($relationshipId);
+        $relationshipName = $relationshipDetails['relationship_name'] ?? null;
+
+        $this->employee->saveEmployeeEmergencyContact($employeeEmergencyContactId, $employeeId, $emergencyContactName, $relationshipId, $relationshipName, $telephone, $mobile, $email, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Emergency Contact Success',
+            'The employee emergency contact has been saved successfully.'
+        );
+    }
+
+    public function saveEmployeeLicense($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_license_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $employeeLicenseId      = $_POST['employee_license_id'] ?? null;
+        $licensedProfession     = $_POST['licensed_profession'] ?? null;
+        $licensingBody          = $_POST['licensing_body'] ?? null;
+        $licenseNumber          = $_POST['license_number'] ?? null;
+        $issueDate              = $this->systemHelper->checkDate('empty', $_POST['issue_date'], '', 'Y-m-d', '');
+        $expirationDate         = $this->systemHelper->checkDate('empty', $_POST['expiration_date'], '', 'Y-m-d', '');
+
+        $this->employee->saveEmployeeLicense($employeeLicenseId, $employeeId, $licensedProfession, $licensingBody, $licenseNumber, $issueDate, $expirationDate, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee License Success',
+            'The employee license has been saved successfully.'
+        );
+    }
+
+    public function saveEmployeeExperience($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_experience_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId             = $_POST['employee_id'] ?? null;
+        $employeeExperienceId   = $_POST['employee_experience_id'] ?? null;
+        $jobTitle               = $_POST['job_title'] ?? null;
+        $employmentTypeId       = $_POST['employee_experience_employment_type_id'] ?? null;
+        $companyName            = $_POST['company_name'] ?? null;
+        $location               = $_POST['location'] ?? null;
+        $startMonth             = $_POST['employee_experience_start_month'] ?? null;
+        $startYear              = $_POST['employee_experience_start_year'] ?? null;
+        $endMonth               = $_POST['employee_experience_end_month'] ?? null;
+        $endYear                = $_POST['employee_experience_end_year'] ?? null;
+        $jobDescription         = $_POST['job_description'] ?? null;
+
+        $employmentTypeDetails  = $this->employmentType->fetchEmploymentType($employmentTypeId);
+        $employmentTypeName     = $employmentTypeDetails['employment_type_name'] ?? null;
+
+        $this->employee->saveEmployeeExperience($employeeExperienceId, $employeeId, $jobTitle, $employmentTypeId, $employmentTypeName, $companyName, $location, $startMonth, $startYear, $endMonth, $endYear, $jobDescription, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Work Experience Success',
+            'The employee work experience has been saved successfully.'
         );
     }
 
@@ -952,6 +1056,39 @@ class EmployeeController
         );
     }
 
+    public function deleteEmployeeEmergencyContact(){
+        $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
+
+        $this->employee->deleteEmployeeEmergencyContact($employeeEmergencyContactId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee Emergency Contact Success',
+            'The employee emergency contact has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeLicense(){
+        $employeeLicenseId = $_POST['employee_license_id'] ?? null;
+
+        $this->employee->deleteEmployeeLicense($employeeLicenseId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee License Success',
+            'The employee license has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeExperience(){
+        $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
+
+        $this->employee->deleteEmployeeExperience($employeeExperienceId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee Experience Success',
+            'The employee experience has been deleted successfully.'
+        );
+    }
+
     public function fetchEmployeeDetails(){
         $employeeId             = $_POST['employee_id'] ?? null;
         $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
@@ -1031,19 +1168,77 @@ class EmployeeController
     public function fetchEmployeeEducationDetails(){
         $employeeEducationId = $_POST['employee_education_id'] ?? null;
 
-        $employeeDetails = $this->employee->fetchEmployeeEducation($employeeEducationId);
+        $employeeEducationDetails = $this->employee->fetchEmployeeEducation($employeeEducationId);
 
         $response = [
             'success'                   => true,
-            'school'                    => $employeeDetails['school'] ?? null,
-            'degree'                    => $employeeDetails['degree'] ?? null,
-            'fieldOfStudy'              => $employeeDetails['field_of_study'] ?? null,
-            'startMonth'                => $employeeDetails['start_month'] ?? null,
-            'startYear'                 => $employeeDetails['start_year'] ?? null,
-            'endMonth'                  => $employeeDetails['end_month'] ?? null,
-            'endYear'                   => $employeeDetails['end_year'] ?? null,
-            'activitiesSocieties'       => $employeeDetails['activities_societies'] ?? null,
-            'educationDescription'      => $employeeDetails['education_description'] ?? null
+            'school'                    => $employeeEducationDetails['school'] ?? null,
+            'degree'                    => $employeeEducationDetails['degree'] ?? null,
+            'fieldOfStudy'              => $employeeEducationDetails['field_of_study'] ?? null,
+            'startMonth'                => $employeeEducationDetails['start_month'] ?? null,
+            'startYear'                 => $employeeEducationDetails['start_year'] ?? null,
+            'endMonth'                  => $employeeEducationDetails['end_month'] ?? null,
+            'endYear'                   => $employeeEducationDetails['end_year'] ?? null,
+            'activitiesSocieties'       => $employeeEducationDetails['activities_societies'] ?? null,
+            'educationDescription'      => $employeeEducationDetails['education_description'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchEmployeeEmergencyContactDetails(){
+        $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
+
+        $employeeEmergencyContactDetails = $this->employee->fetchEmployeeEmergencyContact($employeeEmergencyContactId);
+
+        $response = [
+            'success'               => true,
+            'emergencyContactName'  => $employeeEmergencyContactDetails['emergency_contact_name'] ?? null,
+            'relationshipId'        => $employeeEmergencyContactDetails['relationship_id'] ?? null,
+            'telephone'             => $employeeEmergencyContactDetails['telephone'] ?? null,
+            'mobile'                => $employeeEmergencyContactDetails['mobile'] ?? null,
+            'email'                 => $employeeEmergencyContactDetails['email'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchEmployeeLicenseDetails(){
+        $employeeLicenseId = $_POST['employee_license_id'] ?? null;
+
+        $employeeLicenseDetails = $this->employee->fetchEmployeeLicense($employeeLicenseId);
+
+        $response = [
+            'success'               => true,
+            'licensedProfession'    => $employeeLicenseDetails['licensed_profession'] ?? null,
+            'licensingBody'         => $employeeLicenseDetails['licensing_body'] ?? null,
+            'licenseNumber'         => $employeeLicenseDetails['license_number'] ?? null,
+            'issueDate'             => $employeeLicenseDetails['issue_date'] ?? null,
+            'expirationDate'        => $employeeLicenseDetails['expiration_date'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchEmployeeExperienceDetails(){
+        $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
+
+        $employeeExperienceDetails = $this->employee->fetchEmployeeExperience($employeeExperienceId);
+
+        $response = [
+            'success'           => true,
+            'jobTitle'          => $employeeExperienceDetails['job_title'] ?? null,
+            'employmentTypeId'  => $employeeExperienceDetails['employment_type_id'] ?? null,
+            'companyName'       => $employeeExperienceDetails['company_name'] ?? null,
+            'location'          => $employeeExperienceDetails['location'] ?? null,
+            'startMonth'        => $employeeExperienceDetails['start_month'] ?? null,
+            'startYear'         => $employeeExperienceDetails['start_year'] ?? null,
+            'endMonth'          => $employeeExperienceDetails['end_month'] ?? null,
+            'endYear'           => $employeeExperienceDetails['end_year'] ?? null,
+            'jobDescription'    => $employeeExperienceDetails['job_description'] ?? null
         ];
 
         echo json_encode($response);
@@ -1182,14 +1377,15 @@ class EmployeeController
     {
         $employeeId     = $_POST['employee_id'] ?? null;
         $writeAccess    = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
         $list           = '';
 
-        $roles = $this->employee->generateEmployeeLanguageList($employeeId);
+        $results = $this->employee->generateEmployeeLanguageList($employeeId);
 
-        $lastRole = end($roles);
-        reset($roles);
+        $lastRole = end($results);
+        reset($results);
 
-        foreach ($roles as $row) {
+        foreach ($results as $row) {
             $employeeLanguageId         = $row['employee_language_id'];
             $languageName               = $row['language_name'];
             $languageProficiencyName    = $row['language_proficiency_name'];
@@ -1201,6 +1397,13 @@ class EmployeeController
                                     </button>';
             }
 
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-language-log-notes" data-employee-language-id="' . $employeeLanguageId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
             $list .= '<div class="d-flex flex-stack">
                                     <div class="d-flex flex-column">
                                         <span class="fs-6">'. $languageName .'</span>
@@ -1208,6 +1411,7 @@ class EmployeeController
                                     </div>
 
                                     <div class="d-flex justify-content-end align-items-center">
+                                        '. $logNotes .'
                                         '. $deleteButton .'
                                     </div>
                                 </div>';
@@ -1242,11 +1446,11 @@ class EmployeeController
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
         $list               = '';
 
-        $roles = $this->employee->generateEmployeeEducationList($employeeId);
+        $results = $this->employee->generateEmployeeEducationList($employeeId);
 
-        reset($roles);
+        reset($results);
 
-        foreach ($roles as $row) {
+        foreach ($results as $row) {
             $employeeEducationId    = $row['employee_education_id'];
             $school                 = $row['school'];
             $degree                 = $row['degree'];
@@ -1274,49 +1478,302 @@ class EmployeeController
                             </button>';
             }
 
+            $logNotes = '';
             if($logNotesAccess > 0){
                 $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-education-log-notes" data-employee-education-id="' . $employeeEducationId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                     <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
                                 </button>';
             }
 
-            $list .= '<div class="col-xl-12">
-                                <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
-                                    <div class="d-flex flex-column py-2">
-                                        <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                           '. $school .'
-                                        </div>
-                                        '. $degreeFieldOfStudy .'
-                                        <div class="fs-6 fw-semibold text-gray-600">'. $startDate .' - '. $endDate .'</div>
-                                        '. $activitiesSocieties .'
-                                        '. $educationDescription .'
-                                    </div>
-                                    
-                                    <div class="d-flex align-items-center py-2">
-                                        '. $logNotes .'
-                                        '. $button .'
-                                    </div>
+            $list .= '<div class="col-xl-6">
+                        <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                            <div class="d-flex flex-column py-2">
+                                <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                   '. $school .'
                                 </div>
-                            </div>';
+                                '. $degreeFieldOfStudy .'
+                                <div class="fs-6 fw-semibold text-gray-600">'. $startDate .' - '. $endDate .'</div>
+                                '. $activitiesSocieties .'
+                                '. $educationDescription .'
+                            </div>
+                            <div class="d-flex align-items-center py-2">
+                                '. $logNotes .'
+                                '. $button .'
+                            </div>
+                        </div>
+                    </div>';
         }
 
         if($writeAccess > 0){
-                    $list .= ' <div class="col-xl-12">
-                                    <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
-                                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                                            <div class="mb-3 mb-md-0 fw-semibold">
-                                                <h4 class="text-gray-900 fw-bold">Add New Educational Background for Employee</h4>
-                                                <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s educational background, including school, degree, and field of study.</div>
-                                            </div>
-                                            <a href="javascript:void(0);" id="add-employee-education" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_education_modal"> New Educational Background</a>
-                                        </div>
+            $contactCount = count($results);
+            $colClass = ($contactCount === 0 || $contactCount % 2 === 0) ? 'col-xl-12' : 'col-xl-6';
+            
+            $list .= '<div class="'. $colClass .'">
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
+                                <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                    <div class="mb-3 mb-md-0 fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">Add New Educational Background for Employee</h4>
+                                        <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s educational background, including school, degree, and field of study.</div>
                                     </div>
-                                </div>';
+                                    <a href="javascript:void(0);" id="add-employee-education" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_education_modal"> New Educational Background</a>
+                                </div>
+                            </div>
+                        </div>';
 
-                }
+        }
 
         $response[] = [
             'EDUCATION_LIST' => $list
+        ];
+
+
+        echo json_encode($response);
+    }
+
+    public function generateEmployeeEmergencyContactList($lastLogBy, $pageId)
+    {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
+        $list               = '';
+
+        $results = $this->employee->generateEmployeeEmergencyContactList($employeeId);
+
+        reset($results);
+
+        foreach ($results as $row) {
+            $employeeEmergencyContactId     = $row['employee_emergency_contact_id'];
+            $emergencyContactName           = $row['emergency_contact_name'];
+            $relationshipName               = $row['relationship_name'];
+       
+            $telephone  = (!empty($row['telephone'])) ? '<div class="fs-6 fw-semibold text-gray-600">Telephone: ' . $row['telephone'] . '</div>' : '';
+            $mobile     = (!empty($row['mobile'])) ? '<div class="fs-6 fw-semibold text-gray-600">Mobile: ' . $row['mobile'] . '</div>' : '';
+            $email      = (!empty($row['email'])) ? '<div class="fs-6 fw-semibold text-gray-600">Email' . $row['email'] . '</div>' : '';
+
+            $button = '';
+            if($writeAccess > 0){
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-emergency-contact" data-bs-toggle="modal" data-bs-target="#emergency-contact" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '">
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-emergency-contact" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-emergency-contact-log-notes" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $list .= '<div class="col-xl-6">
+                        <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                            <div class="d-flex flex-column py-2">
+                                <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                   '. $emergencyContactName .'
+                                </div>
+                                <div class="fs-6 fw-semibold text-gray-600">'. $relationshipName .'</div>
+                                '. $email .'
+                                '. $mobile .'
+                                '. $telephone .'
+                            </div>
+                            <div class="d-flex align-items-center py-2">
+                                '. $logNotes .'
+                                '. $button .'
+                            </div>
+                        </div>
+                    </div>';
+        }
+
+        if($writeAccess > 0){
+            $contactCount = count($results);
+            $colClass = ($contactCount === 0 || $contactCount % 2 === 0) ? 'col-xl-12' : 'col-xl-6';
+
+            $list .= ' <div class="'. $colClass .'">
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
+                                <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                    <div class="mb-3 mb-md-0 fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">Add New Emergency Contact for Employee</h4>
+                                        <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s emergency contact, including the contact’s full name, relationship to the employee, mobile, telephone and email.</div>
+                                    </div>
+                                    <a href="javascript:void(0);" id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_emergency_contact_modal"> New Emergency Contact</a>
+                                </div>
+                            </div>
+                        </div>';
+
+        }
+
+        $response[] = [
+            'EMERGENCY_CONTACT_LIST' => $list
+        ];
+
+
+        echo json_encode($response);
+    }
+
+    public function generateEmployeeLicenseList($lastLogBy, $pageId)
+    {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
+        $list               = '';
+
+        $results = $this->employee->generateEmployeeEmergencyContactList($employeeId);
+
+        reset($results);
+
+        foreach ($results as $row) {
+            $employeeLicenseId      = $row['employee_license_id'];
+            $licensedProfession     = $row['licensed_profession'];
+            $licensingBody          = $row['licensing_body'];
+            $licenseNumber          = $row['license_number'];
+            $issueDate          = $this->systemHelper->checkDate('summary', $row['issue_date'] ?? null, '', 'd M Y', '');
+       
+            $expirationDate     = (!empty($row['expiration_date'])) ? '<div class="fs-6 fw-semibold text-gray-600">Expiring on: ' . $this->systemHelper->checkDate('summary', $row['expiration_date'] ?? null, '', 'd M Y', '') . '</div>' : '';
+
+            $button = '';
+            if($writeAccess > 0){
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-license" data-bs-toggle="modal" data-bs-target="#license" data-license-id="' . $employeeLicenseId . '">
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-license" data-employee-license-id="' . $employeeLicenseId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-license-log-notes" data-employee-license-id="' . $employeeLicenseId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $list .= '<div class="col-xl-6">
+                        <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                            <div class="d-flex flex-column py-2">
+                                <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                   '. $licensedProfession .' - '. $licenseNumber .'
+                                </div>
+                                <div class="fs-6 fw-semibold text-gray-600">'. $licensingBody .'</div>
+                                <div class="fs-6 fw-semibold text-gray-600">Issued on : ' . $issueDate . '</div>
+                                '. $expirationDate .'
+                            </div>
+                            <div class="d-flex align-items-center py-2">
+                                '. $logNotes .'
+                                '. $button .'
+                            </div>
+                        </div>
+                    </div>';
+        }
+
+        if($writeAccess > 0){
+            $contactCount = count($results);
+            $colClass = ($contactCount === 0 || $contactCount % 2 === 0) ? 'col-xl-12' : 'col-xl-6';
+
+            $list .= ' <div class="'. $colClass .'">
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
+                                <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                    <div class="mb-3 mb-md-0 fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">Add New License for Employee</h4>
+                                        <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s license, including the license profession, license number, licensing body, issuance date and expiry date.</div>
+                                    </div>
+                                    <a href="javascript:void(0);" id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_license_modal"> New License</a>
+                                </div>
+                            </div>
+                        </div>';
+
+        }
+
+        $response[] = [
+            'LICENSE_LIST' => $list
+        ];
+
+
+        echo json_encode($response);
+    }
+
+    public function generateEmployeeExperienceList($lastLogBy, $pageId)
+    {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
+        $list               = '';
+
+        $results = $this->employee->generateEmployeeExperienceList($employeeId);
+
+        reset($results);
+
+        foreach ($results as $row) {
+            $employeeExperienceId   = $row['employee_experience_id'];
+            $jobTitle               = $row['job_title'];
+            $employmentTypeName     = $row['employment_type_name'];
+            $companyName            = $row['company_name'];
+            $startMonth             = $row['start_month'];
+            $startYear              = $row['start_year'];
+            $endMonth               = $row['end_month'];
+            $endYear                = $row['end_year'];
+            $jobDescription         = $row['job_description'];
+
+            $employmentTypeName     = (!empty($row['employment_type_name'])) ? '<div class="fs-6 fw-semibold text-gray-600">Employment Type: ' . $row['employment_type_name'] . '</div>' : '';
+            $location               = (!empty($row['location'])) ? '<div class="fs-6 fw-semibold text-gray-600">'. $row['location'] . '</div>' : '';
+            $startDate              = $startMonth . ' ' . $startYear;                
+            $endDate                = (!empty($endMonth) && !empty($endYear)) ? $endMonth . ' ' . $endYear : 'Present';
+
+            $button = '';
+            if($writeAccess > 0){
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-experience" data-bs-toggle="modal" data-bs-target="#employee_experience_modal" data-employee-experience-id="' . $employeeExperienceId . '">
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-experience" data-employee-experience-id="' . $employeeExperienceId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary me-3 view-employee-experience-log-notes" data-employee-experience-id="' . $employeeExperienceId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $list .= '<div class="col-xl-12">
+                        <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
+                            <div class="d-flex flex-column py-2">
+                                <div class="d-flex align-items-center fs-5 fw-bold mb-5">
+                                   '. $jobTitle .'
+                                </div>
+                                '. $companyName .'
+                                '. $location .'
+                                <div class="fs-6 fw-semibold text-gray-600">'. $startDate .' - '. $endDate .'</div>
+                                '. $employmentTypeName .'
+                                <div class="fs-6 fw-semibold text-gray-600">'. $jobDescription .'</div>
+                            </div>
+                            <div class="d-flex align-items-center py-2">
+                                '. $logNotes .'
+                                '. $button .'
+                            </div>
+                        </div>
+                    </div>';
+        }
+
+        if($writeAccess > 0){            
+            $list .= '<div class="col-xl-12">
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed flex-stack h-xl-100 mb-10 p-6">
+                                <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                    <div class="mb-3 mb-md-0 fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">Add New Work Experience for Employee</h4>
+                                        <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s work experience, including company, job title, job description, degree, start month, start year, end month, end year, employment type, and work location.</div>
+                                    </div>
+                                    <a href="javascript:void(0);" id="add-employee-experience" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_experience_modal"> New Work Experience</a>
+                                </div>
+                            </div>
+                        </div>';
+
+        }
+
+        $response[] = [
+            'EXPERIENCE_LIST' => $list
         ];
 
 
@@ -1341,6 +1798,7 @@ $controller = new EmployeeController(
     new WorkLocation(),
     new Language(),
     new LanguageProficiency(),
+    new Relationship(),
     new Authentication(),
     new UploadSetting(),
     new Security(),
