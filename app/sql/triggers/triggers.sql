@@ -2387,10 +2387,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Location: ", OLD.location, " -> ", NEW.location, "<br/>");
     END IF;
 
-    IF NEW.work_location_type_name <> OLD.work_location_type_name THEN
-        SET audit_log = CONCAT(audit_log, "Work Location Type: ", OLD.work_location_type_name, " -> ", NEW.work_location_type_name, "<br/>");
-    END IF;
-
     IF NEW.start_month <> OLD.start_month THEN
         SET audit_log = CONCAT(audit_log, "Start Month: ", OLD.start_month, " -> ", NEW.start_month, "<br/>");
     END IF;
@@ -2692,6 +2688,36 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('employee_language', NEW.employee_language_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: EMPLOYEE LANGUAGE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employee_document_insert//
+
+CREATE TRIGGER trg_employee_document_insert
+AFTER INSERT ON employee_document
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employee document created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employee_document', NEW.employee_document_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
 
 /* =============================================================================================
    END OF TRIGGERS

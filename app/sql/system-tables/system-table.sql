@@ -475,7 +475,8 @@ VALUES
 ('Employment Location Type', 'employment-location-type.php', 'ki-outline ki-route', 2, 'Employee', 41, 'HR Configurations', 'employment_location_type', 5),
 ('Employment Type', 'employment-type.php', 'ki-outline ki-briefcase', 2, 'Employee', 41, 'HR Configurations', 'employment_type', 5),
 ('Job Position', 'job-position.php', 'ki-outline ki-questionnaire-tablet', 2, 'Employee', 41, 'HR Configurations', 'job_position', 10),
-('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 41, 'HR Configurations', 'work_location', 23);
+('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 41, 'HR Configurations', 'work_location', 23),
+('Employee Document Type', 'employee-document-type.php', 'ki-outline ki-folder', 2, 'Employee', 41, 'HR Configurations', 'employee_document_type', 5);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -639,7 +640,8 @@ VALUES
 (1, 'Super Admin', 44, 'Employment Location Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 45, 'Employment Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 46, 'Job Position', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 47, 'Work Location', 1, 1, 1, 1, 1, 1, 1);
+(1, 'Super Admin', 47, 'Work Location', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 48, 'Employee Document Type', 1, 1, 1, 1, 1, 1, 1);
 
 /* =============================================================================================
   TABLE: ROLE SYSTEM ACTION PERMISSION
@@ -8182,6 +8184,90 @@ CREATE INDEX idx_employee_language_language_proficiency_id ON employee_language(
 /* =============================================================================================
   INITIAL VALUES: EMPLOYEE LANGUAGE
 ============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_document;
+
+CREATE TABLE employee_document (
+  employee_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  document_name VARCHAR(200) NOT NULL,
+  document_file VARCHAR(500) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_document_type;
+
+CREATE TABLE employee_document_type (
+  employee_document_typee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_document_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYMENT LOCATION TYPE
+============================================================================================= */
+
+INSERT INTO employee_document_type (employee_document_type_name)
+VALUES
+('Resume'),
+('Cover Letter'),
+('Employment Contract'),
+('Non-Disclosure Agreement'),
+('Offer Letter'),
+('Government ID'),
+('Passport'),
+('Work Visa'),
+('Tax Identification Document'),
+('Social Security Card'),
+('Educational Certificates'),
+('Professional Licenses'),
+('Training Certificates'),
+('Performance Appraisal'),
+('Background Check Report'),
+('Medical Certificate'),
+('Bank Account Details'),
+('Emergency Contact Form'),
+('Company Policy Acknowledgment'),
+('Exit Clearance Form');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

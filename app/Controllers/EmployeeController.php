@@ -1215,8 +1215,8 @@ class EmployeeController
             'licensedProfession'    => $employeeLicenseDetails['licensed_profession'] ?? null,
             'licensingBody'         => $employeeLicenseDetails['licensing_body'] ?? null,
             'licenseNumber'         => $employeeLicenseDetails['license_number'] ?? null,
-            'issueDate'             => $employeeLicenseDetails['issue_date'] ?? null,
-            'expirationDate'        => $employeeLicenseDetails['expiration_date'] ?? null
+            'issueDate'             => $this->systemHelper->checkDate('summary', $employeeLicenseDetails['issue_date'] ?? null, '', 'M d, Y', ''),
+            'expirationDate'        => $this->systemHelper->checkDate('summary', $employeeLicenseDetails['expiration_date'] ?? null, '', 'M d, Y', '')
         ];
 
         echo json_encode($response);
@@ -1548,11 +1548,11 @@ class EmployeeController
        
             $telephone  = (!empty($row['telephone'])) ? '<div class="fs-6 fw-semibold text-gray-600">Telephone: ' . $row['telephone'] . '</div>' : '';
             $mobile     = (!empty($row['mobile'])) ? '<div class="fs-6 fw-semibold text-gray-600">Mobile: ' . $row['mobile'] . '</div>' : '';
-            $email      = (!empty($row['email'])) ? '<div class="fs-6 fw-semibold text-gray-600">Email' . $row['email'] . '</div>' : '';
+            $email      = (!empty($row['email'])) ? '<div class="fs-6 fw-semibold text-gray-600">Email: ' . $row['email'] . '</div>' : '';
 
             $button = '';
             if($writeAccess > 0){
-                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-emergency-contact" data-bs-toggle="modal" data-bs-target="#emergency-contact" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '">
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-emergency-contact" data-bs-toggle="modal" data-bs-target="#employee_emergency_contact_modal" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '">
                                 <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
                             </button>
                             <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-emergency-contact" data-employee-emergency-contact-id="' . $employeeEmergencyContactId . '">
@@ -1573,7 +1573,7 @@ class EmployeeController
                                 <div class="d-flex align-items-center fs-5 fw-bold mb-5">
                                    '. $emergencyContactName .'
                                 </div>
-                                <div class="fs-6 fw-semibold text-gray-600">'. $relationshipName .'</div>
+                                <div class="fs-6 fw-semibold text-gray-600 mb-5">'. $relationshipName .'</div>
                                 '. $email .'
                                 '. $mobile .'
                                 '. $telephone .'
@@ -1619,7 +1619,7 @@ class EmployeeController
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
         $list               = '';
 
-        $results = $this->employee->generateEmployeeEmergencyContactList($employeeId);
+        $results = $this->employee->generateEmployeeLicenseList($employeeId);
 
         reset($results);
 
@@ -1634,7 +1634,7 @@ class EmployeeController
 
             $button = '';
             if($writeAccess > 0){
-                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-license" data-bs-toggle="modal" data-bs-target="#license" data-license-id="' . $employeeLicenseId . '">
+                $button = '<button class="btn btn-icon btn-light btn-active-light-warning me-3 update-employee-license" data-bs-toggle="modal" data-bs-target="#employee_license_modal" data-employee-license-id="' . $employeeLicenseId . '">
                                 <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
                             </button>
                             <button class="btn btn-icon btn-light btn-active-light-danger delete-employee-license" data-employee-license-id="' . $employeeLicenseId . '">
@@ -1652,9 +1652,10 @@ class EmployeeController
             $list .= '<div class="col-xl-6">
                         <div class="card card-dashed h-xl-100 flex-row flex-stack flex-wrap p-6">
                             <div class="d-flex flex-column py-2">
-                                <div class="d-flex align-items-center fs-5 fw-bold mb-5">
-                                   '. $licensedProfession .' - '. $licenseNumber .'
+                                <div class="d-flex align-items-center fs-5 fw-bold">
+                                   '. $licensedProfession .'
                                 </div>
+                                <div class="fs-6 fw-bold mb-5">'. $licenseNumber .'</div>
                                 <div class="fs-6 fw-semibold text-gray-600">'. $licensingBody .'</div>
                                 <div class="fs-6 fw-semibold text-gray-600">Issued on : ' . $issueDate . '</div>
                                 '. $expirationDate .'

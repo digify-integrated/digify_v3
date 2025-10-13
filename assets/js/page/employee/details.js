@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const displayExperienceDetails = async (employee_license_id) => {
+    const displayExperienceDetails = async (employee_experience_id) => {
         const transaction   = 'fetch employee experience details';
         const page_link     = document.getElementById('page-link').getAttribute('href');
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
             formData.append('employee_id', employee_id);
-            formData.append('employee_experience_id', employee_license_id);
+            formData.append('employee_experience_id', employee_experience_id);
 
             const response = await fetch('./app/Controllers/EmployeeController.php', {
                 method: 'POST',
@@ -2303,80 +2303,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#employee_experience_form').validate({
         rules: {
-            school: { required: true },
-            start_month: { required: true },
-            start_year: { required: true }
-        },
-        messages: {
-            school: { required: 'Enter the school' },
-            start_month: { required: 'Choose the start month' },
-            start_year: { required: 'Choose the start year' }
-        },
-        errorPlacement: (error, element) => {
-            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
-        },
-        highlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
-                ? $element.next().find('.select2-selection')
-                : $element;
-            $target.addClass('is-invalid');
-        },
-        unhighlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
-                ? $element.next().find('.select2-selection')
-                : $element;
-            $target.removeClass('is-invalid');
-        },
-        submitHandler: async (form, event) => {
-            event.preventDefault();
-
-            const transaction   = 'save employee education';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
-
-            const formData = new URLSearchParams(new FormData(form));
-            formData.append('transaction', transaction);
-            formData.append('employee_id', employee_id);
-
-            disableButton('submit_employee_education');
-
-            try {
-                const response = await fetch('./app/Controllers/EmployeeController.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                    educationList();
-                    $('#employee_education_modal').modal('hide');
-                    enableButton('submit_employee_education');
-                    resetForm('employee_education_form');
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
-                    enableButton('submit_employee_education');
-                }
-            } catch (error) {
-                enableButton('submit_employee_education');
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-            }
-
-            return false;
-        }
-    });
-
-    $('#employee_experience_form').validate({
-        rules: {
             job_title: { required: true },
             company_name: { required: true },
             location: { required: true },
@@ -2528,7 +2454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button                    = event.target.closest('.view-employee-education-log-notes');
             const employee_education_id     = button.dataset.employeeEducationId;
 
-            attachLogNotesClassHandler('employee_education_id', employee_education_id);
+            attachLogNotesClassHandler('employee_education', employee_education_id);
         }
 
         if (event.target.closest('.delete-employee-education')){
@@ -2597,7 +2523,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button                            = event.target.closest('.view-employee-emergency-contact-log-notes');
             const employee_emergency_contact_id     = button.dataset.employeeEmergencyContactId;
 
-            attachLogNotesClassHandler('employee_emergency_contact_id', employee_emergency_contact_id);
+            attachLogNotesClassHandler('employee_emergency_contact', employee_emergency_contact_id);
         }
 
         if (event.target.closest('.delete-employee-emergency-contact')){
@@ -2666,7 +2592,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button                = event.target.closest('.view-employee-license-log-notes');
             const employee_license_id   = button.dataset.employeeLicenseId;
 
-            attachLogNotesClassHandler('employee_license_id', employee_license_id);
+            attachLogNotesClassHandler('employee_license', employee_license_id);
         }
 
         if (event.target.closest('.delete-employee-license')){
@@ -2735,7 +2661,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button                    = event.target.closest('.view-employee-experience-log-notes');
             const employee_experience_id    = button.dataset.employeeExperienceId;
 
-            attachLogNotesClassHandler('employee_experience_id', employee_experience_id);
+            attachLogNotesClassHandler('employee_experience', employee_experience_id);
         }
 
         if (event.target.closest('.delete-employee-experience')){

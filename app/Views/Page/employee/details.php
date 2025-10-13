@@ -1658,7 +1658,7 @@
                     <?= $security->csrfInput('employee_experience_form'); ?>
                     <input type="hidden" id="employee_experience_id" name="employee_experience_id">
                     <div class="row mb-6">
-                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="job_title">School</label>
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="job_title">Job Title</label>
                         <div class="col-lg-8">
                             <div class="row">
                                 <div class="col-lg-12 fv-row fv-plugins-icon-container">

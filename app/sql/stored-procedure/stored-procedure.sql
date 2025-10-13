@@ -4822,6 +4822,11 @@ BEGIN
         
         SET v_new_relationship_id = LAST_INSERT_ID();
     ELSE
+        UPDATE employee_emergency_contact
+        SET relationship_name   = p_relationship_name,
+            last_log_by         = p_last_log_by
+        WHERE relationship_id   = p_relationship_id;
+
         UPDATE relationship
         SET relationship_name   = p_relationship_name,
             last_log_by         = p_last_log_by
@@ -6452,6 +6457,11 @@ BEGIN
             last_log_by             = p_last_log_by
         WHERE employment_type_id    = p_employment_type_id;
 
+        UPDATE employee_experience
+        SET employment_type_name    = p_employment_type_name,
+            last_log_by             = p_last_log_by
+        WHERE employment_type_id    = p_employment_type_id;
+
         UPDATE employment_type
         SET employment_type_name    = p_employment_type_name,
             last_log_by             = p_last_log_by
@@ -7034,6 +7044,189 @@ BEGIN
             education_description       = p_education_description,
             last_log_by                 = p_last_log_by
         WHERE employee_education_id     = p_employee_education_id;
+    END IF;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS saveEmployeeEmergencyContact//
+
+CREATE PROCEDURE saveEmployeeEmergencyContact(
+    IN p_employee_emergency_contact_id INT, 
+    IN p_employee_id INT, 
+    IN p_emergency_contact_name VARCHAR(500),
+    IN p_relationship_id INT,
+    IN p_relationship_name VARCHAR(100),
+    IN p_telephone VARCHAR(50),
+    IN p_mobile VARCHAR(50),
+    IN p_email VARCHAR(200),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM employee_emergency_contact WHERE employee_emergency_contact_id = p_employee_emergency_contact_id) THEN
+       INSERT INTO employee_emergency_contact (
+            employee_id,
+            emergency_contact_name,
+            relationship_id,
+            relationship_name,
+            telephone,
+            mobile,
+            email,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_id,
+            p_emergency_contact_name,
+            p_relationship_id,
+            p_relationship_name,
+            p_telephone,
+            p_mobile,
+            p_email,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE employee_emergency_contact
+        SET emergency_contact_name              = p_emergency_contact_name,
+            relationship_id                     = p_relationship_id,
+            relationship_name                   = p_relationship_name,
+            telephone                           = p_telephone,
+            mobile                              = p_mobile,
+            email                               = p_email,
+            last_log_by                         = p_last_log_by
+        WHERE employee_emergency_contact_id     = p_employee_emergency_contact_id;
+    END IF;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS saveEmployeeLicense//
+
+CREATE PROCEDURE saveEmployeeLicense(
+    IN p_employee_license_id INT, 
+    IN p_employee_id INT, 
+    IN p_licensed_profession VARCHAR(200), 
+    IN p_licensing_body VARCHAR(200), 
+    IN p_license_number VARCHAR(200), 
+    IN p_issue_date DATE, 
+    IN p_expiration_date DATE, 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM employee_license WHERE employee_license_id = p_employee_license_id) THEN
+       INSERT INTO employee_license (
+            employee_id,
+            licensed_profession,
+            licensing_body,
+            license_number,
+            issue_date,
+            expiration_date,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_id,
+            p_licensed_profession,
+            p_licensing_body,
+            p_license_number,
+            p_issue_date,
+            p_expiration_date,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE employee_license
+        SET licensed_profession     = p_licensed_profession,
+            licensing_body          = p_licensing_body,
+            license_number          = p_license_number,
+            issue_date              = p_issue_date,
+            expiration_date         = p_expiration_date,
+            last_log_by             = p_last_log_by
+        WHERE employee_license_id   = p_employee_license_id;
+    END IF;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS saveEmployeeExperience//
+
+CREATE PROCEDURE saveEmployeeExperience(
+    IN p_employee_experience_id INT, 
+    IN p_employee_id INT, 
+    IN p_job_title VARCHAR(100),
+    IN p_employment_type_id INT,
+    IN p_employment_type_name VARCHAR(100),
+    IN p_company_name VARCHAR(200),
+    IN p_location VARCHAR(200),
+    IN p_start_month VARCHAR(20),
+    IN p_start_year VARCHAR(20),
+    IN p_end_month VARCHAR(20),
+    IN p_end_year VARCHAR(20),
+    IN p_job_description VARCHAR(5000),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM employee_experience WHERE employee_experience_id = p_employee_experience_id) THEN
+       INSERT INTO employee_experience (
+            employee_id,
+            job_title,
+            employment_type_id,
+            employment_type_name,
+            company_name,
+            location,
+            start_month,
+            start_year,
+            end_month,
+            end_year,
+            job_description,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_id,
+            p_job_title,
+            p_employment_type_id,
+            p_employment_type_name,
+            p_company_name,
+            p_location,
+            p_start_month,
+            p_start_year,
+            p_end_month,
+            p_end_year,
+            p_job_description,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE employee_experience
+        SET job_title                   = p_job_title,
+            employment_type_id          = p_employment_type_id,
+            employment_type_name        = p_employment_type_name,
+            company_name                = p_company_name,
+            location                    = p_location,
+            start_month                 = p_start_month,
+            start_year                  = p_start_year,
+            end_month                   = p_end_month,
+            end_year                    = p_end_year,
+            job_description             = p_job_description,
+            last_log_by                 = p_last_log_by
+        WHERE employee_experience_id    = p_employee_experience_id;
     END IF;
 
     COMMIT;
@@ -7738,6 +7931,39 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchEmployeeEmergencyContact//
+
+CREATE PROCEDURE fetchEmployeeEmergencyContact(
+    IN p_employee_emergency_contact_id INT
+)
+BEGIN
+	SELECT * FROM employee_emergency_contact
+	WHERE employee_emergency_contact_id = p_employee_emergency_contact_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchEmployeeLicense//
+
+CREATE PROCEDURE fetchEmployeeLicense(
+    IN p_employee_license_id INT
+)
+BEGIN
+	SELECT * FROM employee_license
+	WHERE employee_license_id = p_employee_license_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchEmployeeExperience//
+
+CREATE PROCEDURE fetchEmployeeExperience(
+    IN p_employee_experience_id INT
+)
+BEGIN
+	SELECT * FROM employee_experience
+	WHERE employee_experience_id = p_employee_experience_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -7795,6 +8021,63 @@ BEGIN
 
     DELETE FROM employee_education
     WHERE employee_education_id = p_employee_education_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteEmployeeEmergencyContact//
+
+CREATE PROCEDURE deleteEmployeeEmergencyContact(
+    IN p_employee_emergency_contact_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_emergency_contact
+    WHERE employee_emergency_contact_id = p_employee_emergency_contact_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteEmployeeLicense//
+
+CREATE PROCEDURE deleteEmployeeLicense(
+    IN p_employee_license_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_license
+    WHERE employee_license_id = p_employee_license_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteEmployeeExperience//
+
+CREATE PROCEDURE deleteEmployeeExperience(
+    IN p_employee_experience_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_experience
+    WHERE employee_experience_id = p_employee_experience_id;
 
     COMMIT;
 END //

@@ -80,6 +80,123 @@ class Employee extends Model {
             'p_last_log_by'             => $p_last_log_by
         ]);
     }
+
+    public function saveEmployeeEmergencyContact(
+        $p_employee_emergency_contact_id,
+        $p_employee_id,
+        $p_emergency_contact_name,
+        $p_relationship_id,
+        $p_relationship_name,
+        $p_telephone,
+        $p_mobile,
+        $p_email,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveEmployeeEmergencyContact(
+            :p_employee_emergency_contact_id,
+            :p_employee_id,
+            :p_emergency_contact_name,
+            :p_relationship_id,
+            :p_relationship_name,
+            :p_telephone,
+            :p_mobile,
+            :p_email,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_emergency_contact_id'   => $p_employee_emergency_contact_id,
+            'p_employee_id'                     => $p_employee_id,
+            'p_emergency_contact_name'          => $p_emergency_contact_name,
+            'p_relationship_id'                 => $p_relationship_id,
+            'p_relationship_name'               => $p_relationship_name,
+            'p_telephone'                       => $p_telephone,
+            'p_mobile'                          => $p_mobile,
+            'p_email'                           => $p_email,
+            'p_last_log_by'                     => $p_last_log_by
+        ]);
+    }
+
+    public function saveEmployeeLicense(
+        $p_employee_license_id,
+        $p_employee_id,
+        $p_licensed_profession,
+        $p_licensing_body,
+        $p_license_number,
+        $p_issue_date,
+        $p_expiration_date,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveEmployeeLicense(
+            :p_employee_license_id,
+            :p_employee_id,
+            :p_licensed_profession,
+            :p_licensing_body,
+            :p_license_number,
+            :p_issue_date,
+            :p_expiration_date,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_license_id'     => $p_employee_license_id,
+            'p_employee_id'             => $p_employee_id,
+            'p_licensed_profession'     => $p_licensed_profession,
+            'p_licensing_body'          => $p_licensing_body,
+            'p_license_number'          => $p_license_number,
+            'p_issue_date'              => $p_issue_date,
+            'p_expiration_date'         => $p_expiration_date,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
+    public function saveEmployeeExperience(
+        $p_employee_experience_id,
+        $p_employee_id,
+        $p_job_title,
+        $p_employment_type_id,
+        $p_employment_type_name,
+        $p_company_name,
+        $p_location,
+        $p_start_month,
+        $p_start_year,
+        $p_end_month,
+        $p_end_year,
+        $p_job_description,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveEmployeeExperience(
+            :p_employee_experience_id,
+            :p_employee_id,
+            :p_job_title,
+            :p_employment_type_id,
+            :p_employment_type_name,
+            :p_company_name,
+            :p_location,
+            :p_start_month,
+            :p_start_year,
+            :p_end_month,
+            :p_end_year,
+            :p_job_description,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_experience_id'  => $p_employee_experience_id,
+            'p_employee_id'             => $p_employee_id,
+            'p_job_title'               => $p_job_title,
+            'p_employment_type_id'      => $p_employment_type_id,
+            'p_employment_type_name'    => $p_employment_type_name,
+            'p_company_name'            => $p_company_name,
+            'p_location'                => $p_location,
+            'p_start_month'             => $p_start_month,
+            'p_start_year'              => $p_start_year,
+            'p_end_month'               => $p_end_month,
+            'p_end_year'                => $p_end_year,
+            'p_job_description'         => $p_job_description,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -663,14 +780,50 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeEducation(
-        $p_employee_educatuib_id
+        $p_employee_education_id
     ): array|null {
         $sql = 'CALL fetchEmployeeEducation(
-            :p_employee_educatuib_id
+            :p_employee_education_id
         )';
         
         return $this->fetch($sql, [
-            'p_employee_educatuib_id' => $p_employee_educatuib_id
+            'p_employee_education_id' => $p_employee_education_id
+        ]);
+    }
+
+    public function fetchEmployeeEmergencyContact(
+        $p_employee_emergency_contact_id
+    ): array|null {
+        $sql = 'CALL fetchEmployeeEmergencyContact(
+            :p_employee_emergency_contact_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_employee_emergency_contact_id' => $p_employee_emergency_contact_id
+        ]);
+    }
+
+    public function fetchEmployeeLicense(
+        $p_employee_license_id
+    ): array|null {
+        $sql = 'CALL fetchEmployeeLicense(
+            :p_employee_license_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_employee_license_id' => $p_employee_license_id
+        ]);
+    }
+
+    public function fetchEmployeeExperience(
+        $p_employee_experience_id
+    ): array|null {
+        $sql = 'CALL fetchEmployeeExperience(
+            :p_employee_experience_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_employee_experience_id' => $p_employee_experience_id
         ]);
     }
     
@@ -711,6 +864,42 @@ class Employee extends Model {
         
         return $this->query($sql, [
             'p_employee_education_id' => $p_employee_education_id
+        ]);
+    }
+
+    public function deleteEmployeeEmergencyContact(
+        $p_employee_emergency_contact_id
+    ) {
+        $sql = 'CALL deleteEmployeeEmergencyContact(
+            :p_employee_emergency_contact_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_emergency_contact_id' => $p_employee_emergency_contact_id
+        ]);
+    }
+
+    public function deleteEmployeeLicense(
+        $p_employee_license_id
+    ) {
+        $sql = 'CALL deleteEmployeeLicense(
+            :p_employee_license_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_license_id' => $p_employee_license_id
+        ]);
+    }
+
+    public function deleteEmployeeExperience(
+        $p_employee_experience_id
+    ) {
+        $sql = 'CALL deleteEmployeeExperience(
+            :p_employee_experience_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_experience_id' => $p_employee_experience_id
         ]);
     }
 

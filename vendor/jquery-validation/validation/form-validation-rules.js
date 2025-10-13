@@ -19,15 +19,6 @@ $.validator.addMethod('employee_age', function(value, element, min) {
     return age >= min;
 }, 'The employee must be at least 18 years old and above');
 
-// Rule for contact information
-$.validator.addMethod('contactInformationRequired', function(value, element) {
-    var emailIsEmpty = $("#contact_information_email").val() === "";
-    var mobileIsEmpty = $("#contact_information_mobile").val() === "";
-    var telephoneIsEmpty = $("#contact_information_telephone").val() === "";
-
-    return !(emailIsEmpty && mobileIsEmpty && telephoneIsEmpty);
-}, 'Please enter either email, mobile, or telephone');
-
 // Rule for contact emergency contact
 $.validator.addMethod('contactEmergencyContactRequired', function(value, element) {
     var emailIsEmpty = $("#emergency_contact_email").val() === "";
