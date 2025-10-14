@@ -248,6 +248,32 @@ class Employee extends Model {
 
         return $row['new_employee_id'] ?? null;
     }
+    public function insertEmployeeDocument(
+        $p_employee_id,
+        $p_document_name,
+        $p_document_file,
+        $p_employee_document_type_id,
+        $p_employee_document_type_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertEmployeeDocument(
+            :p_employee_id,
+            :p_document_name,
+            :p_document_file,
+            :p_employee_document_type_id,
+            :p_employee_document_type_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_employee_id'                     => $p_employee_id,
+            'p_document_name'                   => $p_document_name,
+            'p_document_file'                   => $p_document_file,
+            'p_employee_document_type_id'       => $p_employee_document_type_id,
+            'p_employee_document_type_name'     => $p_employee_document_type_name,
+            'p_last_log_by'                     => $p_last_log_by
+        ]);
+    }
 
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
@@ -826,6 +852,18 @@ class Employee extends Model {
             'p_employee_experience_id' => $p_employee_experience_id
         ]);
     }
+
+    public function fetchEmployeeDocument(
+        $p_employee_document_id
+    ): array|null {
+        $sql = 'CALL fetchEmployeeDocument(
+            :p_employee_document_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_employee_document_id' => $p_employee_document_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -900,6 +938,18 @@ class Employee extends Model {
         
         return $this->query($sql, [
             'p_employee_experience_id' => $p_employee_experience_id
+        ]);
+    }
+
+    public function deleteEmployeeDocument(
+        $p_employee_document_id
+    ) {
+        $sql = 'CALL deleteEmployeeDocument(
+            :p_employee_document_id
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_document_id' => $p_employee_document_id
         ]);
     }
 
@@ -1050,6 +1100,18 @@ class Employee extends Model {
         $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeExperienceList(
+            :p_employee_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
+        ]);
+    }
+
+    public function generateEmployeeDocumentTable(
+        $p_employee_id
+    ) {
+        $sql = 'CALL generateEmployeeDocumentTable(
             :p_employee_id
         )';
 

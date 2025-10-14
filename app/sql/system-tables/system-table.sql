@@ -974,7 +974,8 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 ('Import File', 'Sets the upload setting when importing data.', 800),
 ('User Account Profile Picture', 'Sets the upload setting when uploading user account profile picture.', 800),
 ('Company Logo', 'Sets the upload setting when uploading company logo.', 800),
-('Employee Image', 'Sets the upload setting when uploading employee image.', 800);
+('Employee Image', 'Sets the upload setting when uploading employee image.', 800),
+('Employee Document', 'Sets the upload setting when uploading employee document.', 800);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -1039,7 +1040,18 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, upload_setting_nam
 (5, 'Company Logo', 62, 'JPEG', 'jpeg'),
 (6, 'Employee Image', 63, 'PNG', 'png'),
 (6, 'Employee Image', 61, 'JPG', 'jpg'),
-(7, 'Employee Image', 62, 'JPEG', 'jpeg');
+(6, 'Employee Image', 62, 'JPEG', 'jpeg'),
+(7, 'Employee Document', 63, 'PNG', 'png'),
+(7, 'Employee Document', 61, 'JPG', 'jpg'),
+(7, 'Employee Document', 62, 'JPEG', 'jpeg'),
+(7, 'Employee Document', 127, 'PDF', 'pdf'),
+(7, 'Employee Document', 125, 'DOC', 'doc'),
+(7, 'Employee Document', 125, 'DOCX', 'docx'),
+(7, 'Employee Document', 130, 'TXT', 'txt'),
+(7, 'Employee Document', 92, 'XLS', 'xls'),
+(7, 'Employee Document', 94, 'XLSX', 'xlsx'),
+(7, 'Employee Document', 89, 'PPT', 'ppt'),
+(7, 'Employee Document', 90, 'PPTX', 'pptx');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -8202,10 +8214,13 @@ CREATE TABLE employee_document (
   employee_id INT UNSIGNED NOT NULL,
   document_name VARCHAR(200) NOT NULL,
   document_file VARCHAR(500) NOT NULL,
+  employee_document_type_id INT UNSIGNED NOT NULL,
+  employee_document_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (employee_document_type_id) REFERENCES employee_document_type(employee_document_type_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -8230,7 +8245,7 @@ CREATE TABLE employee_document (
 DROP TABLE IF EXISTS employee_document_type;
 
 CREATE TABLE employee_document_type (
-  employee_document_typee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_document_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   employee_document_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

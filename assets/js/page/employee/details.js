@@ -1,4 +1,5 @@
 import { disableButton, enableButton, generateDropdownOptions, resetForm, initializeDatePicker } from '../../utilities/form-utilities.js';
+import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { attachLogNotesHandler, attachLogNotesClassHandler } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
@@ -277,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' },
         { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
         { url: './app/Controllers/RelationshipController.php', selector: '#relationship_id', transaction: 'generate relationship options' },
+        { url: './app/Controllers/EmployeeDocumentTypeController.php', selector: '#employee_document_type_id', transaction: 'generate employee document type options' },
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -431,6 +433,30 @@ document.addEventListener('DOMContentLoaded', () => {
         resetForm(`update_${formName}_form`);
     }
 
+    initializeDatatable({
+        selector: '#employee-document-table',
+        ajaxUrl: './app/Controllers/EmployeeController.php',
+        transaction: 'generate employee document table',
+        ajaxData: {
+            employee_id: document.getElementById('details-id')?.textContent.trim()
+        },
+        columns: [
+            { data: 'DOCUMENT' },
+            { data: 'SIZE' },
+            { data: 'UPLOAD_DATE' },
+            { data: 'LAST_MODIFIED' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, type: 'date', responsivePriority: 3 },
+            { width: 'auto', targets: 3, type: 'date', responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+        ],
+        order : [[2, 'desc']]
+    });
+
     attachLogNotesHandler('#log-notes-main', '#details-id', 'employee');
     initializeDatePicker('#birthday');
     initializeDatePicker('#on_board_date');
@@ -442,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emergencyContactList();
     licenseList();
     experienceList();
+    initializeDatatableControls('#employee-document-table');
 
     $('#personal_details_form').validate({
         rules: {
@@ -2381,6 +2408,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#employee_document_form').validate({
+        rules: {
+            document_name: { required: true },
+            document_file: { required: true },
+            employee_document_type_id: { required: true }
+        },
+        messages: {
+            document_name: { required: 'Enter the document name' },
+            document_file: { required: 'Choose the document file' },
+            employee_document_type_id: { required: 'Choose the document type' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'insert employee document';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new FormData(form);
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_document');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    reloadDatatable('#employee-document-table');
+                    $('#employee_document_modal').modal('hide');
+                    enableButton('submit_employee_document');
+                    resetForm('employee_document_form');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_document');
+                }
+            } catch (error) {
+                enableButton('submit_employee_document');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
             const section           = event.target.closest('[data-toggle-section]');
@@ -2701,6 +2803,64 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         experienceList();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('.view-employee-document-log-notes')){
+            const button                = event.target.closest('.view-employee-document-log-notes');
+            const employee_document_id  = button.dataset.employeeDocumentId;
+
+            attachLogNotesClassHandler('employee_document', employee_document_id);
+        }
+
+        if (event.target.closest('.delete-employee-document')){
+            const transaction           = 'delete employee document';
+            const button                = event.target.closest('.delete-employee-document');
+            const employee_document_id  = button.dataset.employeeDocumentId;
+
+            Swal.fire({
+                title: 'Confirm Employee Document Deletion',
+                text: 'Are you sure you want to delete this employee document?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_document_id', employee_document_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#employee-document-table');
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

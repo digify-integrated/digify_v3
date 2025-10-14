@@ -47,7 +47,6 @@ class UserAccountController
         }
 
         $transaction    = $_POST['transaction'] ?? null;
-        $pageId         = $_POST['page_id'] ?? null;
         $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {

@@ -344,7 +344,7 @@
             </li>            
         </ul>
 
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content">
             <div class="tab-pane fade active show" id="private_details_tab" role="tabpanel">
                 <div class="card pt-4 mb-6 mb-xl-9">
                     <div class="card-header">
@@ -1130,6 +1130,39 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="tab-pane fade" id="employee_document_tab" role="tabpanel">
+                <div class="card">
+                    <div class="card-header border-0 pt-6">
+                        <div class="card-title">
+                            <?php require './app/Views/Partials/datatable-search.php'; ?>
+                        </div>
+                        <div class="card-toolbar">
+                            <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                <?php
+                                    echo ($permissions['write'] > 0) ? '<button type="button" class="btn btn-light-primary btn-sm" id="add-document" data-bs-toggle="modal" data-bs-target="#employee_document_modal">
+                                                                            Add Document
+                                                                        </button>' : '';
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-9">
+                        <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="employee-document-table">
+                            <thead>
+                                <tr class="fw-semibold fs-6 text-gray-800">
+                                    <th>Document</th>
+                                    <th>Size</th>
+                                    <th>Upload Date</th>
+                                    <th>Last Modified</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1765,6 +1798,63 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="employee_experience_form" class="btn btn-primary" id="submit_employee_experience">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="employee_document_modal" class="modal fade" tabindex="-1" aria-labelledby="employee_document_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Employee Document</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="employee_document_form" method="post" action="#">
+                    <?= $security->csrfInput('employee_document_form'); ?>
+                    <input type="hidden" id="employee_document_id" name="employee_document_id">
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="document_name">Document Name</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="text" class="form-control mb-3 mb-lg-0" id="document_name" name="document_name" maxlength="200" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="document_file">Document File</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input type="file" class="form-control mb-3 mb-lg-0" id="document_file" name="document_file" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="employee_document_type_id">Document Type</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="employee_document_type_id" name="employee_document_type_id" data-dropdown-parent="#employee_document_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employee_document_form" class="btn btn-primary" id="submit_employee_document">Save</button>
             </div>
         </div>
     </div>

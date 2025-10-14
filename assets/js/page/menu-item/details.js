@@ -48,28 +48,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const dropdownConfigs = [
+        { url: './app/Controllers/AppModuleController.php', selector: '#app_module_id', transaction: 'generate app module options' },
+        { url: './app/Controllers/ExportController.php', selector: '#table_name', transaction: 'generate export table options' },
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
+    });
+
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#parent_id',
         data: { 
             transaction: 'generate menu item options',
             menu_item_id: document.getElementById('details-id')?.textContent.trim()
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/AppModuleController.php',
-        dropdownSelector: '#app_module_id',
-        data: { 
-            transaction: 'generate app module options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/ExportController.php',
-        dropdownSelector: '#table_name',
-        data: { 
-            transaction: 'generate export table options'
         }
     });
 
@@ -103,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { width: 'auto', bSortable: false, targets: 8, responsivePriority: 1 }
         ],
         order : [[0, 'asc']]
-    });    
+    });
 
     initializeDatatableControls('#role-permission-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');

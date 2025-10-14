@@ -218,6 +218,43 @@ class SystemHelper extends Security
         return true;
     }
 
+    public static function getFileDetails(?string $filePath, bool $withIcon = false): ?array
+    {
+        if (empty($filePath)) {
+            return null;
+        }
+
+        // Normalize path (remove leading "./" if present)
+        $normalizedPath = ltrim($filePath, './');
+
+        // Build absolute path relative to project root
+        $absolutePath = __DIR__ . '/../../' . $normalizedPath;
+
+        // Check if the file actually exists
+        if (!file_exists($absolutePath)) {
+            return null; // Or return ['size' => null, 'icon' => null] depending on how you want to handle missing files
+        }
+
+        // Get file size in bytes and format it
+        $fileSizeBytes  = filesize($absolutePath);
+        $formattedSize  = self::getFormatBytes($fileSizeBytes);
+
+        // Prepare the response
+        $result = [
+            'size' => $formattedSize,
+        ];
+
+        // Optionally get the icon based on extension
+        if ($withIcon) {
+            $extension          = strtolower(pathinfo($normalizedPath, PATHINFO_EXTENSION));
+            $icon               = self::getFileExtensionIcon($extension);
+            $result['icon']     = $icon;
+        }
+
+        return $result;
+    }
+
+
 
     /**
      * Map file extension to icon.
@@ -228,23 +265,23 @@ class SystemHelper extends Security
     public static function getFileExtensionIcon(string $type): string
     {
         $icons = [
-            'ai'   => './assets/images/file-icon/img-file-ai.svg',
-            'doc'  => './assets/images/file-icon/img-file-doc.svg',
-            'docx' => './assets/images/file-icon/img-file-doc.svg',
-            'jpeg' => './assets/images/file-icon/img-file-img.svg',
-            'jpg'  => './assets/images/file-icon/img-file-img.svg',
-            'png'  => './assets/images/file-icon/img-file-img.svg',
-            'gif'  => './assets/images/file-icon/img-file-img.svg',
-            'pdf'  => './assets/images/file-icon/img-file-pdf.svg',
-            'ppt'  => './assets/images/file-icon/img-file-ppt.svg',
-            'pptx' => './assets/images/file-icon/img-file-ppt.svg',
-            'rar'  => './assets/images/file-icon/img-file-rar.svg',
-            'txt'  => './assets/images/file-icon/img-file-txt.svg',
-            'xls'  => './assets/images/file-icon/img-file-xls.svg',
-            'xlsx' => './assets/images/file-icon/img-file-xls.svg',
+            'ai'   => './assets/images/file_icon/img-file-ai.svg',
+            'doc'  => './assets/images/file_icon/img-file-doc.svg',
+            'docx' => './assets/images/file_icon/img-file-doc.svg',
+            'jpeg' => './assets/images/file_icon/img-file-img.svg',
+            'jpg'  => './assets/images/file_icon/img-file-img.svg',
+            'png'  => './assets/images/file_icon/img-file-img.svg',
+            'gif'  => './assets/images/file_icon/img-file-img.svg',
+            'pdf'  => './assets/images/file_icon/img-file-pdf.svg',
+            'ppt'  => './assets/images/file_icon/img-file-ppt.svg',
+            'pptx' => './assets/images/file_icon/img-file-ppt.svg',
+            'rar'  => './assets/images/file_icon/img-file-rar.svg',
+            'txt'  => './assets/images/file_icon/img-file-txt.svg',
+            'xls'  => './assets/images/file_icon/img-file-xls.svg',
+            'xlsx' => './assets/images/file_icon/img-file-xls.svg',
         ];
 
-        return $icons[$type] ?? './assets/images/file-icon/img-file-img.svg';
+        return $icons[$type] ?? './assets/images/file_icon/img-file-img.svg';
     }
 
     /**

@@ -20,6 +20,7 @@ use App\Models\WorkLocation;
 use App\Models\Language;
 use App\Models\LanguageProficiency;
 use App\Models\Relationship;
+use App\Models\EmployeeDocumentType;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -45,6 +46,7 @@ class EmployeeController
     protected Language $language;
     protected LanguageProficiency $languageProficiency;
     protected Relationship $relationship;
+    protected EmployeeDocumentType $employeeDocumentType;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -67,6 +69,7 @@ class EmployeeController
         Language $language,
         LanguageProficiency $languageProficiency,
         Relationship $relationship,
+        EmployeeDocumentType $employeeDocumentType,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -87,7 +90,8 @@ class EmployeeController
         $this->workLocation             = $workLocation;
         $this->language                 = $language;
         $this->languageProficiency      = $languageProficiency;
-        $this->relationship      = $relationship;
+        $this->relationship             = $relationship;
+        $this->employeeDocumentType     = $employeeDocumentType;
         $this->authentication           = $authentication;
         $this->uploadSetting            = $uploadSetting;
         $this->security                 = $security;
@@ -141,6 +145,7 @@ class EmployeeController
             'save employee emergency contact'           => $this->saveEmployeeEmergencyContact($lastLogBy),
             'save employee license'                     => $this->saveEmployeeLicense($lastLogBy),
             'save employee experience'                  => $this->saveEmployeeExperience($lastLogBy),
+            'insert employee document'                  => $this->insertEmployeeDocument($lastLogBy),
             'update employee personal details'          => $this->updateEmployeePersonalDetails($lastLogBy),
             'update employee pin code'                  => $this->updateEmployeePINCode($lastLogBy),
             'update employee badge id'                  => $this->updateEmployeeBadgeId($lastLogBy),
@@ -171,6 +176,7 @@ class EmployeeController
             'delete employee emergency contact'         => $this->deleteEmployeeEmergencyContact(),
             'delete employee license'                   => $this->deleteEmployeeLicense(),
             'delete employee experience'                => $this->deleteEmployeeExperience(),
+            'delete employee document'                  => $this->deleteEmployeeDocument(),
             'fetch employee details'                    => $this->fetchEmployeeDetails(),
             'fetch employee education details'          => $this->fetchEmployeeEducationDetails(),
             'fetch employee emergency contact details'  => $this->fetchEmployeeEmergencyContactDetails(),
@@ -184,6 +190,7 @@ class EmployeeController
             'generate employee emergency contact list'  => $this->generateEmployeeEmergencyContactList($lastLogBy, $pageId),
             'generate employee license list'            => $this->generateEmployeeLicenseList($lastLogBy, $pageId),
             'generate employee experience list'         => $this->generateEmployeeExperienceList($lastLogBy, $pageId),
+            'generate employee document table'          => $this->generateEmployeeDocumentTable($lastLogBy, $pageId),
             default                                     => $this->systemHelper::sendErrorResponse(
                                                                 'Transaction Failed',
                                                                 'We encountered an issue while processing your request.'
@@ -374,6 +381,109 @@ class EmployeeController
         $this->systemHelper->sendSuccessResponse(
             'Save Employee Work Experience Success',
             'The employee work experience has been saved successfully.'
+        );
+    }
+
+    public function insertEmployeeDocument($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_document_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId                 = $_POST['employee_id'] ?? null;
+        $documentName               = $_POST['document_name'] ?? null;
+        $employeeDocumentTypeId     = $_POST['employee_document_type_id'] ?? null;
+
+        if (!isset($_FILES['document_file'])) {
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'No document file was uploaded.'
+            );
+        }
+       
+        $documentFileFileName               = $_FILES['document_file']['name'];
+        $documentFileFileSize               = $_FILES['document_file']['size'];
+        $documentFileFileError              = $_FILES['document_file']['error'];
+        $documentFileTempName               = $_FILES['document_file']['tmp_name'];
+        $documentFileFileExtension          = explode('.', $documentFileFileName);
+        $documentFileActualFileExtension    = strtolower(end($documentFileFileExtension));
+
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(7);
+        $maxFileSize    = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(7);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $allowedFileExtensions[] = $row['file_extension'];
+        }
+
+        if (!in_array($documentFileActualFileExtension, $allowedFileExtensions)) {              
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'The file uploaded is not supported.'
+            );
+        }
+                
+        if(empty($documentFileTempName)){
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'Please choose the employee document.'
+            );
+        }
+                
+        if($documentFileFileError){                
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'An error occurred while uploading the file.'
+            );
+        }
+                
+        if($documentFileFileSize > ($maxFileSize * 1024)){
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'The employee document exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
+            );
+        }
+
+        $fileName   = $this->security->generateFileName();
+        $fileNew    = $fileName . '.' . $documentFileActualFileExtension;
+                
+        define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
+
+        $uploadsDir         = PROJECT_BASE_DIR . '/storage/uploads/';
+        $directory          = $uploadsDir . 'employee/' . $employeeId . '/document/';
+        $fileDestination    = $directory . $fileNew;
+        $filePath           = 'storage/uploads/employee/' . $employeeId . '/document/' . $fileNew;
+
+        $directoryChecker = $this->security->directoryChecker($directory);
+
+        if ($directoryChecker !== true) {
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error',
+                $directoryChecker
+            );
+        }
+
+        if(!move_uploaded_file($documentFileTempName, $fileDestination)){
+            $this->systemHelper::sendErrorResponse(
+                'Save Employee Document Error', 
+                'The employee document cannot be uploaded due to an error'
+            );
+        }
+
+        $employeeDocumentTypeDetails    = $this->employeeDocumentType->fetchEmployeeDocumentType($employeeDocumentTypeId);
+        $employeeDocumentTypeName       = $employeeDocumentTypeDetails['employee_document_type_name'] ?? null;
+
+        $this->employee->insertEmployeeDocument($employeeId, $documentName, $filePath, $employeeDocumentTypeId, $employeeDocumentTypeName, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Employee Document Success',
+            'The employee document has been saved successfully.'
         );
     }
 
@@ -1089,6 +1199,22 @@ class EmployeeController
         );
     }
 
+    public function deleteEmployeeDocument(){
+        $employeeDocumentId = $_POST['employee_document_id'] ?? null;
+
+        $employeeDocumentDetails    = $this->employee->fetchEmployeeDocument($employeeDocumentId);
+        $documentFile               = $employeeDocumentDetails['document_file'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($documentFile);
+
+        $this->employee->deleteEmployeeDocument($employeeDocumentId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Employee Document Success',
+            'The employee document has been deleted successfully.'
+        );
+    }
+
     public function fetchEmployeeDetails(){
         $employeeId             = $_POST['employee_id'] ?? null;
         $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
@@ -1780,6 +1906,66 @@ class EmployeeController
 
         echo json_encode($response);
     }
+
+    public function generateEmployeeDocumentTable($lastLogBy, $pageId)
+    {
+        $employeeId     = $_POST['employee_id'] ?? null;
+        $response       = [];
+
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
+
+        $menuItems = $this->employee->generateEmployeeDocumentTable($employeeId);
+
+        foreach ($menuItems as $row) {
+            $employeeDocumentId         = $row['employee_document_id'];
+            $documentName               = $row['document_name'];
+            $documentFile               = $row['document_file'];
+            $employeeDocumentTypeName   = $row['employee_document_type_name'];
+            $createdDate                = $this->systemHelper->checkDate('summary', $row['created_date'] ?? null, '', 'M d, Y h:i:s a', '');
+            $lastUpdated                = $this->systemHelper->checkDate('summary', $row['last_updated'] ?? null, '', 'M d, Y h:i:s a', '');
+
+            $documentFileDetails = $this->systemHelper->getFileDetails($documentFile, true);
+
+            $button = '';
+            if($writeAccess > 0){
+                $button = '<button class="btn btn-icon btn-light btn-active-light-danger delete-employee-document" data-employee-document-id="' . $employeeDocumentId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-employee-document-log-notes" data-employee-document-id="' . $employeeDocumentId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $response[] = [
+                'DOCUMENT'         => '<div class="d-flex align-items-center">
+                                            <div class="symbol symbol-30px me-5">
+                                                <img src="'. $documentFileDetails['icon'] .'" alt="'. $documentName .'">
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <span class="text-gray-800 fw-bold mb-1">'. $documentName .'</span>
+                                                <small class="text-gray-600">'. $employeeDocumentTypeName .'</small>
+                                            </div>
+                                        </div>',
+                'SIZE'              => $documentFileDetails['size'],
+                'UPLOAD_DATE'       => $createdDate,
+                'LAST_MODIFIED'     => $lastUpdated,
+                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
+                                            '. $logNotes .'
+                                            <a href="'. $documentFile .'" class="btn btn-icon btn-light btn-active-light-warning" download="'. $documentName .'" target="_blank">
+                                                <i class="ki-outline ki-file-down fs-3 m-0 fs-5"></i>
+                                            </a>
+                                            '. $button .'
+                                        </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
 }
 
 # Bootstrap the controller
@@ -1800,6 +1986,7 @@ $controller = new EmployeeController(
     new Language(),
     new LanguageProficiency(),
     new Relationship(),
+    new EmployeeDocumentType(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

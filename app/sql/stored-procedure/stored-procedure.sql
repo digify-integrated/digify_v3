@@ -7298,6 +7298,44 @@ BEGIN
     SELECT v_new_employee_id AS new_employee_id;
 END //
 
+DROP PROCEDURE IF EXISTS insertEmployeeDocument//
+
+CREATE PROCEDURE insertEmployeeDocument(
+    IN p_employee_id INT,
+    IN p_document_name VARCHAR(200),
+    IN p_document_file VARCHAR(500),
+    IN p_employee_document_type_id INT,
+    IN p_employee_document_type_name VARCHAR(500),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO employee_document (
+        employee_id,
+        document_name,
+        document_file,
+        employee_document_type_id,
+        employee_document_type_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_employee_id,
+        p_document_name,
+        p_document_file,
+        p_employee_document_type_id,
+        p_employee_document_type_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -7964,6 +8002,17 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchEmployeeDocument//
+
+CREATE PROCEDURE fetchEmployeeDocument(
+    IN p_employee_document_id INT
+)
+BEGIN
+	SELECT * FROM employee_document
+	WHERE employee_document_id = p_employee_document_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -8078,6 +8127,25 @@ BEGIN
 
     DELETE FROM employee_experience
     WHERE employee_experience_id = p_employee_experience_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteEmployeeDocument//
+
+CREATE PROCEDURE deleteEmployeeDocument(
+    IN p_employee_document_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_document
+    WHERE employee_document_id = p_employee_document_id;
 
     COMMIT;
 END //
@@ -8353,6 +8421,168 @@ BEGIN
         END DESC,
         COALESCE(NULLIF(end_year, ''), start_year) DESC,
         COALESCE(NULLIF(end_month, ''), start_month) DESC;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeDocumentTable//
+
+CREATE PROCEDURE generateEmployeeDocumentTable(
+    IN p_employee_id INT
+)
+BEGIN
+    SELECT 
+        employee_document_id, 
+        document_name, 
+        document_file, 
+        employee_document_type_name, 
+        created_date, 
+        last_updated
+    FROM employee_document
+    WHERE employee_id = p_employee_id
+    ORDER BY created_date DESC;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: EMPLOYEE DOCUMENT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveEmployeeDocumentType//
+
+CREATE PROCEDURE saveEmployeeDocumentType(
+    IN p_employee_document_type_id INT, 
+    IN p_employee_document_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_employee_document_type_id INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_employee_document_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM employee_document_type WHERE employee_document_type_id = p_employee_document_type_id) THEN
+        INSERT INTO employee_document_type (
+            employee_document_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_employee_document_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_employee_document_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE employee_document
+        SET employee_document_type_name   = p_employee_document_type_name,
+            last_log_by                     = p_last_log_by
+        WHERE employee_document_type_id   = p_employee_document_type_id;
+
+        UPDATE employee_document_type
+        SET employee_document_type_name   = p_employee_document_type_name,
+            last_log_by                     = p_last_log_by
+        WHERE employee_document_type_id   = p_employee_document_type_id;
+
+        SET v_new_employee_document_type_id = p_employee_document_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_employee_document_type_id AS new_employee_document_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchEmployeeDocumentType//
+
+CREATE PROCEDURE fetchEmployeeDocumentType(
+    IN p_employee_document_type_id INT
+)
+BEGIN
+	SELECT * FROM employee_document_type
+	WHERE employee_document_type_id = p_employee_document_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteEmployeeDocumentType//
+
+CREATE PROCEDURE deleteEmployeeDocumentType(
+    IN p_employee_document_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM employee_document_type
+    WHERE employee_document_type_id = p_employee_document_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkEmployeeDocumentTypeExist//
+
+CREATE PROCEDURE checkEmployeeDocumentTypeExist(
+    IN p_employee_document_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employee_document_type
+    WHERE employee_document_type_id = p_employee_document_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateEmployeeDocumentTypeTable//
+
+CREATE PROCEDURE generateEmployeeDocumentTypeTable()
+BEGIN
+	SELECT employee_document_type_id, employee_document_type_name
+    FROM employee_document_type 
+    ORDER BY employee_document_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateEmployeeDocumentTypeOptions//
+
+CREATE PROCEDURE generateEmployeeDocumentTypeOptions()
+BEGIN
+	SELECT employee_document_type_id, employee_document_type_name 
+    FROM employee_document_type 
+    ORDER BY employee_document_type_name;
 END //
 
 /* =============================================================================================

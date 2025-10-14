@@ -5,18 +5,18 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction                   = 'fetch employment location type details';
+        const transaction                   = 'fetch employee document type details';
         const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const employment_location_type_id   = document.getElementById('details-id')?.textContent.trim();
+        const employee_document_type_id     = document.getElementById('details-id')?.textContent.trim();
 
         try {
-            resetForm('employment_location_type_form');
+            resetForm('employee_document_type_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('employment_location_type_id', employment_location_type_id);
+            formData.append('employee_document_type_id', employee_document_type_id);
 
-            const response = await fetch('./app/Controllers/EmploymentLocationTypeController.php', {
+            const response = await fetch('./app/Controllers/EmployeeDocumentTypeController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('employment_location_type_name').value = data.employmentLocationTypeName || '';
+                document.getElementById('employee_document_type_name').value = data.employeeDocumentTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -42,17 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'employment_location_type');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'employee_document_type');
     displayDetails();
 
-    $('#employment_location_type_form').validate({
+    $('#employee_document_type_form').validate({
         rules: {
-            employment_location_type_name: {
+            employee_document_type_name: {
                 required: true
             }
         },
         messages: {
-            employment_location_type_name: {
+            employee_document_type_name: {
                 required: 'Enter the display name'
             }
         },
@@ -76,23 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction                   = 'save employment location type';
-            const employment_location_type_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction                   = 'save employee document type';
+            const employee_document_type_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('employment_location_type_id', employment_location_type_id);
+            formData.append('employee_document_type_id', employee_document_type_id);
 
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/EmploymentLocationTypeController.php', {
+                const response = await fetch('./app/Controllers/EmployeeDocumentTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save employment location type failed with status: ${response.status}`);
+                    throw new Error(`Save employee document type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -120,15 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-employment-location-type')) return;
+        if (!event.target.closest('#delete-employee-document-type')) return;
 
-        const transaction                   = 'delete employment location type';
-        const employment_location_type_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction                   = 'delete employee document type';
+        const employee_document_type_id     = document.getElementById('details-id')?.textContent.trim();
         const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
-            title: 'Confirm Employment Location Type Deletion',
-            text: 'Are you sure you want to delete this employment location type?',
+            title: 'Confirm Employee Document Type Deletion',
+            text: 'Are you sure you want to delete this employee document type?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -144,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('employment_location_type_id', employment_location_type_id);
+                formData.append('employee_document_type_id', employee_document_type_id);
 
-                const response = await fetch('./app/Controllers/EmploymentLocationTypeController.php', {
+                const response = await fetch('./app/Controllers/EmployeeDocumentTypeController.php', {
                     method: 'POST',
                     body: formData
                 });

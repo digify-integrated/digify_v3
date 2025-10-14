@@ -2696,7 +2696,7 @@ END //
 
 
 /* =============================================================================================
-   TRIGGER: EMPLOYEE LANGUAGE
+   TRIGGER: EMPLOYEE DOCUMENT
 ============================================================================================= */
 
 /* =============================================================================================
@@ -2718,6 +2718,54 @@ END //
 /* =============================================================================================
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: EMPLOYEE DOCUMENT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employee_document_type_update//
+
+CREATE TRIGGER trg_employee_document_type_update
+AFTER UPDATE ON employee_document_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment document type changed.<br/><br/>';
+
+    IF NEW.employee_document_type_name <> OLD.employee_document_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employment Document Type Name: ", OLD.employee_document_type_name, " -> ", NEW.employee_document_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Employment document type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('employee_document_type', NEW.employee_document_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_employee_document_type_insert//
+
+CREATE TRIGGER trg_employee_document_type_insert
+AFTER INSERT ON employee_document_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employment document type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employee_document_type', NEW.employee_document_type_id, audit_log, NEW.last_log_by, NOW());
+END //
 
 /* =============================================================================================
    END OF TRIGGERS
