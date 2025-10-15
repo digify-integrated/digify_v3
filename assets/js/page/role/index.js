@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction   = 'delete multiple role';
         const role_id       = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                .filter(checkbox => checkbox.checked)
-                                .map(checkbox => checkbox.value);
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
 
         Swal.fire({
             title: 'Confirm Multiple Roles Deletion',

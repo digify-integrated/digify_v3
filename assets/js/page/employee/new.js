@@ -3,7 +3,6 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    
     const dropdownConfigs = [
             { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
             { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
@@ -20,32 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#employee_form').validate({
         rules: {
-            first_name: {
-                required: true
-            },
-            last_name: {
-                required: true
-            },
-            department_id: {
-                required: true
-            },
-            job_position_id: {
-                required: true
-            },
+            first_name: { required: true },
+            last_name: { required: true },
+            department_id: { required: true },
+            job_position_id: { required: true },
         },
         messages: {
-            first_name: {
-                required: 'Enter the first name'
-            },
-            last_name: {
-                required: 'Enter the last name'
-            },
-            department_id: {
-                required: 'Choose the department'
-            },
-            job_position_id: {
-                required: 'Choose the job position'
-            },
+            first_name: { required: 'Enter the first name' },
+            last_name: { required: 'Enter the last name' },
+            department_id: { required: 'Choose the department' },
+            job_position_id: { required: 'Choose the job position' },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -68,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save employee';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

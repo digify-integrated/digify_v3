@@ -14,26 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#work_location_form').validate({
         rules: {
-            work_location_name: {
-                required: true
-            },
-            address: {
-                required: true
-            },
-            city_id: {
-                required: true
-            }
+            work_location_name: { required: true },
+            address: { required: true },
+            city_id: { required: true }
         },
         messages: {
-            work_location_name: {
-                required: 'Enter the display name'
-            },
-            address: {
-                required: 'Enter the address'
-            },
-            city_id: {
-                required: 'Choose the city'
-            }
+            work_location_name: { required: 'Enter the display name' },
+            address: { required: 'Enter the address' },
+            city_id: { required: 'Choose the city' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -56,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save work location';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

@@ -4,8 +4,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction   = 'fetch account settings details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const transaction = 'fetch account settings details';
 
         try {
             const formData = new URLSearchParams();
@@ -315,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    displayDetails();
                     toggleSection('change_password');
                 }
                 else if (data.invalid_session) {
@@ -364,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 showNotification(data.title, data.message, data.message_type);
-                displayDetails();
             }
             else if (data.invalid_session) {
                 setNotification(data.title, data.message, data.message_type);

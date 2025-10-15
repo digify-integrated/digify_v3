@@ -61,32 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#app_module_form').validate({
         rules: {
-            app_module_name: {
-                required: true
-            },
-            app_module_description: {
-                required: true
-            },
-            menu_item_id: {
-                required: true
-            },
-            order_sequence: {
-                required: true
-            }
+            app_module_name: { required: true },
+            app_module_description: { required: true },
+            menu_item_id: { required: true },
+            order_sequence: { required: true }
         },
         messages: {
-            app_module_name: {
-                required: 'Enter the display name'
-            },
-            app_module_description: {
-                required: 'Enter the description'
-            },
-            menu_item_id: {
-                required: 'Select the default page'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
-            }
+            app_module_name: { required: 'Enter the display name' },
+            app_module_description: { required: 'Enter the description' },
+            menu_item_id: { required: 'Select the default page' },
+            order_sequence: { required: 'Enter the order sequence' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -132,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -234,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    displayDetails();
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);

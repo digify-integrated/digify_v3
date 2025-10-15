@@ -3,52 +3,30 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#parent_id',
-        data: { 
-            transaction: 'generate menu item options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/AppModuleController.php',
-        dropdownSelector: '#app_module_id',
-        data: { 
-            transaction: 'generate app module options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/ExportController.php',
-        dropdownSelector: '#table_name',
-        data: { 
-            transaction: 'generate export table options'
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/MenuItemController.php', selector: '#parent_id', transaction: 'generate menu item options' },
+        { url: './app/Controllers/AppModuleController.php', selector: '#app_module_id', transaction: 'generate app module options' },
+        { url: './app/Controllers/ExportController.php', selector: '#table_name', transaction: 'generate export table options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
     });
     
     $('#menu_item_form').validate({
         rules: {
-            menu_item_name: {
-                required: true
-            },
-            app_module_id: {
-                required: true
-            },
-            order_sequence: {
-                required: true
-            }
+            menu_item_name: { required: true },
+            app_module_id: { required: true },
+            order_sequence: { required: true }
         },
         messages: {
-            menu_item_name: {
-                required: 'Enter the display name'
-            },
-            app_module_id: {
-                required: 'Choose the app module'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
-            }
+            menu_item_name: { required: 'Enter the display name' },
+            app_module_id: { required: 'Choose the app module' },
+            order_sequence: { required: 'Enter the order sequence' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -71,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save menu item';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

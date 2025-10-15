@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-file-extension')){
             const transaction           = 'delete multiple file extension';
             const file_extension_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                            .filter(checkbox => checkbox.checked)
-                                            .map(checkbox => checkbox.value);
+                                                .filter(checkbox => checkbox.checked)
+                                                .map(checkbox => checkbox.value);
 
             if (file_extension_id.length === 0) {
                 showNotification('Deletion Multiple File Extensions Error', 'Please select the file extensions you wish to delete.', 'error');

@@ -207,15 +207,9 @@ class CompanyController
         }
 
         $companyDetails     = $this->company->fetchCompany($companyId);
-        $companyLogo        = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'null');
-        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($companyLogo);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Update Company Logo Error', 
-                'The company logo cannot be deleted due to an error'
-            );
-        }
+        $companyLogo        = $companyDetails['company_logo'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($companyLogo);
 
         if(!move_uploaded_file($companyLogoTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
@@ -235,16 +229,9 @@ class CompanyController
     public function deleteCompany(){
         $companyId          = $_POST['company_id'] ?? null;
         $companyDetails     = $this->company->fetchCompany($companyId);
-        $companyLogo        = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'null');
+        $companyLogo        = $companyDetails['company_logo'] ?? null;
 
-        $deleteImageFile = $this->systemHelper->deleteFileIfExist($companyLogo);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Delete Company Error', 
-                'The app logo cannot be deleted due to an error'
-            );
-        }
+        $this->systemHelper->deleteFileIfExist($companyLogo);
 
         $this->company->deleteCompany($companyId);
 
@@ -259,7 +246,7 @@ class CompanyController
 
         foreach($companyIds as $companyId){
             $companyDetails     = $this->company->fetchCompany($companyId);
-            $companyLogo        = $this->systemHelper->checkImageExist($companyDetails['company_logo'] ?? null, 'null');
+            $companyLogo        = $companyDetails['company_logo'] ?? null;
 
             $this->systemHelper->deleteFileIfExist($companyLogo);
 

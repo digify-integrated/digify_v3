@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-bank')) return;
 
-        const transaction       = 'delete multiple bank';
-        const bank_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+        const transaction   = 'delete multiple bank';
+        const bank_id       = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                     .filter(el => el.checked)
                                     .map(el => el.value);
 

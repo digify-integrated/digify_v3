@@ -1,3 +1,14 @@
+<?php
+    use App\Models\Employee;
+
+    $employee = new Employee();
+
+    $archiveEmployee    = $authentication->checkUserSystemActionPermission($userID, 11);
+    $unarchiveEmployee  = $authentication->checkUserSystemActionPermission($userID, 12);
+
+    $employeeDetails    = $employee->fetchEmployee($detailID);
+    $employmentStatus   = $employeeDetails['employment_status'] ?? 'Active';
+?>
 <div class="d-flex flex-column flex-lg-row">
     <div class="flex-column flex-lg-row-auto w-lg-250px w-xl-350px mb-10">
         <div class="card mb-5 mb-xl-8">
@@ -18,13 +29,13 @@
 
                     <div class="mb-0">
                         <div class="badge badge-lg badge-light-primary d-inline" id="job_position_title_summary">--</div>
+                        <div class="badge badge-lg badge-light-primary d-inline" id="">Active</div>
                     </div>
                 </div>
                 
                 <div class="d-flex flex-stack fs-4 py-3">
-                    <div class="fw-bold rotate collapsible active" data-bs-toggle="collapse" href="#employee_view_details" role="button" aria-expanded="true" aria-controls="employee_view_details">
+                    <div class="fw-bold">
                         Details
-                        <span class="ms-2 rotate-180"><i class="ki-outline ki-down fs-3"></i></span>
                     </div>
 
                     <?php
@@ -38,52 +49,50 @@
 
                 <div class="separator"></div>
 
-                <div id="employee_view_details" class="collapse show">
-                    <div class="pb-5 fs-6">
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Nickname</div>
-                            <div class="text-gray-600" id="nickname_summary">--</div>
-                        </div>
+                <div class="pb-5 fs-6">
+                    <div>
+                        <div class="fw-bold mt-5">Nickname</div>
+                        <div class="text-gray-600" id="nickname_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Private Address</div>
-                            <div class="text-gray-600" id="private_address_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Private Address</div>
+                        <div class="text-gray-600" id="private_address_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Civil Status</div>
-                            <div class="text-gray-600" id="civil_status_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Civil Status</div>
+                        <div class="text-gray-600" id="civil_status_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Number of Dependents</div>
-                            <div class="text-gray-600" id="dependents_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Number of Dependents</div>
+                        <div class="text-gray-600" id="dependents_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Religion</div>
-                            <div class="text-gray-600" id="religion_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Religion</div>
+                        <div class="text-gray-600" id="religion_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Blood Type</div>
-                            <div class="text-gray-600" id="blood_type_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Blood Type</div>
+                        <div class="text-gray-600" id="blood_type_summary">--</div>
+                    </div>
                         
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Home-Work Distance</div>
-                            <div class="text-gray-600" id="home_work_distance_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Home-Work Distance</div>
+                        <div class="text-gray-600" id="home_work_distance_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Height</div>
-                            <div class="text-gray-600" id="height_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Height</div>
+                        <div class="text-gray-600" id="height_summary">--</div>
+                    </div>
 
-                        <div class="personal-information-group">
-                            <div class="fw-bold mt-5">Weight</div>
-                            <div class="text-gray-600" id="weight_summary">--</div>
-                        </div>
+                    <div>
+                        <div class="fw-bold mt-5">Weight</div>
+                        <div class="text-gray-600" id="weight_summary">--</div>
                     </div>
                 </div>
             </div>
@@ -214,134 +223,45 @@
                 <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#employee_document_tab" aria-selected="false" tabindex="-1" role="tab">Employee Documents</a>
             </li>
             
-            <li class="nav-item ms-auto">
-                <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                    Actions
-                    <i class="ki-outline ki-down fs-2 me-0"></i>
-                </a>
-                <!--begin::Menu-->
-                <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold py-4 w-250px fs-6" data-kt-menu="true">
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <div class="menu-content text-muted pb-2 px-5 fs-7 text-uppercase">
-                            Payments
-                        </div>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <a href="#" class="menu-link px-5">
-                            Create invoice
-                        </a>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <a href="#" class="menu-link flex-stack px-5">
-                            Create payments
-
-                            <span class="ms-2" data-bs-toggle="tooltip" aria-label="Specify a target name for future usage and reference" data-bs-original-title="Specify a target name for future usage and reference" data-kt-initialized="1">
-                                <i class="ki-outline ki-information fs-7"></i>
-                            </span>
-                        </a>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5" data-kt-menu-trigger="hover" data-kt-menu-placement="left-start">
-                        <a href="#" class="menu-link px-5">
-                            <span class="menu-title">Subscription</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-
-                        <!--begin::Menu sub-->
-                        <div class="menu-sub menu-sub-dropdown w-175px py-4">
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-5">
-                                    Apps
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-5">
-                                    Billing
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-5">
-                                    Statements
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-
-                            <!--begin::Menu separator-->
-                            <div class="separator my-2"></div>
-                            <!--end::Menu separator-->
-
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <div class="menu-content px-3">
-                                    <label class="form-check form-switch form-check-custom form-check-solid">
-                                        <input class="form-check-input w-30px h-20px" type="checkbox" value="" name="notifications" checked="" id="kt_user_menu_notifications" />
-                                        <span class="form-check-label text-muted fs-6" for="kt_user_menu_notifications">
-                                            Notifications
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                            <!--end::Menu item-->
-                        </div>
-                        <!--end::Menu sub-->
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu separator-->
-                    <div class="separator my-3"></div>
-                    <!--end::Menu separator-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <div class="menu-content text-muted pb-2 px-5 fs-7 text-uppercase">
-                            Account
-                        </div>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <a href="#" class="menu-link px-5">
-                            Reports
-                        </a>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5 my-1">
-                        <a href="#" class="menu-link px-5">
-                            Account Settings
-                        </a>
-                    </div>
-                    <!--end::Menu item-->
-
-                    <!--begin::Menu item-->
-                    <div class="menu-item px-5">
-                        <a href="#" class="menu-link text-danger px-5">
-                            Delete customer
-                        </a>
-                    </div>
-                    <!--end::Menu item-->
-                </div>
-                <!--end::Menu-->
-                <!--end::Menu-->
-            </li>            
+            <?php
+                if ($permissions['delete'] > 0 || ($archiveEmployee['total'] > 0 && $employmentStatus === 'Active') || ($unarchiveEmployee['total'] > 0 && $employmentStatus === 'Archived')) {
+                    $action = '<li class="nav-item ms-auto">
+                                    <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+                                        Actions
+                                        <i class="ki-outline ki-down fs-2 me-0"></i>
+                                    </a>
+                                    <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">';
+                            
+                                    if($archiveEmployee['total'] > 0 && $employmentStatus === 'Active'){
+                                        $action .= ' <div class="menu-item px-3">
+                                                        <a href="javascript:void(0);" class="menu-link px-3" data-bs-toggle="modal" data-bs-target="#archive_employee_modal">
+                                                            Archive
+                                                        </a>
+                                                    </div>';
+                                    }
+                            
+                                    if($unarchiveEmployee['total'] > 0 && $employmentStatus === 'Archived'){
+                                        $action .= ' <div class="menu-item px-3">
+                                                        <a href="javascript:void(0);" class="menu-link px-3" id="unarchive-employee">
+                                                            Unarchive
+                                                        </a>
+                                                    </div>';
+                                    }
+                            
+                                    if($permissions['delete'] > 0){
+                                        $action .= ' <div class="menu-item px-3">
+                                                        <a href="javascript:void(0);" class="menu-link px-3" id="delete-employee">
+                                                            Delete
+                                                        </a>
+                                                    </div>';
+                                    }
+                        
+                    $action .= '<div>
+                            </li>';
+                        
+                    echo $action;
+                }
+            ?>        
         </ul>
 
         <div class="tab-content">
@@ -1140,7 +1060,7 @@
                         <div class="card-toolbar">
                             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                 <?php
-                                    echo ($permissions['write'] > 0) ? '<button type="button" class="btn btn-light-primary btn-sm" id="add-document" data-bs-toggle="modal" data-bs-target="#employee_document_modal">
+                                    echo ($permissions['write'] > 0) ? '<button type="button" class="btn btn-light-primary" id="add-document" data-bs-toggle="modal" data-bs-target="#employee_document_modal">
                                                                             Add Document
                                                                         </button>' : '';
                                 ?>
@@ -1154,7 +1074,6 @@
                                     <th>Document</th>
                                     <th>Size</th>
                                     <th>Upload Date</th>
-                                    <th>Last Modified</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -1804,7 +1723,7 @@
 </div>
 
 <div id="employee_document_modal" class="modal fade" tabindex="-1" aria-labelledby="employee_document_modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-md">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Employee Document</h3>
@@ -1855,6 +1774,60 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="employee_document_form" class="btn btn-primary" id="submit_employee_document">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="archive_employee_modal" class="modal fade" tabindex="-1" aria-labelledby="archive_employee_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Archive Employee</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="archive_employee_form" method="post" action="#">
+                    <?= $security->csrfInput('archive_employee_form'); ?>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="departure_date">Departure Date</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <input class="form-control mb-3 mb-lg-0" id="departure_date" name="departure_date" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="departure_reason_id">Departure Reason</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <select id="departure_reason_id" name="departure_reason_id" data-dropdown-parent="#archive_employee_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="detailed_departure_reason">Detailed Reason</label>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                    <textarea class="form-control" id="detailed_departure_reason" name="detailed_departure_reason" maxlength="5000"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="archive_employee_form" class="btn btn-primary" id="submit_employee_archive">Save</button>
             </div>
         </div>
     </div>

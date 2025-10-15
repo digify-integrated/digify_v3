@@ -5,20 +5,12 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#notification_setting_form').validate({
         rules: {
-            notification_setting_name: {
-                required: true
-            },
-            notification_setting_description: {
-                required: true
-            }
+            notification_setting_name: { required: true },
+            notification_setting_description: { required: true }
         },
         messages: {
-            notification_setting_name: {
-                required: 'Enter the display name'
-            },
-            notification_setting_description: {
-                required: 'Enter the description'
-            }
+            notification_setting_name: { required: 'Enter the display name' },
+            notification_setting_description: { required: 'Enter the description' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -41,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save notification setting';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

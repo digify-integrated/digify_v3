@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-departure-reason')) return;
 
-        const transaction       = 'delete multiple departure reason';
-        const departure_reason_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction           = 'delete multiple departure reason';
+        const departure_reason_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
         if (departure_reason_id.length === 0) {
             showNotification('Deletion Multiple Departure Reasons Error', 'Please select the departure reasons you wish to delete.', 'error');

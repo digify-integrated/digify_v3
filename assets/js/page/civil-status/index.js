@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-civil-status')) return;
 
         const transaction       = 'delete multiple civil status';
-        const civil_status_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+        const civil_status_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                     .filter(el => el.checked)
                                     .map(el => el.value);
 

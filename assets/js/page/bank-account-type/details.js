@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch bank account type details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const bank_account_type_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction           = 'fetch bank account type details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const bank_account_type_id  = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('bank_account_type_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#bank_account_type_form').validate({
         rules: {
-            bank_account_type_name: {
-                required: true
-            }
+            bank_account_type_name: { required: true }
         },
         messages: {
-            bank_account_type_name: {
-                required: 'Enter the display name'
-            }
+            bank_account_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save bank account type';
-            const bank_account_type_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save bank account type';
+            const bank_account_type_id  = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-bank-account-type')) return;
 
-        const transaction   = 'delete bank account type';
-        const bank_account_type_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction           = 'delete bank account type';
+        const bank_account_type_id  = document.getElementById('details-id')?.textContent.trim();
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Bank Account Type Deletion',

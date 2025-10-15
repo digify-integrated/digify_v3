@@ -7,7 +7,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction   = 'fetch role details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const role_id       = document.getElementById('details-id').textContent.trim();
 
         try {
@@ -103,20 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#role_form').validate({
         rules: {
-            role_name: {
-                required: true
-            },
-            role_description: {
-                required: true
-            }
+            role_name: { required: true },
+            role_description: { required: true }
         },
         messages: {
-            role_name: {
-                required: 'Enter the display name'
-            },
-            role_description: {
-                required: 'Enter the description'
-            }
+            role_name: { required: 'Enter the display name' },
+            role_description: { required: 'Enter the description' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -162,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -314,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-role')){
             const transaction   = 'delete role';
             const role_id       = document.getElementById('details-id').textContent;
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             Swal.fire({
                 title: 'Confirm Role Deletion',

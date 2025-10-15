@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-currency')) return;
 
-        const transaction       = 'delete multiple currency';
-        const currency_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+        const transaction   = 'delete multiple currency';
+        const currency_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                     .filter(el => el.checked)
                                     .map(el => el.value);
 

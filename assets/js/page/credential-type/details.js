@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch credential type details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const credential_type_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction           = 'fetch credential type details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const credential_type_id    = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('credential_type_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#credential_type_form').validate({
         rules: {
-            credential_type_name: {
-                required: true
-            }
+            credential_type_name: { required: true }
         },
         messages: {
-            credential_type_name: {
-                required: 'Enter the display name'
-            }
+            credential_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save credential type';
-            const credential_type_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save credential type';
+            const credential_type_id    = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-credential-type')) return;
 
-        const transaction   = 'delete credential type';
+        const transaction           = 'delete credential type';
         const credential_type_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Credential Type Deletion',

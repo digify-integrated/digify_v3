@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction       = 'delete multiple system action';
         const system_action_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(checkbox => checkbox.checked)
-                                    .map(checkbox => checkbox.value);
+                                        .filter(checkbox => checkbox.checked)
+                                        .map(checkbox => checkbox.value);
 
         if (system_action_id.length === 0) {
             showNotification('Deletion Multiple System Action Error', 'Please select the system actions you wish to delete.','error');

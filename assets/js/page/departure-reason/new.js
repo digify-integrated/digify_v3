@@ -5,14 +5,10 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#departure_reason_form').validate({
         rules: {
-            departure_reason_name: {
-                required: true
-            }
+            departure_reason_name: { required: true }
         },
         messages: {
-            departure_reason_name: {
-                required: 'Enter the display name'
-            }
+            departure_reason_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -35,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save departure reason';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

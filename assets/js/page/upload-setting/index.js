@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction           = 'delete multiple upload setting';
         const upload_setting_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(el => el.checked)
-                                        .map(el => el.value);
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
         if (upload_setting_id.length === 0) {
             showNotification('Deletion Multiple Upload Settings Error', 'Please select the upload settings you wish to delete.', 'error');

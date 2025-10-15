@@ -29,33 +29,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_filter',
-        data: { 
-            transaction: 'generate filter city options',
-            multiple : true
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
+        { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
+        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction, multiple : true }
+        });
     });
     
-    generateDropdownOptions({
-        url: './app/Controllers/StateController.php',
-        dropdownSelector: '#state_filter',
-        data: { 
-            transaction: 'generate state options',
-            multiple : true
-        }
-    });
-    
-    generateDropdownOptions({
-        url: './app/Controllers/CountryController.php',
-        dropdownSelector: '#country_filter',
-        data: { 
-            transaction: 'generate country options',
-            multiple : true
-        }
-    });
-
     initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
@@ -74,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-work-location')){
             const transaction       = 'delete multiple work location';
             const work_location_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(el => el.checked)
-                                        .map(el => el.value);
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
             if (work_location_id.length === 0) {
                 showNotification('Deletion Multiple Work Locations Error', 'Please select the work locations you wish to delete.', 'error');

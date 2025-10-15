@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#file_type_form').validate({
         rules: {
-            file_type_name: {
-                required: true
-            }
+            file_type_name: { required: true }
         },
         messages: {
-            file_type_name: {
-                required: 'Enter the display name'
-            }
+            file_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save file type';
-            const file_type_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction   = 'save file type';
+            const file_type_id  = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

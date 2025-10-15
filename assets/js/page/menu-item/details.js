@@ -7,7 +7,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction   = 'fetch menu item details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
         const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
 
         try {
@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('menu_item_name').value = data.menuItemName;
-                document.getElementById('order_sequence').value = data.orderSequence;
-                document.getElementById('menu_item_url').value = data.menuItemURL;
+                document.getElementById('menu_item_name').value = data.menuItemName || '';
+                document.getElementById('order_sequence').value = data.orderSequence || '';
+                document.getElementById('menu_item_url').value = data.menuItemURL || '';
 
-                $('#app_module_id').val(data.appModuleID).trigger('change');
-                $('#parent_id').val(data.parentID).trigger('change');
-                $('#menu_item_icon').val(data.menuItemIcon).trigger('change');
-                $('#table_name').val(data.tableName).trigger('change');
+                $('#app_module_id').val(data.appModuleID || '').trigger('change');
+                $('#parent_id').val(data.parentID || '').trigger('change');
+                $('#menu_item_icon').val(data.menuItemIcon || '').trigger('change');
+                $('#table_name').val(data.tableName || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -108,26 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#menu_item_form').validate({
         rules: {
-            menu_item_name: {
-                required: true
-            },
-            app_module_id: {
-                required: true
-            },
-            order_sequence: {
-                required: true
-            }
+            menu_item_name: { required: true },
+            app_module_id: { required: true },
+            order_sequence: { required: true }
         },
         messages: {
-            menu_item_name: {
-                required: 'Enter the display name'
-            },
-            app_module_id: {
-                required: 'Choose the app module'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
-            }
+            menu_item_name: { required: 'Enter the display name' },
+            app_module_id: { required: 'Choose the app module' },
+            order_sequence: { required: 'Enter the order sequence' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -140,8 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
             $target.addClass('is-invalid');
         },
         unhighlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
+            const $element  = $(element);
+            const $target   = $element.hasClass('select2-hidden-accessible')
                 ? $element.next().find('.select2-selection')
                 : $element;
             $target.removeClass('is-invalid');
@@ -173,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -197,8 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
         highlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
+            const $element  = $(element);
+            const $target   = $element.hasClass('select2-hidden-accessible')
                 ? $element.next().find('.select2-selection')
                 : $element;
             $target.addClass('is-invalid');
@@ -261,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-menu-item')){
             const transaction   = 'delete menu item';
             const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
-            const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
+            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
             if (!menu_item_id) {
                 showNotification('Error', 'Menu item ID not found', 'error');

@@ -5,27 +5,17 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#user_account_form').validate({
         rules: {
-            file_as: {
-                required: true
-            },
-            email: {
-                required: true
-            },
+            file_as: { required: true },
+            email: { required: true },
             password: {
                 required: true,
                 password_strength: true
             }
         },
         messages: {
-            file_as: {
-                required: 'Enter the full name'
-            },
-            email: {
-                required: 'Enter the email'
-            },
-            password: {
-                required: 'Enter the password'
-            }    
+            file_as: { required: 'Enter the full name' },
+            email: { required: 'Enter the email' },
+            password: { required: 'Enter the password' }    
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -48,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save user account';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new FormData(form);
             formData.append('transaction', transaction);

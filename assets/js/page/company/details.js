@@ -7,8 +7,8 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction   = 'fetch company details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
-        const company_id  = document.getElementById('details-id')?.textContent.trim();
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const company_id    = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('company_form');
@@ -27,16 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('company_name').value = data.companyName;
-                document.getElementById('address').value = data.address;
-                document.getElementById('tax_id').value = data.taxID;
-                document.getElementById('phone').value = data.phone;
-                document.getElementById('telephone').value = data.telephone;
-                document.getElementById('email').value = data.email;
-                document.getElementById('website').value = data.website;
+                document.getElementById('company_name').value   = data.companyName;
+                document.getElementById('address').value        = data.address;
+                document.getElementById('tax_id').value         = data.taxID;
+                document.getElementById('phone').value          = data.phone;
+                document.getElementById('telephone').value      = data.telephone;
+                document.getElementById('email').value          = data.email;
+                document.getElementById('website').value        = data.website;
 
-                $('#city_id').val(data.cityID).trigger('change');
-                $('#currency_id').val(data.currencyID).trigger('change');
+                $('#city_id').val(data.cityID || '').trigger('change');
+                $('#currency_id').val(data.currencyID || '').trigger('change');
 
                 const thumbnail = document.getElementById('company_logo_thumbnail');
                 if (thumbnail) thumbnail.style.backgroundImage = `url(${data.companyLogo || ''})`;
@@ -53,20 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_id',
-        data: { 
-            transaction: 'generate city options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CurrencyController.php',
-        dropdownSelector: '#currency_id',
-        data: { 
-            transaction: 'generate currency options'
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/CityController.php', selector: '#city_id', transaction: 'generate city options' },
+        { url: './app/Controllers/CurrencyController.php', selector: '#currency_id', transaction: 'generate currency options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
     });
 
     initializeDatatable({
@@ -107,26 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#company_form').validate({
         rules: {
-            company_name: {
-                required: true
-            },
-            company_id: {
-                required: true
-            },
-            order_sequence: {
-                required: true
-            }
+            company_name: { required: true },
+            company_id: { required: true },
+            order_sequence: { required: true }
         },
         messages: {
-            company_name: {
-                required: 'Enter the display name'
-            },
-            company_id: {
-                required: 'Choose the company'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
-            }
+            company_name: { required: 'Enter the display name' },
+            company_id: { required: 'Choose the company' },
+            order_sequence: { required: 'Enter the order sequence' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -149,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save company';
-            const company_id  = document.getElementById('details-id')?.textContent.trim();
+            const company_id    = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -213,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save company role permission';
-            const company_id  = document.getElementById('details-id')?.textContent.trim();
+            const company_id    = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -260,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-company')){
             const transaction   = 'delete company';
             const company_id    = document.getElementById('details-id')?.textContent.trim();
-            const page_link     = document.getElementById('page-link')?.getAttribute('href') ?? 'apps.php';
+            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
             const result = await Swal.fire({
                 title: 'Confirm Company Deletion',
@@ -416,47 +401,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('change', async (event) => {
-            if (!event.target.closest('#company_logo')) return;
+        if (!event.target.closest('#company_logo')) return;
     
-            const input = event.target;
-            if (input.files && input.files.length > 0) {
-                const transaction   = 'update company logo';
-                const company_id    = document.getElementById('details-id')?.textContent.trim();
+        const input = event.target;
+        if (input.files && input.files.length > 0) {
+            const transaction   = 'update company logo';
+            const company_id    = document.getElementById('details-id')?.textContent.trim();
     
-                if (!company_id) {
-                    showNotification('Error', 'Company ID not found', 'error');
-                    return;
-                }
-    
-                const formData = new FormData();
-                formData.append('transaction', transaction);
-                formData.append('company_id', company_id);
-                formData.append('company_logo', input.files[0]);
-    
-                try {
-                    const response = await fetch('./app/Controllers/CompanyController.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-    
-                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
-    
-                    const data = await response.json();
-    
-                    if (data.success) {
-                        showNotification(data.title, data.message, data.message_type);
-                        displayDetails();
-                    } 
-                    else if (data.invalid_session) {
-                        setNotification(data.title, data.message, data.message_type);
-                        window.location.href = data.redirect_link;
-                    }
-                    else {
-                        showNotification(data.title, data.message, data.message_type);
-                    }
-                } catch (error) {
-                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-                }
+            if (!company_id) {
+                showNotification('Error', 'Company ID not found', 'error');
+                return;
             }
-        });
+    
+            const formData = new FormData();
+            formData.append('transaction', transaction);
+            formData.append('company_id', company_id);
+            formData.append('company_logo', input.files[0]);
+    
+            try {
+                const response = await fetch('./app/Controllers/CompanyController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                } 
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+    });
 });

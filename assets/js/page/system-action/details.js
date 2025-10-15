@@ -7,7 +7,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction       = 'fetch system action details';
-        const page_link         = document.getElementById('page-link').getAttribute('href');
+        const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const system_action_id  = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);

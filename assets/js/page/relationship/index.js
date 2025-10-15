@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-relationship')) return;
 
         const transaction       = 'delete multiple relationship';
-        const relationship_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const relationship_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                        .filter(el => el.checked)
+                                        .map(el => el.value);
 
         if (relationship_id.length === 0) {
             showNotification('Deletion Multiple Relationships Error', 'Please select the relationships you wish to delete.', 'error');

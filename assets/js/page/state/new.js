@@ -12,20 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#state_form').validate({
         rules: {
-            state_name: {
-                required: true
-            },
-            country_id: {
-                required: true
-            }
+            state_name: { required: true },
+            country_id: { required: true }
         },
         messages: {
-            state_name: {
-                required: 'Enter the display name'
-            },
-            country_id: {
-                required: 'Select the country'
-            }
+            state_name: { required: 'Enter the display name' },
+            country_id: { required: 'Select the country' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -48,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save state';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

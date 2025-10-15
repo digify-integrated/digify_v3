@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-credential-type')) return;
 
-        const transaction       = 'delete multiple credential type';
-        const credential_type_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction           = 'delete multiple credential type';
+        const credential_type_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
         if (credential_type_id.length === 0) {
             showNotification('Deletion Multiple Credential Types Error', 'Please select the credential types you wish to delete.', 'error');

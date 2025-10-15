@@ -7,7 +7,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction   = 'fetch employee details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -25,16 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                $('#first_name').val(data.firstName);
-                $('#middle_name').val(data.middleName);
-                $('#last_name').val(data.lastName);
-                $('#suffix').val(data.suffix);
-                $('#private_address').val(data.privateAddress);
-                $('#nickname').val(data.nickname);
-                $('#dependents').val(data.dependents);
-                $('#home_work_distance').val(data.homeWorkDistance);
-                $('#height').val(data.height);
-                $('#weight').val(data.weight);
+                $('#first_name').val(data.firstName || '');
+                $('#middle_name').val(data.middleName || '');
+                $('#last_name').val(data.lastName || '');
+                $('#suffix').val(data.suffix || '');
+                $('#private_address').val(data.privateAddress || '');
+                $('#nickname').val(data.nickname || '');
+                $('#dependents').val(data.dependents || '');
+                $('#home_work_distance').val(data.homeWorkDistance || '');
+                $('#height').val(data.height || '');
+                $('#weight').val(data.weight || '');
 
                 $('#employee_name_summary').text(data.fullName || '--');
                 $('#nickname_summary').text(data.nickname || '--');
@@ -69,10 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#work_phone_summary').text(data.workPhone || '--');
                 $('#work_telephone_summary').text(data.workTelephone || '--');
 
-                $('#private_address_city_id').val(data.privateAddressCityID).trigger('change');
-                $('#civil_status_id').val(data.civilStatusID).trigger('change');
-                $('#religion_id').val(data.religionID).trigger('change');
-                $('#blood_type_id').val(data.bloodTypeID).trigger('change');
+                $('#private_address_city_id').val(data.privateAddressCityID || '').trigger('change');
+                $('#civil_status_id').val(data.civilStatusID || '').trigger('change');
+                $('#religion_id').val(data.religionID || '').trigger('change');
+                $('#blood_type_id').val(data.bloodTypeID || '').trigger('change');
                 
                 document.getElementById('employee_image_thumbnail').style.backgroundImage = `url(${data.employeeImage})`;
             } 
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const displayEducationDetails = async (employee_education_id) => {
         const transaction   = 'fetch employee education details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -110,16 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 $('#employee_education_id').val(employee_education_id);
-                $('#school').val(data.school);
-                $('#degree').val(data.degree);
-                $('#field_of_study').val(data.fieldOfStudy);
-                $('#activities_societies').val(data.activitiesSocieties);
-                $('#education_description').val(data.educationDescription);
+                $('#school').val(data.school || '');
+                $('#degree').val(data.degree || '');
+                $('#field_of_study').val(data.fieldOfStudy || '');
+                $('#activities_societies').val(data.activitiesSocieties || '');
+                $('#education_description').val(data.educationDescription || '');
 
-                $('#start_month').val(data.startMonth).trigger('change');
-                $('#start_year').val(data.startYear).trigger('change');
-                $('#end_month').val(data.endMonth).trigger('change');
-                $('#end_year').val(data.endYear).trigger('change');
+                $('#start_month').val(data.startMonth || '').trigger('change');
+                $('#start_year').val(data.startYear || '').trigger('change');
+                $('#end_month').val(data.endMonth || '').trigger('change');
+                $('#end_year').val(data.endYear || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const displayEmergencyContactDetails = async (employee_emergency_contact_id) => {
         const transaction   = 'fetch employee emergency contact details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -155,12 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 $('#employee_emergency_contact_id').val(employee_emergency_contact_id);
-                $('#emergency_contact_name').val(data.emergencyContactName);
-                $('#emergency_contact_telephone').val(data.telephone);
-                $('#emergency_contact_mobile').val(data.mobile);
-                $('#emergency_contact_email').val(data.email);
+                $('#emergency_contact_name').val(data.emergencyContactName || '');
+                $('#emergency_contact_telephone').val(data.telephone || '');
+                $('#emergency_contact_mobile').val(data.mobile || '');
+                $('#emergency_contact_email').val(data.email || '');
 
-                $('#relationship_id').val(data.relationshipId).trigger('change');
+                $('#relationship_id').val(data.relationshipId || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const displayLicenseDetails = async (employee_license_id) => {
         const transaction   = 'fetch employee license details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -196,11 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 $('#employee_license_id').val(employee_license_id);
-                $('#licensed_profession').val(data.licensedProfession);
-                $('#licensing_body').val(data.licensingBody);
-                $('#license_number').val(data.licenseNumber);
-                $('#issue_date').val(data.issueDate);
-                $('#expiration_date').val(data.expirationDate);
+                $('#licensed_profession').val(data.licensedProfession || '');
+                $('#licensing_body').val(data.licensingBody || '');
+                $('#license_number').val(data.licenseNumber || '');
+                $('#issue_date').val(data.issueDate || '');
+                $('#expiration_date').val(data.expirationDate || '');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const displayExperienceDetails = async (employee_experience_id) => {
         const transaction   = 'fetch employee experience details';
-        const page_link     = document.getElementById('page-link').getAttribute('href');
+        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -236,16 +236,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 $('#employee_experience_id').val(employee_experience_id);
-                $('#job_title').val(data.jobTitle);
-                $('#company_name').val(data.companyName);
-                $('#location').val(data.location);
-                $('#job_description').val(data.jobDescription);
+                $('#job_title').val(data.jobTitle || '');
+                $('#company_name').val(data.companyName || '');
+                $('#location').val(data.location || '');
+                $('#job_description').val(data.jobDescription || '');
 
-                $('#employee_experience_employment_type_id').val(data.employmentTypeId).trigger('change');
-                $('#employee_experience_start_month').val(data.startMonth).trigger('change');
-                $('#employee_experience_start_year').val(data.startYear).trigger('change');
-                $('#employee_experience_end_month').val(data.endMonth).trigger('change');
-                $('#employee_experience_end_year').val(data.endYear).trigger('change');
+                $('#employee_experience_employment_type_id').val(data.employmentTypeId || '').trigger('change');
+                $('#employee_experience_start_month').val(data.startMonth || '').trigger('change');
+                $('#employee_experience_start_year').val(data.startYear || '').trigger('change');
+                $('#employee_experience_end_month').val(data.endMonth || '').trigger('change');
+                $('#employee_experience_end_year').val(data.endYear || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -279,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
         { url: './app/Controllers/RelationshipController.php', selector: '#relationship_id', transaction: 'generate relationship options' },
         { url: './app/Controllers/EmployeeDocumentTypeController.php', selector: '#employee_document_type_id', transaction: 'generate employee document type options' },
+        { url: './app/Controllers/DepartureReasonController.php', selector: '#departure_reason_id', transaction: 'generate departure reason options' },
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -444,15 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'DOCUMENT' },
             { data: 'SIZE' },
             { data: 'UPLOAD_DATE' },
-            { data: 'LAST_MODIFIED' },
             { data: 'ACTION' }
         ],
         columnDefs: [
             { width: 'auto', targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
             { width: 'auto', targets: 2, type: 'date', responsivePriority: 3 },
-            { width: 'auto', targets: 3, type: 'date', responsivePriority: 4 },
-            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 3, responsivePriority: 4 }
         ],
         order : [[2, 'desc']]
     });
@@ -462,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDatePicker('#on_board_date');
     initializeDatePicker('#issue_date');
     initializeDatePicker('#expiration_date');
+    initializeDatePicker('#departure_date');
     displayDetails();
     languageList();
     educationList();
@@ -472,38 +472,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#personal_details_form').validate({
         rules: {
-            first_name: { 
-                required: true 
-            },
-            last_name: { 
-                required: true 
-            },
-            private_address: { 
-                required: true 
-            },
-            private_address_city_id: { 
-                required: true 
-            },
-            civil_status_id: { 
-                required: true 
-            }
+            first_name: { required: true },
+            last_name: { required: true },
+            private_address: { required: true },
+            private_address_city_id: { required: true },
+            civil_status_id: { required: true }
         },
         messages: {
-            first_name: { 
-                required: 'Enter the first name' 
-            },
-            last_name: { 
-                required: 'Enter the last name' 
-            },
-            private_address: { 
-                required: 'Enter the private address' 
-            },
-            private_address_city_id: { 
-                required: 'Choose the private address city' 
-            },
-            civil_status_id: { 
-                required: 'Choose the civil status' 
-            }
+            first_name: { required: 'Enter the first name' },
+            last_name: { required: 'Enter the last name' },
+            private_address: { required: 'Enter the private address' },
+            private_address_city_id: { required: 'Choose the private address city' },
+            civil_status_id: { required: 'Choose the civil status' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -2164,22 +2144,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#employee_emergency_contact_form').validate({
         rules: {
-            emergency_contact_name: {
-                required: true
-            },
-            relationship_id: {
-                required: true
-            },
-            emergency_contact_telephone: {
-                contactEmergencyContactRequired: true,
-            },
-            emergency_contact_mobile: {
-                contactEmergencyContactRequired: true,
-            },
+            emergency_contact_name: { required: true },
+            relationship_id: { required: true },
+            emergency_contact_telephone: { contactEmergencyContactRequired: true },
+            emergency_contact_mobile: { contactEmergencyContactRequired: true },
             emergency_contact_email: {
                 contactEmergencyContactRequired: true,
                 email: true
-            },
+            }
         },
         messages: {
             emergency_contact_name: {
@@ -2187,7 +2159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             relationship_id: {
                 required: 'Choose the relationship'
-            },
+            }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -2482,12 +2454,190 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#archive_employee_form').validate({
+        rules: {
+            departure_date: { required: true },
+            departure_reason_id: { required: true },
+            detailed_departure_reason: { required: true }
+        },
+        messages: {
+            departure_date: { required: 'Choose the departure date' },
+            departure_reason_id: { required: 'Choose the departure reason' },
+            detailed_departure_reason: { required: 'Enter the detailed reason' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction   = 'update employee archive';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('employee_id', employee_id);
+
+            disableButton('submit_employee_archive');
+
+            try {
+                const response = await fetch('./app/Controllers/EmployeeController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.reload();
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit_employee_archive');
+                }
+            } catch (error) {
+                enableButton('submit_employee_archive');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('[data-toggle-section]')){
             const section           = event.target.closest('[data-toggle-section]');
             const toggle_section    = section.dataset.toggleSection;
             toggleSection(toggle_section);
+        }
+
+        if (event.target.closest('#unarchive-employee')){
+            const transaction   = 'update employee unarchive';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+
+            Swal.fire({
+                title: 'Confirm Employee Unarchive',
+                text: 'Are you sure you want to unarchive this employee?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Unarchive',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-success mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_id', employee_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#delete-employee')){
+            const transaction   = 'delete employee';
+            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+
+            Swal.fire({
+                title: 'Confirm Employee Deletion',
+                text: 'Are you sure you want to delete this employee?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('employee_id', employee_id);
+                
+                try {
+                    const response = await fetch('./app/Controllers/EmployeeController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location = page_link;
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('.view-employee-language-log-notes')){
+            const button                = event.target.closest('.view-employee-language-log-notes');
+            const employee_language_id  = button.dataset.employeeLanguageId;
+
+            attachLogNotesClassHandler('employee_language', employee_language_id);
         }
 
         if (event.target.closest('.delete-employee-language')){
@@ -2900,7 +3050,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 showNotification(data.title, data.message, data.message_type);
-                displayDetails();
             }
             else if (data.invalid_session) {
                 setNotification(data.title, data.message, data.message_type);

@@ -57,26 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#file_extension_form').validate({
         rules: {
-            file_extension_name: {
-                required: true
-            },
-            file_extension: {
-                required: true
-            },
-            file_type_id: {
-                required: true
-            }
+            file_extension_name: { required: true },
+            file_extension: { required: true },
+            file_type_id: { required: true }
         },
         messages: {
-            file_extension_name: {
-                required: 'Enter the display name'
-            },
-            file_extension: {
-                required: 'Enter the file extension'
-            },
-            file_type_id: {
-                required: 'Select the file type'
-            }
+            file_extension_name: { required: 'Enter the display name' },
+            file_extension: { required: 'Enter the file extension' },
+            file_type_id: { required: 'Select the file type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -122,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

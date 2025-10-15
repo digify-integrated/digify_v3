@@ -31,22 +31,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#parent_id_filter',
-        data: { 
-            transaction: 'generate menu item options',
-            multiple : true
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/AppModuleController.php',
-        dropdownSelector: '#app_module_filter',
-        data: { 
-            transaction: 'generate app module options',
-            multiple : true
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/MenuItemController.php', selector: '#parent_id_filter', transaction: 'generate menu item options' },
+        { url: './app/Controllers/AppModuleController.php', selector: '#app_module_filter', transaction: 'generate app module options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction, multiple : true }
+        });
     });
 
     initializeDatatableControls('#menu-item-table');
@@ -66,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#delete-menu-item')){
-            const transaction       = 'delete multiple menu item';
-            const menu_item_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+            const transaction   = 'delete multiple menu item';
+            const menu_item_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                         .filter(checkbox => checkbox.checked)
                                         .map(checkbox => checkbox.value);
 

@@ -6,7 +6,7 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction       = 'fetch user account details';
-        const page_link         = document.getElementById('page-link').getAttribute('href');
+        const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
         const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
 
         try {
@@ -24,19 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                $('#full_name_side_summary').text(data.fileAs);
-                $('#email_side_summary').text(data.email);
-                $('#phone_side_summary').text(data.phoneSummary);
-                $('#last_password_date_side_summary').text(data.lastPasswordChange);
-                $('#last_connection_date_side_summary').text(data.lastConnectionDate);
-                $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest);
-                $('#last_failed_connection_date_side_summary').text(data.lastFailedConnectionDate);
-                $('#full_name_summary').text(data.fileAs);
-                $('#email_summary').text(data.email);
-                $('#phone_summary').text(data.phoneSummary);
+                $('#full_name_side_summary').text(data.fileAs || '--');
+                $('#email_side_summary').text(data.email || '--');
+                $('#phone_side_summary').text(data.phoneSummary || '--');
+                $('#last_password_date_side_summary').text(data.lastPasswordChange || '--');
+                $('#last_connection_date_side_summary').text(data.lastConnectionDate || '--');
+                $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest || '--');
+                $('#last_failed_connection_date_side_summary').text(data.lastFailedConnectionDate || '--');
+                $('#full_name_summary').text(data.fileAs || '--');
+                $('#email_summary').text(data.email || '--');
+                $('#phone_summary').text(data.phoneSummary || '--');
 
-                document.getElementById('two-factor-authentication').checked = data.twoFactorAuthentication === 'Yes';
-                document.getElementById('multiple-login-sessions').checked = data.multipleSession === 'Yes';
+                document.getElementById('two-factor-authentication').checked = data.twoFactorAuthentication || 'No' === 'Yes';
+                document.getElementById('multiple-login-sessions').checked = data.multipleSession || 'No' === 'Yes';
                 document.getElementById('profile_picture_image').style.backgroundImage = `url(${data.profilePicture})`;
                 document.getElementById('status_side_summary').innerHTML = data.activeBadge;
             } 
@@ -345,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    displayDetails();
                     toggleSection('change_password');
                 }
                 else if (data.invalid_session) {
@@ -530,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-user-account')){
             const transaction       = 'delete user account';
             const user_account_id   = document.getElementById('details-id')?.textContent.trim();
-            const page_link         = document.getElementById('page-link')?.getAttribute('href');
+            const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
             Swal.fire({
                 title: 'Confirm User Account Deletion',

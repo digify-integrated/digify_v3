@@ -7943,6 +7943,58 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateEmployeeArchive//
+
+CREATE PROCEDURE updateEmployeeArchive(
+	IN p_employee_id INT, 
+	IN p_departure_reason_id INT, 
+	IN p_departure_reason_name VARCHAR(500), 
+	IN p_detailed_departure_reason VARCHAR(5000), 
+	IN p_departure_date DATE, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET employment_status           = 'Archived',
+        departure_reason_id         = p_departure_reason_id,
+        departure_reason_name       = p_departure_reason_name,
+        detailed_departure_reason   = p_detailed_departure_reason,
+        departure_date              = p_departure_date,
+        last_log_by                 = p_last_log_by
+    WHERE employee_id               = p_employee_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateEmployeeUnarchive//
+
+CREATE PROCEDURE updateEmployeeUnarchive(
+	IN p_employee_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE employee
+    SET employment_status           = 'Active',
+        last_log_by                 = p_last_log_by
+    WHERE employee_id               = p_employee_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
@@ -8013,6 +8065,17 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchAllEmployeeDocument//
+
+CREATE PROCEDURE fetchAllEmployeeDocument(
+    IN p_employee_id INT
+)
+BEGIN
+	SELECT * FROM employee_document
+	WHERE employee_id = p_employee_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -8029,6 +8092,24 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    DELETE FROM employee_experience
+    WHERE employee_id = p_employee_id;
+
+    DELETE FROM employee_education
+    WHERE employee_id = p_employee_id;
+
+    DELETE FROM employee_license
+    WHERE employee_id = p_employee_id;
+
+    DELETE FROM employee_emergency_contact
+    WHERE employee_id = p_employee_id;
+
+    DELETE FROM employee_language
+    WHERE employee_id = p_employee_id;
+
+    DELETE FROM employee_document
+    WHERE employee_id = p_employee_id;
 
     DELETE FROM employee
     WHERE employee_id = p_employee_id;

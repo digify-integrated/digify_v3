@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-job-position')) return;
 
         const transaction       = 'delete multiple job position';
-        const job_position_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const job_position_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                        .filter(el => el.checked)
+                                        .map(el => el.value);
 
         if (job_position_id.length === 0) {
             showNotification('Deletion Multiple Job Positions Error', 'Please select the job positions you wish to delete.', 'error');

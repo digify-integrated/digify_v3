@@ -5,20 +5,12 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#role_form').validate({
         rules: {
-            role_name: {
-                required: true
-            },
-            role_description: {
-                required: true
-            }
+            role_name: { required: true },
+            role_description: { required: true }
         },
         messages: {
-            role_name: {
-                required: 'Enter the display name'
-            },
-            role_description: {
-                required: 'Enter the description'
-            }
+            role_name: { required: 'Enter the display name' },
+            role_description: { required: 'Enter the description' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -41,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save role';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new FormData(form);
             formData.append('transaction', transaction);

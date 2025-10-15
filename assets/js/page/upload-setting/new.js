@@ -5,26 +5,14 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#upload_setting_form').validate({
         rules: {
-            upload_setting_name: {
-                required: true
-            },
-            upload_setting_description: {
-                required: true
-            },
-            max_file_size: {
-                required: true
-            }
+            upload_setting_name: { required: true },
+            upload_setting_description: { required: true },
+            max_file_size: { required: true }
         },
         messages: {
-            upload_setting_name: {
-                required: 'Enter the display name'
-            },
-            upload_setting_description: {
-                required: 'Enter the description'
-            },
-            max_file_size: {
-                required: 'Enter the max file size'
-            }
+            upload_setting_name: { required: 'Enter the display name' },
+            upload_setting_description: { required: 'Enter the description' },
+            max_file_size: { required: 'Enter the max file size' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -47,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save upload setting';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

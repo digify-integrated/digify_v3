@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#deactivate-user-account')) {
             const transaction       = 'deactivate multiple user account';
             const user_account_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(checkbox => checkbox.checked)
-                                        .map(checkbox => checkbox.value);
+                                            .filter(checkbox => checkbox.checked)
+                                            .map(checkbox => checkbox.value);
 
             if (user_account_id.length === 0) {
                 showNotification(
@@ -165,8 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-user-account')) {
             const transaction       = 'delete multiple user account';
             const user_account_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(checkbox => checkbox.checked)
-                                        .map(checkbox => checkbox.value);
+                                            .filter(checkbox => checkbox.checked)
+                                            .map(checkbox => checkbox.value);
 
             if (user_account_id.length === 0) {
                 showNotification('Deletion Multiple User Account Error', 'Please select the user accounts you wish to delete.', 'error');

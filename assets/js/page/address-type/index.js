@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-address-type')) return;
 
         const transaction       = 'delete multiple address type';
-        const address_type_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+        const address_type_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                     .filter(el => el.checked)
                                     .map(el => el.value);
 

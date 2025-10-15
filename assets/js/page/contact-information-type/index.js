@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-contact-information-type')) return;
 
-        const transaction       = 'delete multiple contact information type';
-        const contact_information_type_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction                   = 'delete multiple contact information type';
+        const contact_information_type_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                                    .filter(el => el.checked)
+                                                    .map(el => el.value);
 
         if (contact_information_type_id.length === 0) {
             showNotification('Deletion Multiple Contact Information Types Error', 'Please select the contact information types you wish to delete.', 'error');

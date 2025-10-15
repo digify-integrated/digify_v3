@@ -474,15 +474,9 @@ class UserAccountController
         }
 
         $userAccountIdDetails   = $this->userAccount->fetchUserAccount($userAccountId);
-        $profilePicture         = $this->systemHelper->checkImageExist($userAccountIdDetails['profile_picture'] ?? null, 'null');
-        $deleteImageFile        = $this->systemHelper->deleteFileIfExist($profilePicture);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
-                'The user account profile image cannot be deleted due to an error'
-            );
-        }
+        $profilePicture         = $userAccountIdDetails['profile_picture'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($profilePicture);
 
         if(!move_uploaded_file($profilePictureTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
@@ -565,15 +559,9 @@ class UserAccountController
         }
 
         $userAccountIdDetails   = $this->userAccount->fetchUserAccount($lastLogBy);
-        $profilePicture         = $this->systemHelper->checkImageExist($userAccountIdDetails['profile_picture'] ?? null, 'null');
-        $deleteImageFile        = $this->systemHelper->deleteFileIfExist($profilePicture);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
-                'The user account profile image cannot be deleted due to an error'
-            );
-        }
+        $profilePicture         = $userAccountIdDetails['profile_picture'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($profilePicture);
 
         if(!move_uploaded_file($profilePictureTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
@@ -648,7 +636,11 @@ class UserAccountController
     }
 
     public function deleteUserAccount(){
-        $userAccountId = $_POST['user_account_id'] ?? null;
+        $userAccountId          = $_POST['user_account_id'] ?? null;
+        $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
+        $profilePicture         = $userAccountDetails['profile_picture'] ?? null;
+
+        $this->systemHelper->deleteFileIfExist($profilePicture);
 
         $this->userAccount->deleteUserAccount($userAccountId);
 

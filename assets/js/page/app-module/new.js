@@ -12,32 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#app_module_form').validate({
         rules: {
-            app_module_name: {
-                required: true
-            },
-            app_module_description: {
-                required: true
-            },
-            menu_item_id: {
-                required: true
-            },
-            order_sequence: {
-                required: true
-            }
+            app_module_name: { required: true },
+            app_module_description: { required: true },
+            menu_item_id: { required: true },
+            order_sequence: { required: true }
         },
         messages: {
-            app_module_name: {
-                required: 'Enter the display name'
-            },
-            app_module_description: {
-                required: 'Enter the description'
-            },
-            menu_item_id: {
-                required: 'Select the default page'
-            },
-            order_sequence: {
-                required: 'Enter the order sequence'
-            }
+            app_module_name: { required: 'Enter the display name' },
+            app_module_description: { required: 'Enter the description' },
+            menu_item_id: { required: 'Select the default page' },
+            order_sequence: { required: 'Enter the order sequence' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -60,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save app module';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';;
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

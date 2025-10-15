@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction       = 'delete multiple nationality';
         const nationality_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+                                        .filter(el => el.checked)
+                                        .map(el => el.value);
 
         if (nationality_id.length === 0) {
             showNotification('Deletion Multiple Nationalities Error', 'Please select the nationalities you wish to delete.', 'error');

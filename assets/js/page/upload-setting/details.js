@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-               $('#file_extension_id').val(data.allowedFileExtension).trigger('change');
+               $('#file_extension_id').val(data.allowedFileExtension || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -97,14 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#upload_setting_form').validate({
         rules: {
-            upload_setting_name: {
-                required: true
-            }
+            upload_setting_name: { required: true }
         },
         messages: {
-            upload_setting_name: {
-                required: 'Enter the display name'
-            }
+            upload_setting_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -150,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -171,14 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#upload_setting_file_extension_form').validate({
         rules: {
-            file_extension_id: {
-                required: true
-            }
+            file_extension_id: { required: true }
         },
         messages: {
-            file_extension_id: {
-                required: 'Choose the file extension'
-            }
+            file_extension_id: { required: 'Choose the file extension' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -224,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-file-extension');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
         const transaction       = 'fetch job position details';
         const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const job_position_id     = document.getElementById('details-id')?.textContent.trim();
+        const job_position_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('job_position_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#job_position_form').validate({
         rules: {
-            job_position_name: {
-                required: true
-            }
+            job_position_name: { required: true }
         },
         messages: {
-            job_position_name: {
-                required: 'Enter the display name'
-            }
+            job_position_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -77,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction       = 'save job position';
-            const job_position_id     = document.getElementById('details-id')?.textContent.trim();
+            const job_position_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-job-position')) return;
 
-        const transaction   = 'delete job position';
-        const job_position_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction       = 'delete job position';
+        const job_position_id   = document.getElementById('details-id')?.textContent.trim();
+        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Job Position Deletion',

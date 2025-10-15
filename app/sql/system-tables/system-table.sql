@@ -517,7 +517,9 @@ INSERT INTO system_action (system_action_name, system_action_description) VALUES
 ('Delete Role Access', 'Access to delete role access.'),
 ('Add Role System Action Access', 'Access to add the role system action access.'),
 ('Update Role System Action Access', 'Access to update the role system action access.'),
-('Delete Role System Action Access', 'Access to delete the role system action access.');
+('Delete Role System Action Access', 'Access to delete the role system action access.'),
+('Archive Employee', 'Access to archive an employee.'),
+('Unarchive Employee', 'Access to unarchive an employee.');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -686,7 +688,9 @@ INSERT INTO role_system_action_permission (role_id, role_name, system_action_id,
 (1, 'Super Admin', 7, 'Delete Role Access', 1),
 (1, 'Super Admin', 8, 'Add Role System Action Access', 1),
 (1, 'Super Admin', 9, 'Update Role System Action Access', 1),
-(1, 'Super Admin', 10, 'Delete Role System Action Access', 1);
+(1, 'Super Admin', 10, 'Delete Role System Action Access', 1),
+(1, 'Super Admin', 11, 'Archive Employee', 1),
+(1, 'Super Admin', 12, 'Unarchive Employee', 1);
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT
@@ -7970,6 +7974,7 @@ CREATE TABLE employee (
   departure_reason_id INT UNSIGNED,
   departure_reason_name VARCHAR(100),
   detailed_departure_reason VARCHAR(5000),
+  departure_date DATE,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8239,7 +8244,7 @@ CREATE TABLE employee_document (
 
 
 /* =============================================================================================
-  TABLE: EMPLOYMENT LOCATION TYPE
+  TABLE: EMPLOYEE DOCUMENT TYPE
 ============================================================================================= */
 
 DROP TABLE IF EXISTS employee_document_type;
@@ -8254,11 +8259,11 @@ CREATE TABLE employee_document_type (
 );
 
 /* =============================================================================================
-  INDEX: EMPLOYMENT LOCATION TYPE
+  INDEX: EMPLOYEE DOCUMENT TYPE
 ============================================================================================= */
 
 /* =============================================================================================
-  INITIAL VALUES: EMPLOYMENT LOCATION TYPE
+  INITIAL VALUES: EMPLOYEE DOCUMENT TYPE
 ============================================================================================= */
 
 INSERT INTO employee_document_type (employee_document_type_name)

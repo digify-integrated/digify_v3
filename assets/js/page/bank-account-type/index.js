@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-bank-account-type')) return;
 
-        const transaction       = 'delete multiple bank account type';
-        const bank_account_type_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction           = 'delete multiple bank account type';
+        const bank_account_type_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
         if (bank_account_type_id.length === 0) {
             showNotification('Deletion Multiple Bank Account Types Error', 'Please select the bank account types you wish to delete.', 'error');

@@ -12,26 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     $('#file_extension_form').validate({
         rules: {
-            file_extension_name: {
-                required: true
-            },
-            file_extension: {
-                required: true
-            },
-            file_type_id: {
-                required: true
-            }
+            file_extension_name: { required: true },
+            file_extension: { required: true },
+            file_type_id: { required: true }
         },
         messages: {
-            file_extension_name: {
-                required: 'Enter the display name'
-            },
-            file_extension: {
-                required: 'Enter the file extension'
-            },
-            file_type_id: {
-                required: 'Select the file type'
-            }
+            file_extension_name: { required: 'Enter the display name' },
+            file_extension: { required: 'Enter the file extension' },
+            file_type_id: { required: 'Select the file type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -54,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save file extension';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

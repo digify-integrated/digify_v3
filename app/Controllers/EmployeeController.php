@@ -21,6 +21,7 @@ use App\Models\Language;
 use App\Models\LanguageProficiency;
 use App\Models\Relationship;
 use App\Models\EmployeeDocumentType;
+use App\Models\DepartureReason;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -47,6 +48,7 @@ class EmployeeController
     protected LanguageProficiency $languageProficiency;
     protected Relationship $relationship;
     protected EmployeeDocumentType $employeeDocumentType;
+    protected DepartureReason $departureReason;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -70,6 +72,7 @@ class EmployeeController
         LanguageProficiency $languageProficiency,
         Relationship $relationship,
         EmployeeDocumentType $employeeDocumentType,
+        DepartureReason $departureReason,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -92,6 +95,7 @@ class EmployeeController
         $this->languageProficiency      = $languageProficiency;
         $this->relationship             = $relationship;
         $this->employeeDocumentType     = $employeeDocumentType;
+        $this->departureReason          = $departureReason;
         $this->authentication           = $authentication;
         $this->uploadSetting            = $uploadSetting;
         $this->security                 = $security;
@@ -169,6 +173,8 @@ class EmployeeController
             'update employee work phone'                => $this->updateEmployeeWorkPhone($lastLogBy),
             'update employee work telephone'            => $this->updateEmployeeWorkTelephone($lastLogBy),
             'update employee image'                     => $this->updateEmployeeImage($lastLogBy),
+            'update employee archive'                   => $this->updateEmployeeArchive($lastLogBy),
+            'update employee unarchive'                 => $this->updateEmployeeUnarchive($lastLogBy),
             'delete employee'                           => $this->deleteEmployee(),
             'delete multiple employee'                  => $this->deleteMultipleEmployee(),
             'delete employee language'                  => $this->deleteEmployeeLanguage(),
@@ -1079,15 +1085,9 @@ class EmployeeController
         }
 
         $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
-        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($employeeImage);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Update Employee Image Error', 
-                'The employee image cannot be deleted due to an error'
-            );
-        }
+        $employeeImage      = $employeeDetails['employee_image'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($employeeImage);
 
         if(!move_uploaded_file($employeeImageTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
@@ -1104,18 +1104,56 @@ class EmployeeController
         );
     }
 
+    public function updateEmployeeArchive($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'archive_employee_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $employeeId                 = $_POST['employee_id'] ?? null;
+        $departureReasonId          = $_POST['departure_reason_id'] ?? null;
+        $departureDate              = $this->systemHelper->checkDate('empty', $_POST['departure_date'], '', 'Y-m-d', '');
+        $detailedDepartureReason    = $_POST['detailed_departure_reason'] ?? null;
+
+        $departureReasonDetails     = $this->departureReason->fetchDepartureReason($departureReasonId);
+        $departureReasonName        = $departureReasonDetails['departure_reason_name'] ?? null;
+
+        $this->employee->updateEmployeeArchive($employeeId, $departureReasonId, $departureReasonName, $detailedDepartureReason, $departureDate, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Employee Archive Success',
+            'The employee has been archived successfully.'
+        );
+    }
+
+    public function updateEmployeeUnarchive($lastLogBy){
+        $employeeId = $_POST['employee_id'] ?? null;
+
+        $this->employee->updateEmployeeUnarchive($employeeId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Employee Unarchive Success',
+            'The employee has been unarchived successfully.'
+        );
+    }
+
     public function deleteEmployee(){
         $employeeId         = $_POST['employee_id'] ?? null;
         $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
+        $employeeImage      = $employeeDetails['employee_image'] ?? null;
 
-        $deleteImageFile = $this->systemHelper->deleteFileIfExist($employeeImage);
+        $this->systemHelper->deleteFileIfExist($employeeImage);
 
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Delete Employee Error', 
-                'The employee image cannot be deleted due to an error'
-            );
+        $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
+
+        foreach ($employeeDocuments as $row) {
+            $documentFile = $row['document_file'] ?? null;
+
+            $this->systemHelper->deleteFileIfExist($documentFile);
         }
 
         $this->employee->deleteEmployee($employeeId);
@@ -1131,9 +1169,17 @@ class EmployeeController
 
         foreach($employeeIds as $employeeId){
             $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-            $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'null');
+            $employeeImage      = $employeeDetails['employee_image'] ?? null;
 
             $this->systemHelper->deleteFileIfExist($employeeImage);
+
+            $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
+
+            foreach ($employeeDocuments as $row) {
+                $documentFile = $row['document_file'] ?? null;
+
+                $this->systemHelper->deleteFileIfExist($documentFile);
+            }
 
             $this->employee->deleteEmployee($employeeId);
         }
@@ -1457,7 +1503,7 @@ class EmployeeController
                                     </div>',
                 'EMPLOYEE'      => '<div class="d-flex align-items-center">
                                         <div class="me-4">
-                                            <div class="symbol symbol-50px symbol-circle mb-5">
+                                            <div class="symbol symbol-50px symbol-circle">
                                                 <img src="'. $employeeImage .'" alt="image">
                                                 '. $employmentStatusBadge .'
                                             </div>
@@ -1923,7 +1969,6 @@ class EmployeeController
             $documentFile               = $row['document_file'];
             $employeeDocumentTypeName   = $row['employee_document_type_name'];
             $createdDate                = $this->systemHelper->checkDate('summary', $row['created_date'] ?? null, '', 'M d, Y h:i:s a', '');
-            $lastUpdated                = $this->systemHelper->checkDate('summary', $row['last_updated'] ?? null, '', 'M d, Y h:i:s a', '');
 
             $documentFileDetails = $this->systemHelper->getFileDetails($documentFile, true);
 
@@ -1953,7 +1998,6 @@ class EmployeeController
                                         </div>',
                 'SIZE'              => $documentFileDetails['size'],
                 'UPLOAD_DATE'       => $createdDate,
-                'LAST_MODIFIED'     => $lastUpdated,
                 'ACTION'            => '<div class="d-flex justify-content-end gap-3">
                                             '. $logNotes .'
                                             <a href="'. $documentFile .'" class="btn btn-icon btn-light btn-active-light-warning" download="'. $documentName .'" target="_blank">
@@ -1987,6 +2031,7 @@ $controller = new EmployeeController(
     new LanguageProficiency(),
     new Relationship(),
     new EmployeeDocumentType(),
+    new DepartureReason(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

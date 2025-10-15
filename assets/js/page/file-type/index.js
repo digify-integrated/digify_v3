@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction   = 'delete multiple file type';
         const file_type_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                .filter(el => el.checked)
-                                .map(el => el.value);
+                                    .filter(el => el.checked)
+                                    .map(el => el.value);
 
         if (file_type_id.length === 0) {
             showNotification('Deletion Multiple File Types Error', 'Please select the file types you wish to delete.', 'error');

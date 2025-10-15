@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch currency details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const currency_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction   = 'fetch currency details';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const currency_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('currency_form');
@@ -49,14 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#currency_form').validate({
         rules: {
-            currency_name: {
-                required: true
-            }
+            currency_name: { required: true }
         },
         messages: {
-            currency_name: {
-                required: 'Enter the display name'
-            }
+            currency_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -78,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save currency';
-            const currency_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction   = 'save currency';
+            const currency_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -102,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -125,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-currency')) return;
 
         const transaction   = 'delete currency';
-        const currency_id    = document.getElementById('details-id')?.textContent.trim();
+        const currency_id   = document.getElementById('details-id')?.textContent.trim();
         const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({

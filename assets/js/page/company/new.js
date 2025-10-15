@@ -3,44 +3,29 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_id',
-        data: { 
-            transaction: 'generate city options'
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CurrencyController.php',
-        dropdownSelector: '#currency_id',
-        data: { 
-            transaction: 'generate currency options'
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/CityController.php', selector: '#city_id', transaction: 'generate city options' },
+        { url: './app/Controllers/CurrencyController.php', selector: '#currency_id', transaction: 'generate currency options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
     });
     
     $('#company_form').validate({
         rules: {
-            company_name: {
-                required: true
-            },
-            address: {
-                required: true
-            },
-            city_id: {
-                required: true
-            }
+            company_name: { required: true },
+            address: {required: true },
+            city_id: { required: true }
         },
         messages: {
-            company_name: {
-                required: 'Enter the display name'
-            },
-            address: {
-                required: 'Enter the address'
-            },
-            city_id: {
-                required: 'Choose the city'
-            }
+            company_name: { required: 'Enter the display name' },
+            address: { required: 'Enter the address' },
+            city_id: { required: 'Choose the city' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -63,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save company';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);

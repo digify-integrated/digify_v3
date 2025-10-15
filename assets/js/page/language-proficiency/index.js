@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-language-proficiency')) return;
 
-        const transaction       = 'delete multiple language proficiency';
-        const language_proficiency_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction               = 'delete multiple language proficiency';
+        const language_proficiency_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                                .filter(el => el.checked)
+                                                .map(el => el.value);
 
         if (language_proficiency_id.length === 0) {
             showNotification('Deletion Multiple Language Proficiencies Error', 'Please select the language proficiencies you wish to delete.', 'error');

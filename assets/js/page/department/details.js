@@ -59,14 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#department_form').validate({
         rules: {
-            department_name: {
-                required: true
-            }
+            department_name: { required: true }
         },
         messages: {
-            department_name: {
-                required: 'Enter the display name'
-            }
+            department_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -112,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

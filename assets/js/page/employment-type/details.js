@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#employment_type_form').validate({
         rules: {
-            employment_type_name: {
-                required: true
-            }
+            employment_type_name: { required: true }
         },
         messages: {
-            employment_type_name: {
-                required: 'Enter the display name'
-            }
+            employment_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save employment type';
-            const employment_type_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save employment type';
+            const employment_type_id    = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-employment-type')) return;
 
-        const transaction   = 'delete employment type';
+        const transaction           = 'delete employment type';
         const employment_type_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Employment Type Deletion',

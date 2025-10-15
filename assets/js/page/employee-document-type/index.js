@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const transaction                   = 'delete multiple employee document type';
         const employee_document_type_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                                .filter(el => el.checked)
-                                                .map(el => el.value);
+                                                    .filter(el => el.checked)
+                                                    .map(el => el.value);
 
         if (employee_document_type_id.length === 0) {
             showNotification('Deletion Multiple Employee Document Types Error', 'Please select the employee document types you wish to delete.', 'error');

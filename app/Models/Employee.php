@@ -789,6 +789,48 @@ class Employee extends Model {
         ]);
     }
 
+    public function updateEmployeeArchive(
+        $p_employee_id,
+        $p_departure_reason_id,
+        $p_departure_reason_name,
+        $p_detailed_departure_reason,
+        $p_departure_date,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeArchive(
+            :p_employee_id,
+            :p_departure_reason_id,
+            :p_departure_reason_name,
+            :p_detailed_departure_reason,
+            :p_departure_date,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'                 => $p_employee_id,
+            'p_departure_reason_id'         => $p_departure_reason_id,
+            'p_departure_reason_name'       => $p_departure_reason_name,
+            'p_detailed_departure_reason'   => $p_detailed_departure_reason,
+            'p_departure_date'              => $p_departure_date,
+            'p_last_log_by'                 => $p_last_log_by
+        ]);
+    }
+
+    public function updateEmployeeUnarchive(
+        $p_employee_id,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateEmployeeUnarchive(
+            :p_employee_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_employee_id'                 => $p_employee_id,
+            'p_last_log_by'                 => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 4: FETCH METHODS
     ============================================================================================= */
@@ -862,6 +904,18 @@ class Employee extends Model {
         
         return $this->fetch($sql, [
             'p_employee_document_id' => $p_employee_document_id
+        ]);
+    }
+
+    public function fetchAllEmployeeDocument(
+        $p_employee_id
+    ): array|null {
+        $sql = 'CALL fetchAllEmployeeDocument(
+            :p_employee_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_employee_id' => $p_employee_id
         ]);
     }
     

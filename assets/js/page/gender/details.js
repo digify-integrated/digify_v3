@@ -5,8 +5,8 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch gender details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction   = 'fetch gender details';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
         const gender_id     = document.getElementById('details-id')?.textContent.trim();
 
         try {
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#gender_form').validate({
         rules: {
-            gender_name: {
-                required: true
-            }
+            gender_name: { required: true }
         },
         messages: {
-            gender_name: {
-                required: 'Enter the display name'
-            }
+            gender_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save gender';
+            const transaction   = 'save gender';
             const gender_id     = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -123,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-gender')) return;
 
         const transaction   = 'delete gender';
-        const gender_id    = document.getElementById('details-id')?.textContent.trim();
+        const gender_id     = document.getElementById('details-id')?.textContent.trim();
         const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({

@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch departure reason details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const departure_reason_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction           = 'fetch departure reason details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const departure_reason_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('departure_reason_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#departure_reason_form').validate({
         rules: {
-            departure_reason_name: {
-                required: true
-            }
+            departure_reason_name: { required: true }
         },
         messages: {
-            departure_reason_name: {
-                required: 'Enter the display name'
-            }
+            departure_reason_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save departure reason';
-            const departure_reason_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save departure reason';
+            const departure_reason_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-departure-reason')) return;
 
-        const transaction   = 'delete departure reason';
-        const departure_reason_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction           = 'delete departure reason';
+        const departure_reason_id   = document.getElementById('details-id')?.textContent.trim();
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Departure Reason Deletion',

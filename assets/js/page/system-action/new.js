@@ -5,20 +5,12 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#system_action_form').validate({
         rules: {
-            system_action_name: {
-                required: true
-            },
-            system_action_description: {
-                required: true
-            }
+            system_action_name: { required: true },
+            system_action_description: { required: true }
         },
         messages: {
-            system_action_name: {
-                required: 'Enter the display name'
-            },
-            system_action_description: {
-                required: 'Ether the description'
-            }
+            system_action_name: { required: 'Enter the display name' },
+            system_action_description: { required: 'Ether the description' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -41,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction   = 'save system action';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new FormData(form);
             formData.append('transaction', transaction);

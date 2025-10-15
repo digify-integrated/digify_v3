@@ -2326,6 +2326,10 @@ BEGIN
     IF NEW.detailed_departure_reason <> OLD.detailed_departure_reason THEN
         SET audit_log = CONCAT(audit_log, "Detailed Departure Reason: ", OLD.detailed_departure_reason, " -> ", NEW.detailed_departure_reason, "<br/>");
     END IF;
+
+    IF NEW.departure_date <> OLD.departure_date THEN
+        SET audit_log = CONCAT(audit_log, "Departure Date: ", OLD.departure_date, " -> ", NEW.departure_date, "<br/>");
+    END IF;
     
     IF audit_log <> 'Employee changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 

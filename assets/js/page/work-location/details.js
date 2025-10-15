@@ -61,26 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#work_location_form').validate({
         rules: {
-            work_location_name: {
-                required: true
-            },
-            address: {
-                required: true
-            },
-            city_id: {
-                required: true
-            }
+            work_location_name: { required: true },
+            address: { required: true },
+            city_id: { required: true }
         },
         messages: {
-            work_location_name: {
-                required: 'Enter the display name'
-            },
-            address: {
-                required: 'Enter the address'
-            },
-            city_id: {
-                required: 'Choose the city'
-            }
+            work_location_name: { required: 'Enter the display name' },
+            address: { required: 'Enter the address' },
+            city_id: { required: 'Choose the city' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -103,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction       = 'save work location';
-            const work_location_id     = document.getElementById('details-id')?.textContent.trim();
+            const work_location_id  = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -126,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

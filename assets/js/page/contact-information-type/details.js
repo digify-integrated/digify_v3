@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch contact information type details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const contact_information_type_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction                   = 'fetch contact information type details';
+        const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('contact_information_type_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#contact_information_type_form').validate({
         rules: {
-            contact_information_type_name: {
-                required: true
-            }
+            contact_information_type_name: { required: true }
         },
         messages: {
-            contact_information_type_name: {
-                required: 'Enter the display name'
-            }
+            contact_information_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save contact information type';
-            const contact_information_type_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction                   = 'save contact information type';
+            const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-contact-information-type')) return;
 
-        const transaction   = 'delete contact information type';
-        const contact_information_type_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction                   = 'delete contact information type';
+        const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
+        const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Contact Information Type Deletion',

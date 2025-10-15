@@ -169,20 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#notification_setting_form').validate({
         rules: {
-            notification_setting_name: {
-                required: true
-            },
-            notification_setting_description: {
-                required: true
-            }
+            notification_setting_name: { required: true },
+            notification_setting_description: { required: true }
         },
         messages: {
-            notification_setting_name: {
-                required: 'Enter the display name'
-            },
-            notification_setting_description: {
-                required: 'Enter the description'
-            }
+            notification_setting_name: { required: 'Enter the display name' },
+            notification_setting_description: { required: 'Enter the description' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -228,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -249,20 +240,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#update_system_notification_template_form').validate({
         rules: {
-            system_notification_title: {
-                required: true
-            },
-            system_notification_message: {
-                required: true
-            }
+            system_notification_title: { required: true },
+            system_notification_message: { required: true }
         },
         messages: {
-            system_notification_title: {
-                required: 'Enter the title'
-            },
-            system_notification_message: {
-                required: 'Enter the message'
-            }
+            system_notification_title: { required: 'Enter the title' },
+            system_notification_message: { required: 'Enter the message' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -328,14 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#update_email_notification_template_form').validate({
         rules: {
-            email_notification_subject: {
-                required: true
-            }
+            email_notification_subject: { required: true }
         },
         messages: {
-            email_notification_subject: {
-                required: 'Enter the subject'
-            }
+            email_notification_subject: { required: 'Enter the subject' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -403,14 +382,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#update_sms_notification_template_form').validate({
         rules: {
-            sms_notification_message: {
-                required: true
-            }
+            sms_notification_message: { required: true }
         },
         messages: {
-            sms_notification_message: {
-                required: 'Enter the message'
-            }
+            sms_notification_message: { required: 'Enter the message' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

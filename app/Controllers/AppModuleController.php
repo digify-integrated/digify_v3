@@ -122,7 +122,6 @@ class AppModuleController
     }
 
     public function updateAppModuleLogo($lastLogBy){
-
         $appModuleId   = $_POST['app_module_id'] ?? null;
        
         $appLogoFileName                = $_FILES['app_logo']['name'];
@@ -190,15 +189,9 @@ class AppModuleController
         }
 
         $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
-        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
-        $deleteImageFile    = $this->systemHelper->deleteFileIfExist($appLogo);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Update App Module Logo Error', 
-                'The app module logo cannot be deleted due to an error'
-            );
-        }
+        $appLogo            = $appModuleDetails['app_logo'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($appLogo);
 
         if(!move_uploaded_file($appLogoTempName, $fileDestination)){
             $this->systemHelper::sendErrorResponse(
@@ -218,16 +211,9 @@ class AppModuleController
     public function deleteAppModule(){
         $appModuleId        = $_POST['app_module_id'] ?? null;
         $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
-        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
+        $appLogo            = $appModuleDetails['app_logo'] ?? null;
 
-        $deleteImageFile = $this->systemHelper->deleteFileIfExist($appLogo);
-
-        if(!$deleteImageFile){
-            $this->systemHelper::sendErrorResponse(
-                'Delete App Module Error', 
-                'The app logo cannot be deleted due to an error'
-            );
-        }
+        $this->systemHelper->deleteFileIfExist($appLogo);
 
         $this->appModule->deleteAppModule($appModuleId);
 
@@ -242,7 +228,7 @@ class AppModuleController
 
         foreach($appModuleIds as $appModuleId){
             $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
-            $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'null');
+            $appLogo            = $appModuleDetails['app_logo'] ?? null;
 
             $this->systemHelper->deleteFileIfExist($appLogo);
 

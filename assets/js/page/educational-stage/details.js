@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch educational stage details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction           = 'fetch educational stage details';
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const educational_stage_id  = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('educational_stage_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#educational_stage_form').validate({
         rules: {
-            educational_stage_name: {
-                required: true
-            }
+            educational_stage_name: { required: true }
         },
         messages: {
-            educational_stage_name: {
-                required: 'Enter the display name'
-            }
+            educational_stage_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save educational stage';
-            const educational_stage_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction           = 'save educational stage';
+            const educational_stage_id  = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -122,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-educational-stage')) return;
 
-        const transaction   = 'delete educational stage';
-        const educational_stage_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction           = 'delete educational stage';
+        const educational_stage_id  = document.getElementById('details-id')?.textContent.trim();
+        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Educational Stage Deletion',

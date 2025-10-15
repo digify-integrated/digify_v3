@@ -15,14 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#upload_form').validate({
         rules: {
-            import_file: {
-                required: true
-            }
+            import_file: { required: true }
         },
         messages: {
-            import_file: {
-                required: 'Choose the import file'
-            }
+            import_file: { required: 'Choose the import file' }
         },
         errorPlacement: (error) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -47,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const transaction   = document.querySelector('.upload-file-preview').classList.contains('d-none')
                                     ? 'generate import data preview'
                                     : 'save import data';
-            const page_link     = document.getElementById('page-link').getAttribute('href');
+            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new FormData(form);
             formData.append('transaction', transaction);
@@ -67,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    const $preview = $('.upload-file-preview');
-                    const $defaultPreview = $('.upload-file-default-preview');
+                    const $preview          = $('.upload-file-preview');
+                    const $defaultPreview   = $('.upload-file-default-preview');
 
                     if ($preview.hasClass('d-none')) {
                         $defaultPreview.addClass('d-none');

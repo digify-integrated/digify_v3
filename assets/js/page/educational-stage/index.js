@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-educational-stage')) return;
 
-        const transaction       = 'delete multiple educational stage';
-        const educational_stage_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction           = 'delete multiple educational stage';
+        const educational_stage_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
 
         if (educational_stage_id.length === 0) {
             showNotification('Deletion Multiple Educational Stages Error', 'Please select the educational stages you wish to delete.', 'error');

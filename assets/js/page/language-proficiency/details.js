@@ -48,14 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#language_proficiency_form').validate({
         rules: {
-            language_proficiency_name: {
-                required: true
-            }
+            language_proficiency_name: { required: true }
         },
         messages: {
-            language_proficiency_name: {
-                required: 'Enter the display name'
-            }
+            language_proficiency_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -77,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save language proficiency';
-            const language_proficiency_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction               = 'save language proficiency';
+            const language_proficiency_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -101,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -123,9 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-language-proficiency')) return;
 
-        const transaction   = 'delete language proficiency';
-        const language_proficiency_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction               = 'delete language proficiency';
+        const language_proficiency_id   = document.getElementById('details-id')?.textContent.trim();
+        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
             title: 'Confirm Language Proficiency Deletion',

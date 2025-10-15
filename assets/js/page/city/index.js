@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (event.target.closest('#delete-city')){
             const transaction   = 'delete multiple city';
-            const city_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+            const city_id       = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                         .filter(checkbox => checkbox.checked)
                                         .map(checkbox => checkbox.value);
 

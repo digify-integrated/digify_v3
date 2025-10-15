@@ -27,40 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_filter',
-        data: { 
-            transaction: 'generate filter city options',
-            multiple : true
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/StateController.php',
-        dropdownSelector: '#state_filter',
-        data: { 
-            transaction: 'generate state options',
-            multiple : true
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CountryController.php',
-        dropdownSelector: '#country_filter',
-        data: { 
-            transaction: 'generate country options',
-            multiple : true
-        }
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/CurrencyController.php',
-        dropdownSelector: '#currency_filter',
-        data: { 
-            transaction: 'generate currency options',
-            multiple : true
-        }
+    const dropdownConfigs = [
+        { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
+        { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
+        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' },
+        { url: './app/Controllers/CurrencyController.php', selector: '#currency_filter', transaction: 'generate currency options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction, multiple : true }
+        });
     });
 
     initializeDatatableControls('#company-table');

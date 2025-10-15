@@ -5,9 +5,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const displayDetails = async () => {
-        const transaction       = 'fetch religion details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const religion_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction   = 'fetch religion details';
+        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const religion_id   = document.getElementById('details-id')?.textContent.trim();
 
         try {
             resetForm('religion_form');
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#religion_form').validate({
         rules: {
-            religion_name: {
-                required: true
-            }
+            religion_name: { required: true }
         },
         messages: {
-            religion_name: {
-                required: 'Enter the display name'
-            }
+            religion_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -76,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save religion';
-            const religion_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction   = 'save religion';
+            const religion_id   = document.getElementById('details-id')?.textContent.trim();
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-data');
-                    displayDetails();
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -123,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#delete-religion')) return;
 
         const transaction   = 'delete religion';
-        const religion_id    = document.getElementById('details-id')?.textContent.trim();
+        const religion_id   = document.getElementById('details-id')?.textContent.trim();
         const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
 
         const result = await Swal.fire({
