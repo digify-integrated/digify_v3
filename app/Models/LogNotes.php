@@ -31,8 +31,8 @@ class LogNotes extends Model {
         )';
 
         return $this->fetchAll($sql, [
-            'p_table_name' => $p_table_name,
-            'p_reference_id' => $p_reference_id
+            'p_table_name'      => $p_table_name,
+            'p_reference_id'    => $p_reference_id
         ]);
     }
 

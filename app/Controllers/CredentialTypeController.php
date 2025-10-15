@@ -70,13 +70,13 @@ class CredentialTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save credential type'               => $this->saveCredentialType($lastLogBy),
-            'delete credential type'             => $this->deleteCredentialType(),
-            'delete multiple credential type'    => $this->deleteMultipleCredentialType(),
-            'fetch credential type details'      => $this->fetchCredentialTypeDetails(),
-            'generate credential type table'     => $this->generateCredentialTypeTable(),
-            'generate credential type options'   => $this->generateCredentialTypeOptions(),
-            default                              => $this->systemHelper::sendErrorResponse(
+            'save credential type'              => $this->saveCredentialType($lastLogBy),
+            'delete credential type'            => $this->deleteCredentialType(),
+            'delete multiple credential type'   => $this->deleteMultipleCredentialType(),
+            'fetch credential type details'     => $this->fetchCredentialTypeDetails(),
+            'generate credential type table'    => $this->generateCredentialTypeTable(),
+            'generate credential type options'  => $this->generateCredentialTypeOptions(),
+            default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
                                                     )
@@ -162,8 +162,8 @@ class CredentialTypeController
         $credentialTypes = $this->credentialType->generateCredentialTypeTable();
 
         foreach ($credentialTypes as $row) {
-            $credentialTypeId      = $row['credential_type_id'];
-            $credentialTypeName    = $row['credential_type_name'];
+            $credentialTypeId       = $row['credential_type_id'];
+            $credentialTypeName     = $row['credential_type_name'];
 
             $credentialTypeIdEncrypted = $this->security->encryptData($credentialTypeId);
 

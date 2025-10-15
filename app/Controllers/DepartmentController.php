@@ -102,8 +102,8 @@ class DepartmentController
         $parentDepartmentDetails    = $this->department->fetchDepartment($parentDepartmentId);
         $parentDepartmentName       = $parentDepartmentDetails['department_name'] ?? '';
 
-        $departmentId              = $this->department->saveDepartment($departmentId, $departmentName, $parentDepartmentId, $parentDepartmentName, $managerId, '', $lastLogBy);
-        $encryptedDepartmentId     = $this->security->encryptData($departmentId);
+        $departmentId           = $this->department->saveDepartment($departmentId, $departmentName, $parentDepartmentId, $parentDepartmentName, $managerId, '', $lastLogBy);
+        $encryptedDepartmentId  = $this->security->encryptData($departmentId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Department Success',

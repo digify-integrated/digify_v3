@@ -93,11 +93,11 @@ class JobPositionController
             );
         }
 
-        $jobPositionId       = $_POST['job_position_id'] ?? null;
-        $jobPositionName     = $_POST['job_position_name'] ?? null;
+        $jobPositionId      = $_POST['job_position_id'] ?? null;
+        $jobPositionName    = $_POST['job_position_name'] ?? null;
 
-        $jobPositionId           = $this->jobPosition->saveJobPosition($jobPositionId, $jobPositionName, $lastLogBy);
-        $encryptedJobPositionId  = $this->security->encryptData($jobPositionId);
+        $jobPositionId              = $this->jobPosition->saveJobPosition($jobPositionId, $jobPositionName, $lastLogBy);
+        $encryptedJobPositionId     = $this->security->encryptData($jobPositionId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Job Position Success',
@@ -131,9 +131,9 @@ class JobPositionController
     }
 
     public function fetchJobPositionDetails(){
-        $jobPositionId           = $_POST['job_position_id'] ?? null;
-        $checkJobPositionExist   = $this->jobPosition->checkJobPositionExist($jobPositionId);
-        $total                      = $checkJobPositionExist['total'] ?? 0;
+        $jobPositionId          = $_POST['job_position_id'] ?? null;
+        $checkJobPositionExist  = $this->jobPosition->checkJobPositionExist($jobPositionId);
+        $total                  = $checkJobPositionExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

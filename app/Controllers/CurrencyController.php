@@ -70,16 +70,16 @@ class CurrencyController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save currency'               => $this->saveCurrency($lastLogBy),
-            'delete currency'             => $this->deleteCurrency(),
-            'delete multiple currency'    => $this->deleteMultipleCurrency(),
-            'fetch currency details'      => $this->fetchCurrencyDetails(),
-            'generate currency table'     => $this->generateCurrencyTable(),
-            'generate currency options'   => $this->generateCurrencyOptions(),
-            default                       => $this->systemHelper::sendErrorResponse(
-                                                    'Transaction Failed',
-                                                    'We encountered an issue while processing your request.'
-                                                )
+            'save currency'             => $this->saveCurrency($lastLogBy),
+            'delete currency'           => $this->deleteCurrency(),
+            'delete multiple currency'  => $this->deleteMultipleCurrency(),
+            'fetch currency details'    => $this->fetchCurrencyDetails(),
+            'generate currency table'   => $this->generateCurrencyTable(),
+            'generate currency options' => $this->generateCurrencyOptions(),
+            default                     => $this->systemHelper::sendErrorResponse(
+                                                'Transaction Failed',
+                                                'We encountered an issue while processing your request.'
+                                            )
         };
     }
 

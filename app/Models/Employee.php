@@ -826,8 +826,8 @@ class Employee extends Model {
         )';
         
         return $this->query($sql, [
-            'p_employee_id'                 => $p_employee_id,
-            'p_last_log_by'                 => $p_last_log_by
+            'p_employee_id'     => $p_employee_id,
+            'p_last_log_by'     => $p_last_log_by
         ]);
     }
 
@@ -1053,16 +1053,16 @@ class Employee extends Model {
         )';
 
         return $this->fetchAll($sql, [
-            'p_search_value' => $p_search_value,
-            'p_filter_by_company' => $p_filter_by_company,
-            'p_filter_by_department' => $p_filter_by_department,
-            'p_filter_by_job_position' => $p_filter_by_job_position,
-            'p_filter_by_employee_status' => $p_filter_by_employee_status,
-            'p_filter_by_work_location' => $p_filter_by_work_location,
-            'p_filter_by_employment_type' => $p_filter_by_employment_type,
-            'p_filter_by_gender' => $p_filter_by_gender,
-            'p_limit' => $p_limit,
-            'p_offset' => $p_offset
+            'p_search_value'                => $p_search_value,
+            'p_filter_by_company'           => $p_filter_by_company,
+            'p_filter_by_department'        => $p_filter_by_department,
+            'p_filter_by_job_position'      => $p_filter_by_job_position,
+            'p_filter_by_employee_status'   => $p_filter_by_employee_status,
+            'p_filter_by_work_location'     => $p_filter_by_work_location,
+            'p_filter_by_employment_type'   => $p_filter_by_employment_type,
+            'p_filter_by_gender'            => $p_filter_by_gender,
+            'p_limit'                       => $p_limit,
+            'p_offset'                      => $p_offset
         ]);
     }
 
@@ -1086,13 +1086,13 @@ class Employee extends Model {
         )';
 
         return $this->fetchAll($sql, [
-            'p_filter_by_company' => $p_filter_by_company,
-            'p_filter_by_department' => $p_filter_by_department,
-            'p_filter_by_job_position' => $p_filter_by_job_position,
-            'p_filter_by_employee_status' => $p_filter_by_employee_status,
-            'p_filter_by_work_location' => $p_filter_by_work_location,
-            'p_filter_by_employment_type' => $p_filter_by_employment_type,
-            'p_filter_by_gender' => $p_filter_by_gender
+            'p_filter_by_company'           => $p_filter_by_company,
+            'p_filter_by_department'        => $p_filter_by_department,
+            'p_filter_by_job_position'      => $p_filter_by_job_position,
+            'p_filter_by_employee_status'   => $p_filter_by_employee_status,
+            'p_filter_by_work_location'     => $p_filter_by_work_location,
+            'p_filter_by_employment_type'   => $p_filter_by_employment_type,
+            'p_filter_by_gender'            => $p_filter_by_gender
         ]);
     }
 

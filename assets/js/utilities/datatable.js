@@ -108,8 +108,8 @@ export const initializeDatatable = ({
 };
 
 export const initializeDatatableControls = (selector) => {
-    const $lengthDropdown = $('#datatable-length');
-    const $searchInput    = $('#datatable-search');
+    const $lengthDropdown   = $('#datatable-length');
+    const $searchInput      = $('#datatable-search');
 
     if ($lengthDropdown.length) {
         $lengthDropdown.off('change').on('change', function () {

@@ -33,9 +33,9 @@ class Export extends Model {
         )';
         
         return $this->fetchAll($sql, [
-            'p_table_name' => $p_table_name,
-            'p_columns' => $p_columns,
-            'p_ids' => $p_ids
+            'p_table_name'  => $p_table_name,
+            'p_columns'     => $p_columns,
+            'p_ids'         => $p_ids
         ]);
     }
 
@@ -61,8 +61,8 @@ class Export extends Model {
         )';
         
         return $this->fetchAll($sql, [
-            'p_database_name' => $p_database_name,
-            'p_table_name' => $p_table_name
+            'p_database_name'   => $p_database_name,
+            'p_table_name'      => $p_table_name
         ]);
     }
 

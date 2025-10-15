@@ -21,9 +21,9 @@ class BankAccountType extends Model {
         )';
 
         $row = $this->fetch($sql, [
-            'p_bank_account_type_id'     => $p_bank_account_type_id,
-            'p_bank_account_type_name'   => $p_bank_account_type_name,
-            'p_last_log_by'                     => $p_last_log_by
+            'p_bank_account_type_id'    => $p_bank_account_type_id,
+            'p_bank_account_type_name'  => $p_bank_account_type_name,
+            'p_last_log_by'             => $p_last_log_by
         ]);
 
         return $row['new_bank_account_type_id'] ?? null;

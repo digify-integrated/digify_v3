@@ -131,9 +131,9 @@ class GenderController
     }
 
     public function fetchGenderDetails(){
-        $genderId            = $_POST['gender_id'] ?? null;
-        $checkGenderyExist   = $this->gender->checkGenderExist($genderId);
-        $total               = $checkGenderyExist['total'] ?? 0;
+        $genderId           = $_POST['gender_id'] ?? null;
+        $checkGenderyExist  = $this->gender->checkGenderExist($genderId);
+        $total              = $checkGenderyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

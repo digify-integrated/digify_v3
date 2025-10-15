@@ -102,13 +102,13 @@ class CityController
         $cityName   = $_POST['city_name'] ?? null;
         $stateId    = $_POST['state_id'] ?? null;
 
-        $stateDetails       = $this->state->fetchState($stateId);
-        $stateName          = $stateDetails['state_name'] ?? '';
-        $countryId          = $stateDetails['country_id'] ?? '';
-        $countryName        = $stateDetails['country_name'] ?? '';
+        $stateDetails   = $this->state->fetchState($stateId);
+        $stateName      = $stateDetails['state_name'] ?? '';
+        $countryId      = $stateDetails['country_id'] ?? '';
+        $countryName    = $stateDetails['country_name'] ?? '';
 
-        $cityId              = $this->city->saveCity($cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $lastLogBy);
-        $encryptedcityId     = $this->security->encryptData($cityId);
+        $cityId             = $this->city->saveCity($cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $lastLogBy);
+        $encryptedcityId    = $this->security->encryptData($cityId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save City Success',

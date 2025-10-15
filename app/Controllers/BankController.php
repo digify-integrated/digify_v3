@@ -70,16 +70,16 @@ class BankController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save bank'               => $this->saveBank($lastLogBy),
-            'delete bank'             => $this->deleteBank(),
-            'delete multiple bank'    => $this->deleteMultipleBank(),
-            'fetch bank details'      => $this->fetchBankDetails(),
-            'generate bank table'     => $this->generateBankTable(),
-            'generate bank options'   => $this->generateBankOptions(),
-            default                   => $this->systemHelper::sendErrorResponse(
-                                            'Transaction Failed',
-                                            'We encountered an issue while processing your request.'
-                                        )
+            'save bank'                 => $this->saveBank($lastLogBy),
+            'delete bank'               => $this->deleteBank(),
+            'delete multiple bank'      => $this->deleteMultipleBank(),
+            'fetch bank details'        => $this->fetchBankDetails(),
+            'generate bank table'       => $this->generateBankTable(),
+            'generate bank options'     => $this->generateBankOptions(),
+            default                     => $this->systemHelper::sendErrorResponse(
+                                                'Transaction Failed',
+                                                'We encountered an issue while processing your request.'
+                                            )
         };
     }
 
@@ -97,8 +97,8 @@ class BankController
         $bankName               = $_POST['bank_name'] ?? null;
         $bankIdentifierCode     = $_POST['bank_identifier_code'] ?? null;
 
-        $bankId           = $this->bank->saveBank($bankId, $bankName, $bankIdentifierCode, $lastLogBy);
-        $encryptedBankId  = $this->security->encryptData($bankId);
+        $bankId             = $this->bank->saveBank($bankId, $bankName, $bankIdentifierCode, $lastLogBy);
+        $encryptedBankId    = $this->security->encryptData($bankId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Bank Success',

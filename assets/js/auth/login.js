@@ -5,20 +5,12 @@ import { showNotification } from '../modules/notifications.js';
 document.addEventListener('DOMContentLoaded', () => {
     $('#login_form').validate({
         rules: {
-            email: {
-                required: true,
-            },
-            password: {
-                required: true
-            }
+            email: { required: true },
+            password: { required: true }
         },
         messages: {
-            email: {
-                required: 'Enter the email',
-            },
-            password: {
-                required: 'Enter the password'
-            }
+            email: { required: 'Enter the email' },
+            password: { required: 'Enter the password' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

@@ -24,7 +24,7 @@ class LogNotesController
         SystemHelper $systemHelper
     ) {
         $this->logNotes         = $logNotes;
-        $this->authentication         = $authentication;
+        $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -69,11 +69,11 @@ class LogNotesController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'fetch log notes'    => $this->fetchLogNotes(),
-            default              => $this->systemHelper::sendErrorResponse(
-                                    'Transaction Failed',
-                                    'We encountered an issue while processing your request.'
-                                        )
+            'fetch log notes'   => $this->fetchLogNotes(),
+            default             => $this->systemHelper::sendErrorResponse(
+                                        'Transaction Failed',
+                                        'We encountered an issue while processing your request.'
+                                    )
         };
     }
     public function fetchLogNotes()

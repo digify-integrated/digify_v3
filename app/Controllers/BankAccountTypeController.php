@@ -70,13 +70,13 @@ class BankAccountTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save bank account type'               => $this->saveBankAccountType($lastLogBy),
-            'delete bank account type'             => $this->deleteBankAccountType(),
-            'delete multiple bank account type'    => $this->deleteMultipleBankAccountType(),
-            'fetch bank account type details'      => $this->fetchBankAccountTypeDetails(),
-            'generate bank account type table'     => $this->generateBankAccountTypeTable(),
-            'generate bank account type options'   => $this->generateBankAccountTypeOptions(),
-            default                                => $this->systemHelper::sendErrorResponse(
+            'save bank account type'                => $this->saveBankAccountType($lastLogBy),
+            'delete bank account type'              => $this->deleteBankAccountType(),
+            'delete multiple bank account type'     => $this->deleteMultipleBankAccountType(),
+            'fetch bank account type details'       => $this->fetchBankAccountTypeDetails(),
+            'generate bank account type table'      => $this->generateBankAccountTypeTable(),
+            'generate bank account type options'    => $this->generateBankAccountTypeOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
                                                             'Transaction Failed',
                                                             'We encountered an issue while processing your request.'
                                                         )

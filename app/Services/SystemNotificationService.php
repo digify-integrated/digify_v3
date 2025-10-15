@@ -26,9 +26,9 @@ class SystemNotificationService extends Model
         $sql = 'CALL insertSystemNotification(:p_user_account_id, :p_title, :p_message)';
 
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_title'           => $p_title,
-            'p_message'         => $p_message
+            'p_user_account_id'     => $p_user_account_id,
+            'p_title'               => $p_title,
+            'p_message'             => $p_message
         ]);
     }
 

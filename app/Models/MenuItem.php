@@ -99,8 +99,8 @@ class MenuItem extends Model {
         )';
         
         return $this->fetchAll($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_app_module_id' => $p_app_module_id
+            'p_user_account_id'     => $p_user_account_id,
+            'p_app_module_id'       => $p_app_module_id
         ]);
     }
     
@@ -150,8 +150,8 @@ class MenuItem extends Model {
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_app_module' => $p_filter_by_app_module,
-            'p_filter_by_parent_id' => $p_filter_by_parent_id
+            'p_filter_by_app_module'    => $p_filter_by_app_module,
+            'p_filter_by_parent_id'     => $p_filter_by_parent_id
         ]);
     }
 

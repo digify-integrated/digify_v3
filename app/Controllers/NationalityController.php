@@ -147,7 +147,7 @@ class NationalityController
 
         $response = [
             'success'           => true,
-            'nationalityName'     => $nationalityDetails['nationality_name'] ?? null
+            'nationalityName'   => $nationalityDetails['nationality_name'] ?? null
         ];
 
         echo json_encode($response);

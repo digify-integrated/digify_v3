@@ -29,11 +29,11 @@ class UserAccount extends Model {
         )';
 
         $row = $this->fetch($sql, [
-            'p_file_as'     => $p_file_as,
-            'p_email'       => $p_email,
-            'p_password'    => $p_password,
-            'p_phone'       => $p_phone,
-            'p_last_log_by' => $p_last_log_by
+            'p_file_as'         => $p_file_as,
+            'p_email'           => $p_email,
+            'p_password'        => $p_password,
+            'p_phone'           => $p_phone,
+            'p_last_log_by'     => $p_last_log_by
         ]);
 
         return $row['new_user_account_id'] ?? null;
@@ -122,8 +122,8 @@ class UserAccount extends Model {
         )';
         
         return $this->fetch($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_email'           => $p_email
+            'p_user_account_id'     => $p_user_account_id,
+            'p_email'               => $p_email
         ]);
     }
 
@@ -137,8 +137,8 @@ class UserAccount extends Model {
         )';
         
         return $this->fetch($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_phone'           => $p_phone
+            'p_user_account_id'     => $p_user_account_id,
+            'p_phone'               => $p_phone
         ]);
     }
 

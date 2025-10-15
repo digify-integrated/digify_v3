@@ -70,13 +70,13 @@ class FileTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save file type'               => $this->saveFileType($lastLogBy),
-            'delete file type'             => $this->deleteFileType(),
-            'delete multiple file type'    => $this->deleteMultipleFileType(),
-            'fetch file type details'      => $this->fetchFileTypeDetails(),
-            'generate file type table'     => $this->generateFileTypeTable(),
-            'generate file type options'   => $this->generateFileTypeOptions(),
-            default                        => $this->systemHelper::sendErrorResponse(
+            'save file type'                => $this->saveFileType($lastLogBy),
+            'delete file type'              => $this->deleteFileType(),
+            'delete multiple file type'     => $this->deleteMultipleFileType(),
+            'fetch file type details'       => $this->fetchFileTypeDetails(),
+            'generate file type table'      => $this->generateFileTypeTable(),
+            'generate file type options'    => $this->generateFileTypeOptions(),
+            default                         => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
                                                 )
@@ -93,8 +93,8 @@ class FileTypeController
             );
         }
 
-        $fileTypeId      = $_POST['file_type_id'] ?? null;
-        $fileTypeName    = $_POST['file_type_name'] ?? null;
+        $fileTypeId     = $_POST['file_type_id'] ?? null;
+        $fileTypeName   = $_POST['file_type_name'] ?? null;
 
         $fileTypeId             = $this->fileType->saveFileType($fileTypeId, $fileTypeName, $lastLogBy);
         $encryptedFileTypeId    = $this->security->encryptData($fileTypeId);
@@ -131,9 +131,9 @@ class FileTypeController
     }
 
     public function fetchFileTypeDetails(){
-        $fileTypeId           = $_POST['file_type_id'] ?? null;
-        $checkFileTypeExist   = $this->fileType->checkFileTypeExist($fileTypeId);
-        $total                = $checkFileTypeExist['total'] ?? 0;
+        $fileTypeId             = $_POST['file_type_id'] ?? null;
+        $checkFileTypeExist     = $this->fileType->checkFileTypeExist($fileTypeId);
+        $total                  = $checkFileTypeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -146,8 +146,8 @@ class FileTypeController
         $fileTypeDetails = $this->fileType->fetchFileType($fileTypeId);
 
         $response = [
-            'success'           => true,
-            'fileTypeName'     => $fileTypeDetails['file_type_name'] ?? null
+            'success'       => true,
+            'fileTypeName'  => $fileTypeDetails['file_type_name'] ?? null
         ];
 
         echo json_encode($response);
@@ -162,8 +162,8 @@ class FileTypeController
         $countries = $this->fileType->generateFileTypeTable();
 
         foreach ($countries as $row) {
-            $fileTypeId      = $row['file_type_id'];
-            $fileTypeName    = $row['file_type_name'];
+            $fileTypeId     = $row['file_type_id'];
+            $fileTypeName   = $row['file_type_name'];
 
             $fileTypeIdEncrypted = $this->security->encryptData($fileTypeId);
 

@@ -258,8 +258,8 @@ class EmployeeController
         $languageId             = $_POST['language_id'] ?? null;
         $languageProficiencyId  = $_POST['language_proficiency_id'] ?? null;
 
-        $languageDetails     = $this->language->fetchLanguage($languageId);
-        $languageName        = $languageDetails['language_name'] ?? null;
+        $languageDetails    = $this->language->fetchLanguage($languageId);
+        $languageName       = $languageDetails['language_name'] ?? null;
 
         $languageProficiency        = $this->languageProficiency->fetchLanguageProficiency($languageProficiencyId);
         $languageProficiencyname    = $languageProficiency['language_proficiency_name'] ?? null;
@@ -421,8 +421,8 @@ class EmployeeController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(7);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(7);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(7);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
@@ -731,7 +731,7 @@ class EmployeeController
         }
 
         $employeeId     = $_POST['employee_id'] ?? null;
-        $placeOfBirth     = $_POST['place_of_birth'] ?? null;
+        $placeOfBirth   = $_POST['place_of_birth'] ?? null;
 
         $this->employee->updateEmployeePlaceOfBirth($employeeId, $placeOfBirth, $lastLogBy);
 
@@ -754,8 +754,8 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $companyId      = $_POST['company_id'] ?? null;
 
-        $companyDetails = $this->company->fetchCompany($companyId);
-        $companyName = $companyDetails['company_name'] ?? null;
+        $companyDetails     = $this->company->fetchCompany($companyId);
+        $companyName        = $companyDetails['company_name'] ?? null;
 
         $this->employee->updateEmployeeCompany($employeeId, $companyId, $companyName, $lastLogBy);
 
@@ -826,8 +826,8 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $managerId      = $_POST['manager_id'] ?? null;
 
-        $manageDetails     = $this->employee->fetchEmployee($managerId);
-        $manageName        = $manageDetails['full_name'] ?? null;
+        $manageDetails  = $this->employee->fetchEmployee($managerId);
+        $manageName     = $manageDetails['full_name'] ?? null;
 
         $this->employee->updateEmployeeManager($employeeId, $managerId, $manageName, $lastLogBy);
 
@@ -874,8 +874,8 @@ class EmployeeController
         $employeeId         = $_POST['employee_id'] ?? null;
         $employmentTypeId   = $_POST['employment_type_id'] ?? null;
 
-        $employmentTypeDetails      = $this->employmentType->fetchEmploymentType($employmentTypeId);
-        $employmentTypeName         = $employmentTypeDetails['employment_type_name'] ?? null;
+        $employmentTypeDetails  = $this->employmentType->fetchEmploymentType($employmentTypeId);
+        $employmentTypeName     = $employmentTypeDetails['employment_type_name'] ?? null;
 
         $this->employee->updateEmployeeEmploymentType($employeeId, $employmentTypeId, $employmentTypeName, $lastLogBy);
 
@@ -898,8 +898,8 @@ class EmployeeController
         $employeeId                 = $_POST['employee_id'] ?? null;
         $employmentLocationTypeId   = $_POST['employment_location_type_id'] ?? null;
 
-        $employmentTLocationypeDetails      = $this->employmentLocationType->fetchEmploymentLocationType($employmentLocationTypeId);
-        $employmentLocationTypeName         = $employmentTLocationypeDetails['employment_location_type_name'] ?? null;
+        $employmentTLocationypeDetails  = $this->employmentLocationType->fetchEmploymentLocationType($employmentLocationTypeId);
+        $employmentLocationTypeName     = $employmentTLocationypeDetails['employment_location_type_name'] ?? null;
 
         $this->employee->updateEmployeeEmploymentLocationType($employeeId, $employmentLocationTypeId, $employmentLocationTypeName, $lastLogBy);
 
@@ -1020,12 +1020,12 @@ class EmployeeController
     public function updateEmployeeImage($lastLogBy){
         $employeeId   = $_POST['employee_id'] ?? null;
        
-        $employeeImageFileName               = $_FILES['employee_image']['name'];
-        $employeeImageFileSize               = $_FILES['employee_image']['size'];
-        $employeeImageFileError              = $_FILES['employee_image']['error'];
-        $employeeImageTempName               = $_FILES['employee_image']['tmp_name'];
-        $employeeImageFileExtension          = explode('.', $employeeImageFileName);
-        $employeeImageActualFileExtension    = strtolower(end($employeeImageFileExtension));
+        $employeeImageFileName              = $_FILES['employee_image']['name'];
+        $employeeImageFileSize              = $_FILES['employee_image']['size'];
+        $employeeImageFileError             = $_FILES['employee_image']['error'];
+        $employeeImageTempName              = $_FILES['employee_image']['tmp_name'];
+        $employeeImageFileExtension         = explode('.', $employeeImageFileName);
+        $employeeImageActualFileExtension   = strtolower(end($employeeImageFileExtension));
 
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(6);
         $maxFileSize    = $uploadSetting['max_file_size'];
@@ -1343,16 +1343,16 @@ class EmployeeController
         $employeeEducationDetails = $this->employee->fetchEmployeeEducation($employeeEducationId);
 
         $response = [
-            'success'                   => true,
-            'school'                    => $employeeEducationDetails['school'] ?? null,
-            'degree'                    => $employeeEducationDetails['degree'] ?? null,
-            'fieldOfStudy'              => $employeeEducationDetails['field_of_study'] ?? null,
-            'startMonth'                => $employeeEducationDetails['start_month'] ?? null,
-            'startYear'                 => $employeeEducationDetails['start_year'] ?? null,
-            'endMonth'                  => $employeeEducationDetails['end_month'] ?? null,
-            'endYear'                   => $employeeEducationDetails['end_year'] ?? null,
-            'activitiesSocieties'       => $employeeEducationDetails['activities_societies'] ?? null,
-            'educationDescription'      => $employeeEducationDetails['education_description'] ?? null
+            'success'               => true,
+            'school'                => $employeeEducationDetails['school'] ?? null,
+            'degree'                => $employeeEducationDetails['degree'] ?? null,
+            'fieldOfStudy'          => $employeeEducationDetails['field_of_study'] ?? null,
+            'startMonth'            => $employeeEducationDetails['start_month'] ?? null,
+            'startYear'             => $employeeEducationDetails['start_year'] ?? null,
+            'endMonth'              => $employeeEducationDetails['end_month'] ?? null,
+            'endYear'               => $employeeEducationDetails['end_year'] ?? null,
+            'activitiesSocieties'   => $employeeEducationDetails['activities_societies'] ?? null,
+            'educationDescription'  => $employeeEducationDetails['education_description'] ?? null
         ];
 
         echo json_encode($response);

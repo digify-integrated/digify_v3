@@ -93,11 +93,11 @@ class RelationshipController
             );
         }
 
-        $relationshipId      = $_POST['relationship_id'] ?? null;
-        $relationshipName    = $_POST['relationship_name'] ?? null;
+        $relationshipId     = $_POST['relationship_id'] ?? null;
+        $relationshipName   = $_POST['relationship_name'] ?? null;
 
-        $relationshipId           = $this->relationship->saveRelationship($relationshipId, $relationshipName, $lastLogBy);
-        $encryptedRelationshipId  = $this->security->encryptData($relationshipId);
+        $relationshipId             = $this->relationship->saveRelationship($relationshipId, $relationshipName, $lastLogBy);
+        $encryptedRelationshipId    = $this->security->encryptData($relationshipId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Relationship Success',
@@ -163,7 +163,7 @@ class RelationshipController
 
         foreach ($relationships as $row) {
             $relationshipId      = $row['relationship_id'];
-            $relationshipName    = $row['relationship_name'];
+            $relationshipName   = $row['relationship_name'];
 
             $relationshipIdEncrypted = $this->security->encryptData($relationshipId);
 

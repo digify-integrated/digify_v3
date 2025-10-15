@@ -70,13 +70,13 @@ class EmployeeDocumentTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save employee document type'                 => $this->saveEmployeeDocumentType($lastLogBy),
-            'delete employee document type'               => $this->deleteEmployeeDocumentType(),
-            'delete multiple employee document type'      => $this->deleteMultipleEmployeeDocumentType(),
-            'fetch employee document type details'        => $this->fetchEmployeeDocumentTypeDetails(),
-            'generate employee document type table'       => $this->generateEmployeeDocumentTypeTable(),
-            'generate employee document type options'     => $this->generateEmployeeDocumentTypeOptions(),
-            default                                       => $this->systemHelper::sendErrorResponse(
+            'save employee document type'               => $this->saveEmployeeDocumentType($lastLogBy),
+            'delete employee document type'             => $this->deleteEmployeeDocumentType(),
+            'delete multiple employee document type'    => $this->deleteMultipleEmployeeDocumentType(),
+            'fetch employee document type details'      => $this->fetchEmployeeDocumentTypeDetails(),
+            'generate employee document type table'     => $this->generateEmployeeDocumentTypeTable(),
+            'generate employee document type options'   => $this->generateEmployeeDocumentTypeOptions(),
+            default                                     => $this->systemHelper::sendErrorResponse(
                                                                     'Transaction Failed',
                                                                     'We encountered an issue while processing your request.'
                                                                 )
@@ -93,11 +93,11 @@ class EmployeeDocumentTypeController
             );
         }
 
-        $employeeDocumentTypeId       = $_POST['employee_document_type_id'] ?? null;
-        $employeeDocumentTypeName     = $_POST['employee_document_type_name'] ?? null;
+        $employeeDocumentTypeId     = $_POST['employee_document_type_id'] ?? null;
+        $employeeDocumentTypeName   = $_POST['employee_document_type_name'] ?? null;
 
-        $employeeDocumentTypeId           = $this->employeeDocumentType->saveEmployeeDocumentType($employeeDocumentTypeId, $employeeDocumentTypeName, $lastLogBy);
-        $encryptedEmployeeDocumentTypeId  = $this->security->encryptData($employeeDocumentTypeId);
+        $employeeDocumentTypeId             = $this->employeeDocumentType->saveEmployeeDocumentType($employeeDocumentTypeId, $employeeDocumentTypeName, $lastLogBy);
+        $encryptedEmployeeDocumentTypeId    = $this->security->encryptData($employeeDocumentTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Employee Document Type Success',
@@ -131,9 +131,9 @@ class EmployeeDocumentTypeController
     }
 
     public function fetchEmployeeDocumentTypeDetails(){
-        $employeeDocumentTypeId           = $_POST['employee_document_type_id'] ?? null;
-        $checkEmployeeDocumentTypeExist   = $this->employeeDocumentType->checkEmployeeDocumentTypeExist($employeeDocumentTypeId);
-        $total                            = $checkEmployeeDocumentTypeExist['total'] ?? 0;
+        $employeeDocumentTypeId             = $_POST['employee_document_type_id'] ?? null;
+        $checkEmployeeDocumentTypeExist     = $this->employeeDocumentType->checkEmployeeDocumentTypeExist($employeeDocumentTypeId);
+        $total                              = $checkEmployeeDocumentTypeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -162,8 +162,8 @@ class EmployeeDocumentTypeController
         $employeeDocumentTypes = $this->employeeDocumentType->generateEmployeeDocumentTypeTable();
 
         foreach ($employeeDocumentTypes as $row) {
-            $employeeDocumentTypeId      = $row['employee_document_type_id'];
-            $employeeDocumentTypeName    = $row['employee_document_type_name'];
+            $employeeDocumentTypeId     = $row['employee_document_type_id'];
+            $employeeDocumentTypeName   = $row['employee_document_type_name'];
 
             $employeeDocumentTypeIdEncrypted = $this->security->encryptData($employeeDocumentTypeId);
 

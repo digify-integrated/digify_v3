@@ -74,16 +74,16 @@ class FileExtensionController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save file extension'                   => $this->saveFileExtension($lastLogBy),
-            'delete file extension'                 => $this->deleteFileExtension(),
-            'delete multiple file extension'        => $this->deleteMultipleFileExtension(),
-            'fetch file extension details'          => $this->fetchFileExtensionDetails(),
-            'generate file extension table'         => $this->generateFileExtensionTable(),
-            'generate file extension options'       => $this->generateFileExtensionOptions(),
-            default                                 => $this->systemHelper::sendErrorResponse(
-                                                            'Transaction Failed',
-                                                            'We encountered an issue while processing your request.'
-                                                        )
+            'save file extension'               => $this->saveFileExtension($lastLogBy),
+            'delete file extension'             => $this->deleteFileExtension(),
+            'delete multiple file extension'    => $this->deleteMultipleFileExtension(),
+            'fetch file extension details'      => $this->fetchFileExtensionDetails(),
+            'generate file extension table'     => $this->generateFileExtensionTable(),
+            'generate file extension options'   => $this->generateFileExtensionOptions(),
+            default                             => $this->systemHelper::sendErrorResponse(
+                                                        'Transaction Failed',
+                                                         'We encountered an issue while processing your request.'
+                                                     )
         };
     }
 

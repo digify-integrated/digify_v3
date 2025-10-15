@@ -162,8 +162,8 @@ class EmploymentLocationTypeController
         $employmentLocationTypes = $this->employmentLocationType->generateEmploymentLocationTypeTable();
 
         foreach ($employmentLocationTypes as $row) {
-            $employmentLocationTypeId      = $row['employment_location_type_id'];
-            $employmentLocationTypeName    = $row['employment_location_type_name'];
+            $employmentLocationTypeId       = $row['employment_location_type_id'];
+            $employmentLocationTypeName     = $row['employment_location_type_name'];
 
             $employmentLocationTypeIdEncrypted = $this->security->encryptData($employmentLocationTypeId);
 

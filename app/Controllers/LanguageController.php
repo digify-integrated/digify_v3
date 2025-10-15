@@ -24,7 +24,7 @@ class LanguageController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->language        = $language;
+        $this->language         = $language;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;

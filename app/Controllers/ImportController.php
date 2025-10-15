@@ -74,12 +74,12 @@ class ImportController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'generate import data preview'     => $this->generateImportDataPreview(),
-            'save import data'                 => $this->saveImportData(),
-            default                            => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'generate import data preview'  => $this->generateImportDataPreview(),
+            'save import data'              => $this->saveImportData(),
+            default                         => $this->systemHelper::sendErrorResponse(
+                                                    'Transaction Failed',
+                                                    'We encountered an issue while processing your request.'
+                                                )
         };
     }
 

@@ -156,8 +156,8 @@ class UserAccountController
             );
         }
 
-        $userAccountDetails = $this->userAccount->fetchUserAccount($userAccountId);
-        $fileAs = $userAccountDetails['file_as'] ?? '';     
+        $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
+        $fileAs                 = $userAccountDetails['file_as'] ?? '';     
 
         foreach ($roleIds as $roleId) {
         $roleDetails    = $this->role->fetchRole($roleId);
@@ -206,8 +206,8 @@ class UserAccountController
         $userAccountId  = $_POST['user_account_id'] ?? null;
         $email          = $_POST['email'] ?? null;
 
-        $checkUserAccountEmailExist = $this->userAccount->checkUserAccountEmailExist($userAccountId, $email);
-        $total                      = $checkUserAccountEmailExist['total'] ?? 0;
+        $checkUserAccountEmailExist     = $this->userAccount->checkUserAccountEmailExist($userAccountId, $email);
+        $total                          = $checkUserAccountEmailExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -237,8 +237,8 @@ class UserAccountController
         $userAccountId  = $_POST['user_account_id'] ?? null;
         $phone          = $_POST['phone'] ?? null;
 
-        $checkUserAccountPhoneExist = $this->userAccount->checkUserAccountPhoneExist($userAccountId, $phone);
-        $total                      = $checkUserAccountPhoneExist['total'] ?? 0;
+        $checkUserAccountPhoneExist     = $this->userAccount->checkUserAccountPhoneExist($userAccountId, $phone);
+        $total                          = $checkUserAccountPhoneExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -309,8 +309,8 @@ class UserAccountController
 
         $email = $_POST['email'] ?? null;
 
-        $checkUserAccountEmailExist = $this->userAccount->checkUserAccountEmailExist($lastLogBy, $email);
-        $total                      = $checkUserAccountEmailExist['total'] ?? 0;
+        $checkUserAccountEmailExist     = $this->userAccount->checkUserAccountEmailExist($lastLogBy, $email);
+        $total                          = $checkUserAccountEmailExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -339,8 +339,8 @@ class UserAccountController
 
         $phone = $_POST['phone'] ?? null;
 
-        $checkUserAccountPhoneExist = $this->userAccount->checkUserAccountPhoneExist($lastLogBy, $phone);
-        $total                      = $checkUserAccountPhoneExist['total'] ?? 0;
+        $checkUserAccountPhoneExist     = $this->userAccount->checkUserAccountPhoneExist($lastLogBy, $phone);
+        $total                          = $checkUserAccountPhoneExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -409,12 +409,12 @@ class UserAccountController
     public function updateUserAccountProfilePicture($lastLogBy){
         $userAccountId = $_POST['user_account_id'] ?? null;
        
-        $profilePictureFileName                = $_FILES['profile_picture']['name'];
-        $profilePictureFileSize                = $_FILES['profile_picture']['size'];
-        $profilePictureFileError               = $_FILES['profile_picture']['error'];
-        $profilePictureTempName                = $_FILES['profile_picture']['tmp_name'];
-        $profilePictureFileExtension           = explode('.', $profilePictureFileName);
-        $profilePictureActualFileExtension     = strtolower(end($profilePictureFileExtension));
+        $profilePictureFileName             = $_FILES['profile_picture']['name'];
+        $profilePictureFileSize             = $_FILES['profile_picture']['size'];
+        $profilePictureFileError            = $_FILES['profile_picture']['error'];
+        $profilePictureTempName             = $_FILES['profile_picture']['tmp_name'];
+        $profilePictureFileExtension        = explode('.', $profilePictureFileName);
+        $profilePictureActualFileExtension  = strtolower(end($profilePictureFileExtension));
 
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(4);
         $maxFileSize    = $uploadSetting['max_file_size'];
@@ -494,12 +494,12 @@ class UserAccountController
     }
 
      public function updateAccountSettingsProfilePicture($lastLogBy){       
-        $profilePictureFileName                = $_FILES['profile_picture']['name'];
-        $profilePictureFileSize                = $_FILES['profile_picture']['size'];
-        $profilePictureFileError               = $_FILES['profile_picture']['error'];
-        $profilePictureTempName                = $_FILES['profile_picture']['tmp_name'];
-        $profilePictureFileExtension           = explode('.', $profilePictureFileName);
-        $profilePictureActualFileExtension     = strtolower(end($profilePictureFileExtension));
+        $profilePictureFileName             = $_FILES['profile_picture']['name'];
+        $profilePictureFileSize             = $_FILES['profile_picture']['size'];
+        $profilePictureFileError            = $_FILES['profile_picture']['error'];
+        $profilePictureTempName             = $_FILES['profile_picture']['tmp_name'];
+        $profilePictureFileExtension        = explode('.', $profilePictureFileName);
+        $profilePictureActualFileExtension  = strtolower(end($profilePictureFileExtension));
 
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(4);
         $maxFileSize    = $uploadSetting['max_file_size'];
@@ -675,9 +675,9 @@ class UserAccountController
     }
 
     public function fetchUserAccountDetails(){
-        $userAccountId             = $_POST['user_account_id'] ?? null;
-        $checkUserAccountExist     = $this->userAccount->checkUserAccountExist($userAccountId);
-        $total                     = $checkUserAccountExist['total'] ?? 0;
+        $userAccountId          = $_POST['user_account_id'] ?? null;
+        $checkUserAccountExist  = $this->userAccount->checkUserAccountExist($userAccountId);
+        $total                  = $checkUserAccountExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -716,8 +716,8 @@ class UserAccountController
     }
 
     public function fetchAccountSettingsDetails($lastLogBy){
-        $checkUserAccountExist     = $this->userAccount->checkUserAccountExist($lastLogBy);
-        $total                     = $checkUserAccountExist['total'] ?? 0;
+        $checkUserAccountExist  = $this->userAccount->checkUserAccountExist($lastLogBy);
+        $total                  = $checkUserAccountExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

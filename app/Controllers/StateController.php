@@ -97,15 +97,15 @@ class StateController
             );
         }
 
-        $stateId      = $_POST['state_id'] ?? null;
-        $stateName    = $_POST['state_name'] ?? null;
-        $countryId    = $_POST['country_id'] ?? null;
+        $stateId    = $_POST['state_id'] ?? null;
+        $stateName  = $_POST['state_name'] ?? null;
+        $countryId  = $_POST['country_id'] ?? null;
 
         $countryDetails     = $this->country->fetchCountry($countryId);
         $countryName        = $countryDetails['country_name'] ?? '';
 
-        $stateId              = $this->state->saveState($stateId, $stateName, $countryId, $countryName, $lastLogBy);
-        $encryptedstateId     = $this->security->encryptData($stateId);
+        $stateId            = $this->state->saveState($stateId, $stateName, $countryId, $countryName, $lastLogBy);
+        $encryptedstateId   = $this->security->encryptData($stateId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save State Success',

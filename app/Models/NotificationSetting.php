@@ -46,10 +46,10 @@ class NotificationSetting extends Model {
         )';
         
         return $this->query($sql, [
-            'p_notification_setting_id'     => $p_notification_setting_id,
-            'p_system_notification_title'   => $p_system_notification_title,
-            'p_system_notification_message' => $p_system_notification_message,
-            'p_last_log_by'                 => $p_last_log_by
+            'p_notification_setting_id'         => $p_notification_setting_id,
+            'p_system_notification_title'       => $p_system_notification_title,
+            'p_system_notification_message'     => $p_system_notification_message,
+            'p_last_log_by'                     => $p_last_log_by
         ]);
     }
 

@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startCountdown = (duration) => {
         const $countdown    = $('#countdown');
         const $resendLink   = $('#resend-link');
-
-        let remaining = duration;
+        let remaining       = duration;
 
         $countdown.removeClass('d-none').text(formatTime(remaining));
         $resendLink.addClass('d-none');
@@ -40,15 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const user_account_id = userAccountInput.value;
-        const transaction = 'resend otp';
+        const user_account_id   = userAccountInput.value;
+        const transaction       = 'resend otp';
 
         const formData = new URLSearchParams();
         formData.append('user_account_id', user_account_id);
         formData.append('transaction', transaction);
 
-        const countdownEl = document.getElementById('countdown');
-        const resendLink = document.getElementById('resend-link');
+        const countdownEl   = document.getElementById('countdown');
+        const resendLink    = document.getElementById('resend-link');
 
         if (countdownEl) countdownEl.classList.remove('d-none');
         if (resendLink) resendLink.classList.add('d-none');
@@ -171,8 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = event.target.closest('.otp-input');
         if (!input) return;
 
-        const maxLength = parseInt(input.getAttribute('maxlength'), 10);
-        const currentLength = input.value.length;
+        const maxLength         = parseInt(input.getAttribute('maxlength'), 10);
+        const currentLength     = input.value.length;
 
         if (currentLength === maxLength) {
             const nextInput = input.nextElementSibling;
@@ -188,8 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         event.preventDefault();
 
-        const pastedData = event.clipboardData.getData('text/plain');
-        const filteredData = pastedData.replace(/[^a-zA-Z0-9]/g, '');
+        const pastedData    = event.clipboardData.getData('text/plain');
+        const filteredData  = pastedData.replace(/[^a-zA-Z0-9]/g, '');
 
         filteredData.split('').forEach((char, index) => {
             const otpField = document.getElementById(`otp_code_${index + 1}`);

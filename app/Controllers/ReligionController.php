@@ -96,8 +96,8 @@ class ReligionController
         $religionId     = $_POST['religion_id'] ?? null;
         $religionName   = $_POST['religion_name'] ?? null;
 
-        $religionId           = $this->religion->saveReligion($religionId, $religionName, $lastLogBy);
-        $encryptedReligionId  = $this->security->encryptData($religionId);
+        $religionId             = $this->religion->saveReligion($religionId, $religionName, $lastLogBy);
+        $encryptedReligionId    = $this->security->encryptData($religionId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Religion Success',
@@ -162,8 +162,8 @@ class ReligionController
         $religions = $this->religion->generateReligionTable();
 
         foreach ($religions as $row) {
-            $religionId      = $row['religion_id'];
-            $religionName    = $row['religion_name'];
+            $religionId     = $row['religion_id'];
+            $religionName   = $row['religion_name'];
 
             $religionIdEncrypted = $this->security->encryptData($religionId);
 

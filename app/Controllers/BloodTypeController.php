@@ -93,11 +93,11 @@ class BloodTypeController
             );
         }
 
-        $bloodTypeId      = $_POST['blood_type_id'] ?? null;
-        $bloodTypeName    = $_POST['blood_type_name'] ?? null;
+        $bloodTypeId    = $_POST['blood_type_id'] ?? null;
+        $bloodTypeName  = $_POST['blood_type_name'] ?? null;
 
-        $bloodTypeId              = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
-        $encryptedBloodTypeId     = $this->security->encryptData($bloodTypeId);
+        $bloodTypeId            = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
+        $encryptedBloodTypeId   = $this->security->encryptData($bloodTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Blood Type Success',
@@ -131,9 +131,9 @@ class BloodTypeController
     }
 
     public function fetchBloodTypeDetails(){
-        $bloodTypeId           = $_POST['blood_type_id'] ?? null;
-        $checkBloodTypeExist   = $this->bloodType->checkBloodTypeExist($bloodTypeId);
-        $total                 = $checkBloodTypeExist['total'] ?? 0;
+        $bloodTypeId            = $_POST['blood_type_id'] ?? null;
+        $checkBloodTypeExist    = $this->bloodType->checkBloodTypeExist($bloodTypeId);
+        $total                  = $checkBloodTypeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -162,8 +162,8 @@ class BloodTypeController
         $bloodTypes = $this->bloodType->generateBloodTypeTable();
 
         foreach ($bloodTypes as $row) {
-            $bloodTypeId      = $row['blood_type_id'];
-            $bloodTypeName    = $row['blood_type_name'];
+            $bloodTypeId    = $row['blood_type_id'];
+            $bloodTypeName  = $row['blood_type_name'];
 
             $bloodTypeIdEncrypted = $this->security->encryptData($bloodTypeId);
 

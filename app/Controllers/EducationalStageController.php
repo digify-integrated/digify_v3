@@ -70,13 +70,13 @@ class EducationalStageController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save educational stage'               => $this->saveEducationalStage($lastLogBy),
-            'delete educational stage'             => $this->deleteEducationalStage(),
-            'delete multiple educational stage'    => $this->deleteMultipleEducationalStage(),
-            'fetch educational stage details'      => $this->fetchEducationalStageDetails(),
-            'generate educational stage table'     => $this->generateEducationalStageTable(),
-            'generate educational stage options'   => $this->generateEducationalStageOptions(),
-            default                                => $this->systemHelper::sendErrorResponse(
+            'save educational stage'                => $this->saveEducationalStage($lastLogBy),
+            'delete educational stage'              => $this->deleteEducationalStage(),
+            'delete multiple educational stage'     => $this->deleteMultipleEducationalStage(),
+            'fetch educational stage details'       => $this->fetchEducationalStageDetails(),
+            'generate educational stage table'      => $this->generateEducationalStageTable(),
+            'generate educational stage options'    => $this->generateEducationalStageOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
                                                             'Transaction Failed',
                                                             'We encountered an issue while processing your request.'
                                                         )
@@ -93,7 +93,7 @@ class EducationalStageController
             );
         }
 
-        $educationalStageId      = $_POST['educational_stage_id'] ?? null;
+        $educationalStageId     = $_POST['educational_stage_id'] ?? null;
         $educationalStageName   = $_POST['educational_stage_name'] ?? null;
 
         $educationalStageId             = $this->educationalStage->saveEducationalStage($educationalStageId, $educationalStageName, $lastLogBy);
@@ -162,7 +162,7 @@ class EducationalStageController
         $educationalStages = $this->educationalStage->generateEducationalStageTable();
 
         foreach ($educationalStages as $row) {
-            $educationalStageId      = $row['educational_stage_id'];
+            $educationalStageId     = $row['educational_stage_id'];
             $educationalStageName   = $row['educational_stage_name'];
 
             $educationalStageIdEncrypted = $this->security->encryptData($educationalStageId);

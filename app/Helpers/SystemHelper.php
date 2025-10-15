@@ -208,8 +208,8 @@ class SystemHelper extends Security
             return true;
         }
 
-        $normalizedPath = ltrim($file, './');
-        $filePath = PROJECT_BASE_DIR . '/' . $normalizedPath;
+        $normalizedPath     = ltrim($file, './');
+        $filePath           = PROJECT_BASE_DIR . '/' . $normalizedPath;
 
         if (file_exists($filePath)) {
             return unlink($filePath);
@@ -265,20 +265,20 @@ class SystemHelper extends Security
     public static function getFileExtensionIcon(string $type): string
     {
         $icons = [
-            'ai'   => './assets/images/file_icon/img-file-ai.svg',
-            'doc'  => './assets/images/file_icon/img-file-doc.svg',
-            'docx' => './assets/images/file_icon/img-file-doc.svg',
-            'jpeg' => './assets/images/file_icon/img-file-img.svg',
-            'jpg'  => './assets/images/file_icon/img-file-img.svg',
-            'png'  => './assets/images/file_icon/img-file-img.svg',
-            'gif'  => './assets/images/file_icon/img-file-img.svg',
-            'pdf'  => './assets/images/file_icon/img-file-pdf.svg',
-            'ppt'  => './assets/images/file_icon/img-file-ppt.svg',
-            'pptx' => './assets/images/file_icon/img-file-ppt.svg',
-            'rar'  => './assets/images/file_icon/img-file-rar.svg',
-            'txt'  => './assets/images/file_icon/img-file-txt.svg',
-            'xls'  => './assets/images/file_icon/img-file-xls.svg',
-            'xlsx' => './assets/images/file_icon/img-file-xls.svg',
+            'ai'    => './assets/images/file_icon/img-file-ai.svg',
+            'doc'   => './assets/images/file_icon/img-file-doc.svg',
+            'docx'  => './assets/images/file_icon/img-file-doc.svg',
+            'jpeg'  => './assets/images/file_icon/img-file-img.svg',
+            'jpg'   => './assets/images/file_icon/img-file-img.svg',
+            'png'   => './assets/images/file_icon/img-file-img.svg',
+            'gif'   => './assets/images/file_icon/img-file-img.svg',
+            'pdf'   => './assets/images/file_icon/img-file-pdf.svg',
+            'ppt'   => './assets/images/file_icon/img-file-ppt.svg',
+            'pptx'  => './assets/images/file_icon/img-file-ppt.svg',
+            'rar'   => './assets/images/file_icon/img-file-rar.svg',
+            'txt'   => './assets/images/file_icon/img-file-txt.svg',
+            'xls'   => './assets/images/file_icon/img-file-xls.svg',
+            'xlsx'  => './assets/images/file_icon/img-file-xls.svg',
         ];
 
         return $icons[$type] ?? './assets/images/file_icon/img-file-img.svg';
@@ -293,10 +293,9 @@ class SystemHelper extends Security
      */
     public static function getFormatBytes(int $bytes, int $precision = 2): string
     {
-        $units = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
-
-        $bytes = max($bytes, 0);
-        $pow   = (int) floor(log($bytes ?: 1, 1024));
+        $units  = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+        $bytes  = max($bytes, 0);
+        $pow    = (int) floor(log($bytes ?: 1, 1024));
 
         return round($bytes / (1 << (10 * $pow)), $precision) . ' ' . $units[$pow];
     }
@@ -489,8 +488,8 @@ class SystemHelper extends Security
 
 
     public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {
-        $systemDate ??= date('Y-m-d');
-        $systemTime ??= date('H:i:s');
+        $systemDate     ??= date('Y-m-d');
+        $systemTime     ??= date('H:i:s');
 
         if (empty($date)) {
             return $this->getDefaultReturnValue($type, $systemDate, $systemTime);

@@ -50,10 +50,10 @@ class Notification
         $smsService,
         $systemNotificationService
     ) {
-        $this->notificationSetting   = $notificationSetting;
-        $this->email                 = $emailService;
-        $this->sms                   = $smsService;
-        $this->systemNotification    = $systemNotificationService;
+        $this->notificationSetting  = $notificationSetting;
+        $this->email                = $emailService;
+        $this->sms                  = $smsService;
+        $this->systemNotification   = $systemNotificationService;
     }
 
     /**
@@ -89,9 +89,9 @@ class Notification
         $success = false;
 
         // Normalize recipients into arrays
-        $recipientEmails   = $recipientEmails   ? (array) $recipientEmails   : [];
-        $recipientPhones   = $recipientPhones   ? (array) $recipientPhones   : [];
-        $recipientUserIds  = $recipientUserIds  ? (array) $recipientUserIds  : [];
+        $recipientEmails    = $recipientEmails   ? (array) $recipientEmails   : [];
+        $recipientPhones    = $recipientPhones   ? (array) $recipientPhones   : [];
+        $recipientUserIds   = $recipientUserIds  ? (array) $recipientUserIds  : [];
 
         // 1. Fetch notification settings
         $setting = $this->notificationSetting->fetchNotificationSetting($notificationSettingId);

@@ -327,14 +327,14 @@ class RoleController
             $roleIdEncrypted = $this->security->encryptData($roleId);
 
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $roleId .'">
-                                </div>',
-                'ROLE_NAME' => '<div class="d-flex flex-column">
-                                    <a href="#" class="fs-5 text-gray-900 fw-bold">'. $roleName .'</a>
-                                    <div class="fs-7 text-gray-500">'. $roleDescription .'</div>
-                                </div>',
-                'LINK'      => $pageLink .'&id='. $roleIdEncrypted
+                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $roleId .'">
+                                    </div>',
+                'ROLE_NAME'     => '<div class="d-flex flex-column">
+                                        <a href="#" class="fs-5 text-gray-900 fw-bold">'. $roleName .'</a>
+                                        <div class="fs-7 text-gray-500">'. $roleDescription .'</div>
+                                    </div>',
+                'LINK'          => $pageLink .'&id='. $roleIdEncrypted
             ];
         }
 

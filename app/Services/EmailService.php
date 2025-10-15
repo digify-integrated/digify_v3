@@ -25,8 +25,8 @@ class EmailService
         string|array $toEmail,
         string $subject,
         string $body,
-        array $cc = [],
-        array $bcc = []
+        array $cc   = [],
+        array $bcc  = []
     ): bool|string {
         $mailer = new PHPMailer(true);
 
@@ -51,8 +51,8 @@ class EmailService
             }
 
             // Subject & Body
-            $mailer->Subject = $subject;
-            $mailer->Body    = $this->applyTemplate($subject, $body);
+            $mailer->Subject    = $subject;
+            $mailer->Body       = $this->applyTemplate($subject, $body);
 
             return $mailer->send();
         } catch (Exception $e) {
@@ -67,12 +67,12 @@ class EmailService
     {
         $mailer->isSMTP();
         $mailer->isHTML($isHTML);
-        $mailer->Host       = MAIL_SMTP_SERVER;
-        $mailer->SMTPAuth   = MAIL_SMTP_AUTH;
-        $mailer->Username   = MAIL_USERNAME;
-        $mailer->Password   = MAIL_PASSWORD;
-        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
-        $mailer->Port       = MAIL_SMTP_PORT;
+        $mailer->Host           = MAIL_SMTP_SERVER;
+        $mailer->SMTPAuth       = MAIL_SMTP_AUTH;
+        $mailer->Username       = MAIL_USERNAME;
+        $mailer->Password       = MAIL_PASSWORD;
+        $mailer->SMTPSecure     = MAIL_SMTP_SECURE;
+        $mailer->Port           = MAIL_SMTP_PORT;
     }
 
     /**

@@ -72,7 +72,7 @@ class CountryController
         match ($transaction) {
             'save country'               => $this->saveCountry($lastLogBy),
             'delete country'             => $this->deleteCountry(),
-            'delete multiple country'    => $this->deleteMultipleCountry(),
+            'delete multiple country'   => $this->deleteMultipleCountry(),
             'fetch country details'      => $this->fetchCountryDetails(),
             'generate country table'     => $this->generateCountryTable(),
             'generate country options'   => $this->generateCountryOptions(),

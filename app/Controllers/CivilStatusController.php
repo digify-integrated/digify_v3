@@ -131,9 +131,9 @@ class CivilStatusController
     }
 
     public function fetchCivilStatusDetails(){
-        $civilStatusId             = $_POST['civil_status_id'] ?? null;
-        $checkCivilStatusExist     = $this->civilStatus->checkCivilStatusExist($civilStatusId);
-        $total                     = $checkCivilStatusExist['total'] ?? 0;
+        $civilStatusId          = $_POST['civil_status_id'] ?? null;
+        $checkCivilStatusExist  = $this->civilStatus->checkCivilStatusExist($civilStatusId);
+        $total                  = $checkCivilStatusExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(

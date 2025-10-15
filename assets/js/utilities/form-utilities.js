@@ -83,9 +83,9 @@ export const generateDropdownOptions = async ({
       $dropdown.select2('destroy');
     }
 
-    const $modalParent     = $dropdown.closest('.modal');
-    const $offcanvasParent = $dropdown.closest('.offcanvas');
-    const $menuParent      = $dropdown.closest('[data-kt-menu="true"]');
+    const $modalParent      = $dropdown.closest('.modal');
+    const $offcanvasParent  = $dropdown.closest('.offcanvas');
+    const $menuParent       = $dropdown.closest('[data-kt-menu="true"]');
 
     let dropdownParent = $(document.body);
     if ($modalParent.length) {
@@ -110,8 +110,8 @@ export const generateDropdownOptions = async ({
     });
 
     $(document).off('mousedown.select2-remove-close').on('mousedown.select2-remove-close', '.select2-selection__choice__remove', function (e) {
-      const $container = $(this).closest('.select2');
-      const $select    = $container.prevAll('select').first();
+      const $container  = $(this).closest('.select2');
+      const $select     = $container.prevAll('select').first();
 
       if ($select.length && $select.data('select2')) {
         e.stopPropagation();

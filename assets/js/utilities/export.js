@@ -64,10 +64,10 @@ export const initializeExportFeature = (tableName) => {
     });
 
     $(document).off('click', '#submit-export').on('click', '#submit-export', function () {
-        const transaction = 'export data';
-        const exportTo = $('input[name="export_to"]:checked').val();
-        const tableColumn = selectedColumnsOrder;
-        const exportId = [];
+        const transaction   = 'export data';
+        const exportTo      = $('input[name="export_to"]:checked').val();
+        const tableColumn   = selectedColumnsOrder;
+        const exportId      = [];
 
         $('.datatable-checkbox-children:checked').each((_, element) => {
             exportId.push(element.value);

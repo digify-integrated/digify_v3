@@ -288,8 +288,8 @@ class AuthenticationController
         $this->authentication->saveSession($userAccountId, $sessionHash);
 
         // Store in session
-        $_SESSION['user_account_id'] = $userAccountId;
-        $_SESSION['session_token']   = $sessionToken;
+        $_SESSION['user_account_id']    = $userAccountId;
+        $_SESSION['session_token']      = $sessionToken;
 
         unset($_SESSION['2fa_user_account_id']);
 
@@ -310,7 +310,7 @@ class AuthenticationController
             );
         }
 
-        $email   = $_POST['email'] ?? '';
+        $email = $_POST['email'] ?? '';
 
         $checkLoginCredentialsExist = $this->authentication->checkLoginCredentialsExist($email);
         $total = $checkLoginCredentialsExist['total'] ?? 0;
@@ -336,17 +336,17 @@ class AuthenticationController
         }
 
         // Generate OTP and prepare expiry
-        $resetToken            = $this->security::generateToken();
-        $resetTokenHash        = $this->security::hashToken($resetToken);
-        $resetTokenExpiryDate  = date('Y-m-d H:i:s', strtotime('+' . RESET_PASSWORD_TOKEN_DURATION . ' minutes'));
+        $resetToken             = $this->security::generateToken();
+        $resetTokenHash         = $this->security::hashToken($resetToken);
+        $resetTokenExpiryDate   = date('Y-m-d H:i:s', strtotime('+' . RESET_PASSWORD_TOKEN_DURATION . ' minutes'));
 
         // Save OTP in the database (hashed for security)
         $this->authentication->saveResetToken($userAccountId, $resetTokenHash, $resetTokenExpiryDate);
 
         // Placeholder values for notification template
         $placeholder = [
-            'RESET_LINK'          => PASSWORD_RECOVERY_LINK  . $encryptedUserAccountID . '&token=' . $resetToken,
-            'RESET_LINK_VALIDITY' => RESET_PASSWORD_TOKEN_DURATION . ' minutes'
+            'RESET_LINK'            => PASSWORD_RECOVERY_LINK  . $encryptedUserAccountID . '&token=' . $resetToken,
+            'RESET_LINK_VALIDITY'   => RESET_PASSWORD_TOKEN_DURATION . ' minutes'
         ];
 
         $result = $this->notification->sendNotification(

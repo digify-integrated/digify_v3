@@ -21,9 +21,9 @@ class Authentication extends Model {
         )';
         
         return $this->query($sql, [
-            'p_user_account_id'         => $p_user_account_id,
-            'p_reset_token'             => $p_reset_token,
-            'p_reset_token_expiry_date' => $p_reset_token_expiry_date
+            'p_user_account_id'             => $p_user_account_id,
+            'p_reset_token'                 => $p_reset_token,
+            'p_reset_token_expiry_date'     => $p_reset_token_expiry_date
         ]);
     }
     
@@ -37,8 +37,8 @@ class Authentication extends Model {
         )';
         
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_session_token'   => $p_session_token
+            'p_user_account_id'     => $p_user_account_id,
+            'p_session_token'       => $p_session_token
         ]);
     }
     
@@ -54,9 +54,9 @@ class Authentication extends Model {
         )';
 
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_otp'             => $p_otp,
-            'otp_expiry_date'   => $otp_expiry_date
+            'p_user_account_id'     => $p_user_account_id,
+            'p_otp'                 => $p_otp,
+            'otp_expiry_date'       => $otp_expiry_date
         ]);
     }
 
@@ -78,10 +78,10 @@ class Authentication extends Model {
         )';
 
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_email'           => $p_email,
-            'p_ip_address'      => $p_ip_address,
-            'p_success'         => $p_success
+            'p_user_account_id'     => $p_user_account_id,
+            'p_email'               => $p_email,
+            'p_ip_address'          => $p_ip_address,
+            'p_success'             => $p_success
         ]);
     }
 
@@ -99,8 +99,8 @@ class Authentication extends Model {
         )';
         
         return $this->query($sql, [
-            'p_user_account_id'     => $p_user_account_id,
-            'p_failed_otp_attempts' => $p_failed_otp_attempts
+            'p_user_account_id'         => $p_user_account_id,
+            'p_failed_otp_attempts'     => $p_failed_otp_attempts
         ]);
     }
 
@@ -114,8 +114,8 @@ class Authentication extends Model {
         )';
         
         return $this->query($sql, [
-            'p_user_account_id' => $p_user_account_id,
-            'p_password'        => $p_password
+            'p_user_account_id'     => $p_user_account_id,
+            'p_password'            => $p_password
         ]);
     }
 
@@ -273,9 +273,9 @@ class Authentication extends Model {
         )';
 
         $result = $this->fetch($sql, [
-            'p_email'           => $p_email,
-            'p_ip_address'      => $p_ip_address,
-            'p_window'          => $window
+            'p_email'       => $p_email,
+            'p_ip_address'  => $p_ip_address,
+            'p_window'      => $window
         ]);
 
         return (int) ($result['total'] ?? 0);

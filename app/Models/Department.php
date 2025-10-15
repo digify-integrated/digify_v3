@@ -111,8 +111,8 @@ class Department extends Model {
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_parent_department' => $p_filter_by_parent_department,
-            'p_filter_by_manager' => $p_filter_by_manager
+            'p_filter_by_parent_department'     => $p_filter_by_parent_department,
+            'p_filter_by_manager'               => $p_filter_by_manager
         ]);
     }
 

@@ -82,14 +82,14 @@ class CompanyController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save company'               => $this->saveCompany($lastLogBy),
-            'update company logo'        => $this->updateCompanyLogo($lastLogBy),
-            'delete company'             => $this->deleteCompany(),
-            'delete multiple company'    => $this->deleteMultipleCompany(),
-            'fetch company details'      => $this->fetchCompanyDetails(),
-            'generate company table'     => $this->generateCompanyTable(),
-            'generate company options'   => $this->generateCompanyOptions(),
-            default                      => $this->systemHelper::sendErrorResponse(
+            'save company'              => $this->saveCompany($lastLogBy),
+            'update company logo'       => $this->updateCompanyLogo($lastLogBy),
+            'delete company'            => $this->deleteCompany(),
+            'delete multiple company'   => $this->deleteMultipleCompany(),
+            'fetch company details'     => $this->fetchCompanyDetails(),
+            'generate company table'    => $this->generateCompanyTable(),
+            'generate company options'  => $this->generateCompanyOptions(),
+            default                     => $this->systemHelper::sendErrorResponse(
                                                 'Transaction Failed',
                                                 'We encountered an issue while processing your request.'
                                             )
@@ -152,8 +152,8 @@ class CompanyController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(5);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(5);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(5);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
@@ -260,9 +260,9 @@ class CompanyController
     }
 
     public function fetchCompanyDetails(){
-        $companyId            = $_POST['company_id'] ?? null;
-        $checkCompanyExist    = $this->company->checkCompanyExist($companyId);
-        $total                = $checkCompanyExist['total'] ?? 0;
+        $companyId          = $_POST['company_id'] ?? null;
+        $checkCompanyExist  = $this->company->checkCompanyExist($companyId);
+        $total              = $checkCompanyExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -300,7 +300,7 @@ class CompanyController
         $stateFilter        = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
         $countryFilter      = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
         $currencyFilter     = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
-        $response   = [];
+        $response           = [];
 
         $companys = $this->company->generateCompanyTable($cityFilter, $stateFilter, $countryFilter, $currencyFilter);
 

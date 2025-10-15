@@ -93,11 +93,11 @@ class ContactInformationTypeController
             );
         }
 
-        $contactInformationTypeId      = $_POST['contact_information_type_id'] ?? null;
-        $contactInformationTypeName    = $_POST['contact_information_type_name'] ?? null;
+        $contactInformationTypeId       = $_POST['contact_information_type_id'] ?? null;
+        $contactInformationTypeName     = $_POST['contact_information_type_name'] ?? null;
 
-        $contactInformationTypeId              = $this->contactInformationType->saveContactInformationType($contactInformationTypeId, $contactInformationTypeName, $lastLogBy);
-        $encryptedContactInformationTypeId     = $this->security->encryptData($contactInformationTypeId);
+        $contactInformationTypeId           = $this->contactInformationType->saveContactInformationType($contactInformationTypeId, $contactInformationTypeName, $lastLogBy);
+        $encryptedContactInformationTypeId  = $this->security->encryptData($contactInformationTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Contact Information Type Success',
@@ -143,7 +143,7 @@ class ContactInformationTypeController
             );
         }
 
-        $contactInformationTypeDetails   = $this->contactInformationType->fetchContactInformationType($contactInformationTypeId);
+        $contactInformationTypeDetails = $this->contactInformationType->fetchContactInformationType($contactInformationTypeId);
 
         $response = [
             'success'                       => true,
@@ -162,8 +162,8 @@ class ContactInformationTypeController
         $contactInformationTypes = $this->contactInformationType->generateContactInformationTypeTable();
 
         foreach ($contactInformationTypes as $row) {
-            $contactInformationTypeId      = $row['contact_information_type_id'];
-            $contactInformationTypeName    = $row['contact_information_type_name'];
+            $contactInformationTypeId       = $row['contact_information_type_id'];
+            $contactInformationTypeName     = $row['contact_information_type_name'];
 
             $contactInformationTypeIdEncrypted = $this->security->encryptData($contactInformationTypeId);
 

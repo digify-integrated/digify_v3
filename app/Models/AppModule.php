@@ -29,13 +29,13 @@ class AppModule extends Model {
         )';
 
         $row = $this->fetch($sql, [
-            'p_app_module_id'               => $p_app_module_id,
-            'p_app_module_name'             => $p_app_module_name,
-            'p_app_module_description'      => $p_app_module_description,
-            'p_menu_item_id'                => $p_menu_item_id,
-            'p_menu_item_name'              => $p_menu_item_name,
-            'p_order_sequence'              => $p_order_sequence,
-            'p_last_log_by'                 => $p_last_log_by
+            'p_app_module_id'           => $p_app_module_id,
+            'p_app_module_name'         => $p_app_module_name,
+            'p_app_module_description'  => $p_app_module_description,
+            'p_menu_item_id'            => $p_menu_item_id,
+            'p_menu_item_name'          => $p_menu_item_name,
+            'p_order_sequence'          => $p_order_sequence,
+            'p_last_log_by'             => $p_last_log_by
         ]);
 
         return $row['new_app_module_id'] ?? null;
@@ -61,9 +61,9 @@ class AppModule extends Model {
         )';
         
         return $this->query($sql, [
-            'p_app_module_id'       => $p_app_module_id,
-            'p_app_logo'            => $p_app_logo,
-            'p_last_log_by'         => $p_last_log_by
+            'p_app_module_id'   => $p_app_module_id,
+            'p_app_logo'        => $p_app_logo,
+            'p_last_log_by'     => $p_last_log_by
         ]);
     }
 

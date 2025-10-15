@@ -1,8 +1,8 @@
 export const passwordAddOn = () => {
   $('.password-addon').each(function () {
-    const $addon = $(this);
-    const $inputField = $addon.siblings('input');
-    const $eyeIcon = $addon.find('i');
+    const $addon        = $(this);
+    const $inputField   = $addon.siblings('input');
+    const $eyeIcon      = $addon.find('i');
 
     if ($inputField.attr('type') === 'password') {
       $eyeIcon.removeClass('ki-eye-slash').addClass('ki-eye');

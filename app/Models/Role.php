@@ -23,10 +23,10 @@ class Role extends Model {
         )';
 
         $row = $this->fetch($sql, [
-            'p_role_id'               => $p_role_id,
-            'p_role_name'             => $p_role_name,
-            'p_role_description'      => $p_role_description,
-            'p_last_log_by'           => $p_last_log_by
+            'p_role_id'             => $p_role_id,
+            'p_role_name'           => $p_role_name,
+            'p_role_description'    => $p_role_description,
+            'p_last_log_by'         => $p_last_log_by
         ]);
 
         return $row['new_role_id'] ?? null;
@@ -126,10 +126,10 @@ class Role extends Model {
         )';
         
         return $this->query($sql, [
-            'p_role_permission_id'      => $p_role_permission_id,
-            'p_access_type'             => $p_access_type,
-            'p_access'                  => $p_access,
-            'p_last_log_by'             => $p_last_log_by
+            'p_role_permission_id'  => $p_role_permission_id,
+            'p_access_type'         => $p_access_type,
+            'p_access'              => $p_access,
+            'p_last_log_by'         => $p_last_log_by
         ]);
     }
 
