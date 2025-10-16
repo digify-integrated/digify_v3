@@ -108,12 +108,12 @@ class CityController
         $countryName    = $stateDetails['country_name'] ?? '';
 
         $cityId             = $this->city->saveCity($cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $lastLogBy);
-        $encryptedcityId    = $this->security->encryptData($cityId);
+        $encryptedCityId    = $this->security->encryptData($cityId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save City Success',
             'The city has been saved successfully.',
-            ['city_id' => $encryptedcityId]
+            ['city_id' => $encryptedCityId]
         );
     }
 

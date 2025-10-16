@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction                   = 'fetch contact information type details';
-        const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch contact information type details';
 
         try {
             resetForm('contact_information_type_form');
@@ -72,8 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction                   = 'save contact information type';
-            const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save contact information type';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -117,9 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-contact-information-type')) return;
 
-        const transaction                   = 'delete contact information type';
-        const contact_information_type_id   = document.getElementById('details-id')?.textContent.trim();
-        const page_link                     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete contact information type';
 
         const result = await Swal.fire({
             title: 'Confirm Contact Information Type Deletion',

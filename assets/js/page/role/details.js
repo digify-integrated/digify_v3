@@ -5,10 +5,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+    const role_id       = document.getElementById('details-id').textContent.trim();
+
     const displayDetails = async () => {
-        const transaction   = 'fetch role details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const role_id       = document.getElementById('details-id').textContent.trim();
+        const transaction = 'fetch role details';
 
         try {
             resetForm('role_form');
@@ -29,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('role_name').value = data.roleName;
-                document.getElementById('role_description').value = data.roleDescription;
+                document.getElementById('role_name').value          = data.roleName || '';
+                document.getElementById('role_description').value   = data.roleDescription || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/RoleController.php',
         transaction: 'generate role assigned menu item table',
         ajaxData: {
-            role_id: document.getElementById('details-id')?.textContent.trim()
+            role_id: role_id
         },
         columns: [
             { data: 'MENU_ITEM_NAME' },
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/RoleController.php',
         transaction: 'generate role assigned system action table',
         ajaxData: {
-            role_id: document.getElementById('details-id')?.textContent.trim()
+            role_id: role_id
         },
         columns: [
             { data: 'SYSTEM_ACTION_NAME' },
@@ -130,8 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save role';
-            const role_id       = document.getElementById('details-id').textContent;
+            const transaction = 'save role';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -192,8 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save role menu item permission';
-            const role_id       = document.getElementById('details-id').textContent;
+            const transaction = 'save role menu item permission';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -257,8 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save role system action permission';
-            const role_id       = document.getElementById('details-id').textContent;
+            const transaction = 'save role system action permission';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -303,9 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-role')){
-            const transaction   = 'delete role';
-            const role_id       = document.getElementById('details-id').textContent;
-            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+            const transaction = 'delete role';
 
             Swal.fire({
                 title: 'Confirm Role Deletion',
@@ -358,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'menu_item_id',
                 data: { 
                     transaction: 'generate role menu item dual listbox options',
-                    role_id: document.getElementById('details-id').textContent
+                    role_id: role_id
                 }
             });
         }
@@ -369,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'menu_item_id',
                 data: { 
                     transaction: 'generate role menu item dual listbox options',
-                    role_id: document.getElementById('details-id').textContent
+                    role_id: role_id
                 }
             });
         }
@@ -397,15 +393,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Update menu item permission failed: ${error.message}`);
@@ -475,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'system_action_id',
                 data: { 
                     transaction: 'generate role system action dual listbox options',
-                    role_id: document.getElementById('details-id')?.textContent.trim()
+                    role_id: role_id
                 }
             });
         }        
@@ -503,15 +498,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Update system action permission failed: ${error.message}`);

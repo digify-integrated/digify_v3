@@ -5,10 +5,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+    
     const displayDetails = async () => {
-        const transaction   = 'fetch menu item details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch menu item details';
 
         try {
             resetForm('menu_item_form');
@@ -27,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('menu_item_name').value = data.menuItemName || '';
-                document.getElementById('order_sequence').value = data.orderSequence || '';
-                document.getElementById('menu_item_url').value = data.menuItemURL || '';
+                document.getElementById('menu_item_name').value     = data.menuItemName || '';
+                document.getElementById('order_sequence').value     = data.orderSequence || '';
+                document.getElementById('menu_item_url').value      = data.menuItemURL || '';
 
                 $('#app_module_id').val(data.appModuleID || '').trigger('change');
                 $('#parent_id').val(data.parentID || '').trigger('change');
@@ -48,34 +49,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const dropdownConfigs = [
-        { url: './app/Controllers/AppModuleController.php', selector: '#app_module_id', transaction: 'generate app module options' },
-        { url: './app/Controllers/ExportController.php', selector: '#table_name', transaction: 'generate export table options' },
-    ];
-    
-    dropdownConfigs.forEach(cfg => {
-        generateDropdownOptions({
-            url: cfg.url,
-            dropdownSelector: cfg.selector,
-            data: { transaction: cfg.transaction }
-        });
-    });
-
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#parent_id',
-        data: { 
-            transaction: 'generate menu item options',
-            menu_item_id: document.getElementById('details-id')?.textContent.trim()
+    (async () => {
+        const dropdownConfigs = [
+            { url: './app/Controllers/AppModuleController.php', selector: '#app_module_id', transaction: 'generate app module options' },
+            { url: './app/Controllers/MenuItemController.php', selector: '#parent_id', transaction: 'generate menu item options', extraData: { menu_item_id } },
+            { url: './app/Controllers/ExportController.php', selector: '#table_name', transaction: 'generate export table options' },
+        ];
+        
+        for (const cfg of dropdownConfigs) {
+            await generateDropdownOptions({
+                url: cfg.url,
+                dropdownSelector: cfg.selector,
+                data: { 
+                    transaction: cfg.transaction, 
+                    ...(cfg.extraData || {})
+                }
+            });
         }
-    });
+
+        await displayDetails();
+    })();
 
     initializeDatatable({
         selector: '#role-permission-table',
         ajaxUrl: './app/Controllers/MenuItemController.php',
         transaction: 'generate menu item assigned role table',
         ajaxData: {
-            menu_item_id: document.getElementById('details-id')?.textContent.trim()
+            menu_item_id: menu_item_id
         },
         columns: [
             { data: 'ROLE_NAME' },
@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatatableControls('#role-permission-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'menu_item');
-    displayDetails();
     
     $('#menu_item_form').validate({
         rules: {
@@ -137,8 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save menu item';
-            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save menu item';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -200,8 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save menu item role permission';
-            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save menu item role permission';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -246,9 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-menu-item')){
-            const transaction   = 'delete menu item';
-            const menu_item_id  = document.getElementById('details-id')?.textContent.trim();
-            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete menu item';
 
             if (!menu_item_id) {
                 showNotification('Error', 'Menu item ID not found', 'error');
@@ -307,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'role_id',
                 data: {
                     transaction: 'generate menu item role dual listbox options',
-                    menu_item_id: document.getElementById('details-id')?.textContent.trim()
+                    menu_item_id: menu_item_id
                 }
             });
         }
@@ -335,15 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Failed to update role permission: ${error.message}`);

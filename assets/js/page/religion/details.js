@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const religion_id   = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction   = 'fetch religion details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const religion_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch religion details';
 
         try {
             resetForm('religion_form');
@@ -72,8 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save religion';
-            const religion_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save religion';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -117,9 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-religion')) return;
 
-        const transaction   = 'delete religion';
-        const religion_id   = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete religion';
 
         const result = await Swal.fire({
             title: 'Confirm Religion Deletion',

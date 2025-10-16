@@ -53,9 +53,7 @@
                             Manager
                         </label>
 
-                        <select id="manager_id" name="manager_id" class="form-select" data-control="select2" data-allow-clear="false">
-                            <option value="">--</option>
-                        </select>
+                        <select id="manager_id" name="manager_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
             </div>

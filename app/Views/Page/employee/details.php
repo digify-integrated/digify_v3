@@ -25,11 +25,13 @@
                         ?>
                     </div>
 
-                    <span class="fs-3 text-gray-800 fw-bold mb-3" id="employee_name_summary">--</span>
+                    <span class="fs-3 text-gray-800 fw-bold mb-3 text-center" id="employee_name_summary">--</span>
 
                     <div class="mb-0">
-                        <div class="badge badge-lg badge-light-primary d-inline" id="job_position_title_summary">--</div>
-                        <div class="badge badge-lg badge-light-primary d-inline" id="">Active</div>
+                        <div class="fw-semibold text-gray-500 mb-6 text-center" id="job_position_title_summary">--</div>
+                    </div>
+                    <div class="mb-0" id="employment_status_summary">
+                       
                     </div>
                 </div>
                 
@@ -913,6 +915,37 @@
                                                                     </div>' : '';
                             ?>
                         </div>
+
+                        <?php
+                            if($employmentStatus === 'Archived'){
+                                echo '<div class="separator separator-dashed my-6"></div>
+
+                                    <div class="d-flex flex-wrap align-items-center mb-6">
+                                        <div>
+                                            <div class="fs-6 fw-bold mb-1">Departure Reason</div>
+                                            <div class="fw-semibold text-gray-600" id="departure_reason_summary">--</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="separator separator-dashed my-6"></div>
+
+                                    <div class="d-flex flex-wrap align-items-center mb-6">
+                                        <div>
+                                            <div class="fs-6 fw-bold mb-1">Detailed Reason</div>
+                                            <div class="fw-semibold text-gray-600" id="detailed_departure_reason_summary">--</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="separator separator-dashed my-6"></div>
+
+                                    <div class="d-flex flex-wrap align-items-center mb-6">
+                                        <div>
+                                            <div class="fs-6 fw-bold mb-1">Departure Date</div>
+                                            <div class="fw-semibold text-gray-600" id="departure_date_summary">--</div>
+                                        </div>
+                                    </div>';
+                            }
+                        ?>
                     </div>
                 </div>
 

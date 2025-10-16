@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction           = 'fetch file extension details';
-        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch file extension details';
 
         try {
             resetForm('file_extension_form');
@@ -44,16 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
         }
     };
-    
-    generateDropdownOptions({
-        url: './app/Controllers/FileTypeController.php',
-        dropdownSelector: '#file_type_id',
-        data: { transaction: 'generate file type options' },
-        validateOnChange: true
-    });
+
+    (async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/FileTypeController.php',
+            dropdownSelector: '#file_type_id',
+            data: { transaction: 'generate file type options' }
+        });
+
+        await displayDetails();
+    })();    
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'file_extension');
-    displayDetails();
 
     $('#file_extension_form').validate({
         rules: {
@@ -86,8 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction           = 'save file extension';
-            const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save file extension';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -131,9 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-file-extension')) return;
 
-        const transaction           = 'delete file extension';
-        const file_extension_id     = document.getElementById('details-id')?.textContent.trim();
-        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete file extension';
 
         const result = await Swal.fire({
             title: 'Confirm File Extension Deletion',

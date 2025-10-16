@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const civil_status_id   = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction       = 'fetch civil status details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const civil_status_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch civil status details';
 
         try {
             resetForm('civil_status_form');
@@ -72,8 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save civil status';
-            const civil_status_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save civil status';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -117,9 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-civil-status')) return;
 
-        const transaction       = 'delete civil status';
-        const civil_status_id   = document.getElementById('details-id')?.textContent.trim();
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete civil status';
 
         const result = await Swal.fire({
             title: 'Confirm Civil Status Deletion',

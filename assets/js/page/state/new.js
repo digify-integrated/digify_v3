@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
         url: './app/Controllers/CountryController.php',
         dropdownSelector: '#country_id',
-        data: { transaction: 'generate country options' },
-        validateOnChange: true
+        data: { transaction: 'generate country options' }
     });
     
     $('#state_form').validate({

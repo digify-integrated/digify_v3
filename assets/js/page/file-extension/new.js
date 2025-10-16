@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
         url: './app/Controllers/FileTypeController.php',
         dropdownSelector: '#file_type_id',
-        data: { transaction: 'generate file type options' },
-        validateOnChange: true
+        data: { transaction: 'generate file type options' }
     });
     
     $('#file_extension_form').validate({

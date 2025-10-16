@@ -4,9 +4,9 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const dropdownConfigs = [
-            { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
-            { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
-            { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
+        { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
+        { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
+        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
     ];
     
     dropdownConfigs.forEach(cfg => {

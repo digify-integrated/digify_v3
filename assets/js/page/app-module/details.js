@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+    const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+
     const displayDetails = async () => {
-        const transaction       = 'fetch app module details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch app module details';
 
         try {
             resetForm('app_module_form');
@@ -49,15 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    generateDropdownOptions({
-        url: './app/Controllers/MenuItemController.php',
-        dropdownSelector: '#menu_item_id',
-        data: { transaction: 'generate menu item options' },
-        validateOnChange: true
-    });
+    (async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/MenuItemController.php',
+            dropdownSelector: '#menu_item_id',
+            data: { transaction: 'generate menu item options' }
+        });
+
+        await displayDetails();
+    })();
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'app_module');
-    displayDetails();
 
     $('#app_module_form').validate({
         rules: {
@@ -92,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save app module';
-            const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save app module';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -137,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-app-module')) return;
 
-        const transaction       = 'delete app module';
-        const app_module_id     = document.getElementById('details-id')?.textContent.trim();
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete app module';
 
         const result = await Swal.fire({
             title: 'Confirm App Module Deletion',
@@ -192,8 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const input = event.target;
         if (input.files && input.files.length > 0) {
-            const transaction       = 'update app module logo';
-            const app_module_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update app module logo';
 
             if (!app_module_id) {
                 showNotification('Error', 'App module ID not found', 'error');

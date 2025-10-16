@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const city_id       = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction   = 'fetch city details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const city_id       = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch city details';
 
         try {
             resetForm('city_form');
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 document.getElementById('city_name').value = data.cityName || '';
 
-                $('#state_id').val(data.stateID).trigger('change');
+                $('#state_id').val(data.stateID || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -43,16 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
         }
     };
-    
-    generateDropdownOptions({
-        url: './app/Controllers/StateController.php',
-        dropdownSelector: '#state_id',
-        data: { transaction: 'generate state options' },
-        validateOnChange: true
-    });
+
+    (async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/StateController.php',
+            dropdownSelector: '#state_id',
+            data: { transaction: 'generate state options' }
+        });
+
+        await displayDetails();
+    })();    
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'city');
-    displayDetails();
 
     $('#city_form').validate({
         rules: {
@@ -83,8 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save city';
-            const city_id       = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save city';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -128,9 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-city')) return;
 
-        const transaction   = 'delete city';
-        const city_id       = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete city';
 
         const result = await Swal.fire({
             title: 'Confirm City Deletion',

@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const work_location_id  = document.getElementById('details-id')?.textContent.trim();
+   
     const displayDetails = async () => {
-        const transaction       = 'fetch work location details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const work_location_id  = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch work location details';
 
         try {
             resetForm('work_location_form');
@@ -48,16 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    generateDropdownOptions({
-        url: './app/Controllers/CityController.php',
-        dropdownSelector: '#city_id',
-        data: { 
-            transaction: 'generate city options'
-        }
-    });
+    (async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/CityController.php',
+            dropdownSelector: '#city_id',
+            data: { 
+                transaction: 'generate city options'
+            }
+        });
+
+        await displayDetails();
+    })();
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'work_location');
-    displayDetails();
 
     $('#work_location_form').validate({
         rules: {
@@ -90,8 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save work location';
-            const work_location_id  = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save work location';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -135,9 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-work-location')) return;
 
-        const transaction       = 'delete work location';
-        const work_location_id  = document.getElementById('details-id')?.textContent.trim();
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete work location';
 
         const result = await Swal.fire({
             title: 'Confirm Work Location Deletion',

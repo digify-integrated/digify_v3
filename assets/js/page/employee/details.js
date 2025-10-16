@@ -5,10 +5,12 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+    const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+    const page_id       = document.getElementById('page-id')?.value || '';
+    
     const displayDetails = async () => {
-        const transaction   = 'fetch employee details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch employee details';
 
         try {
             const formData = new URLSearchParams();
@@ -39,13 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#employee_name_summary').text(data.fullName || '--');
                 $('#nickname_summary').text(data.nickname || '--');
                 $('#private_address_summary').text(data.employeeAddress || '--');
-                $('#home_work_distance_summary').text((data.homeWorkDistance || 0) + ' km');
+                $('#home_work_distance_summary').text(`${data.homeWorkDistance || 0} km`);
                 $('#civil_status_summary').text(data.civilStatusName || '--');
                 $('#dependents_summary').text(data.dependents || 0);
                 $('#religion_summary').text(data.religionName || '--');
                 $('#blood_type_summary').text(data.bloodTypeName || '--');
-                $('#height_summary').text((data.height || 0) + ' cm');
-                $('#weight_summary').text((data.weight || 0) + ' kg');
+                $('#height_summary').text(`${data.height || 0} cm`);
+                $('#weight_summary').text(`${data.weight || 0} kg`);
                 $('#badge_id_summary').text(data.badgeID || '--');
                 $('#private_email_summary').text(data.privateEmail || '--');
                 $('#private_phone_summary').text(data.privatePhone || '--');
@@ -54,6 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#gender_summary').text(data.genderName || '--');
                 $('#birthday_summary').text(data.birthday || '--');
                 $('#place_of_birth_summary').text(data.placeOfBirth || '--');
+                $('#departure_reason_summary').text(data.departureReasonName || '--');
+                $('#detailed_departure_reason_summary').text(data.detailedDepartureReason || '--');
+                $('#departure_date_summary').text(data.departureDate || '--');
 
                 $('#company_summary').text(data.companyName || '--');
                 $('#department_summary').text(data.departmentName || '--');
@@ -73,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#civil_status_id').val(data.civilStatusID || '').trigger('change');
                 $('#religion_id').val(data.religionID || '').trigger('change');
                 $('#blood_type_id').val(data.bloodTypeID || '').trigger('change');
+
+                document.querySelector('#employment_status_summary').innerHTML = data?.employmentStatus ?? '';
                 
                 document.getElementById('employee_image_thumbnail').style.backgroundImage = `url(${data.employeeImage})`;
             } 
@@ -89,9 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayEducationDetails = async (employee_education_id) => {
-        const transaction   = 'fetch employee education details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch employee education details';
 
         try {
             const formData = new URLSearchParams();
@@ -134,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayEmergencyContactDetails = async (employee_emergency_contact_id) => {
-        const transaction   = 'fetch employee emergency contact details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch employee emergency contact details';
 
         try {
             const formData = new URLSearchParams();
@@ -175,9 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayLicenseDetails = async (employee_license_id) => {
-        const transaction   = 'fetch employee license details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch employee license details';
 
         try {
             const formData = new URLSearchParams();
@@ -215,9 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayExperienceDetails = async (employee_experience_id) => {
-        const transaction   = 'fetch employee experience details';
-        const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch employee experience details';
 
         try {
             const formData = new URLSearchParams();
@@ -259,41 +258,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const dropdownConfigs = [
-        { url: './app/Controllers/CityController.php', selector: '#private_address_city_id', transaction: 'generate city options' },
-        { url: './app/Controllers/NationalityController.php', selector: '#nationality_id', transaction: 'generate nationality options' },
-        { url: './app/Controllers/CivilStatusController.php', selector: '#civil_status_id', transaction: 'generate civil status options' },
-        { url: './app/Controllers/ReligionController.php', selector: '#religion_id', transaction: 'generate religion options' },
-        { url: './app/Controllers/BloodTypeController.php', selector: '#blood_type_id', transaction: 'generate blood type options' },
-        { url: './app/Controllers/GenderController.php', selector: '#gender_id', transaction: 'generate gender options' },
-        { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
-        { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
-        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
-        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_id', transaction: 'generate employment type options' },
-        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employee_experience_employment_type_id', transaction: 'generate employment type options' },
-        { url: './app/Controllers/EmploymentLocationTypeController.php', selector: '#employment_location_type_id', transaction: 'generate employment location type options' },
-        { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_id', transaction: 'generate work location options' },
-        { url: './app/Controllers/LanguageController.php', selector: '#language_id', transaction: 'generate language options' },
-        { url: './app/Controllers/LanguageProficiencyController.php', selector: '#language_proficiency_id', transaction: 'generate language proficiency options' },
-        { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' },
-        { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
-        { url: './app/Controllers/RelationshipController.php', selector: '#relationship_id', transaction: 'generate relationship options' },
-        { url: './app/Controllers/EmployeeDocumentTypeController.php', selector: '#employee_document_type_id', transaction: 'generate employee document type options' },
-        { url: './app/Controllers/DepartureReasonController.php', selector: '#departure_reason_id', transaction: 'generate departure reason options' },
-    ];
-    
-    dropdownConfigs.forEach(cfg => {
-        generateDropdownOptions({
-            url: cfg.url,
-            dropdownSelector: cfg.selector,
-            data: { transaction: cfg.transaction }
-        });
-    });
+    (async () => {
+        const dropdownConfigs = [
+            { url: './app/Controllers/CityController.php', selector: '#private_address_city_id', transaction: 'generate city options' },
+            { url: './app/Controllers/NationalityController.php', selector: '#nationality_id', transaction: 'generate nationality options' },
+            { url: './app/Controllers/CivilStatusController.php', selector: '#civil_status_id', transaction: 'generate civil status options' },
+            { url: './app/Controllers/ReligionController.php', selector: '#religion_id', transaction: 'generate religion options' },
+            { url: './app/Controllers/BloodTypeController.php', selector: '#blood_type_id', transaction: 'generate blood type options' },
+            { url: './app/Controllers/GenderController.php', selector: '#gender_id', transaction: 'generate gender options' },
+            { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
+            { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
+            { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
+            { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_id', transaction: 'generate employment type options' },
+            { url: './app/Controllers/EmploymentTypeController.php', selector: '#employee_experience_employment_type_id', transaction: 'generate employment type options' },
+            { url: './app/Controllers/EmploymentLocationTypeController.php', selector: '#employment_location_type_id', transaction: 'generate employment location type options' },
+            { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_id', transaction: 'generate work location options' },
+            { url: './app/Controllers/LanguageController.php', selector: '#language_id', transaction: 'generate language options' },
+            { url: './app/Controllers/LanguageProficiencyController.php', selector: '#language_proficiency_id', transaction: 'generate language proficiency options' },
+            { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' },
+            { url: './app/Controllers/EmployeeController.php', selector: '#time_off_approver_id', transaction: 'generate employee options' },
+            { url: './app/Controllers/RelationshipController.php', selector: '#relationship_id', transaction: 'generate relationship options' },
+            { url: './app/Controllers/EmployeeDocumentTypeController.php', selector: '#employee_document_type_id', transaction: 'generate employee document type options' },
+            { url: './app/Controllers/DepartureReasonController.php', selector: '#departure_reason_id', transaction: 'generate departure reason options' }
+        ];
+        
+        for (const cfg of dropdownConfigs) {
+            await generateDropdownOptions({
+                url: cfg.url,
+                dropdownSelector: cfg.selector,
+                data: { transaction: cfg.transaction }
+            });
+        }
+
+        await displayDetails();
+        await languageList();
+        await educationList();
+        await emergencyContactList();
+        await licenseList();
+        await experienceList();
+    })();
 
     const languageList = async () => {
-        const transaction   = 'generate employee language list';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
-        const page_id       = document.getElementById('page-id')?.value || '';
+        const transaction = 'generate employee language list';
 
         try {
             const formData = new URLSearchParams();
@@ -318,9 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const educationList = async () => {
-        const transaction   = 'generate employee education list';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
-        const page_id       = document.getElementById('page-id')?.value || '';
+        const transaction = 'generate employee education list';
 
         try {
             const formData = new URLSearchParams();
@@ -345,9 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const emergencyContactList = async () => {
-        const transaction   = 'generate employee emergency contact list';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
-        const page_id       = document.getElementById('page-id')?.value || '';
+        const transaction = 'generate employee emergency contact list';
 
         try {
             const formData = new URLSearchParams();
@@ -372,9 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const licenseList = async () => {
-        const transaction   = 'generate employee license list';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
-        const page_id       = document.getElementById('page-id')?.value || '';
+        const transaction = 'generate employee license list';
 
         try {
             const formData = new URLSearchParams();
@@ -399,9 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const experienceList = async () => {
-        const transaction   = 'generate employee experience list';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim() || '';
-        const page_id       = document.getElementById('page-id')?.value || '';
+        const transaction = 'generate employee experience list';
 
         try {
             const formData = new URLSearchParams();
@@ -439,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/EmployeeController.php',
         transaction: 'generate employee document table',
         ajaxData: {
-            employee_id: document.getElementById('details-id')?.textContent.trim()
+            employee_id: employee_id
         },
         columns: [
             { data: 'DOCUMENT' },
@@ -462,12 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDatePicker('#issue_date');
     initializeDatePicker('#expiration_date');
     initializeDatePicker('#departure_date');
-    displayDetails();
-    languageList();
-    educationList();
-    emergencyContactList();
-    licenseList();
-    experienceList();
     initializeDatatableControls('#employee-document-table');
 
     $('#personal_details_form').validate({
@@ -505,8 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee personal details';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee personal details';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -574,8 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee pin code';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee pin code';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -643,8 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee badge id';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee badge id';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -712,8 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee private email';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee private email';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -781,8 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee private phone';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee private phone';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -850,8 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee private telephone';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee private telephone';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -919,8 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee nationality';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee nationality';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -988,8 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee gender';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee gender';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1057,8 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee birthday';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee birthday';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1126,8 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee place of birth';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee place of birth';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1195,8 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee company';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee company';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1264,8 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee department';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee department';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1333,8 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee job position';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee job position';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1402,8 +1381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee manager';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee manager';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1471,8 +1449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee time off approver';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee time off approver';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1540,8 +1517,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee employment type';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee employment type';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1609,8 +1585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee employment location type';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee employment location type';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1678,8 +1653,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee work location';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee work location';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1747,8 +1721,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee on board date';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee on board date';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1816,8 +1789,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee work email';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee work email';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1885,8 +1857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee work phone';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee work phone';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -1954,8 +1925,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee work telephone';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee work telephone';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2025,8 +1995,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee language';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save employee language';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2099,8 +2068,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee education';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save employee education';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2181,8 +2149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee emergency contact';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save employee emergency contact';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2257,8 +2224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee license';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save employee license';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2337,8 +2303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save employee experience';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save employee experience';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2411,8 +2376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'insert employee document';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'insert employee document';
 
             const formData = new FormData(form);
             formData.append('transaction', transaction);
@@ -2485,8 +2449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'update employee archive';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee archive';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -2533,8 +2496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#unarchive-employee')){
-            const transaction   = 'update employee unarchive';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update employee unarchive';
 
             Swal.fire({
                 title: 'Confirm Employee Unarchive',
@@ -2583,9 +2545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#delete-employee')){
-            const transaction   = 'delete employee';
-            const employee_id   = document.getElementById('details-id')?.textContent.trim();
-            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete employee';
 
             Swal.fire({
                 title: 'Confirm Employee Deletion',
@@ -3030,8 +2990,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = event.target.closest('#employee_image');
         if (!input || !input.files.length) return;
 
-        const transaction   = 'update employee image';
-        const employee_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'update employee image';
 
         const formData = new FormData();
         formData.append('transaction', transaction);

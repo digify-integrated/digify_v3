@@ -126,6 +126,16 @@ class UserAccountController
         $password           = $_POST['password'] ?? null;
         $hashedPassword     = password_hash($password, PASSWORD_BCRYPT);
 
+        $checkUserAccountInsertEmailExist   = $this->userAccount->checkUserAccountInsertEmailExist($email);
+        $total                              = $checkUserAccountInsertEmailExist['total'] ?? 0;
+
+        if($total > 0){
+            $this->systemHelper::sendErrorResponse(
+                'Save User Account Error',
+                'The email address already exists.'
+            );  
+        }
+
         $userAccountId              = $this->userAccount->insertUserAccount($fileAs, $email, $hashedPassword, $phone, $lastLogBy);
         $encryptedUserAccountId     = $this->security->encryptData($userAccountId);
 

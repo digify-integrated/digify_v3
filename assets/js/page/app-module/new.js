@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
         url: './app/Controllers/MenuItemController.php',
         dropdownSelector: '#menu_item_id',
-        data: { transaction: 'generate menu item options' },
-        validateOnChange: true
+        data: { transaction: 'generate menu item options' }
     });
     
     $('#app_module_form').validate({

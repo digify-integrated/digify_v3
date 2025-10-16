@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+    
     const displayDetails = async () => {
-        const transaction           = 'fetch upload setting details';
-        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch upload setting details';
 
         try {
             resetForm('upload_setting_form');
@@ -45,9 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayFileExtensionDetails = async () => {
-        const transaction           = 'fetch upload setting file extension details';
-        const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch upload setting file extension details';
 
         try {
             resetForm('upload_setting_file_extension_form');
@@ -122,8 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction           = 'save upload setting';
-            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save upload setting';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -191,8 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction           = 'save upload setting file extension';
-            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save upload setting file extension';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -235,9 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-upload-setting')){
-            const transaction           = 'delete upload setting';
-            const upload_setting_id     = document.getElementById('details-id')?.textContent.trim();
-            const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete upload setting';
 
             const result = await Swal.fire({
                 title: 'Confirm Upload Setting Deletion',

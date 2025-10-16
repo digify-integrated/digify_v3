@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+    const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
+
     const displayDetails = async () => {
-        const transaction       = 'fetch user account details';
-        const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch user account details';
 
         try {
             const formData = new URLSearchParams();
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 $('#full_name_side_summary').text(data.fileAs || '--');
                 $('#email_side_summary').text(data.email || '--');
-                $('#phone_side_summary').text(data.phoneSummary || '--');
                 $('#last_password_date_side_summary').text(data.lastPasswordChange || '--');
                 $('#last_connection_date_side_summary').text(data.lastConnectionDate || '--');
                 $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest || '--');
@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#email_summary').text(data.email || '--');
                 $('#phone_summary').text(data.phoneSummary || '--');
 
-                document.getElementById('two-factor-authentication').checked = data.twoFactorAuthentication || 'No' === 'Yes';
-                document.getElementById('multiple-login-sessions').checked = data.multipleSession || 'No' === 'Yes';
-                document.getElementById('profile_picture_image').style.backgroundImage = `url(${data.profilePicture})`;
-                document.getElementById('status_side_summary').innerHTML = data.activeBadge;
+                document.getElementById('two-factor-authentication').checked            = data.twoFactorAuthentication || 'No' === 'Yes';
+                document.getElementById('multiple-login-sessions').checked              = data.multipleSession || 'No' === 'Yes';
+                document.getElementById('profile_picture_image').style.backgroundImage  = `url(${data.profilePicture})`;
+                document.getElementById('status_side_summary').innerHTML                = data.activeBadge;
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -53,8 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const roleList = async () => {
-        const transaction       = 'generate assigned user account role list';
-        const user_account_id   = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'generate assigned user account role list';
 
         try {
             const formData = new URLSearchParams();
@@ -117,8 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'update user account full name';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account full name';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -139,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_full_name');
+                    enableButton('update_full_name_submit');
                     displayDetails();
                 }
                 else if (data.invalid_session) {
@@ -146,12 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = data.redirect_link;
                 }
                 else {
-                    enableButton('update_full_name_submit');
                     showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_full_name_submit');
                 }
             } catch (error) {
-                enableButton('update_full_name_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_full_name_submit');
             }
 
             return false;
@@ -185,8 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'update user account email';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account email';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -207,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_email');
+                    enableButton('update_email_submit');
                     displayDetails();
                 }
                 else if (data.invalid_session) {
@@ -218,8 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     enableButton('update_email_submit');
                 }
             } catch (error) {
-                enableButton('update_email_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_email_submit');
             }
 
             return false;
@@ -253,8 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'update user account phone';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account phone';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -275,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_phone');
+                    enableButton('update_phone_submit');
                     displayDetails();
                 } 
                 else if (data.invalid_session) {
@@ -286,8 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     enableButton('update_phone_submit');
                 }
             } catch (error) {
-                enableButton('update_phone_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_phone_submit');
             }
 
             return false;
@@ -324,8 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'update user account password';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account password';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -346,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_password');
+                    enableButton('update_password_submit');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -353,10 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_password_submit');
                 }
             } catch (error) {
-                enableButton('update_password_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_password_submit');
             }
 
             return false;
@@ -384,8 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save user account role';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save user account role';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -406,6 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     $('#role-assignment-modal').modal('hide');
+                    enableButton('submit-assignment');
                     roleList();
                 }
                 else if (data.invalid_session) {
@@ -417,8 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     enableButton('submit-assignment');
                 }
             } catch (error) {
-                enableButton('submit-assignment');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('submit-assignment');
             }
 
             return false;
@@ -427,8 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#activate-user-account')){
-            const transaction       = 'activate user account';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'activate user account';
 
             Swal.fire({
                 title: 'Confirm User Account Activation',
@@ -477,8 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#deactivate-user-account')){
-            const transaction       = 'deactivate user account';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'deactivate user account';
 
             Swal.fire({
                 title: 'Confirm User Account Deactivation',
@@ -527,9 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#delete-user-account')){
-            const transaction       = 'delete user account';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
-            const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete user account';
 
             Swal.fire({
                 title: 'Confirm User Account Deletion',
@@ -578,8 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#two-factor-authentication')){
-            const transaction       = 'update user account two factor authentication';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account two factor authentication';
 
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
@@ -611,8 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#multiple-login-sessions')){
-            const transaction       = 'update user account multiple login sessions';
-            const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update user account multiple login sessions';
 
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
@@ -649,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'role_id',
                 data: {
                     transaction: 'generate user account role dual listbox options',
-                    user_account_id: document.getElementById('details-id')?.textContent.trim()
+                    user_account_id: user_account_id
                 }
             });
         }
@@ -716,8 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = event.target.closest('#profile_picture');
         if (!input || !input.files.length) return;
 
-        const transaction       = 'update user account profile picture';
-        const user_account_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'update user account profile picture';
 
         const formData = new FormData();
         formData.append('transaction', transaction);

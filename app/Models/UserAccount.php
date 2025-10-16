@@ -127,6 +127,18 @@ class UserAccount extends Model {
         ]);
     }
 
+    public function checkUserAccountInsertEmailExist(
+        $p_email
+    ) {
+        $sql = 'CALL checkUserAccountInsertEmailExist(
+            :p_email
+        )';
+        
+        return $this->fetch($sql, [
+            'p_email'               => $p_email
+        ]);
+    }
+
     public function checkUserAccountPhoneExist(
         $p_user_account_id,
         $p_phone

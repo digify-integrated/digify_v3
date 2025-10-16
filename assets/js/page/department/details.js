@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const department_id     = document.getElementById('details-id')?.textContent.trim();
+    const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+
     const displayDetails = async () => {
-        const transaction       = 'fetch department details';
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const department_id     = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch department details';        
 
         try {
             resetForm('department_form');
@@ -45,17 +46,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    generateDropdownOptions({
-        url: './app/Controllers/DepartmentController.php',
-        dropdownSelector: '#parent_department_id',
-        data: { 
-            transaction: 'generate parent department options',
-            department_id: document.getElementById('details-id')?.textContent.trim()
+    (async () => {
+        const dropdownConfigs = [
+            { url: './app/Controllers/DepartmentController.php', selector: '#parent_department_id', transaction: 'generate parent department options', extraData: { department_id } },
+            { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' }
+        ];
+        
+        for (const cfg of dropdownConfigs) {
+            await generateDropdownOptions({
+                url: cfg.url,
+                dropdownSelector: cfg.selector,
+                data: { 
+                    transaction: cfg.transaction, 
+                    ...(cfg.extraData || {})
+                }
+            });
         }
-    });
+
+        await displayDetails();
+    })();
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'department');
-    displayDetails();
 
     $('#department_form').validate({
         rules: {
@@ -84,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction       = 'save department';
-            const department_id     = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save department';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -129,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-department')) return;
 
-        const transaction       = 'delete department';
-        const department_id     = document.getElementById('details-id')?.textContent.trim();
-        const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete department';
 
         const result = await Swal.fire({
             title: 'Confirm Department Deletion',

@@ -4,12 +4,18 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => { 
-    generateDropdownOptions({
-        url: './app/Controllers/DepartmentController.php',
-        dropdownSelector: '#parent_department_id',
-        data: { 
-            transaction: 'generate department options'
-        }
+
+    const dropdownConfigs = [
+        { url: './app/Controllers/DepartmentController.php', selector: '#parent_department_id', transaction: 'generate department options' },
+        { url: './app/Controllers/EmployeeController.php', selector: '#manager_id', transaction: 'generate employee options' }
+    ];
+    
+    dropdownConfigs.forEach(cfg => {
+        generateDropdownOptions({
+            url: cfg.url,
+            dropdownSelector: cfg.selector,
+            data: { transaction: cfg.transaction }
+        });
     });
 
     $('#department_form').validate({

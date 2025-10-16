@@ -44,9 +44,6 @@
 
                 <div>
                     <div class="pb-5 fs-6">
-                        <div class="fw-bold mt-5">Phone</div>
-                        <div class="text-gray-600" id="phone_side_summary"></div>
-
                         <div class="fw-bold mt-5">Last Password Change</div>
                         <div class="text-gray-600" id="last_password_date_side_summary"></div>
 

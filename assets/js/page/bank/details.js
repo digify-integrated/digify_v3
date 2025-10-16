@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const bank_id       = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction   = 'fetch bank details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const bank_id       = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch bank details';
 
         try {
             resetForm('bank_form');
@@ -28,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('bank_name').value = data.bankName || '';
-                document.getElementById('bank_identifier_code').value = data.bankIdentifierCode || '';
+                document.getElementById('bank_name').value              = data.bankName || '';
+                document.getElementById('bank_identifier_code').value   = data.bankIdentifierCode || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -73,8 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save bank';
-            const bank_id       = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save bank';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -118,9 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-bank')) return;
 
-        const transaction   = 'delete bank';
-        const bank_id       = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete bank';
 
         const result = await Swal.fire({
             title: 'Confirm Bank Deletion',

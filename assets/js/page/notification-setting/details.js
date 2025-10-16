@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+
     const displayDetails = async () => {
-        const transaction               = 'fetch notification setting details';
-        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch notification setting details';
 
         try {
             resetForm('notification_setting_form');
@@ -46,9 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displaySystemTemplateDetails = async () => {
-        const transaction               = 'fetch system notification template details';
-        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch system notification template details';
 
         try {
             resetForm('update_system_notification_template_form');
@@ -85,9 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displayEmailTemplateDetails = async () => {
-        const transaction               = 'fetch email notification template details';
-        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch email notification template details';
 
         try {
             
@@ -123,9 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const displaySMSTemplateDetails = async () => {
-        const transaction               = 'fetch sms notification template details';
-        const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch sms notification template details';
 
         try {
             resetForm('update_sms_notification_template_form');
@@ -160,12 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    (async () => {
+        await displayDetails();
+        await displaySystemTemplateDetails();
+        await displayEmailTemplateDetails();
+        await displaySMSTemplateDetails();
+    })();
+
     initializeTinyMCE('#email_notification_body', $('#email_notification_body').is(':disabled') ? 1 : undefined);
     attachLogNotesHandler('#log-notes-main', '#details-id', 'notification_setting');
-    displayDetails();
-    displaySystemTemplateDetails();
-    displayEmailTemplateDetails();
-    displaySMSTemplateDetails();
 
     $('#notification_setting_form').validate({
         rules: {
@@ -196,8 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction               = 'save notification setting';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save notification setting';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -267,8 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction               = 'save system notification template';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save system notification template';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -337,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction               = 'save email notification template';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
             const email_notification_body   = tinymce.get('email_notification_body').getContent();
 
             const formData = new URLSearchParams(new FormData(form));
@@ -407,8 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction               = 'save sms notification template';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save sms notification template';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -451,9 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-notification-setting')){
-            const transaction               = 'delete notification setting';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
-            const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete notification setting';
 
             const result = await Swal.fire({
                 title: 'Confirm Notification Setting Deletion',
@@ -502,11 +494,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('.update-notification-channel-status')){
-            const transaction               = 'update notification setting channel';
-            const button                    = event.target.closest('.update-notification-channel-status');
-            const channel                   = button.dataset.channel;
-            const status                    = button.checked ? '1' : '0';
-            const notification_setting_id   = document.getElementById('details-id')?.textContent.trim();
+            const transaction   = 'update notification setting channel';
+            const button        = event.target.closest('.update-notification-channel-status');
+            const channel       = button.dataset.channel;
+            const status        = button.checked ? '1' : '0';
 
             try {
                 const formData = new URLSearchParams();
@@ -524,15 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Failed to update notification channel: ${error.message}`);

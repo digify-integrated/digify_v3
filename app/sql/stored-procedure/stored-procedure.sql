@@ -639,6 +639,17 @@ BEGIN
     WHERE user_account_id != p_user_account_id AND email = p_email;
 END //
 
+DROP PROCEDURE IF EXISTS checkUserAccountInsertEmailExist//
+
+CREATE PROCEDURE checkUserAccountInsertEmailExist(
+    IN p_email VARCHAR(255)
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM user_account
+    WHERE email = p_email;
+END //
+
 DROP PROCEDURE IF EXISTS checkUserAccountPhoneExist//
 
 CREATE PROCEDURE checkUserAccountPhoneExist(
@@ -3025,7 +3036,7 @@ BEGIN
         UPDATE employee
         SET private_address_country_name    = p_country_name,
             last_log_by                     = p_last_log_by
-        WHERE country_id                    = p_country_id;
+        WHERE private_address_country_id    = p_country_id;
         
         UPDATE country
         SET country_name    = p_country_name,
@@ -3199,7 +3210,7 @@ BEGIN
         UPDATE employee
         SET private_address_state_name  = p_state_name,
             last_log_by                 = p_last_log_by
-        WHERE state_id                  = p_state_id;
+        WHERE private_address_state_id  = p_state_id;
         
         UPDATE state
         SET state_name      = p_state_name,
@@ -3383,15 +3394,14 @@ BEGIN
         WHERE city_id       = p_city_id;
 
         UPDATE employee
-        SET private_address_city_name   = p_city_name,
-            last_log_by                 = p_last_log_by
-        WHERE city_id                   = p_city_id;
+        SET private_address_city_name       = p_city_name,
+            last_log_by     = p_last_log_by
+        WHERE private_address_city_id       = p_city_id;
 
         UPDATE city
         SET city_name       = p_city_name,
             state_id        = p_state_id,
             state_name      = p_state_name,
-            country_name    = p_country_name,
             country_id      = p_country_id,
             country_name    = p_country_name,
             last_log_by     = p_last_log_by
@@ -6018,7 +6028,8 @@ CREATE PROCEDURE fetchDepartment(
 BEGIN
 	SELECT *
     FROM department
-	WHERE department_id = p_department_id;
+	WHERE department_id = p_department_id
+    LIMIT 1;
 END //
 
 /* =============================================================================================
@@ -7377,6 +7388,11 @@ BEGIN
 
     START TRANSACTION;
 
+    UPDATE department
+    SET manager_name    = p_full_name,
+        last_log_by     = p_last_log_by
+    WHERE manager_id    = p_employee_id;
+
     UPDATE employee
     SET manager_name    = p_full_name,
         last_log_by     = p_last_log_by
@@ -8072,8 +8088,7 @@ CREATE PROCEDURE fetchAllEmployeeDocument(
 )
 BEGIN
 	SELECT * FROM employee_document
-	WHERE employee_id = p_employee_id
-    LIMIT 1;
+	WHERE employee_id = p_employee_id;
 END //
 
 /* =============================================================================================

@@ -1274,14 +1274,17 @@ class EmployeeController
             );
         }
 
-        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-        $employeeImage      = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'profile');
-        $addressParts       = [
-                                $employeeDetails['private_address'],
-                                $employeeDetails['private_address_city_name'],
-                                $employeeDetails['private_address_state_name'],
-                                $employeeDetails['private_address_country_name']
-                            ];
+        $employeeDetails        = $this->employee->fetchEmployee($employeeId);
+        $employeeImage          = $this->systemHelper->checkImageExist($employeeDetails['employee_image'] ?? null, 'profile');
+        $employmentStatus       = $employeeDetails['employment_status'] ?? 'Active';
+        $badgeClass             = $employmentStatus == 'Active' ? 'success' : 'danger';
+        $employmentStatusBadge  = '<div class="badge badge-lg badge-light-'. $badgeClass .'">'. $employmentStatus .'</div>';
+        $addressParts           = [
+                                    $employeeDetails['private_address'],
+                                    $employeeDetails['private_address_city_name'],
+                                    $employeeDetails['private_address_state_name'],
+                                    $employeeDetails['private_address_country_name']
+                                ];
 
         $addressParts = array_filter($addressParts, function($part) {
             return !empty($part);
@@ -1329,6 +1332,10 @@ class EmployeeController
             'workEmail'                     => $employeeDetails['work_email'] ?? null,
             'workPhone'                     => $employeeDetails['work_phone'] ?? null,
             'workTelephone'                 => $employeeDetails['work_telephone'] ?? null,
+            'departureReasonName'           => $employeeDetails['departure_reason_name'] ?? null,
+            'detailedDepartureReason'       => $employeeDetails['detailed_departure_reason'] ?? null,
+            'departureDate'                 => $this->systemHelper->checkDate('summary', $employeeDetails['departure_date'] ?? null, '', 'd M Y', ''),
+            'employmentStatus'              => $employmentStatusBadge,
             'employeeAddress'               => $employeeAddress,
             'employeeImage'                 => $employeeImage
         ];

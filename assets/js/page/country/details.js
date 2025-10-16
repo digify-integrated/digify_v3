@@ -4,10 +4,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const country_id    = document.getElementById('details-id')?.textContent.trim();
+    
     const displayDetails = async () => {
-        const transaction   = 'fetch country details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const country_id    = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch country details';
 
         try {
             resetForm('country_form');
@@ -74,8 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save country';
-            const country_id    = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save country';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -119,9 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-country')) return;
 
-        const transaction   = 'delete country';
-        const country_id    = document.getElementById('details-id')?.textContent.trim();
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+        const transaction = 'delete country';
 
         const result = await Swal.fire({
             title: 'Confirm Country Deletion',

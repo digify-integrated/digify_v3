@@ -5,6 +5,7 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
@@ -14,17 +15,20 @@ require_once '../../config/config.php';
 class DepartmentController
 {
     protected Department $department;
+    protected Employee $employee;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
         Department $department,
+        Employee $employee,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->department       = $department;
+        $this->employee         = $employee;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -102,7 +106,10 @@ class DepartmentController
         $parentDepartmentDetails    = $this->department->fetchDepartment($parentDepartmentId);
         $parentDepartmentName       = $parentDepartmentDetails['department_name'] ?? '';
 
-        $departmentId           = $this->department->saveDepartment($departmentId, $departmentName, $parentDepartmentId, $parentDepartmentName, $managerId, '', $lastLogBy);
+        $managerDetails     = $this->employee->fetchEmployee(p_employee_id: $managerId);
+        $managerName        = $managerDetails['full_name'] ?? '';
+
+        $departmentId           = $this->department->saveDepartment($departmentId, $departmentName, $parentDepartmentId, $parentDepartmentName, $managerId, $managerName, $lastLogBy);
         $encryptedDepartmentId  = $this->security->encryptData($departmentId);
 
         $this->systemHelper->sendSuccessResponse(
@@ -247,6 +254,7 @@ class DepartmentController
 # Bootstrap the controller
 $controller = new DepartmentController(
     new Department(),
+    new Employee(),
     new Authentication(),
     new Security(),
     new SystemHelper()

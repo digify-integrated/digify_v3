@@ -5,10 +5,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const company_id    = document.getElementById('details-id')?.textContent.trim();
+    
     const displayDetails = async () => {
-        const transaction   = 'fetch company details';
-        const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-        const company_id    = document.getElementById('details-id')?.textContent.trim();
+        const transaction = 'fetch company details';
 
         try {
             resetForm('company_form');
@@ -27,13 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('company_name').value   = data.companyName;
-                document.getElementById('address').value        = data.address;
-                document.getElementById('tax_id').value         = data.taxID;
-                document.getElementById('phone').value          = data.phone;
-                document.getElementById('telephone').value      = data.telephone;
-                document.getElementById('email').value          = data.email;
-                document.getElementById('website').value        = data.website;
+                document.getElementById('company_name').value   = data.companyName || '';
+                document.getElementById('address').value        = data.address || '';
+                document.getElementById('tax_id').value         = data.taxID || '';
+                document.getElementById('phone').value          = data.phone || '';
+                document.getElementById('telephone').value      = data.telephone || '';
+                document.getElementById('email').value          = data.email || '';
+                document.getElementById('website').value        = data.website || '';
 
                 $('#city_id').val(data.cityID || '').trigger('change');
                 $('#currency_id').val(data.currencyID || '').trigger('change');
@@ -53,25 +54,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const dropdownConfigs = [
-        { url: './app/Controllers/CityController.php', selector: '#city_id', transaction: 'generate city options' },
-        { url: './app/Controllers/CurrencyController.php', selector: '#currency_id', transaction: 'generate currency options' }
-    ];
-    
-    dropdownConfigs.forEach(cfg => {
-        generateDropdownOptions({
-            url: cfg.url,
-            dropdownSelector: cfg.selector,
-            data: { transaction: cfg.transaction }
-        });
-    });
+    (async () => {
+        const dropdownConfigs = [
+            { url: './app/Controllers/CityController.php', selector: '#city_id', transaction: 'generate city options' },
+            { url: './app/Controllers/CurrencyController.php', selector: '#currency_id', transaction: 'generate currency options' }
+        ];
+        
+        for (const cfg of dropdownConfigs) {
+            await generateDropdownOptions({
+                url: cfg.url,
+                dropdownSelector: cfg.selector,
+                data: { transaction: cfg.transaction }
+            });
+        }
+
+        await displayDetails();
+    })();
 
     initializeDatatable({
         selector: '#role-permission-table',
         ajaxUrl: './app/Controllers/CompanyController.php',
         transaction: 'generate company assigned role table',
         ajaxData: {
-            company_id: document.getElementById('details-id')?.textContent.trim()
+            company_id: company_id
         },
         columns: [
             { data: 'ROLE_NAME' },
@@ -100,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatatableControls('#role-permission-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'company');
-    displayDetails();
     
     $('#company_form').validate({
         rules: {
@@ -133,8 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save company';
-            const company_id    = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save company';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -197,8 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save company role permission';
-            const company_id    = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'save company role permission';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -243,9 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-company')){
-            const transaction   = 'delete company';
-            const company_id    = document.getElementById('details-id')?.textContent.trim();
-            const page_link     = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+            const transaction = 'delete company';
 
             const result = await Swal.fire({
                 title: 'Confirm Company Deletion',
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'role_id',
                 data: {
                     transaction: 'generate company role dual listbox options',
-                    company_id: document.getElementById('details-id')?.textContent.trim()
+                    company_id: company_id
                 }
             });
         }
@@ -405,8 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         const input = event.target;
         if (input.files && input.files.length > 0) {
-            const transaction   = 'update company logo';
-            const company_id    = document.getElementById('details-id')?.textContent.trim();
+            const transaction = 'update company logo';
     
             if (!company_id) {
                 showNotification('Error', 'Company ID not found', 'error');

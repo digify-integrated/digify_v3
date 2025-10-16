@@ -618,9 +618,9 @@ VALUES
 (1, 'Super Admin', 20, 'File Extension', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 21, 'Upload Setting', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 22, 'Notification Setting', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 23, 'Bank', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 24, 'Bank Account Type', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 25, 'Banking', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 23, 'Banking', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 24, 'Bank', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 25, 'Bank Account Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 26, 'Contact Information', 1, 0, 0, 0, 0, 0, 0),
 (1, 'Super Admin', 27, 'Address Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 28, 'Contact Information Type', 1, 1, 1, 1, 1, 1, 1),
@@ -4048,269 +4048,6 @@ VALUES
 ('Toledo', 30, 'Cebu', 1, 'Philippines'),
 ('Tuburan', 30, 'Cebu', 1, 'Philippines'),
 ('Tudela', 30, 'Cebu', 1, 'Philippines'),
-('Abucay', 31, 'Central Luzon', 1, 'Philippines'),
-('Acli', 31, 'Central Luzon', 1, 'Philippines'),
-('Agbannawag', 31, 'Central Luzon', 1, 'Philippines'),
-('Akle', 31, 'Central Luzon', 1, 'Philippines'),
-('Almendras', 31, 'Central Luzon', 1, 'Philippines'),
-('Alua', 31, 'Central Luzon', 1, 'Philippines'),
-('Amacalan', 31, 'Central Luzon', 1, 'Philippines'),
-('Amucao', 31, 'Central Luzon', 1, 'Philippines'),
-('Amuñgan', 31, 'Central Luzon', 1, 'Philippines'),
-('Angat', 31, 'Central Luzon', 1, 'Philippines'),
-('Arenas', 31, 'Central Luzon', 1, 'Philippines'),
-('Arminia', 31, 'Central Luzon', 1, 'Philippines'),
-('Babo-Pangulo', 31, 'Central Luzon', 1, 'Philippines'),
-('Bacabac', 31, 'Central Luzon', 1, 'Philippines'),
-('Bacsay', 31, 'Central Luzon', 1, 'Philippines'),
-('Bagac', 31, 'Central Luzon', 1, 'Philippines'),
-('Bagong Barrio', 31, 'Central Luzon', 1, 'Philippines'),
-('Bagong-Sikat', 31, 'Central Luzon', 1, 'Philippines'),
-('Bahay Pare', 31, 'Central Luzon', 1, 'Philippines'),
-('Bakulong', 31, 'Central Luzon', 1, 'Philippines'),
-('Balagtas', 31, 'Central Luzon', 1, 'Philippines'),
-('Balanga', 31, 'Central Luzon', 1, 'Philippines'),
-('Balaoang', 31, 'Central Luzon', 1, 'Philippines'),
-('Balas', 31, 'Central Luzon', 1, 'Philippines'),
-('Balasing', 31, 'Central Luzon', 1, 'Philippines'),
-('Balayang', 31, 'Central Luzon', 1, 'Philippines'),
-('Balibago', 31, 'Central Luzon', 1, 'Philippines'),
-('Balingcanaway', 31, 'Central Luzon', 1, 'Philippines'),
-('Balite', 31, 'Central Luzon', 1, 'Philippines'),
-('Baliuag', 31, 'Central Luzon', 1, 'Philippines'),
-('Baloc', 31, 'Central Luzon', 1, 'Philippines'),
-('Baloy', 31, 'Central Luzon', 1, 'Philippines'),
-('Balsic', 31, 'Central Luzon', 1, 'Philippines'),
-('Balucuc', 31, 'Central Luzon', 1, 'Philippines'),
-('Balut', 31, 'Central Luzon', 1, 'Philippines'),
-('Balutu', 31, 'Central Luzon', 1, 'Philippines'),
-('Banawang', 31, 'Central Luzon', 1, 'Philippines'),
-('Bangad', 31, 'Central Luzon', 1, 'Philippines'),
-('Baquero Norte', 31, 'Central Luzon', 1, 'Philippines'),
-('Batasan Bata', 31, 'Central Luzon', 1, 'Philippines'),
-('Batitang', 31, 'Central Luzon', 1, 'Philippines'),
-('Bayanan', 31, 'Central Luzon', 1, 'Philippines'),
-('Beddeng', 31, 'Central Luzon', 1, 'Philippines'),
-('Biay', 31, 'Central Luzon', 1, 'Philippines'),
-('Bibiclat', 31, 'Central Luzon', 1, 'Philippines'),
-('Bicos', 31, 'Central Luzon', 1, 'Philippines'),
-('Biga', 31, 'Central Luzon', 1, 'Philippines'),
-('Bilad', 31, 'Central Luzon', 1, 'Philippines'),
-('Bituñgol', 31, 'Central Luzon', 1, 'Philippines'),
-('Bobon Second', 31, 'Central Luzon', 1, 'Philippines'),
-('Bocaue', 31, 'Central Luzon', 1, 'Philippines'),
-('Bodega', 31, 'Central Luzon', 1, 'Philippines'),
-('Bolitoc', 31, 'Central Luzon', 1, 'Philippines'),
-('Buenlag', 31, 'Central Luzon', 1, 'Philippines'),
-('Buensuseso', 31, 'Central Luzon', 1, 'Philippines'),
-('Bulaon', 31, 'Central Luzon', 1, 'Philippines'),
-('Bularit', 31, 'Central Luzon', 1, 'Philippines'),
-('Bulawin', 31, 'Central Luzon', 1, 'Philippines'),
-('Bulihan', 31, 'Central Luzon', 1, 'Philippines'),
-('Buliran', 31, 'Central Luzon', 1, 'Philippines'),
-('Buliran Segundo', 31, 'Central Luzon', 1, 'Philippines'),
-('Bulualto', 31, 'Central Luzon', 1, 'Philippines'),
-('Bundoc', 31, 'Central Luzon', 1, 'Philippines'),
-('Bunol', 31, 'Central Luzon', 1, 'Philippines'),
-('Bustos', 31, 'Central Luzon', 1, 'Philippines'),
-('Cabanatuan City', 31, 'Central Luzon', 1, 'Philippines'),
-('Cabayaoasan', 31, 'Central Luzon', 1, 'Philippines'),
-('Cabcaben', 31, 'Central Luzon', 1, 'Philippines'),
-('Cabog', 31, 'Central Luzon', 1, 'Philippines'),
-('Cafe', 31, 'Central Luzon', 1, 'Philippines'),
-('Calaba', 31, 'Central Luzon', 1, 'Philippines'),
-('Calancuasan Norte', 31, 'Central Luzon', 1, 'Philippines'),
-('Calangain', 31, 'Central Luzon', 1, 'Philippines'),
-('Calantas', 31, 'Central Luzon', 1, 'Philippines'),
-('Calayaan', 31, 'Central Luzon', 1, 'Philippines'),
-('Calibungan', 31, 'Central Luzon', 1, 'Philippines'),
-('Calibutbut', 31, 'Central Luzon', 1, 'Philippines'),
-('Calingcuan', 31, 'Central Luzon', 1, 'Philippines'),
-('Calumpang', 31, 'Central Luzon', 1, 'Philippines'),
-('Calumpit', 31, 'Central Luzon', 1, 'Philippines'),
-('Cama Juan', 31, 'Central Luzon', 1, 'Philippines'),
-('Camachile', 31, 'Central Luzon', 1, 'Philippines'),
-('Camias', 31, 'Central Luzon', 1, 'Philippines'),
-('Candating', 31, 'Central Luzon', 1, 'Philippines'),
-('Cavite', 31, 'Central Luzon', 1, 'Philippines'),
-('Cawayan Bugtong', 31, 'Central Luzon', 1, 'Philippines'),
-('Comillas', 31, 'Central Luzon', 1, 'Philippines'),
-('Communal', 31, 'Central Luzon', 1, 'Philippines'),
-('Conversion', 31, 'Central Luzon', 1, 'Philippines'),
-('Culianin', 31, 'Central Luzon', 1, 'Philippines'),
-('Culubasa', 31, 'Central Luzon', 1, 'Philippines'),
-('Cut-cut Primero', 31, 'Central Luzon', 1, 'Philippines'),
-('Dampol', 31, 'Central Luzon', 1, 'Philippines'),
-('Del Pilar', 31, 'Central Luzon', 1, 'Philippines'),
-('Digdig', 31, 'Central Luzon', 1, 'Philippines'),
-('Diliman Primero', 31, 'Central Luzon', 1, 'Philippines'),
-('Dinalupihan', 31, 'Central Luzon', 1, 'Philippines'),
-('Doña Remedios Trinidad', 31, 'Central Luzon', 1, 'Philippines'),
-('Dumarais', 31, 'Central Luzon', 1, 'Philippines'),
-('Entablado', 31, 'Central Luzon', 1, 'Philippines'),
-('Estacion', 31, 'Central Luzon', 1, 'Philippines'),
-('Estipona', 31, 'Central Luzon', 1, 'Philippines'),
-('Estrella', 31, 'Central Luzon', 1, 'Philippines'),
-('Gueset', 31, 'Central Luzon', 1, 'Philippines'),
-('Guiguinto', 31, 'Central Luzon', 1, 'Philippines'),
-('Guisguis', 31, 'Central Luzon', 1, 'Philippines'),
-('Gutad', 31, 'Central Luzon', 1, 'Philippines'),
-('Guyong', 31, 'Central Luzon', 1, 'Philippines'),
-('Hermosa', 31, 'Central Luzon', 1, 'Philippines'),
-('Lambakin', 31, 'Central Luzon', 1, 'Philippines'),
-('Lanat', 31, 'Central Luzon', 1, 'Philippines'),
-('Laug', 31, 'Central Luzon', 1, 'Philippines'),
-('Lawang Kupang', 31, 'Central Luzon', 1, 'Philippines'),
-('Lennec', 31, 'Central Luzon', 1, 'Philippines'),
-('Liciada', 31, 'Central Luzon', 1, 'Philippines'),
-('Ligaya', 31, 'Central Luzon', 1, 'Philippines'),
-('Limay', 31, 'Central Luzon', 1, 'Philippines'),
-('Liozon', 31, 'Central Luzon', 1, 'Philippines'),
-('Lipay', 31, 'Central Luzon', 1, 'Philippines'),
-('Loma de Gato', 31, 'Central Luzon', 1, 'Philippines'),
-('Lomboy', 31, 'Central Luzon', 1, 'Philippines'),
-('Lourdes', 31, 'Central Luzon', 1, 'Philippines'),
-('Lucapon', 31, 'Central Luzon', 1, 'Philippines'),
-('Mababanaba', 31, 'Central Luzon', 1, 'Philippines'),
-('Mabalacat City', 31, 'Central Luzon', 1, 'Philippines'),
-('Mabayo', 31, 'Central Luzon', 1, 'Philippines'),
-('Mabilang', 31, 'Central Luzon', 1, 'Philippines'),
-('Mabilog', 31, 'Central Luzon', 1, 'Philippines'),
-('Mabini', 31, 'Central Luzon', 1, 'Philippines'),
-('Macapsing', 31, 'Central Luzon', 1, 'Philippines'),
-('Macarse', 31, 'Central Luzon', 1, 'Philippines'),
-('Macatbong', 31, 'Central Luzon', 1, 'Philippines'),
-('Magliman', 31, 'Central Luzon', 1, 'Philippines'),
-('Magtangol', 31, 'Central Luzon', 1, 'Philippines'),
-('Maguinao', 31, 'Central Luzon', 1, 'Philippines'),
-('Malabon', 31, 'Central Luzon', 1, 'Philippines'),
-('Malacampa', 31, 'Central Luzon', 1, 'Philippines'),
-('Maligaya', 31, 'Central Luzon', 1, 'Philippines'),
-('Malino', 31, 'Central Luzon', 1, 'Philippines'),
-('Malolos', 31, 'Central Luzon', 1, 'Philippines'),
-('Maloma', 31, 'Central Luzon', 1, 'Philippines'),
-('Maluid', 31, 'Central Luzon', 1, 'Philippines'),
-('Malusac', 31, 'Central Luzon', 1, 'Philippines'),
-('Mambog', 31, 'Central Luzon', 1, 'Philippines'),
-('Mamonit', 31, 'Central Luzon', 1, 'Philippines'),
-('Manacsac', 31, 'Central Luzon', 1, 'Philippines'),
-('Manatal', 31, 'Central Luzon', 1, 'Philippines'),
-('Mandili', 31, 'Central Luzon', 1, 'Philippines'),
-('Mangga', 31, 'Central Luzon', 1, 'Philippines'),
-('Manibaug Pasig', 31, 'Central Luzon', 1, 'Philippines'),
-('Manogpi', 31, 'Central Luzon', 1, 'Philippines'),
-('Mapalacsiao', 31, 'Central Luzon', 1, 'Philippines'),
-('Mapalad', 31, 'Central Luzon', 1, 'Philippines'),
-('Mapaniqui', 31, 'Central Luzon', 1, 'Philippines'),
-('Maquiapo', 31, 'Central Luzon', 1, 'Philippines'),
-('Marawa', 31, 'Central Luzon', 1, 'Philippines'),
-('Marilao', 31, 'Central Luzon', 1, 'Philippines'),
-('Mariveles', 31, 'Central Luzon', 1, 'Philippines'),
-('Masalipit', 31, 'Central Luzon', 1, 'Philippines'),
-('Matayumtayum', 31, 'Central Luzon', 1, 'Philippines'),
-('Maturanoc', 31, 'Central Luzon', 1, 'Philippines'),
-('Meycauayan', 31, 'Central Luzon', 1, 'Philippines'),
-('Moriones', 31, 'Central Luzon', 1, 'Philippines'),
-('Motrico', 31, 'Central Luzon', 1, 'Philippines'),
-('Nagpandayan', 31, 'Central Luzon', 1, 'Philippines'),
-('Nambalan', 31, 'Central Luzon', 1, 'Philippines'),
-('Nancamarinan', 31, 'Central Luzon', 1, 'Philippines'),
-('Nieves', 31, 'Central Luzon', 1, 'Philippines'),
-('Niugan', 31, 'Central Luzon', 1, 'Philippines'),
-('Norzagaray', 31, 'Central Luzon', 1, 'Philippines'),
-('Obando', 31, 'Central Luzon', 1, 'Philippines'),
-('Orani', 31, 'Central Luzon', 1, 'Philippines'),
-('Orion', 31, 'Central Luzon', 1, 'Philippines'),
-('Paco Roman', 31, 'Central Luzon', 1, 'Philippines'),
-('Padapada', 31, 'Central Luzon', 1, 'Philippines'),
-('Paitan Norte', 31, 'Central Luzon', 1, 'Philippines'),
-('Palayan City', 31, 'Central Luzon', 1, 'Philippines'),
-('Palusapis', 31, 'Central Luzon', 1, 'Philippines'),
-('Pamatawan', 31, 'Central Luzon', 1, 'Philippines'),
-('Panabingan', 31, 'Central Luzon', 1, 'Philippines'),
-('Panan', 31, 'Central Luzon', 1, 'Philippines'),
-('Pance', 31, 'Central Luzon', 1, 'Philippines'),
-('Pandacaqui', 31, 'Central Luzon', 1, 'Philippines'),
-('Pandi', 31, 'Central Luzon', 1, 'Philippines'),
-('Pando', 31, 'Central Luzon', 1, 'Philippines'),
-('Panlinlang', 31, 'Central Luzon', 1, 'Philippines'),
-('Pantubig', 31, 'Central Luzon', 1, 'Philippines'),
-('Paombong', 31, 'Central Luzon', 1, 'Philippines'),
-('Papaya', 31, 'Central Luzon', 1, 'Philippines'),
-('Parista', 31, 'Central Luzon', 1, 'Philippines'),
-('Pau', 31, 'Central Luzon', 1, 'Philippines'),
-('Pias', 31, 'Central Luzon', 1, 'Philippines'),
-('Piñahan', 31, 'Central Luzon', 1, 'Philippines'),
-('Pinambaran', 31, 'Central Luzon', 1, 'Philippines'),
-('Pio', 31, 'Central Luzon', 1, 'Philippines'),
-('Poblacion San Felipe', 31, 'Central Luzon', 1, 'Philippines'),
-('Porais', 31, 'Central Luzon', 1, 'Philippines'),
-('Prado Siongco', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulilan', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulo', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulong Gubat', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulong Sampalok', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulung Santol', 31, 'Central Luzon', 1, 'Philippines'),
-('Pulungmasle', 31, 'Central Luzon', 1, 'Philippines'),
-('Puncan', 31, 'Central Luzon', 1, 'Philippines'),
-('Purac', 31, 'Central Luzon', 1, 'Philippines'),
-('Putlod', 31, 'Central Luzon', 1, 'Philippines'),
-('Rajal Norte', 31, 'Central Luzon', 1, 'Philippines'),
-('Sabang', 31, 'Central Luzon', 1, 'Philippines'),
-('Sagana', 31, 'Central Luzon', 1, 'Philippines'),
-('Salapungan', 31, 'Central Luzon', 1, 'Philippines'),
-('Salaza', 31, 'Central Luzon', 1, 'Philippines'),
-('Salvacion I', 31, 'Central Luzon', 1, 'Philippines'),
-('San Alejandro', 31, 'Central Luzon', 1, 'Philippines'),
-('San Anton', 31, 'Central Luzon', 1, 'Philippines'),
-('San Basilio', 31, 'Central Luzon', 1, 'Philippines'),
-('San Casimiro', 31, 'Central Luzon', 1, 'Philippines'),
-('San Cristobal', 31, 'Central Luzon', 1, 'Philippines'),
-('San Felipe Old', 31, 'Central Luzon', 1, 'Philippines'),
-('San Jose del Monte', 31, 'Central Luzon', 1, 'Philippines'),
-('San Juan de Mata', 31, 'Central Luzon', 1, 'Philippines'),
-('San Patricio', 31, 'Central Luzon', 1, 'Philippines'),
-('San Roque Dau First', 31, 'Central Luzon', 1, 'Philippines'),
-('San Vincente', 31, 'Central Luzon', 1, 'Philippines'),
-('Santa Ines West', 31, 'Central Luzon', 1, 'Philippines'),
-('Santa Juliana', 31, 'Central Luzon', 1, 'Philippines'),
-('Santa Teresa First', 31, 'Central Luzon', 1, 'Philippines'),
-('Santo Cristo', 31, 'Central Luzon', 1, 'Philippines'),
-('Santo Rosario', 31, 'Central Luzon', 1, 'Philippines'),
-('Sapang', 31, 'Central Luzon', 1, 'Philippines'),
-('Sapang Buho', 31, 'Central Luzon', 1, 'Philippines'),
-('Sapol', 31, 'Central Luzon', 1, 'Philippines'),
-('Saysain', 31, 'Central Luzon', 1, 'Philippines'),
-('Sexmoan', 31, 'Central Luzon', 1, 'Philippines'),
-('Sibul', 31, 'Central Luzon', 1, 'Philippines'),
-('Siclong', 31, 'Central Luzon', 1, 'Philippines'),
-('Sinilian First', 31, 'Central Luzon', 1, 'Philippines'),
-('Soledad', 31, 'Central Luzon', 1, 'Philippines'),
-('Suklayin', 31, 'Central Luzon', 1, 'Philippines'),
-('Sula', 31, 'Central Luzon', 1, 'Philippines'),
-('Sulucan', 31, 'Central Luzon', 1, 'Philippines'),
-('Tabacao', 31, 'Central Luzon', 1, 'Philippines'),
-('Tabon', 31, 'Central Luzon', 1, 'Philippines'),
-('Tabuating', 31, 'Central Luzon', 1, 'Philippines'),
-('Tal I Mun Doc', 31, 'Central Luzon', 1, 'Philippines'),
-('Talaga', 31, 'Central Luzon', 1, 'Philippines'),
-('Talang', 31, 'Central Luzon', 1, 'Philippines'),
-('Taltal', 31, 'Central Luzon', 1, 'Philippines'),
-('Tariji', 31, 'Central Luzon', 1, 'Philippines'),
-('Tartaro', 31, 'Central Luzon', 1, 'Philippines'),
-('Tayabo', 31, 'Central Luzon', 1, 'Philippines'),
-('Telabastagan', 31, 'Central Luzon', 1, 'Philippines'),
-('Tikiw', 31, 'Central Luzon', 1, 'Philippines'),
-('Tinang', 31, 'Central Luzon', 1, 'Philippines'),
-('Tondod', 31, 'Central Luzon', 1, 'Philippines'),
-('Uacon', 31, 'Central Luzon', 1, 'Philippines'),
-('Umiray', 31, 'Central Luzon', 1, 'Philippines'),
-('Upig', 31, 'Central Luzon', 1, 'Philippines'),
-('Vargas', 31, 'Central Luzon', 1, 'Philippines'),
-('Villa Aglipay', 31, 'Central Luzon', 1, 'Philippines'),
-('Villa Isla', 31, 'Central Luzon', 1, 'Philippines'),
-('Vizal San Pablo', 31, 'Central Luzon', 1, 'Philippines'),
-('Vizal Santo Niño', 31, 'Central Luzon', 1, 'Philippines'),
 ('Agbannawag', 33, 'Cordillera Administrative', 1, 'Philippines'),
 ('Ambuclao', 33, 'Cordillera Administrative', 1, 'Philippines'),
 ('Amlimay', 33, 'Cordillera Administrative', 1, 'Philippines'),
@@ -8209,41 +7946,6 @@ CREATE INDEX idx_employee_language_language_proficiency_id ON employee_language(
 
 
 /* =============================================================================================
-  TABLE: EMPLOYEE DOCUMENT
-============================================================================================= */
-
-DROP TABLE IF EXISTS employee_document;
-
-CREATE TABLE employee_document (
-  employee_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  employee_id INT UNSIGNED NOT NULL,
-  document_name VARCHAR(200) NOT NULL,
-  document_file VARCHAR(500) NOT NULL,
-  employee_document_type_id INT UNSIGNED NOT NULL,
-  employee_document_type_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
-  FOREIGN KEY (employee_document_type_id) REFERENCES employee_document_type(employee_document_type_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: EMPLOYEE DOCUMENT
-============================================================================================= */
-
-/* =============================================================================================
-  INITIAL VALUES: EMPLOYEE DOCUMENT
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
   TABLE: EMPLOYEE DOCUMENT TYPE
 ============================================================================================= */
 
@@ -8288,6 +7990,133 @@ VALUES
 ('Emergency Contact Form'),
 ('Company Policy Acknowledgment'),
 ('Exit Clearance Form');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+DROP TABLE IF EXISTS employee_document;
+
+CREATE TABLE employee_document (
+  employee_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED NOT NULL,
+  document_name VARCHAR(200) NOT NULL,
+  document_file VARCHAR(500) NOT NULL,
+  employee_document_type_id INT UNSIGNED NOT NULL,
+  employee_document_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  FOREIGN KEY (employee_document_type_id) REFERENCES employee_document_type(employee_document_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: EMPLOYEE DOCUMENT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: WAREHOUSE
+============================================================================================= */
+
+DROP TABLE IF EXISTS warehouse;
+
+CREATE TABLE warehouse (
+  warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  warehouse_name VARCHAR(200) NOT NULL,
+  short_name VARCHAR(200) NOT NULL,
+  address VARCHAR(1000),
+	city_id INT UNSIGNED NOT NULL,
+	city_name VARCHAR(100) NOT NULL,
+	state_id INT UNSIGNED NOT NULL,
+	state_name VARCHAR(100) NOT NULL,
+	country_id INT UNSIGNED NOT NULL,
+	country_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: WAREHOUSE
+============================================================================================= */
+
+CREATE INDEX idx_warehouse_city_id ON warehouse(city_id);
+CREATE INDEX idx_warehouse_state_id ON warehouse(state_id);
+CREATE INDEX idx_warehouse_country_id ON warehouse(country_id);
+
+/* =============================================================================================
+  INITIAL VALUES: WAREHOUSE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT CATEGORY
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_category;
+
+CREATE TABLE product_category (
+  product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_category_name VARCHAR(100) NOT NULL,
+  parent_category_id INT UNSIGNED
+  parent_category_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT CATEGORY
+============================================================================================= */
+
+CREATE INDEX idx_product_category_parent_category_id ON product_category(parent_category_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+  INDEX: PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT
+============================================================================================= */
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

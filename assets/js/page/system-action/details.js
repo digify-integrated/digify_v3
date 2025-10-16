@@ -1,14 +1,15 @@
-import { disableButton, enableButton, generateDropdownOptions, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
 import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+    const system_action_id  = document.getElementById('details-id')?.textContent.trim() || '';
+
     const displayDetails = async () => {
-        const transaction       = 'fetch system action details';
-        const page_link         = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-        const system_action_id  = document.getElementById('details-id')?.textContent.trim() || '';
+        const transaction = 'fetch system action details';
 
         try {
             resetForm('system_action_form');
@@ -27,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('system_action_name').value = data.systemActionName;
-                document.getElementById('system_action_description').value = data.systemActionDescription;
+                document.getElementById('system_action_name').value         = data.systemActionName || '';
+                document.getElementById('system_action_description').value  = data.systemActionDescription || '';
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/SystemActionController.php',
         transaction: 'generate system action assigned role table',
         ajaxData: {
-            system_action_id: document.getElementById('details-id')?.textContent.trim()
+            system_action_id: system_action_id
         },
         columns: [
             { data: 'ROLE_NAME' },
@@ -96,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction = 'save system action';
-            const system_action_id = document.getElementById('details-id')?.textContent.trim() || '';
 
             disableButton('submit-data');
 
@@ -157,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const transaction = 'save system action role permission';
-            const system_action_id = document.getElementById('details-id')?.textContent.trim() || '';
 
             disableButton('submit-assignment');
 
@@ -200,9 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-system-action')){
-            const transaction       = 'delete system action';
-            const system_action_id  = document.getElementById('details-id')?.textContent.trim() || '';
-            const page_link         = document.getElementById('page-link')?.getAttribute('href') || '';
+            const transaction = 'delete system action';
 
             const result = await Swal.fire({
                 title: 'Confirm System Action Deletion',
@@ -256,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectSelector: 'role_id',
                 data: {
                     transaction: 'generate system action role dual listbox options',
-                    system_action_id: document.getElementById('details-id')?.textContent.trim() || ''
+                    system_action_id: system_action_id
                 }
             }); 
         }
@@ -284,15 +281,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Failed to update role permission: ${error.message}`);
@@ -351,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('.view-role-permission-log-notes')){
-            const button                            = event.target.closest('.delete-role-permission');
+            const button                            = event.target.closest('.view-role-permission-log-notes');
             const role_system_action_permission_id  = button.dataset.rolePermissionId;
             attachLogNotesClassHandler('role_system_action_permission', role_system_action_permission_id);
         }

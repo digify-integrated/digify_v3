@@ -20,19 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
  
             if (data.success) { 
-                $('#full_name_side_summary').text(data.fileAs);
-                $('#email_side_summary').text(data.email);
-                $('#phone_side_summary').text(data.phoneSummary);
-                $('#last_password_date_side_summary').text(data.lastPasswordChange);
-                $('#last_connection_date_side_summary').text(data.lastConnectionDate);
-                $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest);
-                $('#last_failed_connection_date_side_summary').text(data.lastFailedConnectionDate);
-                $('#full_name_summary').text(data.fileAs);
-                $('#email_summary').text(data.email);
-                $('#phone_summary').text(data.phoneSummary);
+                $('#full_name_side_summary').text(data.fileAs || '--');
+                $('#email_side_summary').text(data.email || '--');
+                $('#phone_side_summary').text(data.phoneSummary || '--');
+                $('#last_password_date_side_summary').text(data.lastPasswordChange || '--');
+                $('#last_connection_date_side_summary').text(data.lastConnectionDate || '--');
+                $('#last_password_reset_request_side_summary').text(data.lastPasswordResetRequest || '--');
+                $('#last_failed_connection_date_side_summary').text(data.lastFailedConnectionDate || '--');
+                $('#full_name_summary').text(data.fileAs || '--');
+                $('#email_summary').text(data.email || '--');
+                $('#phone_summary').text(data.phoneSummary || '--');
 
-                document.getElementById('profile_picture_image').style.backgroundImage = `url(${data.profilePicture})`;
-                document.getElementById('status_side_summary').innerHTML = data.activeBadge;
+                document.getElementById('profile_picture_image').style.backgroundImage  = `url(${data.profilePicture})`;
+                document.getElementById('status_side_summary').innerHTML                = data.activeBadge;
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_full_name');
+                    enableButton('update_full_name_submit');
                     displayDetails();
                 }
                 else if (data.invalid_session) {
@@ -111,12 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = data.redirect_link;
                 }
                 else {
-                    enableButton('update_full_name_submit');
                     showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_full_name_submit');
                 }
             } catch (error) {
-                enableButton('update_full_name_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_full_name_submit');
             }
 
             return false;
@@ -170,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_email');
+                    enableButton('update_email_submit');
                     displayDetails();
                 }
                 else if (data.invalid_session) {
@@ -181,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     enableButton('update_email_submit');
                 }
             } catch (error) {
-                enableButton('update_email_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_email_submit');
             }
 
             return false;
@@ -236,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_phone');
+                    enableButton('update_phone_submit');
                     displayDetails();
                 } 
                 else if (data.invalid_session) {
@@ -247,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     enableButton('update_phone_submit');
                 }
             } catch (error) {
-                enableButton('update_phone_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_phone_submit');
             }
 
             return false;
@@ -267,9 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         messages: {
-            new_password: {
-                required: 'Enter the new password'
-            },
+            new_password: { required: 'Enter the new password' },
             confirm_password: {
                 required: 'Enter the confirm password',
                 equalTo: 'The passwords you entered do not match'
@@ -315,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
                     toggleSection('change_password');
+                    enableButton('update_password_submit');
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -322,10 +324,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 else {
                     showNotification(data.title, data.message, data.message_type);
+                    enableButton('update_password_submit');
                 }
             } catch (error) {
-                enableButton('update_password_submit');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                enableButton('update_password_submit');
             }
 
             return false;
