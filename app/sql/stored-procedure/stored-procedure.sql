@@ -3033,6 +3033,11 @@ BEGIN
             last_log_by     = p_last_log_by
         WHERE country_id    = p_country_id;
 
+        UPDATE warehouse
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
+
         UPDATE employee
         SET private_address_country_name    = p_country_name,
             last_log_by                     = p_last_log_by
@@ -3203,6 +3208,11 @@ BEGIN
         WHERE state_id      = p_state_id;
 
         UPDATE work_location
+        SET state_name      = p_state_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
+
+        UPDATE warehouse
         SET state_name      = p_state_name,
             last_log_by     = p_last_log_by
         WHERE state_id      = p_state_id;
@@ -3393,9 +3403,14 @@ BEGIN
             last_log_by     = p_last_log_by
         WHERE city_id       = p_city_id;
 
+        UPDATE warehouse
+        SET city_name       = p_city_name,
+            last_log_by     = p_last_log_by
+        WHERE city_id       = p_city_id;
+
         UPDATE employee
         SET private_address_city_name       = p_city_name,
-            last_log_by     = p_last_log_by
+            last_log_by                     = p_last_log_by
         WHERE private_address_city_id       = p_city_id;
 
         UPDATE city
@@ -5990,6 +6005,11 @@ BEGIN
         SET department_name     = p_department_name,
             last_log_by         = p_last_log_by
         WHERE department_id     = p_department_id;
+
+        UPDATE department
+        SET parent_department_name  = p_department_name,
+            last_log_by             = p_last_log_by
+        WHERE parent_department_id  = p_department_id;
 
         UPDATE department
         SET department_name         = p_department_name,
@@ -8679,6 +8699,532 @@ BEGIN
 	SELECT employee_document_type_id, employee_document_type_name 
     FROM employee_document_type 
     ORDER BY employee_document_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: PRODUCT CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveProductCategory//
+
+CREATE PROCEDURE saveProductCategory(
+    IN p_product_category_id INT, 
+    IN p_product_category_name VARCHAR(100), 
+    IN p_parent_category_id INT, 
+    IN p_parent_category_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_product_category_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_category_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_category WHERE product_category_id = p_product_category_id) THEN
+        INSERT INTO product_category (
+            product_category_name,
+            parent_category_id,
+            parent_category_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_category_name,
+            p_parent_category_id,
+            p_parent_category_name,
+            p_last_log_by
+        );
+        
+        SET v_new_product_category_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE product
+        SET product_category_name   = p_product_category_name,
+            last_log_by             = p_last_log_by
+        WHERE product_category_id   = p_product_category_id;
+
+        UPDATE product_category
+        SET parent_category_name    = p_product_category_name,
+            last_log_by             = p_last_log_by
+        WHERE parent_category_id    = p_product_category_id;
+
+        UPDATE product_category
+        SET product_category_name   = p_product_category_name,
+            parent_category_id    = p_parent_category_id,
+            parent_category_name  = p_parent_category_name,
+            last_log_by             = p_last_log_by
+        WHERE product_category_id   = p_product_category_id;
+
+        SET v_new_product_category_id = p_product_category_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_product_category_id AS new_product_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchProductCategory//
+
+CREATE PROCEDURE fetchProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT * FROM product_category
+	WHERE product_category_id = p_product_category_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProductCategory//
+
+CREATE PROCEDURE deleteProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_category WHERE product_category_id = p_product_category_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkProductCategoryExist//
+
+CREATE PROCEDURE checkProductCategoryExist(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_category
+    WHERE product_category_id = p_product_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateProductCategoryTable//
+
+CREATE PROCEDURE generateProductCategoryTable(
+    IN p_filter_by_parent_category TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT product_category_id, product_category_name, parent_category_name
+                FROM product_category';
+
+    IF p_filter_by_parent_category IS NOT NULL AND p_filter_by_parent_category <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' parent_category_id IN (', p_filter_by_parent_category, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_category_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductCategoryOptions//
+
+CREATE PROCEDURE generateProductCategoryOptions()
+BEGIN
+	SELECT product_category_id, product_category_name 
+    FROM product_category 
+    ORDER BY product_category_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateParentCategoryOptions//
+
+CREATE PROCEDURE generateParentCategoryOptions(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT product_category_id, product_category_name
+    FROM product_category 
+    WHERE product_category_id != p_product_category_id
+    ORDER BY product_category_name;
+END //
+
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: PRODUCT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveProductType//
+
+CREATE PROCEDURE saveProductType(
+    IN p_product_type_id INT, 
+    IN p_product_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_product_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_type WHERE product_type_id = p_product_type_id) THEN
+        INSERT INTO product_type (
+            product_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_product_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE product_type
+        SET product_type_name   = p_product_type_name,
+            last_log_by         = p_last_log_by
+        WHERE product_type_id   = p_product_type_id;
+
+        SET v_new_product_type_id = p_product_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_product_type_id AS new_product_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchProductType//
+
+CREATE PROCEDURE fetchProductType(
+    IN p_product_type_id INT
+)
+BEGIN
+	SELECT * FROM product_type
+	WHERE product_type_id = p_product_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProductType//
+
+CREATE PROCEDURE deleteProductType(
+    IN p_product_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_type WHERE product_type_id = p_product_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkProductTypeExist//
+
+CREATE PROCEDURE checkProductTypeExist(
+    IN p_product_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_type
+    WHERE product_type_id = p_product_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateProductTypeTable//
+
+CREATE PROCEDURE generateProductTypeTable()
+BEGIN
+	SELECT product_type_id, product_type_name
+    FROM product_type 
+    ORDER BY product_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductTypeOptions//
+
+CREATE PROCEDURE generateProductTypeOptions()
+BEGIN
+	SELECT product_type_id, product_type_name 
+    FROM product_type 
+    ORDER BY product_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+/* =============================================================================================
+   STORED PROCEDURE: WAREHOUSE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveWarehouse//
+
+CREATE PROCEDURE saveWarehouse(
+    IN p_warehouse_id INT, 
+    IN p_warehouse_name VARCHAR(100), 
+    IN p_address VARCHAR(1000), 
+    IN p_city_id INT, 
+    IN p_city_name VARCHAR(100), 
+    IN p_state_id INT, 
+    IN p_state_name VARCHAR(100), 
+    IN p_country_id INT, 
+    IN p_country_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_warehouse_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_warehouse_id IS NULL OR NOT EXISTS (SELECT 1 FROM warehouse WHERE warehouse_id = p_warehouse_id) THEN
+        INSERT INTO warehouse (
+            warehouse_name,
+            address,
+            city_id,
+            city_name,
+            state_id,
+            state_name,
+            country_id,
+            country_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_warehouse_name,
+            p_address,
+            p_city_id,
+            p_city_name,
+            p_state_id,
+            p_state_name,
+            p_country_id,
+            p_country_name,
+            p_last_log_by
+        );
+        
+        SET v_new_warehouse_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE warehouse
+        SET warehouse_name  = p_warehouse_name,
+            address         = p_address,
+            city_id         = p_city_id,
+            city_name       = p_city_name,
+            state_id        = p_state_id,
+            state_name      = p_state_name,
+            country_id      = p_country_id,
+            country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE warehouse_id  = p_warehouse_id;
+
+        SET v_new_warehouse_id = p_warehouse_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_warehouse_id AS new_warehouse_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchWarehouse//
+
+CREATE PROCEDURE fetchWarehouse(
+    IN p_warehouse_id INT
+)
+BEGIN
+	SELECT * FROM warehouse
+	WHERE warehouse_id = p_warehouse_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteWarehouse//
+
+CREATE PROCEDURE deleteWarehouse(
+    IN p_warehouse_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM warehouse WHERE warehouse_id = p_warehouse_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkWarehouseExist//
+
+CREATE PROCEDURE checkWarehouseExist(
+    IN p_warehouse_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateWarehouseTable//
+
+CREATE PROCEDURE generateWarehouseTable(
+    IN p_filter_by_city TEXT,
+    IN p_filter_by_state TEXT,
+    IN p_filter_by_country TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT warehouse_id, warehouse_name, address, city_name, state_name, country_name 
+                FROM warehouse ';
+
+    IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
+    END IF;
+
+    IF p_filter_by_state IS NOT NULL AND p_filter_by_state <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' state_id IN (', p_filter_by_state, ')');
+    END IF;
+
+    IF p_filter_by_country IS NOT NULL AND p_filter_by_country <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' country_id IN (', p_filter_by_country, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY warehouse_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateWarehouseOptions//
+
+CREATE PROCEDURE generateWarehouseOptions()
+BEGIN
+	SELECT warehouse_id, warehouse_name 
+    FROM warehouse 
+    ORDER BY warehouse_name;
 END //
 
 /* =============================================================================================

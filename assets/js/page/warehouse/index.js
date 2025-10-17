@@ -5,18 +5,17 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
-        selector: '#company-table',
-        ajaxUrl: './app/Controllers/CompanyController.php',
-        transaction: 'generate company table',
+        selector: '#warehouse-table',
+        ajaxUrl: './app/Controllers/WarehouseController.php',
+        transaction: 'generate warehouse table',
         ajaxData: {
             city_filter: $('#city_filter').val(),
             state_filter: $('#state_filter').val(),
-            country_filter: $('#country_filter').val(),
-            currency_filter: $('#currency_filter').val()
+            country_filter: $('#country_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'COMPANY_NAME' }
+            { data: 'WAREHOUSE_NAME' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -30,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdownConfigs = [
         { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
         { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
-        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' },
-        { url: './app/Controllers/CurrencyController.php', selector: '#currency_filter', transaction: 'generate currency options' }
+        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -42,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    initializeDatatableControls('#company-table');
-    initializeExportFeature('company');
+    initializeDatatableControls('#warehouse-table');
+    initializeExportFeature('warehouse');
     initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
@@ -55,25 +53,24 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#city_filter').val(null).trigger('change');
             $('#state_filter').val(null).trigger('change');
             $('#country_filter').val(null).trigger('change');
-            $('#currency_filter').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
-        if (event.target.closest('#delete-company')){
-            const transaction   = 'delete multiple company';
-            const company_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+        if (event.target.closest('#delete-warehouse')){
+            const transaction   = 'delete multiple warehouse';
+            const warehouse_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
                                     .filter(checkbox => checkbox.checked)
                                     .map(checkbox => checkbox.value);
 
-            if (company_id.length === 0) {
-                showNotification('Deletion Multiple Companies Error', 'Please select the companies you wish to delete.', 'error');
+            if (warehouse_id.length === 0) {
+                showNotification('Deletion Multiple Warehouses Error', 'Please select the warehouses you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple Companies Deletion',
-                text: 'Are you sure you want to delete these companies?',
+                title: 'Confirm Multiple Warehouses Deletion',
+                text: 'Are you sure you want to delete these warehouses?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -90,9 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                company_id.forEach(id => formData.append('company_id[]', id));
+                warehouse_id.forEach(id => formData.append('warehouse_id[]', id));
 
-                const response = await fetch('./app/Controllers/CompanyController.php', {
+                const response = await fetch('./app/Controllers/WarehouseController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -103,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    reloadDatatable('#company-table');
+                    reloadDatatable('#warehouse-table');
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -113,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to delete companies: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete warehouses: ${error.message}`);
             }
         }
     });

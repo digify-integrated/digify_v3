@@ -4,27 +4,27 @@ namespace App\Controllers;
 
 session_start();
 
-use App\Models\AddressType;
+use App\Models\ProductType;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class AddressTypeController
+class ProductTypeController
 {
-    protected AddressType $addressType;
+    protected ProductType $productType;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
-        AddressType $addressType,
+        ProductType $productType,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->addressType      = $addressType;
+        $this->productType      = $productType;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -70,12 +70,12 @@ class AddressTypeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save address type'                 => $this->saveAddressType($lastLogBy),
-            'delete address type'               => $this->deleteAddressType(),
-            'delete multiple address type'      => $this->deleteMultipleAddressType(),
-            'fetch address type details'        => $this->fetchAddressTypeDetails(),
-            'generate address type table'       => $this->generateAddressTypeTable(),
-            'generate address type options'     => $this->generateAddressTypeOptions(),
+            'save product type'                 => $this->saveProductType($lastLogBy),
+            'delete product type'               => $this->deleteProductType(),
+            'delete multiple product type'      => $this->deleteMultipleProductType(),
+            'fetch product type details'        => $this->fetchProductTypeDetails(),
+            'generate product type table'       => $this->generateProductTypeTable(),
+            'generate product type options'     => $this->generateProductTypeOptions(),
             default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -83,103 +83,103 @@ class AddressTypeController
         };
     }
 
-    public function saveAddressType($lastLogBy){
+    public function saveProductType($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'address_type_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_type_form')) {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
                 'Security check failed. Please refresh and try again.'
             );
         }
 
-        $addressTypeId      = $_POST['address_type_id'] ?? null;
-        $addressTypeName    = $_POST['address_type_name'] ?? null;
+        $productTypeId      = $_POST['product_type_id'] ?? null;
+        $productTypeName    = $_POST['product_type_name'] ?? null;
 
-        $addressTypeId              = $this->addressType->saveAddressType($addressTypeId, $addressTypeName, $lastLogBy);
-        $encryptedAddressTypeId     = $this->security->encryptData($addressTypeId);
+        $productTypeId              = $this->productType->saveProductType($productTypeId, $productTypeName, $lastLogBy);
+        $encryptedProductTypeId     = $this->security->encryptData($productTypeId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Save Address Type Success',
-            'The address type has been saved successfully.',
-            ['address_type_id' => $encryptedAddressTypeId]
+            'Save Product Type Success',
+            'The product type has been saved successfully.',
+            ['product_type_id' => $encryptedProductTypeId]
         );
     }
 
-    public function deleteAddressType(){
-        $addressTypeId = $_POST['address_type_id'] ?? null;
+    public function deleteProductType(){
+        $productTypeId = $_POST['product_type_id'] ?? null;
 
-        $this->addressType->deleteAddressType($addressTypeId);
+        $this->productType->deleteProductType($productTypeId);
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Address Type Success',
-            'The address type has been deleted successfully.'
+            'Delete Product Type Success',
+            'The product type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleAddressType(){
-        $addressTypeIds = $_POST['address_type_id'] ?? null;
+    public function deleteMultipleProductType(){
+        $productTypeIds = $_POST['product_type_id'] ?? null;
 
-        foreach($addressTypeIds as $addressTypeId){
-            $this->addressType->deleteAddressType($addressTypeId);
+        foreach($productTypeIds as $productTypeId){
+            $this->productType->deleteProductType($productTypeId);
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Address Types Success',
-            'The selected address types have been deleted successfully.'
+            'Delete Multiple Product Types Success',
+            'The selected product types have been deleted successfully.'
         );
     }
 
-    public function fetchAddressTypeDetails(){
-        $addressTypeId          = $_POST['address_type_id'] ?? null;
-        $checkAddressTypeExist  = $this->addressType->checkAddressTypeExist($addressTypeId);
-        $total                  = $checkAddressTypeExist['total'] ?? 0;
+    public function fetchProductTypeDetails(){
+        $productTypeId          = $_POST['product_type_id'] ?? null;
+        $checkProductTypeExist  = $this->productType->checkProductTypeExist($productTypeId);
+        $total                  = $checkProductTypeExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
-                'Get Address Type Details',
-                'The address type does not exist',
+                'Get Product Type Details',
+                'The product type does not exist',
                 ['notExist' => true]
             );
         }
 
-        $addressTypeDetails = $this->addressType->fetchAddressType($addressTypeId);
+        $productTypeDetails = $this->productType->fetchProductType($productTypeId);
 
         $response = [
             'success'           => true,
-            'addressTypeName'   => $addressTypeDetails['address_type_name'] ?? null
+            'productTypeName'   => $productTypeDetails['product_type_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateAddressTypeTable()
+    public function generateProductTypeTable()
     {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
-        $addressTypes = $this->addressType->generateAddressTypeTable();
+        $productTypes = $this->productType->generateProductTypeTable();
 
-        foreach ($addressTypes as $row) {
-            $addressTypeId      = $row['address_type_id'];
-            $addressTypeName    = $row['address_type_name'];
+        foreach ($productTypes as $row) {
+            $productTypeId      = $row['product_type_id'];
+            $productTypeName    = $row['product_type_name'];
 
-            $addressTypeIdEncrypted = $this->security->encryptData($addressTypeId);
+            $productTypeIdEncrypted = $this->security->encryptData($productTypeId);
 
             $response[] = [
                 'CHECK_BOX'             => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                                <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $addressTypeId .'">
+                                                <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $productTypeId .'">
                                             </div>',
-                'ADDRESS_TYPE_NAME'     => $addressTypeName,
-                'LINK'                  => $pageLink .'&id='. $addressTypeIdEncrypted
+                'PRODUCT_TYPE_NAME'     => $productTypeName,
+                'LINK'                  => $pageLink .'&id='. $productTypeIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateAddressTypeOptions()
+    public function generateProductTypeOptions()
     {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
@@ -191,12 +191,12 @@ class AddressTypeController
             ];
         }
 
-        $countries = $this->addressType->generateAddressTypeOptions();
+        $countries = $this->productType->generateProductTypeOptions();
 
         foreach ($countries as $row) {
             $response[] = [
-                'id'    => $row['address_type_id'],
-                'text'  => $row['address_type_name']
+                'id'    => $row['product_type_id'],
+                'text'  => $row['product_type_name']
             ];
         }
 
@@ -205,8 +205,8 @@ class AddressTypeController
 }
 
 # Bootstrap the controller
-$controller = new AddressTypeController(
-    new AddressType(),
+$controller = new ProductTypeController(
+    new ProductType(),
     new Authentication(),
     new Security(),
     new SystemHelper()

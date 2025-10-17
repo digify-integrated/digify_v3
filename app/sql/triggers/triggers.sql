@@ -2778,6 +2778,266 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: WAREHOUSE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_warehouse_update//
+
+CREATE TRIGGER trg_warehouse_update
+AFTER UPDATE ON warehouse
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Warehouse changed.<br/><br/>';
+
+    IF NEW.warehouse_name <> OLD.warehouse_name THEN
+        SET audit_log = CONCAT(audit_log, "Warehouse Name: ", OLD.warehouse_name, " -> ", NEW.warehouse_name, "<br/>");
+    END IF;
+
+    IF NEW.short_name <> OLD.short_name THEN
+        SET audit_log = CONCAT(audit_log, "Short Name: ", OLD.short_name, " -> ", NEW.short_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_name <> OLD.city_name THEN
+        SET audit_log = CONCAT(audit_log, "City: ", OLD.city_name, " -> ", NEW.city_name, "<br/>");
+    END IF;
+
+    IF NEW.state_name <> OLD.state_name THEN
+        SET audit_log = CONCAT(audit_log, "State: ", OLD.state_name, " -> ", NEW.state_name, "<br/>");
+    END IF;
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Warehouse changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_warehouse_insert//
+
+CREATE TRIGGER trg_warehouse_insert
+AFTER INSERT ON warehouse
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Warehouse created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: PRODUCT CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_category_update//
+
+CREATE TRIGGER trg_product_category_update
+AFTER UPDATE ON product_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product category changed.<br/><br/>';
+
+    IF NEW.product_category_name <> OLD.product_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Category Name: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    END IF;
+
+    IF NEW.parent_category_name <> OLD.parent_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Parent Category: ", OLD.parent_category_name, " -> ", NEW.parent_category_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Product category changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_category', NEW.product_category_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_category_insert//
+
+CREATE TRIGGER trg_product_category_insert
+AFTER INSERT ON product_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product category created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_category', NEW.product_category_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: PRODUCT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_type_update//
+
+CREATE TRIGGER trg_product_type_update
+AFTER UPDATE ON product_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product type changed.<br/><br/>';
+
+    IF NEW.product_type_name <> OLD.product_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Type Name: ", OLD.product_type_name, " -> ", NEW.product_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Product type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_type', NEW.product_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_type_insert//
+
+CREATE TRIGGER trg_product_type_insert
+AFTER INSERT ON product_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_type', NEW.product_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_update//
+
+CREATE TRIGGER trg_product_update
+AFTER UPDATE ON product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product changed.<br/><br/>';
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+
+    IF NEW.product_status <> OLD.product_status THEN
+        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
+    END IF;
+
+    IF NEW.show_on_pos <> OLD.show_on_pos THEN
+        SET audit_log = CONCAT(audit_log, "Show on POS: ", OLD.show_on_pos, " -> ", NEW.show_on_pos, "<br/>");
+    END IF;
+
+    IF NEW.barcode <> OLD.barcode THEN
+        SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
+    END IF;
+
+    IF NEW.product_type_name <> OLD.product_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type_name, " -> ", NEW.product_type_name, "<br/>");
+    END IF;
+
+    IF NEW.product_category_name <> OLD.product_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Category: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    END IF;
+
+    IF NEW.quantity <> OLD.quantity THEN
+        SET audit_log = CONCAT(audit_log, "Quantity: ", OLD.quantity, " -> ", NEW.quantity, "<br/>");
+    END IF;
+
+    IF NEW.sales_price <> OLD.sales_price THEN
+        SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
+    END IF;
+
+    IF NEW.cost <> OLD.cost THEN
+        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
+    END IF;
+
+    IF NEW.weight <> OLD.weight THEN
+        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " kg -> ", NEW.weight, " kg<br/>");
+    END IF;
+
+    IF NEW.volume <> OLD.volume THEN
+        SET audit_log = CONCAT(audit_log, "Volume: ", OLD.volume, " m3 -> ", NEW.volume, " m3<br/>");
+    END IF;
+
+    IF NEW.customer_lead_time <> OLD.customer_lead_time THEN
+        SET audit_log = CONCAT(audit_log, "Customer Lead Time: ", OLD.customer_lead_time, " -> ", NEW.customer_lead_time, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Product changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_insert//
+
+CREATE TRIGGER trg_product_insert
+AFTER INSERT ON product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: 
 ============================================================================================= */
 
