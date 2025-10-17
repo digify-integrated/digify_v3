@@ -6809,7 +6809,6 @@ CREATE TABLE product (
   product_name VARCHAR(200) NOT NULL,
   product_image VARCHAR(500),
   product_status VARCHAR(50) DEFAULT 'Active',
-  show_on_pos VARCHAR(5) DEFAULT 'Yes',
   barcode VARCHAR(50),
   product_type_id INT UNSIGNED NOT NULL,
   product_type_name VARCHAR(100) NOT NULL,
@@ -6818,9 +6817,6 @@ CREATE TABLE product (
   quantity INT UNSIGNED DEFAULT 0,
   sales_price DOUBLE DEFAULT 0,
   cost DOUBLE DEFAULT 0,
-  weight DOUBLE DEFAULT 0,
-  volume DOUBLE DEFAULT 0,
-  customer_lead_time INT DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6838,7 +6834,6 @@ CREATE INDEX idx_product_product_category_id ON product(product_category_id);
 CREATE INDEX idx_product_product_product_status ON product(product_status);
 CREATE INDEX idx_product_product_barcode ON product(barcode);
 CREATE INDEX idx_product_product_product_name ON product(product_name);
-CREATE INDEX idx_product_product_show_on_pos ON product(show_on_pos);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT

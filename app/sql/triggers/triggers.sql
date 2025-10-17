@@ -2969,10 +2969,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
 
-    IF NEW.show_on_pos <> OLD.show_on_pos THEN
-        SET audit_log = CONCAT(audit_log, "Show on POS: ", OLD.show_on_pos, " -> ", NEW.show_on_pos, "<br/>");
-    END IF;
-
     IF NEW.barcode <> OLD.barcode THEN
         SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
@@ -2995,18 +2991,6 @@ BEGIN
 
     IF NEW.cost <> OLD.cost THEN
         SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
-    END IF;
-
-    IF NEW.weight <> OLD.weight THEN
-        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " kg -> ", NEW.weight, " kg<br/>");
-    END IF;
-
-    IF NEW.volume <> OLD.volume THEN
-        SET audit_log = CONCAT(audit_log, "Volume: ", OLD.volume, " m3 -> ", NEW.volume, " m3<br/>");
-    END IF;
-
-    IF NEW.customer_lead_time <> OLD.customer_lead_time THEN
-        SET audit_log = CONCAT(audit_log, "Customer Lead Time: ", OLD.customer_lead_time, " -> ", NEW.customer_lead_time, "<br/>");
     END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN

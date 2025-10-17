@@ -8,74 +8,73 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="first_name">
-                            <span class="required">First Name</span>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="product_name">
+                            <span class="required">Product Name</span>
                         </label>
 
-                        <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
+                        <input type="text" class="form-control" id="product_name" name="product_name" maxlength="200" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="last_name">
-                            <span class="required">Last Name</span>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="barcode">
+                            <span>Barcode</span>
                         </label>
 
-                        <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="middle_name">
-                            Middle Name
-                        </label>
-
-                        <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
-                    </div>
-                </div>
-                
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="suffix">
-                            Suffix
-                        </label>
-
-                        <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+                        <input type="text" class="form-control" id="barcode" name="barcode" maxlength="50" autocomplete="off">
                     </div>
                 </div>
             </div>
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="company_id">
-                            <span class="required">Company</span>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="product_type_id">
+                            <span class="required">Product Type</span>
                         </label>
 
-                        <select id="company_id" name="company_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                        <select id="product_type_id" name="product_type_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
                 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="department_id">
-                            <span class="required">Department</span>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="product_category_id">
+                            <span class="required">Product Category</span>
                         </label>
 
-                        <select id="department_id" name="department_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                        <select id="product_category_id" name="product_category_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
             </div>
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="job_position_id">
-                            <span class="required">Job Position</span>
+                        <label class="fs-6 fw-semibold form-label mt-3" for="quantity">
+                            <span class="required">Quantity On-Hand</span>
                         </label>
 
-                        <select id="job_position_id" name="job_position_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                         <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="sales_price">
+                            <span class="required">Sales Price</span>
+                        </label>
+
+                         <input type="number" class="form-control" id="sales_price" name="sales_price" min="0.01" step="0.01">
+                    </div>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="cost">
+                            <span class="required">Cost</span>
+                        </label>
+
+                         <input type="number" class="form-control" id="cost" name="cost" min="0" step="0.01">
                     </div>
                 </div>
             </div>
