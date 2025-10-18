@@ -4,9 +4,8 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const dropdownConfigs = [
-        { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
-        { url: './app/Controllers/DepartmentController.php', selector: '#department_id', transaction: 'generate department options' },
-        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_id', transaction: 'generate job position options' },
+        { url: './app/Controllers/ProductTypeController.php', selector: '#product_type_id', transaction: 'generate product type options' },
+        { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -19,16 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#product_form').validate({
         rules: {
-            first_name: { required: true },
-            last_name: { required: true },
-            department_id: { required: true },
-            job_position_id: { required: true },
+            product_name: { required: true },
+            product_type_id: { required: true },
+            product_category_id: { required: true },
+            quantity: { required: true },
+            sales_price: { required: true },
+            cost: { required: true }
         },
         messages: {
-            first_name: { required: 'Enter the first name' },
-            last_name: { required: 'Enter the last name' },
-            department_id: { required: 'Choose the department' },
-            job_position_id: { required: 'Choose the job position' },
+            product_name: { required: 'Enter the product name' },
+            product_type_id: { required: 'Choose the product type' },
+            product_category_id: { required: 'Choose the product category' },
+            quantity: { required: 'Enter the quantity on-hand' },
+            sales_price: { required: 'Enter the sales price' },
+            cost: { required: 'Enter the cost' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

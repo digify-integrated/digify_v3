@@ -63,7 +63,7 @@
                             <span class="required">Sales Price</span>
                         </label>
 
-                         <input type="number" class="form-control" id="sales_price" name="sales_price" min="0.01" step="0.01">
+                         <input type="number" class="form-control" id="sales_price" name="sales_price" min="0" step="0.01">
                     </div>
                 </div>
             </div>

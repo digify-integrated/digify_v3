@@ -14,23 +14,29 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/ProductController.php',
         transaction: 'generate product table',
         ajaxData: {
-            filter_by_company: document.querySelector('#company_filter')?.value || [],
-            filter_by_department: document.querySelector('#department_filter')?.value || [],
-            filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
-            filter_by_product_status: document.querySelector('#product_status_filter')?.value || [],
-            filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
-            filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
-            filter_by_gender: document.querySelector('#gender_filter')?.value || []
+            filter_by_product_type: $('#product_type_filter').val(),
+            filter_by_product_category: $('#product_category_filter').val(),
+            filter_by_product_status: $('#product_status_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'EMPLOYEE' },
-            { data: 'DEPARTMENT' }
+            { data: 'PRODUCT' },
+            { data: 'BARCODE' },
+            { data: 'PRODUCT_TYPE' },
+            { data: 'PRODUCT_CATEGORY' },
+            { data: 'QUANTITY' },
+            { data: 'SALES_PRICE' },
+            { data: 'COST' },
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 }
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 5, responsivePriority: 6 },
+            { width: 'auto', targets: 6, responsivePriority: 7 },
+            { width: 'auto', targets: 7, responsivePriority: 8 },
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -39,17 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatatable(datatableConfig());
     initializeDatatableControls('#product-table');
+    initializeExportFeature('product');
 
     const containerId = 'product-card';
     const container = document.querySelector(`#${containerId}`);
 
     const dropdownConfigs = [
-        { url: './app/Controllers/CompanyController.php', selector: '#company_filter', transaction: 'generate company options' },
-        { url: './app/Controllers/DepartmentController.php', selector: '#department_filter', transaction: 'generate department options' },
-        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_filter', transaction: 'generate job position options' },
-        { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_filter', transaction: 'generate work location options' },
-        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_filter', transaction: 'generate employment type options' },
-        { url: './app/Controllers/GenderController.php', selector: '#gender_filter', transaction: 'generate gender options' }
+        { url: './app/Controllers/ProductTypeController.php', selector: '#product_type_filter', transaction: 'generate product type options' },
+        { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_filter', transaction: 'generate product category options' },
     ];
 
     dropdownConfigs.forEach(cfg => {
@@ -101,13 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 limit: LIMIT,
                 offset,
                 search_value: document.querySelector('#datatable-search')?.value || '',
-                filter_by_company: document.querySelector('#company_filter')?.value || [],
-                filter_by_department: document.querySelector('#department_filter')?.value || [],
-                filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
-                filter_by_product_status: document.querySelector('#product_status_filter')?.value || [],
-                filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
-                filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
-                filter_by_gender: document.querySelector('#gender_filter')?.value || []
+                filter_by_product_type: $('#product_type_filter').val(),
+                filter_by_product_category: $('#product_category_filter').val(),
+                filter_by_product_status: $('#product_status_filter').val()
             };
 
             const response = await fetch('./app/Controllers/ProductController.php', {
@@ -170,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    document.addEventListener('click', event => {
+    document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {
             observer.observe(sentinel);
             fetchProductCards({ clearExisting: true });
@@ -179,24 +178,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#company_filter').val(null).trigger('change');
-            $('#department_filter').val(null).trigger('change');
-            $('#job_position_filter').val(null).trigger('change');
-            $('#job_position_filter').val(null).trigger('change');
-            $('#product_status_filter').val(null).trigger('change');
-            $('#work_location_filter').val(null).trigger('change');
-            $('#employment_type_filter').val(null).trigger('change');
+            $('#product_type_filter').val(null).trigger('change');
+            $('#product_category_filter').val(null).trigger('change');
+            $('#product_status_filter').val('Active').trigger('change');
 
             observer.observe(sentinel);
             fetchProductCards({ clearExisting: true });
 
             initializeDatatable(datatableConfig());
         }
+
+        if (event.target.closest('#delete-product')) {
+            const transaction   = 'delete multiple product';
+            const product_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                            .filter(el => el.checked)
+                                            .map(el => el.value);
+
+            if (product_id.length === 0) {
+                showNotification('Deletion Multiple Products Error', 'Please select the products you wish to delete.', 'error');
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'Confirm Multiple Products Deletion',
+                text: 'Are you sure you want to delete these products?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                product_id.forEach(id => formData.append('product_id[]', id));
+
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Deletion failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    observer.observe(sentinel);
+                    fetchProductCards({ clearExisting: true });
+
+                    reloadDatatable('#product-table');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
     });
 
     document.addEventListener('keyup', event => {
-        const productTable     = $('#product-table').DataTable();
-        const searchInput       = event.target.closest('#datatable-search');
+        const productTable  = $('#product-table').DataTable();
+        const searchInput   = event.target.closest('#datatable-search');
 
         if (searchInput) {
             productTable.search(searchInput.value).draw();
@@ -207,8 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('change', event => {
-        const productTable    = $('#product-table').DataTable();
-        const lengthSelect     = event.target.closest('#datatable-length');
+        const productTable  = $('#product-table').DataTable();
+        const lengthSelect  = event.target.closest('#datatable-length');
 
         if (lengthSelect) {
             const newLength = lengthSelect.value;

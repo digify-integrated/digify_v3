@@ -1463,7 +1463,7 @@ class EmployeeController
                                         '. $employmentStatusBadge .'
                                     </div>
 
-                                    <div class="fs-4 text-gray-800 fw-bold mb-0" target="_blank">'. $fullName .'</div>
+                                    <div class="fs-4 text-gray-800 fw-bold mb-0">'. $fullName .'</div>
                                     <div class="fw-semibold text-gray-500">'. $jobPositionName .'</div>
                                     <div class="fw-semibold text-gray-500">'. $departmentName .'</div>
                                 </div>

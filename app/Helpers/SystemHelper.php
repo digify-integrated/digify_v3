@@ -471,11 +471,19 @@ class SystemHelper extends Security
         if ($values === null) {
             return null;
         }
-        
-        if (!is_array($values)) {
+
+        // If it's a string, split by comma and trim whitespace
+        if (is_string($values)) {
+            // Split only if it contains a comma, otherwise wrap it as a single value
+            $values = strpos($values, ',') !== false
+                ? explode(',', $values)
+                : [$values];
+        } elseif (!is_array($values)) {
+            // Wrap non-array, non-string types
             $values = [$values];
         }
 
+        // Clean and escape values
         $cleanValues = array_filter(
             array_map('trim', $values),
             fn($v) => $v !== ''
@@ -485,6 +493,7 @@ class SystemHelper extends Security
             ? "'" . implode("','", array_map('addslashes', $cleanValues)) . "'"
             : null;
     }
+
 
 
     public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {

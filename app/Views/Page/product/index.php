@@ -58,35 +58,19 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5 mh-300px overflow-auto">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="company_filter">Company:</label>
-                                <select id="company_filter" name="company_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="product_type_filter">Product Type:</label>
+                                <select id="product_type_filter" name="product_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="department_filter">Department:</label>
-                                <select id="department_filter" name="department_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                            </div>
-                            <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="department_filter">Job Position:</label>
-                                <select id="job_position_filter" name="job_position_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="product_category_filter">Product Category:</label>
+                                <select id="product_category_filter" name="product_category_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
                                 <label class="form-label fs-6 fw-semibold" for="product_status_filter">Product Status:</label>
                                 <select id="product_status_filter" name="product_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
-                                    <option value="Active">Active</option>
+                                    <option value="Active" selected>Active</option>
                                     <option value="Archived">Archived</option>
                                 </select>
-                            </div>
-                            <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="work_location_filter">Work Location:</label>
-                                <select id="work_location_filter" name="work_location_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                            </div>
-                            <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="employment_type_filter">Employment Type:</label>
-                                <select id="employment_type_filter" name="employment_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                            </div>
-                            <div class="mb-0">
-                                <label class="form-label fs-6 fw-semibold" for="gender_filter">Gender:</label>
-                                <select id="gender_filter" name="gender_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                         </div>
                         <div class="px-7 py-5">                            
@@ -120,7 +104,12 @@
                                     </div>
                                 </th>
                                 <th>Product</th>
-                                <th>Department</th>
+                                <th>Barcode</th>
+                                <th>Product Type</th>
+                                <th>Product Category</th>
+                                <th>Quantity</th>
+                                <th>Sales Price</th>
+                                <th>Cost</th>
                             </tr>
                         </thead>
                         <tbody class="fw-semibold text-gray-800"></tbody>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 17, 2025 at 11:14 AM
+-- Generation Time: Oct 18, 2025 at 04:52 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -235,6 +235,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductCategoryExist` (IN `p_p
 	SELECT COUNT(*) AS total
     FROM product_category
     WHERE product_category_id = p_product_category_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkProductExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductExist` (IN `p_product_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id = p_product_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkProductTypeExist`$$
@@ -932,6 +939,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteNotificationSetting` (IN `p_n
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `deleteProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProduct` (IN `p_product_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product WHERE product_id = p_product_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `deleteProductCategory`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductCategory` (IN `p_product_category_id` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -1546,6 +1567,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchOTP` (IN `p_user_account_id` I
            failed_otp_attempts
     FROM otp
     WHERE user_account_id = p_user_account_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProduct` (IN `p_product_id` INT)   BEGIN
+	SELECT * FROM product
+	WHERE product_id = p_product_id
     LIMIT 1;
 END$$
 
@@ -2440,6 +2468,62 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateParentDepartmentOptions` (I
     ORDER BY department_name;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateProductCard`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductCard` (IN `p_search_value` TEXT, IN `p_filter_by_product_type` TEXT, IN `p_filter_by_product_category` TEXT, IN `p_product_status` TEXT, IN `p_limit` INT, IN `p_offset` INT)   BEGIN
+    DECLARE query TEXT;
+
+    -- Base query
+    SET query = 'SELECT product_id, product_name, product_image, product_status, barcode, product_type_name, product_category_name, quantity, sales_price, cost
+                 FROM product
+                 WHERE 1=1';
+
+    -- Search filter
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET query = CONCAT(query, ' 
+            AND (
+                product_name LIKE ? OR
+                barcode LIKE ? OR
+                product_type_name LIKE ? OR
+                product_category_name LIKE ?
+            )');
+    END IF;
+
+    -- Dynamic filters
+    IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type_id IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_category_id IN (', p_filter_by_product_category, ')');
+    END IF;
+    
+    IF p_product_status IS NOT NULL AND p_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_product_status, ')');
+    END IF;
+
+    -- Final ordering + limit
+    SET query = CONCAT(query, ' ORDER BY product_name LIMIT ?, ?');
+
+    PREPARE stmt FROM query;
+
+    -- Bind parameters for search + pagination
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET @s1 = CONCAT('%', p_search_value, '%');
+        SET @s2 = @s1; SET @s3 = @s1; SET @s4 = @s1;
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @s1, @s2, @s3, @s4, @offset, @limit;
+    ELSE
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @offset, @limit;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateProductCategoryOptions`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductCategoryOptions` ()   BEGIN
 	SELECT product_category_id, product_category_name 
@@ -2464,6 +2548,38 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductCategoryTable` (IN `
     END IF;
 
     SET query = CONCAT(query, ' ORDER BY product_category_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateProductOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductOptions` ()   BEGIN
+	SELECT product_id, product_name 
+    FROM product 
+    ORDER BY product_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateProductTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductTable` (IN `p_filter_by_product_type` TEXT, IN `p_filter_by_product_category` TEXT, IN `p_product_status` TEXT)   BEGIN
+    DECLARE query TEXT DEFAULT 
+        'SELECT product_id, product_name, product_image, product_status, barcode, product_type_name, product_category_name, quantity, sales_price, cost
+        FROM product WHERE 1=1';
+
+    IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type_id IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_category_id IN (', p_filter_by_product_category, ')');
+    END IF;
+    
+    IF p_product_status IS NOT NULL AND p_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_product_status, ')');
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_name');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -4617,6 +4733,66 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveOTP` (IN `p_user_account_id` IN
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `saveProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveProduct` (IN `p_product_id` INT, IN `p_product_name` VARCHAR(200), IN `p_barcode` VARCHAR(50), IN `p_product_type_id` INT, IN `p_product_type_name` VARCHAR(100), IN `p_product_category_id` INT, IN `p_product_category_name` VARCHAR(100), IN `p_quantity` INT, IN `p_sales_price` DOUBLE, IN `p_cost` DOUBLE, IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_product_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_id IS NULL OR NOT EXISTS (SELECT 1 FROM product WHERE product_id = p_product_id) THEN
+        INSERT INTO product (
+            product_name,
+            barcode,
+            product_type_id,
+            product_type_name,
+            product_category_id,
+            product_category_name,
+            quantity,
+            sales_price,
+            cost,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_name,
+            p_barcode,
+            p_product_type_id,
+            p_product_type_name,
+            p_product_category_id,
+            p_product_category_name,
+            p_quantity,
+            p_sales_price,
+            p_cost,
+            p_last_log_by
+        );
+        
+        SET v_new_product_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE product
+        SET product_name            = p_product_name,
+            barcode                 = p_barcode,
+            product_type_id         = p_product_type_id,
+            product_type_name       = p_product_type_name,
+            product_category_id     = p_product_category_id,
+            product_category_name   = p_product_category_name,
+            quantity                = p_quantity,
+            sales_price             = p_sales_price,
+            cost                    = p_cost,
+            last_log_by             = p_last_log_by
+        WHERE product_id            = p_product_id;
+
+        SET v_new_product_id = p_product_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_product_id AS new_product_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `saveProductCategory`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `saveProductCategory` (IN `p_product_category_id` INT, IN `p_product_category_name` VARCHAR(100), IN `p_parent_category_id` INT, IN `p_parent_category_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_product_category_id INT;
@@ -5820,6 +5996,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTPAsExpired` (IN `p_user_acc
     UPDATE otp
     SET otp_expiry_date     = NOW()
     WHERE user_account_id   = p_user_account_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateProductImage`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductImage` (IN `p_product_id` INT, IN `p_product_image` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_image   = p_product_image,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
 
     COMMIT;
 END$$
@@ -12248,7 +12441,9 @@ CREATE TABLE `login_attempts` (
 
 INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `ip_address`, `attempt_time`, `success`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-17 11:49:56', 1, '2025-10-17 11:49:56', '2025-10-17 11:49:56', 1),
-(2, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-17 15:51:07', 1, '2025-10-17 15:51:07', '2025-10-17 15:51:07', 1);
+(2, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-17 15:51:07', 1, '2025-10-17 15:51:07', '2025-10-17 15:51:07', 1),
+(3, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-17 19:48:11', 1, '2025-10-17 19:48:11', '2025-10-17 19:48:11', 1),
+(4, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-18 17:38:06', 1, '2025-10-18 17:38:06', '2025-10-18 17:38:06', 1);
 
 -- --------------------------------------------------------
 
@@ -12885,7 +13080,6 @@ CREATE TABLE `product` (
   `product_name` varchar(200) NOT NULL,
   `product_image` varchar(500) DEFAULT NULL,
   `product_status` varchar(50) DEFAULT 'Active',
-  `show_on_pos` varchar(5) DEFAULT 'Yes',
   `barcode` varchar(50) DEFAULT NULL,
   `product_type_id` int(10) UNSIGNED NOT NULL,
   `product_type_name` varchar(100) NOT NULL,
@@ -12894,9 +13088,6 @@ CREATE TABLE `product` (
   `quantity` int(10) UNSIGNED DEFAULT 0,
   `sales_price` double DEFAULT 0,
   `cost` double DEFAULT 0,
-  `weight` double DEFAULT 0,
-  `volume` double DEFAULT 0,
-  `customer_lead_time` int(11) DEFAULT 0,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -12928,10 +13119,6 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
 
-    IF NEW.show_on_pos <> OLD.show_on_pos THEN
-        SET audit_log = CONCAT(audit_log, "Show on POS: ", OLD.show_on_pos, " -> ", NEW.show_on_pos, "<br/>");
-    END IF;
-
     IF NEW.barcode <> OLD.barcode THEN
         SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
@@ -12954,18 +13141,6 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
 
     IF NEW.cost <> OLD.cost THEN
         SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
-    END IF;
-
-    IF NEW.weight <> OLD.weight THEN
-        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " kg -> ", NEW.weight, " kg<br/>");
-    END IF;
-
-    IF NEW.volume <> OLD.volume THEN
-        SET audit_log = CONCAT(audit_log, "Volume: ", OLD.volume, " m3 -> ", NEW.volume, " m3<br/>");
-    END IF;
-
-    IF NEW.customer_lead_time <> OLD.customer_lead_time THEN
-        SET audit_log = CONCAT(audit_log, "Customer Lead Time: ", OLD.customer_lead_time, " -> ", NEW.customer_lead_time, "<br/>");
     END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN
@@ -12992,6 +13167,13 @@ CREATE TABLE `product_category` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_category`
+--
+
+INSERT INTO `product_category` (`product_category_id`, `product_category_name`, `parent_category_id`, `parent_category_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Beef', 0, '', '2025-10-18 21:17:55', '2025-10-18 21:17:55', 2);
 
 --
 -- Triggers `product_category`
@@ -13598,7 +13780,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$8Ae5fA.48KTsnyPPEm6GOe0reOO8bPO7nlfOibAq/iRRgLcOQ3eum', '2025-10-17 11:49:56', '2025-10-17 15:51:07', 1);
+(1, 2, '$2y$10$mGmbMHYeOIT.sraMoZn7k..pIZ70s2SJGUWkoq0U2zkelv9BnyZB.', '2025-10-17 11:49:56', '2025-10-18 17:38:06', 1);
 
 -- --------------------------------------------------------
 
@@ -13851,7 +14033,8 @@ INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `uploa
 (4, 'User Account Profile Picture', 'Sets the upload setting when uploading user account profile picture.', 800, '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
 (5, 'Company Logo', 'Sets the upload setting when uploading company logo.', 800, '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
 (6, 'Employee Image', 'Sets the upload setting when uploading employee image.', 800, '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
-(7, 'Employee Document', 'Sets the upload setting when uploading employee document.', 800, '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1);
+(7, 'Employee Document', 'Sets the upload setting when uploading employee document.', 800, '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
+(8, 'Product Image', 'Sets the upload setting when uploading product image.', 500, '2025-10-18 19:41:03', '2025-10-18 19:41:03', 2);
 
 --
 -- Triggers `upload_setting`
@@ -13950,7 +14133,10 @@ INSERT INTO `upload_setting_file_extension` (`upload_setting_file_extension_id`,
 (32, 7, 'Employee Document', 92, 'XLS', 'xls', '2025-10-17 11:43:06', '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
 (33, 7, 'Employee Document', 94, 'XLSX', 'xlsx', '2025-10-17 11:43:06', '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
 (34, 7, 'Employee Document', 89, 'PPT', 'ppt', '2025-10-17 11:43:06', '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
-(35, 7, 'Employee Document', 90, 'PPTX', 'pptx', '2025-10-17 11:43:06', '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1);
+(35, 7, 'Employee Document', 90, 'PPTX', 'pptx', '2025-10-17 11:43:06', '2025-10-17 11:43:06', '2025-10-17 11:43:06', 1),
+(36, 8, 'Product Image', 62, 'JPEG', 'jpeg', '2025-10-18 19:41:14', '2025-10-18 19:41:14', '2025-10-18 19:41:14', 2),
+(37, 8, 'Product Image', 61, 'JPG', 'jpg', '2025-10-18 19:41:14', '2025-10-18 19:41:14', '2025-10-18 19:41:14', 2),
+(38, 8, 'Product Image', 63, 'PNG', 'png', '2025-10-18 19:41:14', '2025-10-18 19:41:14', '2025-10-18 19:41:14', 2);
 
 --
 -- Triggers `upload_setting_file_extension`
@@ -14022,7 +14208,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-17 11:43:05', '2025-10-17 11:43:05', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-17 15:51:07', NULL, NULL, NULL, '2025-10-17 11:43:05', '2025-10-17 15:51:07', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-18 17:38:06', NULL, NULL, NULL, '2025-10-17 11:43:05', '2025-10-18 17:38:06', 1);
 
 --
 -- Triggers `user_account`
@@ -14585,8 +14771,7 @@ ALTER TABLE `product`
   ADD KEY `idx_product_product_category_id` (`product_category_id`),
   ADD KEY `idx_product_product_product_status` (`product_status`),
   ADD KEY `idx_product_product_barcode` (`barcode`),
-  ADD KEY `idx_product_product_product_name` (`product_name`),
-  ADD KEY `idx_product_product_show_on_pos` (`show_on_pos`);
+  ADD KEY `idx_product_product_product_name` (`product_name`);
 
 --
 -- Indexes for table `product_category`
@@ -14930,7 +15115,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -14978,13 +15163,13 @@ ALTER TABLE `otp`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_type`
@@ -15056,13 +15241,13 @@ ALTER TABLE `system_action`
 -- AUTO_INCREMENT for table `upload_setting`
 --
 ALTER TABLE `upload_setting`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `upload_setting_file_extension`
 --
 ALTER TABLE `upload_setting_file_extension`
-  MODIFY `upload_setting_file_extension_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `upload_setting_file_extension_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `user_account`

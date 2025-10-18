@@ -194,17 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-
-        if (event.target.closest('#assign-role-permission')){
-            generateDualListBox({
-                url: './app/Controllers/CompanyController.php',
-                selectSelector: 'role_id',
-                data: {
-                    transaction: 'generate company role dual listbox options',
-                    company_id: company_id
-                }
-            });
-        }
     });
 
     document.addEventListener('change', async (event) => {
@@ -215,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const transaction = 'update company logo';
     
             if (!company_id) {
-                showNotification('Error', 'Company ID not found', 'error');
+                showNotification('Error', 'Company not found', 'error');
                 return;
             }
     
