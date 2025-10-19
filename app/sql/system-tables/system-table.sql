@@ -58,7 +58,7 @@ CREATE TABLE audit_log (
   reference_id INT NOT NULL,
   log TEXT NOT NULL,
   changed_by INT UNSIGNED DEFAULT 1,
-  changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (changed_by) REFERENCES user_account(user_account_id)
 );
 
@@ -92,8 +92,8 @@ CREATE TABLE login_attempts (
   user_account_id INT NULL,
   email VARCHAR(255) NULL,
   ip_address VARCHAR(45) NOT NULL,
-  attempt_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  success TINYINT(1) NOT NULL DEFAULT 0,
+  attempt_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  success TINYINT(1) DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -233,9 +233,9 @@ CREATE TABLE notification_setting (
   notification_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   notification_setting_name VARCHAR(100) NOT NULL,
   notification_setting_description VARCHAR(200) NOT NULL,
-  system_notification INT(1) NOT NULL DEFAULT 1,
-  email_notification INT(1) NOT NULL DEFAULT 0,
-  sms_notification INT(1) NOT NULL DEFAULT 0,
+  system_notification INT(1) DEFAULT 1,
+  email_notification INT(1) DEFAULT 0,
+  sms_notification INT(1) DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -567,14 +567,14 @@ CREATE TABLE role_permission(
 	role_name VARCHAR(100) NOT NULL,
 	menu_item_id INT UNSIGNED NOT NULL,
 	menu_item_name VARCHAR(100) NOT NULL,
-	read_access TINYINT(1) NOT NULL DEFAULT 0,
-  write_access TINYINT(1) NOT NULL DEFAULT 0,
-  create_access TINYINT(1) NOT NULL DEFAULT 0,
-  delete_access TINYINT(1) NOT NULL DEFAULT 0,
-  import_access TINYINT(1) NOT NULL DEFAULT 0,
-  export_access TINYINT(1) NOT NULL DEFAULT 0,
-  log_notes_access TINYINT(1) NOT NULL DEFAULT 0,
-  date_assigned DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	read_access TINYINT(1) DEFAULT 0,
+  write_access TINYINT(1) DEFAULT 0,
+  create_access TINYINT(1) DEFAULT 0,
+  delete_access TINYINT(1) DEFAULT 0,
+  import_access TINYINT(1) DEFAULT 0,
+  export_access TINYINT(1) DEFAULT 0,
+  log_notes_access TINYINT(1) DEFAULT 0,
+  date_assigned DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -657,8 +657,8 @@ CREATE TABLE role_system_action_permission (
   role_name VARCHAR(100) NOT NULL,
   system_action_id INT UNSIGNED NOT NULL,
   system_action_name VARCHAR(100) NOT NULL,
-  system_action_access TINYINT(1) NOT NULL DEFAULT 0,
-  date_assigned DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  system_action_access TINYINT(1) DEFAULT 0,
+  date_assigned DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT NULL,
@@ -703,7 +703,7 @@ CREATE TABLE role_user_account(
 	role_name VARCHAR(100) NOT NULL,
 	user_account_id INT UNSIGNED NOT NULL,
 	file_as VARCHAR(300) NOT NULL,
-  date_assigned DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_assigned DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6698,13 +6698,15 @@ CREATE TABLE employee_document (
 DROP TABLE IF EXISTS product_category;
 
 CREATE TABLE product_category (
-  product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_category_name VARCHAR(100) NOT NULL,
-  parent_category_id INT UNSIGNED,
-  parent_category_name VARCHAR(100) NOT NULL,
+  parent_category_id INT UNSIGNED NULL,
+  description VARCHAR(1000),
+  display_order INT DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (parent_category_id) REFERENCES product_category(product_category_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -6731,13 +6733,14 @@ CREATE INDEX idx_product_category_parent_category_id ON product_category(parent_
 DROP TABLE IF EXISTS product_type;
 
 CREATE TABLE product_type (
-  product_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
+
 
 /* =============================================================================================
   INDEX: PRODUCT TYPE
@@ -6749,7 +6752,44 @@ CREATE TABLE product_type (
 
 INSERT INTO product_type (product_type_name) VALUES
 ('Goods'),
-('Service');
+('Service'),
+('Combo'),
+('Raw Material');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+/* =============================================================================================
+  TABLE: WAREHOUSE TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS warehouse_type;
+
+CREATE TABLE warehouse_type (
+  warehouse_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  warehouse_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+
+/* =============================================================================================
+  INDEX: PRODUCT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT TYPE
+============================================================================================= */
+
+INSERT INTO warehouse_type (warehouse_type_name) VALUES
+('Main'),
+('Branch'),
+('Kitchen'),
+('Storage');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -6774,9 +6814,17 @@ CREATE TABLE warehouse (
 	state_name VARCHAR(100) NOT NULL,
 	country_id INT UNSIGNED NOT NULL,
 	country_name VARCHAR(100) NOT NULL,
+  warehouse_type_id INT UNSIGNED,
+  warehouse_type_name VARCHAR(100) NOT NULL,
+  contact_person VARCHAR(500),
+  phone VARCHAR(50),
+  email VARCHAR(100),
+  telephone VARCHAR(20),
+  warehouse_status ENUM('Active', 'Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (warehouse_type_id) REFERENCES warehouse_type(warehouse_type_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -6787,10 +6835,170 @@ CREATE TABLE warehouse (
 CREATE INDEX idx_warehouse_city_id ON warehouse(city_id);
 CREATE INDEX idx_warehouse_state_id ON warehouse(state_id);
 CREATE INDEX idx_warehouse_country_id ON warehouse(country_id);
+CREATE INDEX idx_warehouse_warehouse_type_id ON warehouse(warehouse_type_id);
+CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
 
 /* =============================================================================================
   INITIAL VALUES: WAREHOUSE
 ============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: BRAND
+============================================================================================= */
+
+DROP TABLE IF EXISTS brand;
+
+CREATE TABLE brand (
+  brand_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  brand_name VARCHAR(150) NOT NULL,
+  brand_logo VARCHAR(500),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: BRAND
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: BRAND
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SUPPLIER
+============================================================================================= */
+
+DROP TABLE IF EXISTS supplier;
+
+CREATE TABLE supplier (
+  supplier_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  supplier_name VARCHAR(200) NOT NULL,
+  contact_person VARCHAR(500),
+	mobile VARCHAR(50),
+	telephone VARCHAR(20),
+	email VARCHAR(255),
+  address VARCHAR(1000),
+	city_id INT UNSIGNED NOT NULL,
+	city_name VARCHAR(100) NOT NULL,
+	state_id INT UNSIGNED NOT NULL,
+	state_name VARCHAR(100) NOT NULL,
+	country_id INT UNSIGNED NOT NULL,
+	country_name VARCHAR(100) NOT NULL,
+  tax_id VARCHAR(100),
+  supplier_status ENUM('Active', 'Archived') DEFAULT 'Active',
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+
+/* =============================================================================================
+  INDEX: SUPPLIER
+============================================================================================= */
+
+CREATE INDEX idx_supplier_supplier_status ON supplier(supplier_status);
+CREATE INDEX idx_supplier_city_id ON supplier(city_id);
+CREATE INDEX idx_supplier_state_id ON supplier(state_id);
+CREATE INDEX idx_supplier_country_id ON supplier(country_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SUPPLIER
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: UNIT
+============================================================================================= */
+
+DROP TABLE IF EXISTS unit;
+
+CREATE TABLE unit (
+  unit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  unit_name VARCHAR(50) NOT NULL,
+  unit_symbol VARCHAR(10),
+  conversion_to_base DECIMAL(10,3) DEFAULT 1,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+
+/* =============================================================================================
+  INDEX: UNIT
+============================================================================================= */
+
+INSERT INTO unit (unit_name, unit_symbol, conversion_to_base)
+VALUES
+('Piece', 'pc', 1.000),
+('Box', 'box', 12.000),
+('Kilogram', 'kg', 1.000),
+('Gram', 'g', 0.001),
+('Bottle', 'btl', 1.000),
+('Case', 'case', 24.000),
+('Serving', 'srv', 1.000);
+
+/* =============================================================================================
+  INITIAL VALUES: UNIT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: TAX
+============================================================================================= */
+
+DROP TABLE IF EXISTS tax;
+
+CREATE TABLE tax (
+  tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tax_name VARCHAR(100) NOT NULL,
+  tax_rate DECIMAL(5,2) DEFAULT 0, 
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: TAX
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: TAX
+============================================================================================= */
+
+INSERT INTO tax (tax_name, tax_rate)
+VALUES
+('VAT Standard 12%', 12.00),
+('VAT Inclusive Price', 12.00),
+('Zero-Rated VAT', 0.00),
+('Service Charge 10%', 10.00),
+('Alcohol Excise Tax 15%', 15.00);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
