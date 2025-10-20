@@ -3033,6 +3033,11 @@ BEGIN
             last_log_by     = p_last_log_by
         WHERE country_id    = p_country_id;
 
+        UPDATE supplier
+        SET country_name    = p_country_name,
+            last_log_by     = p_last_log_by
+        WHERE country_id    = p_country_id;
+
         UPDATE warehouse
         SET country_name    = p_country_name,
             last_log_by     = p_last_log_by
@@ -3208,6 +3213,11 @@ BEGIN
         WHERE state_id      = p_state_id;
 
         UPDATE work_location
+        SET state_name      = p_state_name,
+            last_log_by     = p_last_log_by
+        WHERE state_id      = p_state_id;
+
+        UPDATE supplier
         SET state_name      = p_state_name,
             last_log_by     = p_last_log_by
         WHERE state_id      = p_state_id;
@@ -3404,6 +3414,11 @@ BEGIN
         WHERE city_id       = p_city_id;
 
         UPDATE warehouse
+        SET city_name       = p_city_name,
+            last_log_by     = p_last_log_by
+        WHERE city_id       = p_city_id;
+
+        UPDATE supplier
         SET city_name       = p_city_name,
             last_log_by     = p_last_log_by
         WHERE city_id       = p_city_id;
