@@ -6828,18 +6828,27 @@ CREATE INDEX idx_product_category_costing_method ON product_category(costing_met
 
 
 /* =============================================================================================
-  TABLE: POS PRODUCT CATEGORY
+  TABLE: SUPPLIER
 ============================================================================================= */
 
-DROP TABLE IF EXISTS pos_product_category;
+DROP TABLE IF EXISTS supplier;
 
-CREATE TABLE pos_product_category (
-  pos_product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  pos_product_category_name VARCHAR(100) NOT NULL,
-  pos_product_category_image VARCHAR(500),
-  parent_category_id INT UNSIGNED NULL,
-  parent_category_name VARCHAR(100) NOT NULL,
-  color VARCHAR(20) DEFAULT '#fff',
+CREATE TABLE supplier (
+  supplier_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  supplier_name VARCHAR(200) NOT NULL,
+  contact_person VARCHAR(500),
+	phone VARCHAR(50),
+	telephone VARCHAR(20),
+	email VARCHAR(255),
+  address VARCHAR(1000),
+	city_id INT UNSIGNED NOT NULL,
+	city_name VARCHAR(100) NOT NULL,
+	state_id INT UNSIGNED NOT NULL,
+	state_name VARCHAR(100) NOT NULL,
+	country_id INT UNSIGNED NOT NULL,
+	country_name VARCHAR(100) NOT NULL,
+  tax_id_number VARCHAR(100),
+  supplier_status ENUM('Active', 'Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6847,13 +6856,102 @@ CREATE TABLE pos_product_category (
 );
 
 /* =============================================================================================
-  INDEX: PRODUCT CATEGORY
+  INDEX: SUPPLIER
 ============================================================================================= */
 
-CREATE INDEX idx_pos_product_category_parent_category_id ON pos_product_category(pos_product_category_id);
+CREATE INDEX idx_supplier_city_id ON supplier(city_id);
+CREATE INDEX idx_supplier_state_id ON supplier(state_id);
+CREATE INDEX idx_supplier_country_id ON supplier(country_id);
+CREATE INDEX idx_supplier_supplier_status ON supplier(supplier_status);
 
 /* =============================================================================================
-  INITIAL VALUES: PRODUCT CATEGORY
+  INITIAL VALUES: SUPPLIER
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: WAREHOUSE TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS warehouse_type;
+
+CREATE TABLE warehouse_type (
+  warehouse_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  warehouse_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: WAREHOUSE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: WAREHOUSE TYPE
+============================================================================================= */
+
+INSERT INTO warehouse_type (warehouse_type_name) VALUES
+('Main'),
+('Branch'),
+('Kitchen'),
+('Storage');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: WAREHOUSE
+============================================================================================= */
+
+DROP TABLE IF EXISTS warehouse;
+
+CREATE TABLE warehouse (
+  warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  warehouse_name VARCHAR(200) NOT NULL,
+  short_name VARCHAR(200) NOT NULL,
+  address VARCHAR(1000),
+	city_id INT UNSIGNED NOT NULL,
+	city_name VARCHAR(100) NOT NULL,
+	state_id INT UNSIGNED NOT NULL,
+	state_name VARCHAR(100) NOT NULL,
+	country_id INT UNSIGNED NOT NULL,
+	country_name VARCHAR(100) NOT NULL,
+  warehouse_type_id INT UNSIGNED,
+  warehouse_type_name VARCHAR(100) NOT NULL,
+  contact_person VARCHAR(500),
+  phone VARCHAR(50),
+  email VARCHAR(100),
+  telephone VARCHAR(20),
+  warehouse_status ENUM('Active', 'Archived') DEFAULT 'Active',
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (warehouse_type_id) REFERENCES warehouse_type(warehouse_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: WAREHOUSE
+============================================================================================= */
+
+CREATE INDEX idx_warehouse_city_id ON warehouse(city_id);
+CREATE INDEX idx_warehouse_state_id ON warehouse(state_id);
+CREATE INDEX idx_warehouse_country_id ON warehouse(country_id);
+CREATE INDEX idx_warehouse_warehouse_type_id ON warehouse(warehouse_type_id);
+CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
+
+/* =============================================================================================
+  INITIAL VALUES: WAREHOUSE
 ============================================================================================= */
 
 /* =============================================================================================
@@ -6886,7 +6984,6 @@ CREATE TABLE product (
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (parent_category_id) REFERENCES product(product_id),
   FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
@@ -6919,7 +7016,7 @@ DROP TABLE IF EXISTS product_tax;
 
 CREATE TABLE product_tax (
   product_tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
   tax_type ENUM('Purchases','Sales'), 
   tax_id INT UNSIGNED NOT NULL,
@@ -6953,7 +7050,7 @@ DROP TABLE IF EXISTS product_variant;
 
 CREATE TABLE product_variant (
   product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
   product_variant_image VARCHAR(500),
   attribute_value_id INT UNSIGNED NOT NULL,
@@ -6996,7 +7093,7 @@ DROP TABLE IF EXISTS product_pricelist;
 
 CREATE TABLE product_pricelist (
   product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
   product_variant_id INT UNSIGNED NULL,
   rule_type ENUM('Add-On','Discount') DEFAULT 'Discount',
@@ -7008,7 +7105,7 @@ CREATE TABLE product_pricelist (
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
