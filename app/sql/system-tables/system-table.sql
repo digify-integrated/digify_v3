@@ -6692,15 +6692,14 @@ CREATE TABLE employee_document (
 
 
 /* =============================================================================================
-  TABLE: INDUSTRY
+  TABLE: ATTRIBUTE
 ============================================================================================= */
 
-DROP TABLE IF EXISTS industry;
+DROP TABLE IF EXISTS attribute;
 
-CREATE TABLE industry (
-  industry_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  industry_name VARCHAR(100) NOT NULL,
-  industry_description VARCHAR(500),
+CREATE TABLE attribute (
+  attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  attribute_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6708,11 +6707,44 @@ CREATE TABLE industry (
 );
 
 /* =============================================================================================
-  INDEX: INDUSTRY
+  INDEX: ATTRIBUTE
 ============================================================================================= */
 
 /* =============================================================================================
-  INITIAL VALUES: INDUSTRY
+  INITIAL VALUES: ATTRIBUTE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+/* =============================================================================================
+  TABLE: ATTRIBUTE VALUE
+============================================================================================= */
+
+DROP TABLE IF EXISTS attribute_value;
+
+CREATE TABLE attribute_value (
+  attribute_value_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  attribute_value_name VARCHAR(100) NOT NULL,
+  attribute_id INT UNSIGNED NOT NULL,
+  attribute_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: ATTRIBUTE
+============================================================================================= */
+
+CREATE INDEX idx_attribute_value_attribute_id ON attribute_value(attribute_id);
+
+/* =============================================================================================
+  INITIAL VALUES: ATTRIBUTE
 ============================================================================================= */
 
 /* =============================================================================================
@@ -6722,39 +6754,37 @@ CREATE TABLE industry (
 
 
 /* =============================================================================================
-  TABLE: PRODUCT TYPE
+  TABLE: TAX
 ============================================================================================= */
 
-DROP TABLE IF EXISTS product_type;
+DROP TABLE IF EXISTS tax;
 
-CREATE TABLE product_type (
-  product_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_type_name VARCHAR(100) NOT NULL,
-  industry_id INT UNSIGNED NOT NULL,
-  industry_name VARCHAR(100) NOT NULL,
-  behavior_flags JSON DEFAULT NULL,
+CREATE TABLE tax (
+  tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tax_name VARCHAR(100) NOT NULL,
+  tax_rate DECIMAL(5,2) DEFAULT 0, 
+  tax_type ENUM('None', 'Purchases','Sales') DEFAULT 'Sales',
+  tax_computation ENUM('Fixed','Percentage') DEFAULT 'Percentage',
+  tax_scope ENUM('Goods','Services'),
+  tax_status ENUM('Active','Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (industry_id) REFERENCES industry(industry_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
 /* =============================================================================================
-  INDEX: PRODUCT TYPE
+  INDEX: TAX
 ============================================================================================= */
 
-CREATE INDEX idx_product_type_industry_id ON product_type(industry_id);
+CREATE INDEX idx_tax_tax_type ON tax(tax_type);
+CREATE INDEX idx_tax_tax_computation ON tax(tax_computation);
+CREATE INDEX idx_tax_tax_scope ON tax(tax_scope);
+CREATE INDEX idx_tax_tax_status ON tax(tax_status);
 
 /* =============================================================================================
-  INITIAL VALUES: PRODUCT TYPE
+  INITIAL VALUES: TAX
 ============================================================================================= */
-
-INSERT INTO product_type (product_type_name) VALUES
-('Goods'),
-('Service'),
-('Combo'),
-('Raw Material');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -6773,12 +6803,10 @@ CREATE TABLE product_category (
   product_category_name VARCHAR(100) NOT NULL,
   parent_category_id INT UNSIGNED NULL,
   parent_category_name VARCHAR(100) NOT NULL,
-  product_category_description VARCHAR(1000),
-  display_order INT DEFAULT 0,
+  costing_method ENUM('Average Cost','First In First Out', 'Standard Price') DEFAULT 'Standard Price',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (parent_category_id) REFERENCES product_category(product_category_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -6787,6 +6815,7 @@ CREATE TABLE product_category (
 ============================================================================================= */
 
 CREATE INDEX idx_product_category_parent_category_id ON product_category(parent_category_id);
+CREATE INDEX idx_product_category_costing_method ON product_category(costing_method);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT CATEGORY
@@ -6799,16 +6828,18 @@ CREATE INDEX idx_product_category_parent_category_id ON product_category(parent_
 
 
 /* =============================================================================================
-  TABLE: BRAND
+  TABLE: POS PRODUCT CATEGORY
 ============================================================================================= */
 
-DROP TABLE IF EXISTS brand;
+DROP TABLE IF EXISTS pos_product_category;
 
-CREATE TABLE brand (
-  brand_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  brand_name VARCHAR(100) NOT NULL,
-  brand_description VARCHAR(500),
-  brand_logo VARCHAR(500),
+CREATE TABLE pos_product_category (
+  pos_product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  pos_product_category_name VARCHAR(100) NOT NULL,
+  pos_product_category_image VARCHAR(500),
+  parent_category_id INT UNSIGNED NULL,
+  parent_category_name VARCHAR(100) NOT NULL,
+  color VARCHAR(20) DEFAULT '#fff',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6816,257 +6847,13 @@ CREATE TABLE brand (
 );
 
 /* =============================================================================================
-  INDEX: BRAND
+  INDEX: PRODUCT CATEGORY
 ============================================================================================= */
 
-CREATE INDEX idx_brand_brand_status ON brand(brand_status);
+CREATE INDEX idx_pos_product_category_parent_category_id ON pos_product_category(pos_product_category_id);
 
 /* =============================================================================================
-  INITIAL VALUES: BRAND
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: UNIT
-============================================================================================= */
-
-DROP TABLE IF EXISTS unit;
-
-CREATE TABLE unit (
-  unit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  unit_name VARCHAR(50) NOT NULL,
-  unit_symbol VARCHAR(10),
-  unit_description VARCHAR(500),
-  conversion_to_base DECIMAL(10,3) DEFAULT 1,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: UNIT
-============================================================================================= */
-
-INSERT INTO unit (unit_name, unit_symbol, conversion_to_base)
-VALUES
-('Piece', 'pc', 1.000),
-('Box', 'box', 12.000),
-('Kilogram', 'kg', 1.000),
-('Gram', 'g', 0.001),
-('Bottle', 'btl', 1.000),
-('Case', 'case', 24.000),
-('Serving', 'srv', 1.000);
-
-/* =============================================================================================
-  INITIAL VALUES: UNIT
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: TAX TYPE
-============================================================================================= */
-
-DROP TABLE IF EXISTS tax_type;
-
-CREATE TABLE tax_type (
-  tax_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  tax_type_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: TAX TYPE
-============================================================================================= */
-
-/* =============================================================================================
-  INITIAL VALUES: TAX TYPE
-============================================================================================= */
-
-INSERT INTO tax (tax_type_name)
-VALUES
-('Additive'),
-('Inclusive'),
-('Withholding');
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: TAX
-============================================================================================= */
-
-DROP TABLE IF EXISTS tax;
-
-CREATE TABLE tax (
-  tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  tax_name VARCHAR(100) NOT NULL,
-  tax_rate DECIMAL(5,2) DEFAULT 0, 
-  tax_type_id INT UNSIGNED NOT NULL,
-  tax_type_name VARCHAR(100) NOT NULL,
-  applies_on ENUM('base','subtotal') DEFAULT 'base',
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES tax_type(tax_type_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: TAX
-============================================================================================= */
-
-/* =============================================================================================
-  INITIAL VALUES: TAX
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: SUPPLIER
-============================================================================================= */
-
-DROP TABLE IF EXISTS supplier;
-
-CREATE TABLE supplier (
-  supplier_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  supplier_name VARCHAR(200) NOT NULL,
-  contact_person VARCHAR(500),
-	phone VARCHAR(50),
-	telephone VARCHAR(20),
-	email VARCHAR(255),
-  address VARCHAR(1000),
-	city_id INT UNSIGNED NOT NULL,
-	city_name VARCHAR(100) NOT NULL,
-	state_id INT UNSIGNED NOT NULL,
-	state_name VARCHAR(100) NOT NULL,
-	country_id INT UNSIGNED NOT NULL,
-	country_name VARCHAR(100) NOT NULL,
-  tax_id_number VARCHAR(100),
-  supplier_status ENUM('Active', 'Archived') DEFAULT 'Active',
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: SUPPLIER
-============================================================================================= */
-
-CREATE INDEX idx_supplier_city_id ON supplier(city_id);
-CREATE INDEX idx_supplier_state_id ON supplier(state_id);
-CREATE INDEX idx_supplier_country_id ON supplier(country_id);
-CREATE INDEX idx_supplier_supplier_status ON supplier(supplier_status);
-
-/* =============================================================================================
-  INITIAL VALUES: SUPPLIER
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: WAREHOUSE TYPE
-============================================================================================= */
-
-DROP TABLE IF EXISTS warehouse_type;
-
-CREATE TABLE warehouse_type (
-  warehouse_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  warehouse_type_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: WAREHOUSE TYPE
-============================================================================================= */
-
-/* =============================================================================================
-  INITIAL VALUES: WAREHOUSE TYPE
-============================================================================================= */
-
-INSERT INTO warehouse_type (warehouse_type_name) VALUES
-('Main'),
-('Branch'),
-('Kitchen'),
-('Storage');
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: WAREHOUSE
-============================================================================================= */
-
-DROP TABLE IF EXISTS warehouse;
-
-CREATE TABLE warehouse (
-  warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  warehouse_name VARCHAR(200) NOT NULL,
-  short_name VARCHAR(200) NOT NULL,
-  address VARCHAR(1000),
-	city_id INT UNSIGNED NOT NULL,
-	city_name VARCHAR(100) NOT NULL,
-	state_id INT UNSIGNED NOT NULL,
-	state_name VARCHAR(100) NOT NULL,
-	country_id INT UNSIGNED NOT NULL,
-	country_name VARCHAR(100) NOT NULL,
-  warehouse_type_id INT UNSIGNED,
-  warehouse_type_name VARCHAR(100) NOT NULL,
-  contact_person VARCHAR(500),
-  phone VARCHAR(50),
-  email VARCHAR(100),
-  telephone VARCHAR(20),
-  warehouse_status ENUM('Active', 'Archived') DEFAULT 'Active',
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (warehouse_type_id) REFERENCES warehouse_type(warehouse_type_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: WAREHOUSE
-============================================================================================= */
-
-CREATE INDEX idx_warehouse_city_id ON warehouse(city_id);
-CREATE INDEX idx_warehouse_state_id ON warehouse(state_id);
-CREATE INDEX idx_warehouse_country_id ON warehouse(country_id);
-CREATE INDEX idx_warehouse_warehouse_type_id ON warehouse(warehouse_type_id);
-CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
-
-/* =============================================================================================
-  INITIAL VALUES: WAREHOUSE
+  INITIAL VALUES: PRODUCT CATEGORY
 ============================================================================================= */
 
 /* =============================================================================================
@@ -7082,22 +6869,24 @@ CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
 DROP TABLE IF EXISTS product;
 
 CREATE TABLE product (
-  product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  product_name VARCHAR(200) NOT NULL,
+  product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_name VARCHAR(100) NOT NULL,
   product_image VARCHAR(500),
-  product_status VARCHAR(50) DEFAULT 'Active',
-  barcode VARCHAR(50),
-  product_type_id INT UNSIGNED NOT NULL,
-  product_type_name VARCHAR(100) NOT NULL,
+  product_type ENUM('Goods','Services') DEFAULT 'Goods',
   product_category_id INT UNSIGNED NOT NULL,
   product_category_name VARCHAR(100) NOT NULL,
-  quantity INT UNSIGNED DEFAULT 0,
+  is_sellable VARCHAR(5) DEFAULT 'Yes',
+  is_purchasable VARCHAR(5) DEFAULT 'Yes',
+  show_on_pos VARCHAR(5) DEFAULT 'Yes',
+  quantity_on_hand INT DEFAULT 0,
   sales_price DOUBLE DEFAULT 0,
   cost DOUBLE DEFAULT 0,
+  product_status ENUM('Active','Archived') DEFAULT 'Active',
+  remarks VARCHAR(5000),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_type_id) REFERENCES product_type(product_type_id),
+  FOREIGN KEY (parent_category_id) REFERENCES product(product_id),
   FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
@@ -7106,14 +6895,136 @@ CREATE TABLE product (
   INDEX: PRODUCT
 ============================================================================================= */
 
-CREATE INDEX idx_product_product_type_id ON product(product_type_id);
+CREATE INDEX idx_product_product_type ON product(product_type);
+CREATE INDEX idx_product_is_sellable ON product(is_sellable);
+CREATE INDEX idx_product_is_purchasable ON product(is_purchasable);
+CREATE INDEX idx_product_show_on_pos ON product(show_on_pos);
 CREATE INDEX idx_product_product_category_id ON product(product_category_id);
-CREATE INDEX idx_product_product_product_status ON product(product_status);
-CREATE INDEX idx_product_product_barcode ON product(barcode);
-CREATE INDEX idx_product_product_product_name ON product(product_name);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT TAX
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_tax;
+
+CREATE TABLE product_tax (
+  product_tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  tax_type ENUM('Purchases','Sales'), 
+  tax_id INT UNSIGNED NOT NULL,
+  tax_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (tax_id) REFERENCES tax(tax_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT TAX
+============================================================================================= */
+
+CREATE INDEX idx_product_tax_product_id ON product_tax(product_id);
+CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT TAX
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT VARIANT
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_variant;
+
+CREATE TABLE product_variant (
+  product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  product_variant_image VARCHAR(500),
+  attribute_value_id INT UNSIGNED NOT NULL,
+  attribute_value_name VARCHAR(100) NOT NULL,
+  attribute_id INT UNSIGNED NOT NULL,
+  attribute_name VARCHAR(100) NOT NULL,
+  extra_price DOUBLE DEFAULT 0,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT VARIANT
+============================================================================================= */
+
+CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
+CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute_value_id);
+CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT VARIANT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT PRICELIST
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_pricelist;
+
+CREATE TABLE product_pricelist (
+  product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  product_variant_id INT UNSIGNED NULL,
+  rule_type ENUM('Add-On','Discount') DEFAULT 'Discount',
+  pricelist_computation ENUM('Fixed','Percentage') DEFAULT 'Percentage',
+  pricelist_rate DECIMAL(5,2) DEFAULT 0, 
+  validity_start_date DATE NOT NULL,
+  validity_end_date DATE,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT VARIANT
+============================================================================================= */
+
+CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
+CREATE INDEX idx_product_pricelist_product_variant_id ON product_pricelist(product_variant_id);
+CREATE INDEX idx_product_pricelist_validity_start_date ON product_pricelist(validity_start_date);
+CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validity_end_date);
+CREATE INDEX idx_product_pricelist_rule_type ON product_pricelist(rule_type);
+CREATE INDEX idx_product_pricelist_pricelist_computation ON product_pricelist(pricelist_computation);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT VARIANT
 ============================================================================================= */
 
 /* =============================================================================================
