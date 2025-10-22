@@ -1,4 +1,4 @@
-import { disableButton, enableButton, generateDropdownOptions, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions, resetForm } from '../../utilities/form-utilities.js';
 import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
@@ -188,8 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const transaction = 'update supplier archive';
 
             Swal.fire({
-                title: 'Confirm Supplier archive',
-                text: 'Are you sure you want to unarchive this supplier?',
+                title: 'Confirm Supplier Archive',
+                text: 'Are you sure you want to archive this supplier?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Archive',

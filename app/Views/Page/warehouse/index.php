@@ -43,9 +43,13 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
+                                <label class="form-label fs-6 fw-semibold" for="warehouse_type_filter">Warehouse Type:</label>
+                                <select id="warehouse_type_filter" name="warehouse_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                            </div>
+                            <div class="mb-10">
                                 <label class="form-label fs-6 fw-semibold" for="city_filter">City:</label>
-                            <select id="city_filter" name="city_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                                </div>
+                                <select id="city_filter" name="city_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                            </div>
                             <div class="mb-10">
                                 <label class="form-label fs-6 fw-semibold" for="state_filter">State:</label>
                                 <select id="state_filter" name="state_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
@@ -55,8 +59,11 @@
                                 <select id="country_filter" name="country_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="currency_filter">Currency:</label>
-                                <select id="currency_filter" name="currency_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="warehouse_status_filter">Status:</label>
+                                <select id="warehouse_status_filter" name="warehouse_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Archived">Archived</option>
+                                </select>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="reset" class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6" id="reset-filter" data-kt-menu-dismiss="true">Reset</button>

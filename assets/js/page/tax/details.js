@@ -178,8 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const transaction = 'update tax archive';
 
             Swal.fire({
-                title: 'Confirm Tax archive',
-                text: 'Are you sure you want to unarchive this tax?',
+                title: 'Confirm Tax Archive',
+                text: 'Are you sure you want to archive this tax?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Archive',

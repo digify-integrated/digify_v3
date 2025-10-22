@@ -5,9 +5,9 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Warehouse;
+use App\Models\WarehouseType;
 use App\Models\City;
 use App\Models\Authentication;
-use App\Models\UploadSetting;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
 
@@ -16,24 +16,24 @@ require_once '../../config/config.php';
 class WarehouseController
 {
     protected Warehouse $warehouse;
+    protected WarehouseType $warehouseType;
     protected City $city;
     protected Authentication $authentication;
-    protected UploadSetting $uploadSetting;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
         Warehouse $warehouse,
+        WarehouseType $warehouseType,
         City $city,
         Authentication $authentication,
-        UploadSetting $uploadSetting,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->warehouse        = $warehouse;
+        $this->warehouseType    = $warehouseType;
         $this->city             = $city;
         $this->authentication   = $authentication;
-        $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
     }
@@ -78,16 +78,18 @@ class WarehouseController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save warehouse'              => $this->saveWarehouse($lastLogBy),
-            'delete warehouse'            => $this->deleteWarehouse(),
-            'delete multiple warehouse'   => $this->deleteMultipleWarehouse(),
-            'fetch warehouse details'     => $this->fetchWarehouseDetails(),
-            'generate warehouse table'    => $this->generateWarehouseTable(),
-            'generate warehouse options'  => $this->generateWarehouseOptions(),
-            default                     => $this->systemHelper::sendErrorResponse(
-                                                'Transaction Failed',
-                                                'We encountered an issue while processing your request.'
-                                            )
+            'save warehouse'                => $this->saveWarehouse($lastLogBy),
+            'update warehouse archive'      => $this->updateWarehouseArchive($lastLogBy),
+            'update warehouse unarchive'    => $this->updateWarehouseUnarchive($lastLogBy),
+            'delete warehouse'              => $this->deleteWarehouse(),
+            'delete multiple warehouse'     => $this->deleteMultipleWarehouse(),
+            'fetch warehouse details'       => $this->fetchWarehouseDetails(),
+            'generate warehouse table'      => $this->generateWarehouseTable(),
+            'generate warehouse options'    => $this->generateWarehouseOptions(),
+            default                         => $this->systemHelper::sendErrorResponse(
+                                                    'Transaction Failed',
+                                                    'We encountered an issue while processing your request.'
+                                                )
         };
     }
 
@@ -101,10 +103,19 @@ class WarehouseController
             );
         }
 
-        $warehouseId    = $_POST['warehouse_id'] ?? null;
-        $warehouseName  = $_POST['warehouse_name'] ?? null;
-        $address        = $_POST['address'] ?? null;
-        $cityId         = $_POST['city_id'] ?? null;
+        $warehouseId        = $_POST['warehouse_id'] ?? null;
+        $warehouseName      = $_POST['warehouse_name'] ?? null;
+        $shortName          = $_POST['short_name'] ?? null;
+        $contactPerson      = $_POST['contact_person'] ?? null;
+        $address            = $_POST['address'] ?? null;
+        $cityId             = $_POST['city_id'] ?? null;
+        $phone              = $_POST['phone'] ?? null;
+        $telephone          = $_POST['telephone'] ?? null;
+        $email              = $_POST['email'] ?? null;
+        $warehouseTypeId    = $_POST['warehouse_type_id'] ?? null;
+
+        $warehouseTypeDetails    = $this->warehouseType->fetchWarehouseType($warehouseTypeId);
+        $warehouseTypeName       = $warehouseTypeDetails['warehouse_type_name'] ?? null;
 
         $cityDetails    = $this->city->fetchCity($cityId);
         $cityName       = $cityDetails['city_name'] ?? null;
@@ -113,7 +124,7 @@ class WarehouseController
         $countryId      = $cityDetails['country_id'] ?? null;
         $countryName    = $cityDetails['country_name'] ?? null;
 
-        $warehouseId = $this->warehouse->saveWarehouse($warehouseId, $warehouseName, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $lastLogBy);
+        $warehouseId = $this->warehouse->saveWarehouse($warehouseId, $warehouseName, $shortName, $contactPerson, $phone, $telephone, $email, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $warehouseTypeId, $warehouseTypeName, $lastLogBy);
 
         $encryptedwarehouseId = $this->security->encryptData($warehouseId);
 
@@ -121,6 +132,28 @@ class WarehouseController
             'Save Warehouse Success',
             'The warehouse has been saved successfully.',
             ['warehouse_id' => $encryptedwarehouseId]
+        );
+    }
+
+    public function updateWarehouseArchive($lastLogBy){
+        $warehouseId = $_POST['warehouse_id'] ?? null;
+
+        $this->warehouse->updateWarehouseArchive($warehouseId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Warehouse Archive Success',
+            'The warehouse has been archived successfully.'
+        );
+    }
+
+    public function updateWarehouseUnarchive($lastLogBy){
+        $warehouseId = $_POST['warehouse_id'] ?? null;
+
+        $this->warehouse->updateWarehouseUnarchive($warehouseId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Warehouse Unarchive Success',
+            'The warehouse has been unarchived successfully.'
         );
     }
 
@@ -149,8 +182,8 @@ class WarehouseController
     }
 
     public function fetchWarehouseDetails(){
-        $warehouseId          = $_POST['warehouse_id'] ?? null;
-        $checkWarehouseExist  = $this->warehouse->checkWarehouseExist($warehouseId);
+        $warehouseId            = $_POST['warehouse_id'] ?? null;
+        $checkWarehouseExist    = $this->warehouse->checkWarehouseExist($warehouseId);
         $total                  = $checkWarehouseExist['total'] ?? 0;
 
         if($total === 0){
@@ -162,13 +195,18 @@ class WarehouseController
         }
 
         $warehouseDetails     = $this->warehouse->fetchWarehouse($warehouseId);
-        $warehouseLogo        = $this->systemHelper->checkImageExist($warehouseDetails['warehouse_logo'] ?? null, 'warehouse logo');
 
         $response = [
-            'success'       => true,
-            'warehouseName'   => $warehouseDetails['warehouse_name'] ?? null,
-            'address'       => $warehouseDetails['address'] ?? null,
-            'cityID'        => $warehouseDetails['city_id'] ?? null
+            'success'           => true,
+            'warehouseName'     => $warehouseDetails['warehouse_name'] ?? null,
+            'shortName'         => $warehouseDetails['short_name'] ?? null,
+            'contactPerson'     => $warehouseDetails['contact_person'] ?? null,
+            'address'           => $warehouseDetails['address'] ?? null,
+            'cityID'            => $warehouseDetails['city_id'] ?? null,
+            'phone'             => $warehouseDetails['phone'] ?? null,
+            'telephone'         => $warehouseDetails['telephone'] ?? null,
+            'email'             => $warehouseDetails['email'] ?? null,
+            'warehouseTypeId'  => $warehouseDetails['warehouse_type_id'] ?? null
         ];
 
         echo json_encode($response);
@@ -177,13 +215,15 @@ class WarehouseController
 
     public function generateWarehouseTable()
     {
-        $pageLink           = $_POST['page_link'] ?? null;
-        $cityFilter         = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter        = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter      = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $response           = [];
+        $pageLink               = $_POST['page_link'] ?? null;
+        $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
+        $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
+        $countryFilter          = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
+        $warehouseTypeFilter   = $this->systemHelper->checkFilter($_POST['warehouse_type_filter'] ?? null);
+        $warehouseStatusFilter   = $this->systemHelper->checkFilter($_POST['warehouse_status_filter'] ?? null);
+        $response               = [];
 
-        $warehouses = $this->warehouse->generateWarehouseTable($cityFilter, $stateFilter, $countryFilter);
+        $warehouses = $this->warehouse->generateWarehouseTable($warehouseTypeFilter, $cityFilter, $stateFilter, $countryFilter, $warehouseStatusFilter);
 
         foreach ($warehouses as $row) {
             $warehouseId            = $row['warehouse_id'];
@@ -238,9 +278,9 @@ class WarehouseController
 # Bootstrap the controller
 $controller = new WarehouseController(
     new Warehouse(),
+    new WarehouseType(),
     new City(),
     new Authentication(),
-    new UploadSetting(),
     new Security(),
     new SystemHelper()
 );

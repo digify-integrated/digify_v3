@@ -9437,6 +9437,680 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: TAX
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveTax//
+
+CREATE PROCEDURE saveTax(
+    IN p_tax_id INT, 
+    IN p_tax_name VARCHAR(200), 
+    IN p_tax_rate DECIMAL(5,2), 
+    IN p_tax_type VARCHAR(50), 
+    IN p_tax_computation VARCHAR(50), 
+    IN p_tax_scope VARCHAR(50), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_tax_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_tax_id IS NULL OR NOT EXISTS (SELECT 1 FROM tax WHERE tax_id = p_tax_id) THEN
+        INSERT INTO tax (
+            tax_name,
+            tax_rate,
+            tax_type,
+            tax_computation,
+            tax_scope,
+            last_log_by
+        ) 
+        VALUES(
+            p_tax_name,
+            p_tax_rate,
+            p_tax_type,
+            p_tax_computation,
+            p_tax_scope,
+            p_last_log_by
+        ); 
+        
+        SET v_new_tax_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE tax
+        SET tax_name            = p_tax_name,
+            tax_rate            = p_tax_rate,
+            tax_type            = p_tax_type,
+            tax_computation     = p_tax_computation,
+            tax_scope           = p_tax_scope,
+            last_log_by         = p_last_log_by
+        WHERE tax_id            = p_tax_id;
+
+        SET v_new_tax_id = p_tax_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_tax_id AS new_tax_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateTaxArchive//
+
+CREATE PROCEDURE updateTaxArchive(
+	IN p_tax_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE tax
+    SET tax_status      = 'Archived',
+        last_log_by     = p_last_log_by
+    WHERE tax_id        = p_tax_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateTaxUnarchive//
+
+CREATE PROCEDURE updateTaxUnarchive(
+	IN p_tax_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE tax
+    SET tax_status      = 'Active',
+        last_log_by     = p_last_log_by
+    WHERE tax_id        = p_tax_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchTax//
+
+CREATE PROCEDURE fetchTax(
+    IN p_tax_id INT
+)
+BEGIN
+	SELECT * FROM tax
+	WHERE tax_id = p_tax_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteTax//
+
+CREATE PROCEDURE deleteTax(
+    IN p_tax_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM tax WHERE tax_id = p_tax_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkTaxExist//
+
+CREATE PROCEDURE checkTaxExist(
+    IN p_tax_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM tax
+    WHERE tax_id = p_tax_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateTaxTable//
+
+CREATE PROCEDURE generateTaxTable(
+    IN p_filter_by_tax_type TEXT,
+    IN p_filter_by_tax_computation TEXT,
+    IN p_filter_by_tax_scope TEXT,
+    IN p_filter_by_tax_status TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT tax_id, tax_name, tax_rate, tax_type, tax_computation, tax_scope 
+                FROM tax ';
+
+    IF p_filter_by_tax_type IS NOT NULL AND p_filter_by_tax_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_type IN (', p_filter_by_tax_type, ')');
+    END IF;
+
+    IF p_filter_by_tax_computation IS NOT NULL AND p_filter_by_tax_computation <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_computation IN (', p_filter_by_tax_computation, ')');
+    END IF;
+
+    IF p_filter_by_tax_scope IS NOT NULL AND p_filter_by_tax_scope <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_scope IN (', p_filter_by_tax_scope, ')');
+    END IF;
+
+    IF p_filter_by_tax_status IS NOT NULL AND p_filter_by_tax_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_status IN (', p_filter_by_tax_status, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY tax_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateTaxOptions//
+
+CREATE PROCEDURE generateTaxOptions()
+BEGIN
+	SELECT tax_id, tax_name 
+    FROM tax 
+    ORDER BY tax_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: WAREHOUSE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveWarehouseType//
+
+CREATE PROCEDURE saveWarehouseType(
+    IN p_warehouse_type_id INT, 
+    IN p_warehouse_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_warehouse_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_warehouse_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM warehouse_type WHERE warehouse_type_id = p_warehouse_type_id) THEN
+        INSERT INTO warehouse_type (
+            warehouse_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_warehouse_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_warehouse_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE warehouse
+        SET warehouse_type_name   = p_warehouse_type_name,
+            last_log_by         = p_last_log_by
+        WHERE warehouse_type_id   = p_warehouse_type_id;
+
+        UPDATE warehouse_type
+        SET warehouse_type_name   = p_warehouse_type_name,
+            last_log_by         = p_last_log_by
+        WHERE warehouse_type_id   = p_warehouse_type_id;
+
+        SET v_new_warehouse_type_id = p_warehouse_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_warehouse_type_id AS new_warehouse_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchWarehouseType//
+
+CREATE PROCEDURE fetchWarehouseType(
+    IN p_warehouse_type_id INT
+)
+BEGIN
+	SELECT * FROM warehouse_type
+	WHERE warehouse_type_id = p_warehouse_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteWarehouseType//
+
+CREATE PROCEDURE deleteWarehouseType(
+    IN p_warehouse_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM warehouse_type WHERE warehouse_type_id = p_warehouse_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkWarehouseTypeExist//
+
+CREATE PROCEDURE checkWarehouseTypeExist(
+    IN p_warehouse_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse_type
+    WHERE warehouse_type_id = p_warehouse_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateWarehouseTypeTable//
+
+CREATE PROCEDURE generateWarehouseTypeTable()
+BEGIN
+	SELECT warehouse_type_id, warehouse_type_name
+    FROM warehouse_type 
+    ORDER BY warehouse_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateWarehouseTypeOptions//
+
+CREATE PROCEDURE generateWarehouseTypeOptions()
+BEGIN
+	SELECT warehouse_type_id, warehouse_type_name 
+    FROM warehouse_type 
+    ORDER BY warehouse_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: WAREHOUSE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveWarehouse//
+
+CREATE PROCEDURE saveWarehouse(
+    IN p_warehouse_id INT, 
+    IN p_warehouse_name VARCHAR(200), 
+    IN p_short_name VARCHAR(200), 
+    IN p_contact_person VARCHAR(500), 
+    IN p_phone VARCHAR(20), 
+    IN p_telephone VARCHAR(20), 
+    IN p_email VARCHAR(255), 
+    IN p_address VARCHAR(1000), 
+    IN p_city_id INT, 
+    IN p_city_name VARCHAR(100), 
+    IN p_state_id INT, 
+    IN p_state_name VARCHAR(100), 
+    IN p_country_id INT, 
+    IN p_country_name VARCHAR(100), 
+    IN p_warehouse_type_id INT, 
+    IN p_warehouse_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_warehouse_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_warehouse_id IS NULL OR NOT EXISTS (SELECT 1 FROM warehouse WHERE warehouse_id = p_warehouse_id) THEN
+        INSERT INTO warehouse (
+            warehouse_name,
+            short_name,
+            contact_person,
+            phone,
+            telephone,
+            email,
+            address,
+            city_id,
+            city_name,
+            state_id,
+            state_name,
+            country_id,
+            country_name,
+            warehouse_type_id,
+            warehouse_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_warehouse_name,
+            p_short_name,
+            p_contact_person,
+            p_phone,
+            p_telephone,
+            p_email,
+            p_address,
+            p_city_id,
+            p_city_name,
+            p_state_id,
+            p_state_name,
+            p_country_id,
+            p_country_name,
+            p_warehouse_type_id,
+            p_warehouse_type_name,
+            p_last_log_by
+        ); 
+        
+        SET v_new_warehouse_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE warehouse
+        SET warehouse_name          = p_warehouse_name,
+            short_name              = p_short_name,
+            contact_person          = p_contact_person,
+            phone                   = p_phone,
+            telephone               = p_telephone,
+            email                   = p_email,
+            address                 = p_address,
+            city_id                 = p_city_id,
+            city_name               = p_city_name,
+            state_id                = p_state_id,
+            state_name              = p_state_name,
+            country_id              = p_country_id,
+            country_name            = p_country_name,
+            warehouse_type_id       = p_warehouse_type_id,
+            warehouse_type_name     = p_warehouse_type_name,
+            last_log_by             = p_last_log_by
+        WHERE warehouse_id          = p_warehouse_id;
+
+        SET v_new_warehouse_id = p_warehouse_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_warehouse_id AS new_warehouse_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateWarehouseArchive//
+
+CREATE PROCEDURE updateWarehouseArchive(
+	IN p_warehouse_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE warehouse
+    SET warehouse_status    = 'Archived',
+        last_log_by         = p_last_log_by
+    WHERE warehouse_id      = p_warehouse_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateWarehouseUnarchive//
+
+CREATE PROCEDURE updateWarehouseUnarchive(
+	IN p_warehouse_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE warehouse
+    SET warehouse_status    = 'Active',
+        last_log_by         = p_last_log_by
+    WHERE warehouse_id      = p_warehouse_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchWarehouse//
+
+CREATE PROCEDURE fetchWarehouse(
+    IN p_warehouse_id INT
+)
+BEGIN
+	SELECT * FROM warehouse
+	WHERE warehouse_id = p_warehouse_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteWarehouse//
+
+CREATE PROCEDURE deleteWarehouse(
+    IN p_warehouse_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM warehouse WHERE warehouse_id = p_warehouse_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkWarehouseExist//
+
+CREATE PROCEDURE checkWarehouseExist(
+    IN p_warehouse_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateWarehouseTable//
+
+CREATE PROCEDURE generateWarehouseTable(
+    IN p_filter_by_warehouse_type TEXT,
+    IN p_filter_by_city TEXT,
+    IN p_filter_by_state TEXT,
+    IN p_filter_by_country TEXT,
+    IN p_filter_by_warehouse_status TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT warehouse_id, warehouse_name, address, city_name, state_name, country_name 
+                FROM warehouse ';
+
+    IF p_filter_by_warehouse_type IS NOT NULL AND p_filter_by_warehouse_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' warehouse_type_id IN (', p_filter_by_warehouse_type, ')');
+    END IF;
+
+    IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
+    END IF;
+
+    IF p_filter_by_state IS NOT NULL AND p_filter_by_state <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' state_id IN (', p_filter_by_state, ')');
+    END IF;
+
+    IF p_filter_by_country IS NOT NULL AND p_filter_by_country <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' country_id IN (', p_filter_by_country, ')');
+    END IF;
+
+    IF p_filter_by_warehouse_status IS NOT NULL AND p_filter_by_warehouse_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' warehouse_status IN (', p_filter_by_warehouse_status, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY warehouse_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateWarehouseOptions//
+
+CREATE PROCEDURE generateWarehouseOptions()
+BEGIN
+	SELECT warehouse_id, warehouse_name 
+    FROM warehouse 
+    ORDER BY warehouse_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
    STORED PROCEDURE: 
 ============================================================================================= */
 

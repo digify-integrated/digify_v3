@@ -9,9 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/WarehouseController.php',
         transaction: 'generate warehouse table',
         ajaxData: {
+            warehouse_type_filter: $('#warehouse_type_filter').val(),
             city_filter: $('#city_filter').val(),
             state_filter: $('#state_filter').val(),
-            country_filter: $('#country_filter').val()
+            country_filter: $('#country_filter').val(),
+            warehouse_status_filter: $('#warehouse_status_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
+        { url: './app/Controllers/WarehouseTypeController.php', selector: '#warehouse_type_filter', transaction: 'generate warehouse type options' },
         { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
         { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
         { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' }
@@ -50,9 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
+            $('#warehouse_type_filter').val(null).trigger('change');
             $('#city_filter').val(null).trigger('change');
             $('#state_filter').val(null).trigger('change');
             $('#country_filter').val(null).trigger('change');
+            $('#warehouse_status_filter').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());
         }

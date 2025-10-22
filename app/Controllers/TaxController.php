@@ -70,15 +70,15 @@ class TaxController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save tax'                 => $this->saveTax($lastLogBy),
-            'update tax archive'       => $this->updateTaxArchive($lastLogBy),
-            'update tax unarchive'     => $this->updateTaxUnarchive($lastLogBy),
-            'delete tax'               => $this->deleteTax(),
-            'delete multiple tax'      => $this->deleteMultipleTax(),
-            'fetch tax details'        => $this->fetchTaxDetails(),
-            'generate tax table'       => $this->generateTaxTable(),
-            'generate tax options'     => $this->generateTaxOptions(),
-            default                         => $this->systemHelper::sendErrorResponse(
+            'save tax'                  => $this->saveTax($lastLogBy),
+            'update tax archive'        => $this->updateTaxArchive($lastLogBy),
+            'update tax unarchive'      => $this->updateTaxUnarchive($lastLogBy),
+            'delete tax'                => $this->deleteTax(),
+            'delete multiple tax'       => $this->deleteMultipleTax(),
+            'fetch tax details'         => $this->fetchTaxDetails(),
+            'generate tax table'        => $this->generateTaxTable(),
+            'generate tax options'      => $this->generateTaxOptions(),
+            default                     => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
                                                 )
@@ -95,17 +95,14 @@ class TaxController
             );
         }
 
-        $taxId     = $_POST['tax_id'] ?? null;
-        $taxName   = $_POST['tax_name'] ?? null;
-        $contactPerson  = $_POST['contact_person'] ?? null;
-        $address        = $_POST['address'] ?? null;
-        $cityId         = $_POST['city_id'] ?? null;
-        $phone          = $_POST['phone'] ?? null;
-        $telephone      = $_POST['telephone'] ?? null;
-        $email          = $_POST['email'] ?? null;
-        $taxIdNumber    = $_POST['tax_id_number'] ?? null;
+        $taxId              = $_POST['tax_id'] ?? null;
+        $taxName            = $_POST['tax_name'] ?? null;
+        $taxComputation     = $_POST['tax_computation'] ?? 'Percentage';
+        $taxRate            = $_POST['tax_rate'] ?? 0;
+        $taxType            = $_POST['tax_type'] ?? 'Sales';
+        $taxCcope           = $_POST['tax_scope'] ?? null;
 
-        $taxId = $this->tax->saveTax($taxId, $taxName, $contactPerson, $phone, $telephone, $email, $address, $lastLogBy);
+        $taxId = $this->tax->saveTax($taxId, $taxName, $taxRate, $taxType, $taxComputation, $taxCcope, $lastLogBy);
 
         $encryptedtaxId = $this->security->encryptData($taxId);
 
@@ -163,9 +160,9 @@ class TaxController
     }
 
     public function fetchTaxDetails(){
-        $taxId             = $_POST['tax_id'] ?? null;
-        $checkTaxExist     = $this->tax->checkTaxExist($taxId);
-        $total                  = $checkTaxExist['total'] ?? 0;
+        $taxId          = $_POST['tax_id'] ?? null;
+        $checkTaxExist  = $this->tax->checkTaxExist($taxId);
+        $total          = $checkTaxExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper->sendErrorResponse(
@@ -179,14 +176,11 @@ class TaxController
 
         $response = [
             'success'           => true,
-            'taxName'      => $taxDetails['tax_name'] ?? null,
-            'contactPerson'     => $taxDetails['contact_person'] ?? null,
-            'address'           => $taxDetails['address'] ?? null,
-            'cityID'            => $taxDetails['city_id'] ?? null,
-            'taxIdNumber'       => $taxDetails['tax_id_number'] ?? null,
-            'phone'             => $taxDetails['phone'] ?? null,
-            'telephone'         => $taxDetails['telephone'] ?? null,
-            'email'             => $taxDetails['email'] ?? null
+            'taxName'           => $taxDetails['tax_name'] ?? null,
+            'taxRate'           => $taxDetails['tax_rate'] ?? 0,
+            'taxType'           => $taxDetails['tax_type'] ?? 'Sales',
+            'taxComputation'    => $taxDetails['tax_computation'] ?? 'Percentage',
+            'taxScope'          => $taxDetails['tax_scope'] ?? null
         ];
 
         echo json_encode($response);
@@ -196,32 +190,30 @@ class TaxController
     public function generateTaxTable()
     {
         $pageLink               = $_POST['page_link'] ?? null;
-        $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter          = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $taxStatusFilter   = $this->systemHelper->checkFilter($_POST['tax_status_filter'] ?? null);
+        $taxTypeFilter          = $this->systemHelper->checkFilter($_POST['tax_type_filter'] ?? null);
+        $taxComputationFilter   = $this->systemHelper->checkFilter($_POST['tax_computation_filter'] ?? null);
+        $taxScopeFilter         = $this->systemHelper->checkFilter($_POST['tax_scope_filter'] ?? null);
+        $taxStatusFilter        = $this->systemHelper->checkFilter($_POST['tax_status_filter'] ?? null);
         $response               = [];
 
-        $taxs = $this->tax->generateTaxTable($cityFilter, $stateFilter, $countryFilter, $taxStatusFilter);
+        $taxs = $this->tax->generateTaxTable($taxTypeFilter, $taxComputationFilter, $taxScopeFilter, $taxStatusFilter);
 
         foreach ($taxs as $row) {
-            $taxId             = $row['tax_id'];
-            $taxName           = $row['tax_name'];
-            $address                = $row['address'];
-            $cityName               = $row['city_name'];
-            $stateName              = $row['state_name'];
-            $countryName            = $row['country_name'];
-            $taxAddress        = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
-            $taxIdEncrypted    = $this->security->encryptData($taxId);
+            $taxId              = $row['tax_id'];
+            $taxName            = $row['tax_name'];
+            $taxRate            = $row['tax_rate'];
+            $taxType            = $row['tax_type'];
+            $taxScope           = $row['tax_scope'];
+            $taxIdEncrypted     = $this->security->encryptData($taxId);
 
             $response[] = [
                 'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $taxId .'">
                                     </div>',
-                'SUPPLIER_NAME'  => '<div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-bold mb-1">'. $taxName .'</span>
-                                        <small class="text-gray-600">'. $taxAddress .'</small>
-                                    </div>',
+                'TAX'           => $taxName,
+                'TAX_RATE'      => number_format($taxRate, 2),
+                'TAX_TYPE'      => $taxType,
+                'TAX_SCOPE'     => $taxScope,
                 'LINK'          => $pageLink .'&id='. $taxIdEncrypted
             ];
         }

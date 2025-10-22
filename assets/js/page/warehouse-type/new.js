@@ -1,33 +1,14 @@
-import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const dropdownConfigs = [
-        { url: './app/Controllers/CityController.php', selector: '#city_id', transaction: 'generate city options' },
-        { url: './app/Controllers/WarehouseTypeController.php', selector: '#warehouse_type_id', transaction: 'generate warehouse type options' }
-    ];
-    
-    dropdownConfigs.forEach(cfg => {
-        generateDropdownOptions({
-            url: cfg.url,
-            dropdownSelector: cfg.selector,
-            data: { transaction: cfg.transaction }
-        });
-    });
-
-    $('#warehouse_form').validate({
+document.addEventListener('DOMContentLoaded', () => {    
+    $('#warehouse_type_form').validate({
         rules: {
-            warehouse_name: { required: true },
-            address: {required: true },
-            city_id: { required: true },
-            warehouse_type_id: { required: true }
+            warehouse_type_name: { required: true }
         },
         messages: {
-            warehouse_name: { required: 'Enter the display name' },
-            address: { required: 'Enter the address' },
-            city_id: { required: 'Choose the city' },
-            warehouse_type_id: { required: 'Choose the warehouse type' }
+            warehouse_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -49,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save warehouse';
+            const transaction   = 'save warehouse type';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
@@ -58,20 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/WarehouseController.php', {
+                const response = await fetch('./app/Controllers/WarehouseTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save warehouse failed with status: ${response.status}`);
+                    throw new Error(`Save warehouse type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.warehouse_id}`;
+                    window.location = `${page_link}&id=${data.warehouse_type_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

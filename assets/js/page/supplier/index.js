@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#city_filter').val(null).trigger('change');
             $('#state_filter').val(null).trigger('change');
             $('#country_filter').val(null).trigger('change');
-            $('#supplier_status_filter').val(null).trigger('change');
+            $('#supplier_status_filter').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());
         }

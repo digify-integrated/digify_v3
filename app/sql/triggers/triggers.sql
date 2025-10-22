@@ -3086,6 +3086,9 @@ END //
 /* =============================================================================================
    END OF TRIGGERS
 ============================================================================================= */
+
+
+
 /* =============================================================================================
    TRIGGER: WAREHOUSE TYPE
 ============================================================================================= */
@@ -3158,6 +3161,22 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Short Name: ", OLD.short_name, " -> ", NEW.short_name, "<br/>");
     END IF;
 
+    IF NEW.contact_person <> OLD.contact_person THEN
+        SET audit_log = CONCAT(audit_log, "Contact Person: ", OLD.contact_person, " -> ", NEW.contact_person, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+
     IF NEW.address <> OLD.address THEN
         SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
     END IF;
@@ -3176,22 +3195,6 @@ BEGIN
 
     IF NEW.warehouse_type_name <> OLD.warehouse_type_name THEN
         SET audit_log = CONCAT(audit_log, "Warehouse Type: ", OLD.warehouse_type_name, " -> ", NEW.warehouse_type_name, "<br/>");
-    END IF;
-
-    IF NEW.contact_person <> OLD.contact_person THEN
-        SET audit_log = CONCAT(audit_log, "Contact Person: ", OLD.contact_person, " -> ", NEW.contact_person, "<br/>");
-    END IF;
-
-    IF NEW.phone <> OLD.phone THEN
-        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
-    END IF;
-
-    IF NEW.email <> OLD.email THEN
-        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
-    END IF;
-
-    IF NEW.telephone <> OLD.telephone THEN
-        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
     END IF;
 
     IF NEW.warehouse_status <> OLD.warehouse_status THEN

@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/TaxController.php',
         transaction: 'generate tax table',
         ajaxData: {
-            city_filter: $('#city_filter').val(),
-            state_filter: $('#state_filter').val(),
-            country_filter: $('#country_filter').val(),
+            tax_type_filter: $('#tax_type_filter').val(),
+            tax_computation_filter: $('#tax_computation_filter').val(),
+            tax_scope_filter: $('#tax_scope_filter').val(),
             tax_status_filter: $('#tax_status_filter').val()
         },
         columns: [
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#tax_type_filter').val(null).trigger('change');
             $('#tax_computation_filter').val(null).trigger('change');
             $('#tax_scope_filter').val(null).trigger('change');
-            $('#tax_status_filter').val(null).trigger('change');
+            $('#tax_status_filter').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());
         }
