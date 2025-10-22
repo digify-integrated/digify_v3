@@ -1866,5 +1866,4 @@
     </div>
 </div>
 
-
 <?php require_once './app/Views/Partials/log-notes-modal.php'; ?>

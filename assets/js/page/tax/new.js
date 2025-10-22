@@ -2,13 +2,19 @@ import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
-document.addEventListener('DOMContentLoaded', () => {    
-    $('#product_type_form').validate({
+document.addEventListener('DOMContentLoaded', () => {
+    $('#tax_form').validate({
         rules: {
-            product_type_name: { required: true }
+            tax_name: { required: true },
+            tax_computation: {required: true },
+            tax_rate: { required: true },
+            tax_type: { required: true }
         },
         messages: {
-            product_type_name: { required: 'Enter the display name' }
+            tax_name: { required: 'Enter the display name' },
+            tax_computation: { required: 'Choose the tax computation' },
+            tax_rate: { required: 'Enter the tax rate' },
+            tax_type: { required: 'Choose the tax type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -30,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save product type';
+            const transaction   = 'save tax';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
@@ -39,20 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/ProductTypeController.php', {
+                const response = await fetch('./app/Controllers/TaxController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save product type failed with status: ${response.status}`);
+                    throw new Error(`Save tax failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.product_type_id}`;
+                    window.location = `${page_link}&id=${data.tax_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

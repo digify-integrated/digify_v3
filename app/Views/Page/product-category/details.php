@@ -49,6 +49,22 @@
                     </div>
                 </div>
             </div>
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="parent_category_id">
+                            Costing Method
+                        </label>
+
+                        <select id="costing_method" name="costing_method" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                            <option value="">--</option>
+                            <option value="Average Cost">Average Cost</option>
+                            <option value="First In First Out">First In First Out</option>
+                            <option value="Standard Price">Standard Price</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 

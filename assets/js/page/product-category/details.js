@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('product_category_name').value = data.productCategoryName || '';
 
                 $('#parent_category_id').val(data.parentCategoryId || '').trigger('change');
+                $('#costing_method').val(data.costingMethod || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -63,10 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#product_category_form').validate({
         rules: {
-            product_category_name: { required: true }
+            product_category_name: { required: true },
+            costing_method: { required: true }
         },
         messages: {
-            product_category_name: { required: 'Enter the display name' }
+            product_category_name: { required: 'Enter the display name' },
+            costing_method: { required: 'Choose the costing method' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

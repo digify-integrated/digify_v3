@@ -25,7 +25,7 @@
                 <div class="w-lg-600px p-10">
                     <form class="form w-100" id="forgot_password_form" method="post" action="#">
                         <?= Security::csrfInput('forgot_password_form'); ?>
-                        <img src="./assets/images/logos/logo-dark.svg" class="mb-5" alt="Logo-Dark" />
+                        <img src="./assets/images/logos/logo-dark.svg" class="mb-5 system-logo" alt="Logo-Dark" />
                         <h2 class="mb-2 mt-4 fs-1 fw-bolder">Forgot Password?</h2>
                         <p class="mb-10 fs-5">Please enter the email address associated with your account. We will send you a link to reset your password.</p>
                         <div class="mb-3">

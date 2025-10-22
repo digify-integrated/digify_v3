@@ -97,11 +97,12 @@ class ProductCategoryController
         $productCategoryId      = $_POST['product_category_id'] ?? null;
         $productCategoryName    = $_POST['product_category_name'] ?? null;
         $parentCategoryId       = $_POST['parent_category_id'] ?? null;
+        $costingMethod          = $_POST['costing_method'] ?? null;
 
         $parentCategoryDetails  = $this->productCategory->fetchProductCategory($parentCategoryId);
         $parentCategoryName     = $parentCategoryDetails['product_category_name'] ?? '';
 
-        $productCategoryId              = $this->productCategory->saveProductCategory($productCategoryId, $productCategoryName, $parentCategoryId, $parentCategoryName, $lastLogBy);
+        $productCategoryId              = $this->productCategory->saveProductCategory($productCategoryId, $productCategoryName, $parentCategoryId, $parentCategoryName, $costingMethod, $lastLogBy);
         $encryptedProductCategoryId     = $this->security->encryptData($productCategoryId);
 
         $this->systemHelper->sendSuccessResponse(
@@ -154,6 +155,7 @@ class ProductCategoryController
             'success'               => true,
             'productCategoryName'   => $productCategoryDetails['product_category_name'] ?? null,
             'parentCategoryId'      => $productCategoryDetails['parent_category_id'] ?? null,
+            'costingMethod'      => $productCategoryDetails['costing_method'] ?? null
         ];
 
         echo json_encode($response);
@@ -163,15 +165,17 @@ class ProductCategoryController
      public function generateProductCategoryTable()
     {
         $filterParentCategory   = $this->systemHelper->checkFilter($_POST['parent_category_filter'] ?? null);
+        $filterCostingMethod    = $this->systemHelper->checkFilter($_POST['costing_method_filter'] ?? null);
         $pageLink               = $_POST['page_link'] ?? null;
         $response               = [];
 
-        $departments = $this->productCategory->generateProductCategoryTable($filterParentCategory);
+        $departments = $this->productCategory->generateProductCategoryTable($filterParentCategory, $filterCostingMethod);
 
         foreach ($departments as $row) {
             $productCategoryId      = $row['product_category_id'];
             $productCategoryName    = $row['product_category_name'];
             $parentCategoryName     = $row['parent_category_name'];
+            $costingMethod          = $row['costing_method'];
 
             $productCategoryIdEncrypted = $this->security->encryptData($productCategoryId);
 
@@ -181,6 +185,7 @@ class ProductCategoryController
                                                 </div>',
                 'PRODUCT_CATEGORY_NAME'     => $productCategoryName,
                 'PARENT_CATEGORY_NAME'      => $parentCategoryName,
+                'COSTING_METHOD'            => $costingMethod,
                 'LINK'                      => $pageLink .'&id='. $productCategoryIdEncrypted
             ];
         }

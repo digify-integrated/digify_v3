@@ -31,16 +31,16 @@
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
                                     if($newRecord){
-                                        require_once './app/Views/Page/product-type/new.php';
+                                        require_once './app/Views/Page/attribute/new.php';
                                     }
                                     else if(!empty($detailID)){
-                                        require_once './app/Views/Page/product-type/details.php';
+                                        require_once './app/Views/Page/attribute/details.php';
                                     }
                                     else if(isset($_GET['import']) && !empty($_GET['import'])){
                                         require_once './app/Views/Page/import/import.php';
                                     }
                                     else{
-                                        require_once './app/Views/Page/product-type/index.php';
+                                        require_once './app/Views/Page/attribute/index.php';
                                     }
                                 ?>
                             </div>
@@ -58,13 +58,13 @@
 
     <?php
         $version = rand();
-        $scriptFile = './assets/js/page/product-type/index.js';
+        $scriptFile = './assets/js/page/attribute/index.js';
 
         if ($newRecord) {
-            $scriptFile = './assets/js/page/product-type/new.js';
+            $scriptFile = './assets/js/page/attribute/new.js';
         }
         else if (!empty($detailID)) {
-            $scriptFile = './assets/js/page/product-type/details.js';
+            $scriptFile = './assets/js/page/attribute/details.js';
         }
         else if (isset($_GET['import']) && !empty($_GET['import'])) {
             $scriptFile = './assets/js/page/import/import.js'; 

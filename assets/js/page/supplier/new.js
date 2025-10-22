@@ -1,23 +1,24 @@
-import { disableButton, enableButton } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
-import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
-        url: './app/Controllers/ProductCategoryController.php',
-        dropdownSelector: '#parent_category_id',
-        data: { transaction: 'generate product category options' }
+        url: './app/Controllers/CityController.php',
+        dropdownSelector: '#city_id',
+        data: { transaction: 'generate city options' }
     });
 
-    $('#product_category_form').validate({
+    $('#supplier_form').validate({
         rules: {
-            product_category_name: { required: true },
-            costing_method: { required: true }
+            supplier_name: { required: true },
+            address: {required: true },
+            city_id: { required: true }
         },
         messages: {
-            product_category_name: { required: 'Enter the display name' },
-            costing_method: { required: 'Choose the costing method' }
+            supplier_name: { required: 'Enter the display name' },
+            address: { required: 'Enter the address' },
+            city_id: { required: 'Choose the city' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save product category';
+            const transaction   = 'save supplier';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
@@ -48,20 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+                const response = await fetch('./app/Controllers/SupplierController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save product category failed with status: ${response.status}`);
+                    throw new Error(`Save supplier failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.product_category_id}`;
+                    window.location = `${page_link}&id=${data.supplier_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

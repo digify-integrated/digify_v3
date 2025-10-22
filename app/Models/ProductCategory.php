@@ -14,6 +14,7 @@ class ProductCategory extends Model {
         $p_product_category_name,
         $p_parent_category_id,
         $p_parent_category_name,
+        $p_costing_method,
         $p_last_log_by
     )    {
         $sql = 'CALL saveProductCategory(
@@ -21,6 +22,7 @@ class ProductCategory extends Model {
             :p_product_category_name,
             :p_parent_category_id,
             :p_parent_category_name,
+            :p_costing_method,
             :p_last_log_by
         )';
 
@@ -29,6 +31,7 @@ class ProductCategory extends Model {
             'p_product_category_name'   => $p_product_category_name,
             'p_parent_category_id'      => $p_parent_category_id,
             'p_parent_category_name'    => $p_parent_category_name,
+            'p_costing_method'          => $p_costing_method,
             'p_last_log_by'             => $p_last_log_by
         ]);
 
@@ -96,14 +99,17 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
    public function generateProductCategoryTable(
-        $p_filter_by_parent_category
+        $p_filter_by_parent_category,
+        $p_filter_by_costing_method,
     ) {
         $sql = 'CALL generateProductCategoryTable(
-            :p_filter_by_parent_category
+            :p_filter_by_parent_category,
+            :p_filter_by_costing_method
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_parent_category' => $p_filter_by_parent_category
+            'p_filter_by_parent_category'   => $p_filter_by_parent_category,
+            'p_filter_by_costing_method'    => $p_filter_by_costing_method
         ]);
     }
 

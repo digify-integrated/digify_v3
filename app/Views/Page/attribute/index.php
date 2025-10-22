@@ -23,7 +23,7 @@
                     
                         if ($permissions['delete'] > 0) {
                             $action .= '<div class="menu-item px-3">
-                                            <a href="javascript:void(0);" class="menu-link px-3" id="delete-product-type">
+                                            <a href="javascript:void(0);" class="menu-link px-3" id="delete-attribute">
                                                 Delete
                                             </a>
                                         </div>';
@@ -39,7 +39,7 @@
     </div>
     <div class="card-body pt-9">
         <div class="table-responsive">
-            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5" id="product-type-table">
+            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5" id="attribute-table">
                 <thead>
                     <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                         <th>
@@ -47,7 +47,7 @@
                                 <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                             </div>
                         </th>
-                        <th>Product Type</th>
+                        <th>Attribute</th>
                     </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-800"></tbody>

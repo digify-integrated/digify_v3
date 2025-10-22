@@ -8724,6 +8724,719 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: ATTRIBUTE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveAttribute//
+
+CREATE PROCEDURE saveAttribute(
+    IN p_attribute_id INT, 
+    IN p_attribute_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_attribute_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_attribute_id IS NULL OR NOT EXISTS (SELECT 1 FROM attribute WHERE attribute_id = p_attribute_id) THEN
+        INSERT INTO attribute (
+            attribute_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_attribute_name,
+            p_last_log_by
+        );
+        
+        SET v_new_attribute_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE attribute_value
+        SET attribute_name  = p_attribute_name,
+            last_log_by     = p_last_log_by
+        WHERE attribute_id  = p_attribute_id;
+
+        UPDATE product_variant
+        SET attribute_name  = p_attribute_name,
+            last_log_by     = p_last_log_by
+        WHERE attribute_id  = p_attribute_id;
+
+        UPDATE attribute
+        SET attribute_name  = p_attribute_name,
+            last_log_by     = p_last_log_by
+        WHERE attribute_id  = p_attribute_id;
+
+        SET v_new_attribute_id = p_attribute_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_attribute_id AS new_attribute_id;
+END //
+
+DROP PROCEDURE IF EXISTS saveAttributeValue//
+
+CREATE PROCEDURE saveAttributeValue(
+    IN p_attribute_value_id INT, 
+    IN p_attribute_value_name VARCHAR(100), 
+    IN p_attribute_id INT, 
+    IN p_attribute_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_attribute_value_id IS NULL OR NOT EXISTS (SELECT 1 FROM attribute_value WHERE attribute_value_id = p_attribute_value_id) THEN
+        INSERT INTO attribute_value (
+            attribute_value_name,
+            attribute_id,
+            attribute_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_attribute_value_name,
+            p_attribute_id,
+            p_attribute_name,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE attribute_value
+        SET attribute_value_name    = p_attribute_value_name,
+            attribute_id            = p_attribute_id,
+            attribute_name          = p_attribute_name,
+            last_log_by             = p_last_log_by
+        WHERE attribute_value_id    = p_attribute_value_id;
+    END IF;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchAttribute//
+
+CREATE PROCEDURE fetchAttribute(
+    IN p_attribute_id INT
+)
+BEGIN
+	SELECT * FROM attribute
+	WHERE attribute_id = p_attribute_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchAttributeValue//
+
+CREATE PROCEDURE fetchAttributeValue(
+    IN p_attribute_value_id INT
+)
+BEGIN
+	SELECT * FROM attribute_value
+	WHERE attribute_value_id = p_attribute_value_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteAttribute//
+
+CREATE PROCEDURE deleteAttribute(
+    IN p_attribute_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM attribute_value WHERE attribute_id = p_attribute_id;
+    DELETE FROM attribute WHERE attribute_id = p_attribute_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteAttributeValue//
+
+CREATE PROCEDURE deleteAttributeValue(
+    IN p_attribute_value_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM attribute_value WHERE attribute_value_id = p_attribute_value_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkAttributeExist//
+
+CREATE PROCEDURE checkAttributeExist(
+    IN p_attribute_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM attribute
+    WHERE attribute_id = p_attribute_id;
+END //
+
+DROP PROCEDURE IF EXISTS checkAttributeValueExist//
+
+CREATE PROCEDURE checkAttributeValueExist(
+    IN p_attribute_value_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM attribute_value
+    WHERE attribute_value_id = p_attribute_value_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateAttributeTable//
+
+CREATE PROCEDURE generateAttributeTable()
+BEGIN
+	SELECT attribute_id, attribute_name
+    FROM attribute 
+    ORDER BY attribute_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateAttributeValueTable//
+
+CREATE PROCEDURE generateAttributeValueTable(
+    IN p_attribute_id INT
+)
+BEGIN
+	SELECT attribute_value_id, attribute_value_name
+    FROM attribute_value 
+    WHERE attribute_id = p_attribute_id
+    ORDER BY attribute_value_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateAttributeOptions//
+
+CREATE PROCEDURE generateAttributeOptions()
+BEGIN
+	SELECT attribute_id, attribute_name 
+    FROM attribute 
+    ORDER BY attribute_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   STORED PROCEDURE: PRODUCT CATEGORY
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveProductCategory//
+
+CREATE PROCEDURE saveProductCategory(
+    IN p_product_category_id INT, 
+    IN p_product_category_name VARCHAR(100), 
+    IN p_parent_category_id INT, 
+    IN p_parent_category_name VARCHAR(100), 
+    IN p_costing_method VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_product_category_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_category_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_category WHERE product_category_id = p_product_category_id) THEN
+        INSERT INTO product_category (
+            product_category_name,
+            parent_category_id,
+            parent_category_name,
+            costing_method,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_category_name,
+            p_parent_category_id,
+            p_parent_category_name,
+            p_costing_method,
+            p_last_log_by
+        );
+        
+        SET v_new_product_category_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE product
+        SET product_category_name   = p_product_category_name,
+            last_log_by             = p_last_log_by
+        WHERE product_category_id   = p_product_category_id;
+
+        UPDATE product_category
+        SET parent_category_name    = p_product_category_name,
+            last_log_by             = p_last_log_by
+        WHERE parent_category_id    = p_product_category_id;
+
+        UPDATE product_category
+        SET product_category_name   = p_product_category_name,
+            parent_category_id      = p_parent_category_id,
+            parent_category_name    = p_parent_category_name,
+            costing_method          = p_costing_method,
+            last_log_by             = p_last_log_by
+        WHERE product_category_id   = p_product_category_id;
+
+        SET v_new_product_category_id = p_product_category_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_product_category_id AS new_product_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchProductCategory//
+
+CREATE PROCEDURE fetchProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT * FROM product_category
+	WHERE product_category_id = p_product_category_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProductCategory//
+
+CREATE PROCEDURE deleteProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_category WHERE product_category_id = p_product_category_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkProductCategoryExist//
+
+CREATE PROCEDURE checkProductCategoryExist(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_category
+    WHERE product_category_id = p_product_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateProductCategoryTable//
+
+CREATE PROCEDURE generateProductCategoryTable(
+    IN p_filter_by_parent_category TEXT,
+    IN p_filter_by_costing_method TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT product_category_id, product_category_name, parent_category_name, costing_method
+                FROM product_category';
+
+    IF p_filter_by_parent_category IS NOT NULL AND p_filter_by_parent_category <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' parent_category_id IN (', p_filter_by_parent_category, ')');
+    END IF;
+
+    IF p_filter_by_costing_method IS NOT NULL AND p_filter_by_costing_method <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' costing_method IN (', p_filter_by_costing_method, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_category_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductCategoryOptions//
+
+CREATE PROCEDURE generateProductCategoryOptions()
+BEGIN
+	SELECT product_category_id, product_category_name 
+    FROM product_category 
+    ORDER BY product_category_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateParentCategoryOptions//
+
+CREATE PROCEDURE generateParentCategoryOptions(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT product_category_id, product_category_name
+    FROM product_category 
+    WHERE product_category_id != p_product_category_id
+    ORDER BY product_category_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: SUPPLIER
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveSupplier//
+
+CREATE PROCEDURE saveSupplier(
+    IN p_supplier_id INT, 
+    IN p_supplier_name VARCHAR(200), 
+    IN p_contact_person VARCHAR(500), 
+    IN p_phone VARCHAR(20), 
+    IN p_telephone VARCHAR(20), 
+    IN p_email VARCHAR(255), 
+    IN p_address VARCHAR(1000), 
+    IN p_city_id INT, 
+    IN p_city_name VARCHAR(100), 
+    IN p_state_id INT, 
+    IN p_state_name VARCHAR(100), 
+    IN p_country_id INT, 
+    IN p_country_name VARCHAR(100), 
+    IN p_tax_id_number VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_supplier_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_supplier_id IS NULL OR NOT EXISTS (SELECT 1 FROM supplier WHERE supplier_id = p_supplier_id) THEN
+        INSERT INTO supplier (
+            supplier_name,
+            contact_person,
+            phone,
+            telephone,
+            email,
+            address,
+            city_id,
+            city_name,
+            state_id,
+            state_name,
+            country_id,
+            country_name,
+            tax_id_number,
+            last_log_by
+        ) 
+        VALUES(
+            p_supplier_name,
+            p_contact_person,
+            p_phone,
+            p_telephone,
+            p_email,
+            p_address,
+            p_city_id,
+            p_city_name,
+            p_state_id,
+            p_state_name,
+            p_country_id,
+            p_country_name,
+            p_tax_id_number,
+            p_last_log_by
+        ); 
+        
+        SET v_new_supplier_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE supplier
+        SET supplier_name   = p_supplier_name,
+            contact_person  = p_contact_person,
+            phone           = p_phone,
+            telephone       = p_telephone,
+            email           = p_email,
+            address         = p_address,
+            city_id         = p_city_id,
+            city_name       = p_city_name,
+            state_id        = p_state_id,
+            state_name      = p_state_name,
+            country_id      = p_country_id,
+            country_name    = p_country_name,
+            tax_id_number   = p_tax_id_number,
+            last_log_by     = p_last_log_by
+        WHERE supplier_id   = p_supplier_id;
+
+        SET v_new_supplier_id = p_supplier_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_supplier_id AS new_supplier_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateSupplierArchive//
+
+CREATE PROCEDURE updateSupplierArchive(
+	IN p_supplier_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE supplier
+    SET supplier_status     = 'Archived',
+        last_log_by         = p_last_log_by
+    WHERE supplier_id       = p_supplier_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateSupplierUnarchive//
+
+CREATE PROCEDURE updateSupplierUnarchive(
+	IN p_supplier_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE supplier
+    SET supplier_status     = 'Active',
+        last_log_by         = p_last_log_by
+    WHERE supplier_id       = p_supplier_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchSupplier//
+
+CREATE PROCEDURE fetchSupplier(
+    IN p_supplier_id INT
+)
+BEGIN
+	SELECT * FROM supplier
+	WHERE supplier_id = p_supplier_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteSupplier//
+
+CREATE PROCEDURE deleteSupplier(
+    IN p_supplier_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM supplier WHERE supplier_id = p_supplier_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkSupplierExist//
+
+CREATE PROCEDURE checkSupplierExist(
+    IN p_supplier_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM supplier
+    WHERE supplier_id = p_supplier_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateSupplierTable//
+
+CREATE PROCEDURE generateSupplierTable(
+    IN p_filter_by_city TEXT,
+    IN p_filter_by_state TEXT,
+    IN p_filter_by_country TEXT,
+    IN p_filter_by_supplier_status TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT supplier_id, supplier_name, address, city_name, state_name, country_name 
+                FROM supplier ';
+
+    IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
+    END IF;
+
+    IF p_filter_by_state IS NOT NULL AND p_filter_by_state <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' state_id IN (', p_filter_by_state, ')');
+    END IF;
+
+    IF p_filter_by_country IS NOT NULL AND p_filter_by_country <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' country_id IN (', p_filter_by_country, ')');
+    END IF;
+
+    IF p_filter_by_supplier_status IS NOT NULL AND p_filter_by_supplier_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' supplier_status IN (', p_filter_by_supplier_status, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY supplier_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateSupplierOptions//
+
+CREATE PROCEDURE generateSupplierOptions()
+BEGIN
+	SELECT supplier_id, supplier_name 
+    FROM supplier 
+    ORDER BY supplier_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
    STORED PROCEDURE: 
 ============================================================================================= */
 
