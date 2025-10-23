@@ -33,9 +33,129 @@ class Product extends Model {
         return $row['new_product_id'] ?? null;
     }
 
+    public function insertProductCategories(
+        $p_product_id,
+        $p_product_name,
+        $p_category_id,
+        $p_category_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertProductCategories(
+            :p_product_id,
+            :p_product_name,
+            :p_category_id,
+            :p_category_name,
+            :p_last_log_by
+        )';
+
+        $row = $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_product_name'    => $p_product_name,
+            'p_category_id'     => $p_category_id,
+            'p_category_name'   => $p_category_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
+
+    public function updateProductGeneral(
+        $p_product_id,
+        $p_product_name,
+        $p_product_description,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductGeneral(
+            :p_product_id,
+            :p_product_name,
+            :p_product_description,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
+            'p_product_description'     => $p_product_description,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
+    public function updateProductInventory(
+        $p_product_id,
+        $p_sku,
+        $p_barcode,
+        $p_product_type,
+        $p_quantity_on_hand,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductInventory(
+            :p_product_id,
+            :p_sku,
+            :p_barcode,
+            :p_product_type,
+            :p_quantity_on_hand,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'          => $p_product_id,
+            'p_sku'                 => $p_sku,
+            'p_barcode'             => $p_barcode,
+            'p_product_type'        => $p_product_type,
+            'p_quantity_on_hand'    => $p_quantity_on_hand,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateProductShipping(
+        $p_product_id,
+        $p_weight,
+        $p_width,
+        $p_height,
+        $p_length,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductShipping(
+            :p_product_id,
+            :p_weight,
+            :p_width,
+            :p_height,
+            :p_length,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_weight'          => $p_weight,
+            'p_width'           => $p_width,
+            'p_height'          => $p_height,
+            'p_length'          => $p_length,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateProductSettings(
+        $p_product_id,
+        $p_value,
+        $p_update_type,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductSettings(
+            :p_product_id,
+            :p_value,
+            :p_update_type,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_value'           => $p_value,
+            'p_update_type'     => $p_update_type,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
 
     public function updateProductImage(
         $p_product_id,
@@ -70,6 +190,18 @@ class Product extends Model {
             'p_product_id' => $p_product_id
         ]);
     }
+
+    public function fetchProductCategories(
+        $p_product_id
+    ) {
+        $sql = 'CALL fetchProductCategories(
+            :p_product_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -79,6 +211,18 @@ class Product extends Model {
         $p_product_id
     ) {
         $sql = 'CALL deleteProduct(
+            :p_product_id
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function deleteProductCategories(
+        $p_product_id
+    ) {
+        $sql = 'CALL deleteProductCategories(
             :p_product_id
         )';
         
@@ -103,6 +247,36 @@ class Product extends Model {
         ]);
     }
 
+    public function checkProductSKUExist(
+        $p_product_id,
+        $p_sku
+    ) {
+        $sql = 'CALL checkProductSKUExist(
+            :p_product_id,
+            :p_sku
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_id'  => $p_product_id,
+            'p_sku'         => $p_sku
+        ]);
+    }
+
+    public function checkProductBarcodeExist(
+        $p_product_id,
+        $p_barcode
+    ) {
+        $sql = 'CALL checkProductBarcodeExist(
+            :p_product_id,
+            :p_barcode
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_id'  => $p_product_id,
+            'p_barcode'     => $p_barcode
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
@@ -111,7 +285,10 @@ class Product extends Model {
         $p_search_value,
         $p_filter_by_product_type, 
         $p_filter_by_product_category, 
-        $p_product_status, 
+        $p_filter_by_is_sellable, 
+        $p_filter_by_is_purchasable, 
+        $p_filter_by_show_on_pos, 
+        $p_filter_by_product_status, 
         $p_limit, 
         $p_offset
     ) {
@@ -119,7 +296,10 @@ class Product extends Model {
             :p_search_value,
             :p_filter_by_product_type,
             :p_filter_by_product_category,
-            :p_product_status,
+            :p_filter_by_is_sellable,
+            :p_filter_by_is_purchasable,
+            :p_filter_by_show_on_pos,
+            :p_filter_by_product_status,
             :p_limit,
             :p_offset
         )';
@@ -128,7 +308,10 @@ class Product extends Model {
             'p_search_value'                => $p_search_value,
             'p_filter_by_product_type'      => $p_filter_by_product_type,
             'p_filter_by_product_category'  => $p_filter_by_product_category,
-            'p_product_status'              => $p_product_status,
+            'p_filter_by_is_sellable'       => $p_filter_by_is_sellable,
+            'p_filter_by_is_purchasable'    => $p_filter_by_is_purchasable,
+            'p_filter_by_show_on_pos'       => $p_filter_by_show_on_pos,
+            'p_filter_by_product_status'    => $p_filter_by_product_status,
             'p_limit'                       => $p_limit,
             'p_offset'                      => $p_offset
         ]);
@@ -137,18 +320,27 @@ class Product extends Model {
     public function generateProductTable(
         $p_filter_by_product_type, 
         $p_filter_by_product_category, 
-        $p_product_status
+        $p_filter_by_is_sellable, 
+        $p_filter_by_is_purchasable, 
+        $p_filter_by_show_on_pos, 
+        $p_filter_by_product_status
     ) {
         $sql = 'CALL generateProductTable(
             :p_filter_by_product_type,
             :p_filter_by_product_category,
-            :p_product_status
+            :p_filter_by_is_sellable,
+            :p_filter_by_is_purchasable,
+            :p_filter_by_show_on_pos,
+            :p_filter_by_product_status
         )';
 
         return $this->fetchAll($sql, [
             'p_filter_by_product_type'      => $p_filter_by_product_type,
             'p_filter_by_product_category'  => $p_filter_by_product_category,
-            'p_product_status'              => $p_product_status
+            'p_filter_by_is_sellable'       => $p_filter_by_is_sellable,
+            'p_filter_by_is_purchasable'    => $p_filter_by_is_purchasable,
+            'p_filter_by_show_on_pos'       => $p_filter_by_show_on_pos,
+            'p_filter_by_product_status'    => $p_filter_by_product_status
         ]);
     }
 

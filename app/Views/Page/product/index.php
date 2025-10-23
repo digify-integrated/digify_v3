@@ -130,7 +130,7 @@
                                 <th>Product</th>
                                 <th>Barcode</th>
                                 <th>Product Type</th>
-                                <th>Product Category</th>
+                                <th>Categories</th>
                                 <th>Quantity On Hand</th>
                                 <th>Sales Price</th>
                                 <th>Cost</th>

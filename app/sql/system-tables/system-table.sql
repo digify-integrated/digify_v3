@@ -7050,6 +7050,39 @@ CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
 
 
 /* =============================================================================================
+  TABLE: PRODUCT CATEGORIES
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_categories;
+
+CREATE TABLE product_categories (
+  product_categories_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  product_category_id INT UNSIGNED NOT NULL,
+  product_category_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT TAX
+============================================================================================= */
+
+CREATE INDEX idx_product_tax_product_id ON product_tax(product_id);
+CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT TAX
+============================================================================================= */
+
+
+
+/* =============================================================================================
   TABLE: PRODUCT VARIANT
 ============================================================================================= */
 

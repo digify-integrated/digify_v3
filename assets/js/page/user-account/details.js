@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#email_summary').text(data.email || '--');
                 $('#phone_summary').text(data.phoneSummary || '--');
 
-                document.getElementById('two-factor-authentication').checked            = data.twoFactorAuthentication || 'No' === 'Yes';
-                document.getElementById('multiple-login-sessions').checked              = data.multipleSession || 'No' === 'Yes';
+                document.getElementById('two-factor-authentication').checked            = data.twoFactorAuthentication === 'Yes';
+                document.getElementById('multiple-login-sessions').checked              = data.multipleSession === 'Yes';
                 document.getElementById('profile_picture_image').style.backgroundImage  = `url(${data.profilePicture})`;
                 document.getElementById('status_side_summary').innerHTML                = data.activeBadge;
             } 
@@ -590,15 +590,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
+                if (!data.success) {
+                    if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
@@ -622,15 +621,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-                else if (data.invalid_session) {
+                if (!data.success) {
+                    if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location.href = data.redirect_link;
-                }
-                else {
-                    showNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
                 }
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);

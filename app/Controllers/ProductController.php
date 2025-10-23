@@ -6,6 +6,7 @@ session_start();
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\Tax;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -17,6 +18,7 @@ class ProductController
 {
     protected Product $product;
     protected ProductCategory $productCategory;
+    protected Tax $tax;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -25,6 +27,7 @@ class ProductController
     public function __construct(
         Product $product,
         ProductCategory $productCategory,
+        Tax $tax,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -32,6 +35,7 @@ class ProductController
     ) {
         $this->product          = $product;
         $this->productCategory  = $productCategory;
+        $this->tax              = $tax;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -78,18 +82,64 @@ class ProductController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'insert product'            => $this->insertProduct($lastLogBy),
-            'update product image'      => $this->updateProductImage($lastLogBy),
-            'delete product'            => $this->deleteProduct(),
-            'delete multiple product'   => $this->deleteMultipleProduct(),
-            'fetch product details'     => $this->fetchProductDetails(),
-            'generate product card'     => $this->generateProductCard(),
-            'generate product table'    => $this->generateProductTable(),
-            default                     => $this->systemHelper::sendErrorResponse(
-                                                'Transaction Failed',
-                                                'We encountered an issue while processing your request.'
-                                            )
+            'save product category'             => $this->saveProductCategory($lastLogBy),
+            'insert product'                    => $this->insertProduct($lastLogBy),
+            'update product general'            => $this->updateProductGeneral($lastLogBy),
+            'update product inventory'          => $this->updateProductInventory($lastLogBy),
+            'update product shipping'           => $this->updateProductShipping($lastLogBy),
+            'update product is sellable'        => $this->updateProductIsSellable($lastLogBy),
+            'update product is purchasable'     => $this->updateProductIsPurchasable($lastLogBy),
+            'update product show on pos'        => $this->updateProductShowOnPos($lastLogBy),
+            'update product image'              => $this->updateProductImage($lastLogBy),
+            'delete product'                    => $this->deleteProduct(),
+            'delete multiple product'           => $this->deleteMultipleProduct(),
+            'fetch product details'             => $this->fetchProductDetails(),
+            'fetch product categories details'  => $this->fetchProductCategoriesDetails(),
+            'generate product card'             => $this->generateProductCard(),
+            'generate product table'            => $this->generateProductTable(),
+            default                             => $this->systemHelper::sendErrorResponse(
+                                                        'Transaction Failed',
+                                                        'We encountered an issue while processing your request.'
+                                                    )
         };
+    }
+
+    public function saveProductCategory($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_category_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId              = $_POST['product_id'] ?? null;
+        $productCategoryIds     = $_POST['product_category_id'] ?? [];
+
+        if(empty($productCategoryIds)){
+            $this->systemHelper::sendErrorResponse(
+                'Assign File Extension Error',
+                'Please select the file extension(s) you wish to assign to the upload setting.'
+            );
+        }
+
+        $this->product->deleteProductCategories($productId);
+
+        $productDetails   = $this->product->fetchProduct($productId);
+        $productName      = $productDetails['product_name'] ?? '';
+
+        foreach ($productCategoryIds as $productCategoryId) {
+            $productCategoryDetails   = $this->productCategory->fetchProductCategory($productCategoryId);
+            $productCategoryName      = $productCategoryDetails['product_category_name'] ?? null;
+
+            $this->product->insertProductCategories($productId, $productName, $productCategoryId, $productCategoryName, $lastLogBy);
+        }
+
+        $this->systemHelper->sendSuccessResponse(
+            'Assign File Extension Success',
+            'The file extension has been assigned successfully.'
+        );
     }
 
     public function insertProduct($lastLogBy){
@@ -113,6 +163,138 @@ class ProductController
             'Save Product Success',
             'The product has been saved successfully.',
             ['product_id' => $encryptedproductId]
+        );
+    }
+
+    public function updateProductGeneral($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_general_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId              = $_POST['product_id'] ?? null;
+        $productName            = $_POST['product_name'] ?? null;
+        $productDescription     = $_POST['product_description'] ?? null;
+
+        $this->product->updateProductGeneral($productId, $productName, $productDescription, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Product Success',
+            'The product has been updated successfully.'
+        );
+    }
+
+    public function updateProductInventory($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_inventory_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId          = $_POST['product_id'] ?? null;
+        $sku                = $_POST['sku'] ?? null;
+        $barcode            = $_POST['barcode'] ?? null;
+        $productType        = $_POST['product_type'] ?? null;
+        $quantityOnHand     = $_POST['quantity_on_hand'] ?? null;
+        
+        $checkProductSKUExist       = $this->product->checkProductSKUExist($productId, $sku);
+        $totalSKU                   = $checkProcheckProductSKUExistductExist['total'] ?? 0;
+
+        $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
+        $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
+
+        if ($totalSKU > 0) {
+            $this->systemHelper::sendErrorResponse(
+                'Update Product Error',
+                'The SKU entered already exists.'
+            );
+        }
+
+        if ($totalBarcode > 0) {
+            $this->systemHelper::sendErrorResponse(
+                'Update Product Error',
+                'The barcode entered already exists.'
+            );
+        }
+
+        $this->product->updateProductInventory($productId, $sku, $barcode, $productType, $quantityOnHand, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Product Success',
+            'The product has been updated successfully.'
+        );
+    }
+
+    public function updateProductShipping($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_shipping_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId  = $_POST['product_id'] ?? null;
+        $weight     = $_POST['weight'] ?? null;
+        $width      = $_POST['width'] ?? null;
+        $height     = $_POST['height'] ?? null;
+        $length     = $_POST['length'] ?? null;
+
+        $this->product->updateProductShipping($productId, $weight, $width, $height, $length, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Product Success',
+            'The product has been updated successfully.'
+        );
+    }
+
+    public function updateProductIsSellable($lastLogBy){
+        $productId          = $_POST['product_id'] ?? null;
+        $productDetails     = $this->product->fetchProduct($productId);
+        $isSellable         = $productDetails['is_sellable'] ?? 'Yes';
+        $isSellable         = ($isSellable === 'Yes') ? 'No' : 'Yes';
+
+        $this->product->updateProductSettings($productId, $isSellable, 'is sellable', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Sales Success',
+            'The sales has been updated successfully.'
+        );
+    }
+
+    public function updateProductIsPurchasable($lastLogBy){
+        $productId          = $_POST['product_id'] ?? null;
+        $productDetails     = $this->product->fetchProduct($productId);
+        $isPurchasable      = $productDetails['is_purchasable'] ?? 'Yes';
+        $isPurchasable      = ($isPurchasable === 'Yes') ? 'No' : 'Yes';
+
+        $this->product->updateProductSettings($productId, $isPurchasable, 'is purchasable', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Purchase Success',
+            'The purchase has been updated successfully.'
+        );
+    }
+
+    public function updateProductShowOnPos($lastLogBy){
+        $productId          = $_POST['product_id'] ?? null;
+        $productDetails     = $this->product->fetchProduct($productId);
+        $showOnPos      = $productDetails['show_on_pos'] ?? 'Yes';
+        $showOnPos      = ($showOnPos === 'Yes') ? 'No' : 'Yes';
+
+        $this->product->updateProductSettings($productId, $showOnPos, 'show on pos', $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Point of Sale Success',
+            'The point of sale has been updated successfully.'
         );
     }
 
@@ -255,13 +437,52 @@ class ProductController
         $response = [
             'success'               => true,
             'productName'           => $productDetails['product_name'] ?? null,
+            'productDescription'    => $productDetails['product_description'] ?? null,
+            'productType'           => $productDetails['product_type'] ?? null,
             'barcode'               => $productDetails['barcode'] ?? null,
-            'productTypeId'         => $productDetails['product_type_id'] ?? null,
-            'productCategoryId'     => $productDetails['product_category_id'] ?? null,
-            'quantity'              => $productDetails['quantity'] ?? 0,
+            'sku'                   => $productDetails['sku'] ?? null,
+            'isSellable'            => $productDetails['is_sellable'] ?? 'Yes',
+            'isPurchasable'         => $productDetails['is_purchasable'] ?? 'Yes',
+            'showOnPos'             => $productDetails['show_on_pos'] ?? 'Yes',
+            'quantityOnHand'        => $productDetails['quantity_on_hand'] ?? 0,
             'salesPrice'            => $productDetails['sales_price'] ?? 0,
-            'cost'                  => $productDetails['cost'] ?? null,
+            'cost'                  => $productDetails['cost'] ?? 0,
+            'discountType'          => $productDetails['discount_type'] ?? 'None',
+            'discountRate'          => $productDetails['discount_rate'] ?? 0,
+            'weight'                => $productDetails['weight'] ?? 0,
+            'width'                 => $productDetails['width'] ?? 0,
+            'height'                => $productDetails['height'] ?? 0,
+            'length'                => $productDetails['length'] ?? 0,
             'productImage'          => $productImage
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchProductCategoriesDetails(){
+        $productId          = $_POST['product_id'] ?? null;
+        $checkProductExist  = $this->product->checkProductExist($productId);
+        $total              = $checkProductExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper->sendErrorResponse(
+                'Get Product Categories Details',
+                'The product does not exist',
+                ['notExist' => true]
+            );
+        }
+
+        $productCategoriesDetails = $this->product->fetchProductCategories($productId);
+
+        $productCategories = [];
+        foreach ($productCategoriesDetails as $row) {
+            $productCategories[] = $row['product_category_id'];
+        }
+
+        $response = [
+            'success'               => true,
+            'productCategories'     => $productCategories
         ];
 
         echo json_encode($response);
@@ -274,24 +495,28 @@ class ProductController
         $searchValue            = $_POST['search_value'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
         $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
+        $isSellableFilter       = $this->systemHelper->checkFilter($_POST['filter_by_is_sellable'] ?? null);
+        $isPurchasableFilter    = $this->systemHelper->checkFilter($_POST['filter_by_is_purchasable'] ?? null);
+        $showOnPosFilter        = $this->systemHelper->checkFilter($_POST['filter_by_show_on_pos'] ?? null);
         $productStatusFilter    = $this->systemHelper->checkFilter($_POST['filter_by_product_status'] ?? null);
         $limit                  = $_POST['limit'] ?? null;
         $offset                 = $_POST['offset'] ?? null;
         $response               = [];
 
-        $products = $this->product->generateProductCard($searchValue, $productTypeFilter, $productCategoryFilter, $productStatusFilter, $limit, $offset);
+        $products = $this->product->generateProductCard($searchValue, $productTypeFilter, $productCategoryFilter, $isSellableFilter, $isPurchasableFilter, $showOnPosFilter, $productStatusFilter, $limit, $offset);
 
         foreach ($products as $row) {
             $productId              = $row['product_id'];
             $productName            = $row['product_name'];
+            $productDescription     = $row['product_description'];
+            $sku                    = $row['sku'];
             $barcode                = $row['barcode'];
-            $productTypeName        = $row['product_type_name'];
-            $productCategoryName    = $row['product_category_name'];
-            $quantity               = $row['quantity'];
+            $productTypeName        = $row['product_type'];
+            $quantityOnHand         = $row['quantity_on_hand'];
             $salesPrice             = $row['sales_price'];
             $cost                   = $row['cost'];
             $productStatus          = $row['product_status'];
-            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'profile');
+            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'default');
 
             $productIdEncrypted = $this->security->encryptData($productId);
 
@@ -300,11 +525,11 @@ class ProductController
                             <div class="card">
                                 <div class="card-body d-flex flex-center flex-column pt-12 p-9">
                                     <div class="symbol symbol-65px symbol-circle mb-5">
-                                        <img src="'. $productImage .'" class="rounded-3 mb-4 w-150px h-150px w-xxl-200px h-xxl-200px" alt="image">
+                                        <img src="'. $productImage .'" class="rounded-3 mb-4 w-150px h-150px" alt="image">
                                     </div>
 
                                     <div class="fw-bold text-gray-800 fs-3 fs-xl-1">'. $productName .'</div>
-                                    <div class="text-gray-500 fw-semibold d-block fs-6 mt-n1">'. $productCategoryName .'</div>
+                                    <div class="text-gray-500 fw-semibold d-block fs-6 mt-n1">'. $productDescription .'</div>
                                     <span class="text-success text-end fw-bold fs-1">'. number_format($salesPrice, 2) .' PHP</span>
                                 </div>
                             </div>
@@ -322,27 +547,37 @@ class ProductController
         $pageLink               = $_POST['page_link'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
         $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
+        $isSellableFilter       = $this->systemHelper->checkFilter($_POST['filter_by_is_sellable'] ?? null);
+        $isPurchasableFilter    = $this->systemHelper->checkFilter($_POST['filter_by_is_purchasable'] ?? null);
+        $showOnPosFilter        = $this->systemHelper->checkFilter($_POST['filter_by_show_on_pos'] ?? null);
         $productStatusFilter    = $this->systemHelper->checkFilter($_POST['filter_by_product_status'] ?? null);
         $response               = [];
 
-        $products = $this->product->generateProductTable($productTypeFilter, $productCategoryFilter, $productStatusFilter);
+        $products = $this->product->generateProductTable($productTypeFilter, $productCategoryFilter, $isSellableFilter, $isPurchasableFilter, $showOnPosFilter, $productStatusFilter);
 
         foreach ($products as $row) {
             $productId              = $row['product_id'];
             $productName            = $row['product_name'];
+            $productDescription     = $row['product_description'];
+            $sku                    = $row['sku'];
             $barcode                = $row['barcode'];
-            $productTypeName        = $row['product_type_name'];
-            $productCategoryName    = $row['product_category_name'];
-            $quantity               = $row['quantity'];
+            $productTypeName        = $row['product_type'];
+            $quantityOnHand         = $row['quantity_on_hand'];
             $salesPrice             = $row['sales_price'];
             $cost                   = $row['cost'];
             $productStatus          = $row['product_status'];
-            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'profile');
+            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'default');
 
-            $badgeClass             = $productStatus == 'Active' ? 'bg-success' : 'bg-danger';
-            $productStatusBadge     = '<div class="'. $badgeClass .' position-absolute border border-4 border-body h-15px w-15px rounded-circle translate-middle start-100 top-100 ms-n3 mt-n3"></div>';
+            $badgeClass             = $productStatus == 'Active' ? 'badge-light-success' : 'badge-light-danger';
 
             $productIdEncrypted = $this->security->encryptData($productId);
+
+            $productCategoriesDetails = $this->product->fetchProductCategories($productId);
+
+            $productCategories = '';
+            foreach ($productCategoriesDetails as $row) {
+                $productCategories .= '<div class="badge badge-light-primary me-2">'. $row['product_category_name'] .'</div>';
+            }
 
             $response[] = [
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
@@ -350,9 +585,8 @@ class ProductController
                                         </div>',
                 'PRODUCT'           => '<div class="d-flex align-items-center">
                                             <div class="me-4">
-                                                <div class="symbol symbol-50px symbol-circle">
+                                                <div class="symbol symbol-50px">
                                                     <img src="'. $productImage .'" alt="image">
-                                                    '. $productStatusBadge .'
                                                 </div>
                                             </div>
                                             <div class="d-flex flex-column">
@@ -361,10 +595,11 @@ class ProductController
                                         </div>',
                 'BARCODE'           => $barcode,
                 'PRODUCT_TYPE'      => $productTypeName,
-                'PRODUCT_CATEGORY'  => $productCategoryName,
-                'QUANTITY'          => number_format($quantity),
+                'PRODUCT_CATEGORY'  => $productCategories,
+                'QUANTITY'          => number_format($quantityOnHand),
                 'SALES_PRICE'       => number_format($salesPrice, 2) . ' PHP',
                 'COST'              => number_format($cost, 2) . ' PHP',
+                'STATUS'            => '<div class="badge '. $badgeClass .'">'. $productStatus .'</div>',
                 'LINK'              => $pageLink .'&id='. $productIdEncrypted
             ];
         }
@@ -401,6 +636,7 @@ class ProductController
 $controller = new ProductController(
     new Product(),
     new ProductCategory(),
+    new Tax(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

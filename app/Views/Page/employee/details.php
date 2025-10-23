@@ -1136,7 +1136,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="first_name">First Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="first_name" name="first_name" maxlength="300" autocomplete="off">
                                 </div>
                             </div>
@@ -1147,7 +1147,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="middle_name">Middle Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
                                 </div>
                             </div>
@@ -1158,7 +1158,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="last_name">Last Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="last_name" name="last_name" maxlength="300" autocomplete="off">
                                 </div>
                             </div>
@@ -1169,7 +1169,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="suffix">Suffix</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="suffix" name="suffix" maxlength="10" autocomplete="off">
                                 </div>
                             </div>
@@ -1180,7 +1180,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6">Private Address</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <textarea class="form-control mb-3 mb-lg-0" id="private_address" name="private_address" maxlength="500" autocomplete="off"></textarea>
                                 </div>
                             </div>
@@ -1191,7 +1191,7 @@
                         <div class="col-lg-4"></div>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="private_address_city_id" name="private_address_city_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1202,7 +1202,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="nickname">Nickname</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="nickname" name="nickname" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1213,7 +1213,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="civil_status_id">Civil Status</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="civil_status_id" name="civil_status_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1224,7 +1224,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="dependents">Number of Dependents</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="number" class="form-control" id="dependents" name="dependents" min="0" step="1">
                                 </div>
                             </div>
@@ -1235,7 +1235,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="religion_id">Religion</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="religion_id" name="religion_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1246,7 +1246,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="blood_type_id">Blood Type</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="blood_type_id" name="blood_type_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1257,7 +1257,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="home_work_distance">Home-Work Distance</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="home_work_distance" name="home_work_distance" min="0" step="0.01">
                                         <span class="input-group-text">km</span>
@@ -1271,7 +1271,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="height">Height</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="height" name="height" min="0" step="0.01">
                                         <span class="input-group-text">cm</span>
@@ -1285,7 +1285,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="weight">Weight</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <div class="input-group">
                                         <input type="number" class="form-control" id="weight" name="weight" min="0" step="0.01">
                                         <span class="input-group-text">kg</span>
@@ -1323,7 +1323,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="language_id">Language</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="language_id" name="language_id" class="form-select" data-dropdown-parent="#employee_language_modal" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1334,7 +1334,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="language_proficiency_id">Language Proficiency</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="language_proficiency_id" name="language_proficiency_id" data-dropdown-parent="#employee_language_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1369,7 +1369,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="school">School</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="school" name="school" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1380,7 +1380,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="degree">Degree</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="degree" name="degree" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1391,7 +1391,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="field_of_study">Field of Study</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="field_of_study" name="field_of_study" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1402,7 +1402,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="start_month">Start Date</label>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="start_month" name="start_month" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateMonthOptions(); ?>
@@ -1412,7 +1412,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="start_year" name="start_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
@@ -1426,7 +1426,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="end_month">End Date (or expected)</label>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="end_month" name="end_month" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateMonthOptions(); ?>
@@ -1436,7 +1436,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="end_year" name="end_year" class="form-select" data-dropdown-parent="#employee_education_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                        <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
@@ -1450,7 +1450,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="activities_societies">Activities and Societies</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <textarea class="form-control" id="activities_societies" name="activities_societies" maxlength="5000"></textarea>
                                 </div>
                             </div>
@@ -1461,7 +1461,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="education_description">Description</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <textarea class="form-control" id="education_description" name="education_description" maxlength="5000"></textarea>
                                 </div>
                             </div>
@@ -1496,7 +1496,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="emergency_contact_name">Emergency Contact Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="emergency_contact_name" name="emergency_contact_name" maxlength="500" autocomplete="off">
                                 </div>
                             </div>
@@ -1506,7 +1506,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="relationship_id">Relationship</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="relationship_id" name="relationship_id" data-dropdown-parent="#employee_emergency_contact_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1516,7 +1516,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_telephone">Telephone</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="50" autocomplete="off">
                                 </div>
                             </div>
@@ -1526,7 +1526,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_mobile">Mobile</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="50" autocomplete="off">
                                 </div>
                             </div>
@@ -1536,7 +1536,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="emergency_contact_email">Email</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0 contact-group" id="emergency_contact_email" name="emergency_contact_email" maxlength="200" autocomplete="off">
                                 </div>
                             </div>
@@ -1571,7 +1571,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="licensed_profession">Licensed Profession</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="licensed_profession" name="licensed_profession" maxlength="200" autocomplete="off">
                                 </div>
                             </div>
@@ -1581,7 +1581,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="licensing_body">Licensing Body</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="licensing_body" name="licensing_body" maxlength="500" autocomplete="off">
                                 </div>
                             </div>
@@ -1591,7 +1591,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="license_number">License Number</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="license_number" name="license_number" maxlength="500" autocomplete="off">
                                 </div>
                             </div>
@@ -1601,7 +1601,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="issue_date">Issuance Date</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input class="form-control mb-3 mb-lg-0" id="issue_date" name="issue_date" type="text">
                                 </div>
                             </div>
@@ -1611,7 +1611,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="expiration_date">Expiration Date</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input class="form-control mb-3 mb-lg-0" id="expiration_date" name="expiration_date" type="text">
                                 </div>
                             </div>
@@ -1646,7 +1646,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="job_title">Job Title</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="job_title" name="job_title" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1657,7 +1657,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="company_name">Company Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="company_name" name="company_name" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1668,7 +1668,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="location">Location</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="location" name="location" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
@@ -1679,7 +1679,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="employee_experience_employment_type_id">Employment Type</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_experience_employment_type_id" name="employee_experience_employment_type_id" data-dropdown-parent="#employee_experience_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1690,7 +1690,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="start_month">Start Date</label>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_experience_start_month" name="employee_experience_start_month" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateMonthOptions(); ?>
@@ -1700,7 +1700,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_experience_start_year" name="employee_experience_start_year" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
@@ -1714,7 +1714,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="end_month">End Date (or expected)</label>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_experience_end_month" name="employee_experience_end_month" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                         <?php echo $systemHelper->generateMonthOptions(); ?>
@@ -1724,7 +1724,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_experience_end_year" name="employee_experience_end_year" class="form-select" data-dropdown-parent="#employee_experience_modal" data-control="select2" data-allow-clear="false">
                                         <option value="">--</option>
                                        <?php echo $systemHelper->generateYearOptions(date('Y'), date('Y', strtotime('-100 years'))); ?>
@@ -1738,7 +1738,7 @@
                         <label class="col-lg-4 col-form-label fw-semibold fs-6" for="job_description">Job Description</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <textarea class="form-control" id="job_description" name="job_description" maxlength="5000"></textarea>
                                 </div>
                             </div>
@@ -1773,7 +1773,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="document_name">Document Name</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="text" class="form-control mb-3 mb-lg-0" id="document_name" name="document_name" maxlength="200" autocomplete="off">
                                 </div>
                             </div>
@@ -1784,7 +1784,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="document_file">Document File</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input type="file" class="form-control mb-3 mb-lg-0" id="document_file" name="document_file" >
                                 </div>
                             </div>
@@ -1795,7 +1795,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="employee_document_type_id">Document Type</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="employee_document_type_id" name="employee_document_type_id" data-dropdown-parent="#employee_document_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1829,7 +1829,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="departure_date">Departure Date</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <input class="form-control mb-3 mb-lg-0" id="departure_date" name="departure_date" type="text">
                                 </div>
                             </div>
@@ -1839,7 +1839,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="departure_reason_id">Departure Reason</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <select id="departure_reason_id" name="departure_reason_id" data-dropdown-parent="#archive_employee_modal" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
@@ -1849,7 +1849,7 @@
                         <label class="col-lg-4 col-form-label required fw-semibold fs-6" for="detailed_departure_reason">Detailed Reason</label>
                         <div class="col-lg-8">
                             <div class="row">
-                                <div class="col-lg-12 fv-row fv-plugins-icon-container">
+                                <div class="col-lg-12 fv-row">
                                     <textarea class="form-control" id="detailed_departure_reason" name="detailed_departure_reason" maxlength="5000"></textarea>
                                 </div>
                             </div>

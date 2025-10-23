@@ -3362,7 +3362,7 @@ BEGIN
     DECLARE audit_log TEXT DEFAULT 'Product tax changed.<br/><br/>';
 
     IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
     END IF;
 
     IF NEW.tax_type <> OLD.tax_type THEN
@@ -3402,6 +3402,58 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: PRODUCT CATEGORIES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_categories_update//
+
+CREATE TRIGGER trg_product_categories_update
+AFTER UPDATE ON product_categories
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product categories changed.<br/><br/>';
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+
+    IF NEW.product_category_name <> OLD.product_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Category: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Product categories changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_categories', NEW.product_categories_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_categories_insert//
+
+CREATE TRIGGER trg_product_categories_insert
+AFTER INSERT ON product_categories
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product categories created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_categories', NEW.product_categories_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: PRODUCT VARIANT
 ============================================================================================= */
 
@@ -3418,7 +3470,7 @@ BEGIN
     DECLARE audit_log TEXT DEFAULT 'Product variant changed.<br/><br/>';
 
     IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
     END IF;
 
     IF NEW.attribute_value_name <> OLD.attribute_value_name THEN
@@ -3453,74 +3505,6 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('product_variant', NEW.product_variant_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-/* =============================================================================================
-   END OF TRIGGERS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-   TRIGGER: PRODUCT PRICELIST
-============================================================================================= */
-
-/* =============================================================================================
-   SECTION 1: UPDATE TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_product_pricelist_update//
-
-CREATE TRIGGER trg_product_pricelist_update
-AFTER UPDATE ON product_pricelist
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product pricelist changed.<br/><br/>';
-
-    IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
-    END IF;
-
-    IF NEW.rule_type <> OLD.rule_type THEN
-        SET audit_log = CONCAT(audit_log, "Rule Type: ", OLD.rule_type, " -> ", NEW.rule_type, "<br/>");
-    END IF;
-
-    IF NEW.pricelist_computation <> OLD.pricelist_computation THEN
-        SET audit_log = CONCAT(audit_log, "Pricelist Computation: ", OLD.pricelist_computation, " -> ", NEW.pricelist_computation, "<br/>");
-    END IF;
-
-    IF NEW.pricelist_rate <> OLD.pricelist_rate THEN
-        SET audit_log = CONCAT(audit_log, "Pricelist Rate: ", OLD.pricelist_rate, " -> ", NEW.pricelist_rate, "<br/>");
-    END IF;
-
-    IF NEW.validity_start_date <> OLD.validity_start_date THEN
-        SET audit_log = CONCAT(audit_log, "Validity Start Date: ", OLD.validity_start_date, " -> ", NEW.validity_start_date, "<br/>");
-    END IF;
-
-    IF NEW.validity_end_date <> OLD.validity_end_date THEN
-        SET audit_log = CONCAT(audit_log, "Validity End Date: ", OLD.validity_end_date, " -> ", NEW.validity_end_date, "<br/>");
-    END IF;
-    
-    IF audit_log <> 'Product pricelist changed.<br/><br/>' THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('product_pricelist', NEW.product_pricelist_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-/* =============================================================================================
-   SECTION 2: INSERT TRIGGERS
-============================================================================================= */
-
-DROP TRIGGER IF EXISTS trg_product_pricelist_insert//
-
-CREATE TRIGGER trg_product_pricelist_insert
-AFTER INSERT ON product_pricelist
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product pricelist created.';
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('product_pricelist', NEW.product_pricelist_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================

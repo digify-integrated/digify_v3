@@ -70,18 +70,20 @@ class TaxController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save tax'                  => $this->saveTax($lastLogBy),
-            'update tax archive'        => $this->updateTaxArchive($lastLogBy),
-            'update tax unarchive'      => $this->updateTaxUnarchive($lastLogBy),
-            'delete tax'                => $this->deleteTax(),
-            'delete multiple tax'       => $this->deleteMultipleTax(),
-            'fetch tax details'         => $this->fetchTaxDetails(),
-            'generate tax table'        => $this->generateTaxTable(),
-            'generate tax options'      => $this->generateTaxOptions(),
-            default                     => $this->systemHelper::sendErrorResponse(
-                                                    'Transaction Failed',
-                                                    'We encountered an issue while processing your request.'
-                                                )
+            'save tax'                          => $this->saveTax($lastLogBy),
+            'update tax archive'                => $this->updateTaxArchive($lastLogBy),
+            'update tax unarchive'              => $this->updateTaxUnarchive($lastLogBy),
+            'delete tax'                        => $this->deleteTax(),
+            'delete multiple tax'               => $this->deleteMultipleTax(),
+            'fetch tax details'                 => $this->fetchTaxDetails(),
+            'generate tax table'                => $this->generateTaxTable(),
+            'generate tax options'              => $this->generateTaxOptions(),
+            'generate sales tax options'        => $this->generateSalesTaxOptions(),
+            'generate purchase tax options'     => $this->generatePurchaseTaxOptions(),
+            default                             => $this->systemHelper::sendErrorResponse(
+                                                        'Transaction Failed',
+                                                        'We encountered an issue while processing your request.'
+                                                    )
         };
     }
 
@@ -234,6 +236,54 @@ class TaxController
         }
 
         $taxs = $this->tax->generateTaxOptions();
+
+        foreach ($taxs as $row) {
+            $response[] = [
+                'id'    => $row['tax_id'],
+                'text'  => $row['tax_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateSalesTaxOptions()
+    {
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $taxs = $this->tax->generateSalesTaxOptions();
+
+        foreach ($taxs as $row) {
+            $response[] = [
+                'id'    => $row['tax_id'],
+                'text'  => $row['tax_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generatePurchaseTaxOptions()
+    {
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $taxs = $this->tax->generatePurchaseTaxOptions();
 
         foreach ($taxs as $row) {
             $response[] = [

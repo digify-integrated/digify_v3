@@ -158,6 +158,18 @@ class Tax extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateSalesTaxOptions() {
+        $sql = 'CALL generateSalesTaxOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
+    public function generatePurchaseTaxOptions() {
+        $sql = 'CALL generatePurchaseTaxOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

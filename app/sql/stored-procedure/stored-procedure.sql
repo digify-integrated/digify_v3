@@ -9673,6 +9673,26 @@ BEGIN
     ORDER BY tax_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateSalesTaxOptions//
+
+CREATE PROCEDURE generateSalesTaxOptions()
+BEGIN
+	SELECT tax_id, tax_name 
+    FROM tax 
+    WHERE tax_type = 'Sales'
+    ORDER BY tax_name;
+END //
+
+DROP PROCEDURE IF EXISTS generatePurchaseTaxOptions//
+
+CREATE PROCEDURE generatePurchaseTaxOptions()
+BEGIN
+	SELECT tax_id, tax_name 
+    FROM tax 
+    WHERE tax_type = 'Purchases'
+    ORDER BY tax_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -10157,9 +10177,189 @@ BEGIN
     SELECT v_new_product_id AS new_product_id;
 END //
 
+DROP PROCEDURE IF EXISTS insertProductCategories//
+
+CREATE PROCEDURE insertProductCategories(
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(100), 
+    IN p_product_category_id INT, 
+    IN p_product_category_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_categories (
+        product_id,
+        product_name,
+        product_category_id,
+        product_category_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_product_category_id,
+        p_product_category_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateProductGeneral//
+
+CREATE PROCEDURE updateProductGeneral(
+	IN p_product_id INT, 
+	IN p_product_name VARCHAR(100), 
+	IN p_product_description VARCHAR(1000), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_name  = p_product_name,
+        product_description  = p_product_description,
+        last_log_by     = p_last_log_by
+    WHERE product_id   = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductInventory//
+
+CREATE PROCEDURE updateProductInventory(
+	IN p_product_id INT, 
+	IN p_sku VARCHAR(200), 
+	IN p_barcode VARCHAR(200), 
+	IN p_product_type VARCHAR(50), 
+	IN p_quantity_on_hand INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET sku                 = p_sku,
+        barcode             = p_barcode,
+        product_type        = p_product_type,
+        quantity_on_hand    = p_quantity_on_hand,
+        last_log_by         = p_last_log_by
+    WHERE product_id        = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductShipping//
+
+CREATE PROCEDURE updateProductShipping(
+	IN p_product_id INT, 
+	IN p_weight DECIMAL(5,2), 
+	IN p_width DECIMAL(5,2), 
+	IN p_height DECIMAL(5,2), 
+	IN p_length DECIMAL(5,2), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET weight          = p_weight,
+        width           = p_width,
+        height          = p_height,
+        length          = p_length,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductImage//
+
+CREATE PROCEDURE updateProductImage(
+	IN p_product_id INT, 
+	IN p_product_image VARCHAR(500), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_image  = p_product_image,
+        last_log_by     = p_last_log_by
+    WHERE product_id   = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductSettings //
+
+CREATE PROCEDURE updateProductSettings (
+    IN p_product_id INT, 
+    IN p_value VARCHAR(500),
+    IN p_update_type VARCHAR(50),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    CASE p_update_type
+        WHEN 'is sellable' THEN
+            UPDATE product
+            SET is_sellable     = p_value,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = p_product_id;
+
+        WHEN 'is purchasable' THEN
+            UPDATE product
+            SET is_purchasable  = p_value,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = p_product_id;
+
+        ELSE
+            UPDATE product
+            SET show_on_pos     = p_value,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = p_product_id;
+    END CASE;
+
+    COMMIT;
+END //
 
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
@@ -10176,9 +10376,38 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchProductCategories//
+
+CREATE PROCEDURE fetchProductCategories(
+	IN p_product_id INT
+)
+BEGIN
+	SELECT * FROM product_categories
+	WHERE product_id = p_product_id;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProductCategories//
+
+CREATE PROCEDURE deleteProductCategories(
+    IN p_product_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_categories 
+    WHERE product_id = p_product_id;
+
+    COMMIT;
+END //
 
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
@@ -10195,9 +10424,157 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+CREATE PROCEDURE checkProductSKUExist(
+	IN p_product_id INT,
+    IN p_sku VARCHAR(200)
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id != p_product_id 
+    AND sku = p_sku;
+END //
+
+CREATE PROCEDURE checkProductBarcodeExist(
+	IN p_product_id INT,
+    IN p_barcode VARCHAR(200)
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id != p_product_id 
+    AND barcode = p_barcode;
+END //
+
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateProductCard//
+
+CREATE PROCEDURE generateProductCard(
+    IN p_search_value TEXT,
+    IN p_filter_by_product_type TEXT,
+    IN p_filter_by_product_category TEXT,
+    IN p_filter_by_is_sellable TEXT,
+    IN p_filter_by_is_purchasable TEXT,
+    IN p_filter_by_show_on_pos TEXT,
+    IN p_filter_by_product_status TEXT,
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    DECLARE query TEXT;
+
+    -- Base query
+    SET query = 'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
+                FROM product
+                WHERE 1=1';
+
+    -- Search filter
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET query = CONCAT(query, ' 
+            AND (
+                product_name LIKE ? OR
+                product_description LIKE ? OR
+                sku LIKE ? OR
+                barcode LIKE ?
+            )');
+    END IF;
+
+    -- Dynamic filters
+    IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_categories WHERE product_category_id IN (', p_filter_by_product_category, '))');
+    END IF;
+
+    IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN
+        SET query = CONCAT(query, ' AND is_sellable IN (', p_filter_by_is_sellable, ')');
+    END IF;
+
+    IF p_filter_by_is_purchasable IS NOT NULL AND p_filter_by_is_purchasable <> '' THEN
+        SET query = CONCAT(query, ' AND is_purchasable IN (', p_filter_by_is_purchasable, ')');
+    END IF;
+
+    IF p_filter_by_show_on_pos IS NOT NULL AND p_filter_by_show_on_pos <> '' THEN
+        SET query = CONCAT(query, ' AND show_on_pos IN (', p_filter_by_show_on_pos, ')');
+    END IF;
+
+    IF p_filter_by_product_status IS NOT NULL AND p_filter_by_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_filter_by_product_status, ')');
+    END IF;
+
+    -- Final ordering + limit
+    SET query = CONCAT(query, ' ORDER BY product_name LIMIT ?, ?');
+
+    PREPARE stmt FROM query;
+
+    -- Bind parameters for search + pagination
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET @s1 = CONCAT('%', p_search_value, '%');
+        SET @s2 = @s1; SET @s3 = @s1; SET @s4 = @s1;
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @s1, @s2, @s3, @s4, @offset, @limit;
+    ELSE
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @offset, @limit;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductTable//
+
+CREATE PROCEDURE generateProductTable(
+    IN p_filter_by_product_type TEXT,
+    IN p_filter_by_product_category TEXT,
+    IN p_filter_by_is_sellable TEXT,
+    IN p_filter_by_is_purchasable TEXT,
+    IN p_filter_by_show_on_pos TEXT,
+    IN p_filter_by_product_status TEXT
+)
+BEGIN
+    DECLARE query TEXT DEFAULT 
+        'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
+        FROM product WHERE 1=1';
+
+     IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_categories WHERE product_category_id IN (', p_filter_by_product_category, '))');
+    END IF;
+
+    IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN
+        SET query = CONCAT(query, ' AND is_sellable IN (', p_filter_by_is_sellable, ')');
+    END IF;
+
+    IF p_filter_by_is_purchasable IS NOT NULL AND p_filter_by_is_purchasable <> '' THEN
+        SET query = CONCAT(query, ' AND is_purchasable IN (', p_filter_by_is_purchasable, ')');
+    END IF;
+
+    IF p_filter_by_show_on_pos IS NOT NULL AND p_filter_by_show_on_pos <> '' THEN
+        SET query = CONCAT(query, ' AND show_on_pos IN (', p_filter_by_show_on_pos, ')');
+    END IF;
+
+    IF p_filter_by_product_status IS NOT NULL AND p_filter_by_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_filter_by_product_status, ')');
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
 
 /* =============================================================================================
    END OF PROCEDURES

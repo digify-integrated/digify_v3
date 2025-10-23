@@ -163,12 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     $('#upload_setting_file_extension_form').validate({
-        rules: {
-            file_extension_id: { required: true }
-        },
-        messages: {
-            file_extension_id: { required: 'Choose the file extension' }
-        },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
