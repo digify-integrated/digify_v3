@@ -3249,12 +3249,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
     END IF;
 
+    IF NEW.product_description <> OLD.product_description THEN
+        SET audit_log = CONCAT(audit_log, "Product Description: ", OLD.product_description, " -> ", NEW.product_description, "<br/>");
+    END IF;
+
     IF NEW.product_type <> OLD.product_type THEN
         SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type, " -> ", NEW.product_type, "<br/>");
     END IF;
 
-    IF NEW.product_category_name <> OLD.product_category_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Category: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    IF NEW.sku <> OLD.sku THEN
+        SET audit_log = CONCAT(audit_log, "SKU: ", OLD.sku, " -> ", NEW.sku, "<br/>");
+    END IF;
+
+    IF NEW.barcode <> OLD.barcode THEN
+        SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
 
     IF NEW.is_sellable <> OLD.is_sellable THEN
@@ -3281,12 +3289,32 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
     END IF;
 
-    IF NEW.product_status <> OLD.product_status THEN
-        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
+    IF NEW.discount_type <> OLD.discount_type THEN
+        SET audit_log = CONCAT(audit_log, "Discount Type: ", OLD.discount_type, " -> ", NEW.discount_type, "<br/>");
     END IF;
 
-    IF NEW.remarks <> OLD.remarks THEN
-        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    IF NEW.discount_rate <> OLD.discount_rate THEN
+        SET audit_log = CONCAT(audit_log, "Discount Rate: ", OLD.discount_rate, " -> ", NEW.discount_rate, "<br/>");
+    END IF;
+
+    IF NEW.weight <> OLD.weight THEN
+        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " -> ", NEW.weight, " kg<br/>");
+    END IF;
+
+    IF NEW.width <> OLD.width THEN
+        SET audit_log = CONCAT(audit_log, "Width: ", OLD.width, " -> ", NEW.width, " cm<br/>");
+    END IF;
+
+    IF NEW.height <> OLD.height THEN
+        SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " -> ", NEW.height, " cm<br/>");
+    END IF;
+
+    IF NEW.length <> OLD.length THEN
+        SET audit_log = CONCAT(audit_log, "Length: ", OLD.length, " -> ", NEW.length, " cm<br/>");
+    END IF;
+
+    IF NEW.product_status <> OLD.product_status THEN
+        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN

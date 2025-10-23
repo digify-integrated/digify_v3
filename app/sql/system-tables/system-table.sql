@@ -6969,22 +6969,27 @@ DROP TABLE IF EXISTS product;
 CREATE TABLE product (
   product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_name VARCHAR(100) NOT NULL,
+  product_description VARCHAR(1000) NOT NULL,
   product_image VARCHAR(500),
   product_type ENUM('Goods','Services') DEFAULT 'Goods',
-  product_category_id INT UNSIGNED NOT NULL,
-  product_category_name VARCHAR(100) NOT NULL,
-  is_sellable VARCHAR(5) DEFAULT 'Yes',
-  is_purchasable VARCHAR(5) DEFAULT 'Yes',
-  show_on_pos VARCHAR(5) DEFAULT 'Yes',
+  sku VARCHAR(200) UNIQUE,
+  barcode VARCHAR(200) UNIQUE,
+  is_sellable ENUM('Yes','No') DEFAULT 'Yes',
+  is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
+  show_on_pos ENUM('Yes','No') DEFAULT 'Yes',
   quantity_on_hand INT DEFAULT 0,
   sales_price DOUBLE DEFAULT 0,
   cost DOUBLE DEFAULT 0,
+  discount_type ENUM('Fixed','None', 'Percentage') DEFAULT 'None',
+  discount_rate DECIMAL(5,2) DEFAULT 0,
+  weight DECIMAL(5,2) DEFAULT 0,
+  width DECIMAL(5,2) DEFAULT 0,
+  height DECIMAL(5,2) DEFAULT 0,
+  length DECIMAL(5,2) DEFAULT 0,
   product_status ENUM('Active','Archived') DEFAULT 'Active',
-  remarks VARCHAR(5000),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -6993,10 +6998,12 @@ CREATE TABLE product (
 ============================================================================================= */
 
 CREATE INDEX idx_product_product_type ON product(product_type);
+CREATE INDEX idx_product_barcode ON product(barcode);
+CREATE INDEX idx_product_sku ON product(sku);
 CREATE INDEX idx_product_is_sellable ON product(is_sellable);
 CREATE INDEX idx_product_is_purchasable ON product(is_purchasable);
 CREATE INDEX idx_product_show_on_pos ON product(show_on_pos);
-CREATE INDEX idx_product_product_category_id ON product(product_category_id);
+CREATE INDEX idx_product_discount_type ON product(discount_type);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT
@@ -7074,51 +7081,6 @@ CREATE TABLE product_variant (
 CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
 CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute_value_id);
 CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
-
-/* =============================================================================================
-  INITIAL VALUES: PRODUCT VARIANT
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: PRODUCT PRICELIST
-============================================================================================= */
-
-DROP TABLE IF EXISTS product_pricelist;
-
-CREATE TABLE product_pricelist (
-  product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  product_variant_id INT UNSIGNED NULL,
-  rule_type ENUM('Add-On','Discount') DEFAULT 'Discount',
-  pricelist_computation ENUM('Fixed','Percentage') DEFAULT 'Percentage',
-  pricelist_rate DECIMAL(5,2) DEFAULT 0, 
-  validity_start_date DATE NOT NULL,
-  validity_end_date DATE,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: PRODUCT VARIANT
-============================================================================================= */
-
-CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
-CREATE INDEX idx_product_pricelist_product_variant_id ON product_pricelist(product_variant_id);
-CREATE INDEX idx_product_pricelist_validity_start_date ON product_pricelist(validity_start_date);
-CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validity_end_date);
-CREATE INDEX idx_product_pricelist_rule_type ON product_pricelist(rule_type);
-CREATE INDEX idx_product_pricelist_pricelist_computation ON product_pricelist(pricelist_computation);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT VARIANT

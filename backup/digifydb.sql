@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2025 at 11:26 AM
+-- Generation Time: Oct 23, 2025 at 11:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -251,6 +251,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductCategoryExist` (IN `p_p
     WHERE product_category_id = p_product_category_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `checkProductExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductExist` (IN `p_product_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id = p_product_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `checkRateLimited`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRateLimited` (IN `p_email` VARCHAR(255), IN `p_ip_address` VARCHAR(45), IN `p_window` INT)   BEGIN
     SELECT COUNT(*) AS total
@@ -324,6 +331,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionExist` (IN `p_syst
     WHERE system_action_id = p_system_action_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `checkTaxExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkTaxExist` (IN `p_tax_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM tax
+    WHERE tax_id = p_tax_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `checkUploadSettingExist`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUploadSettingExist` (IN `p_upload_setting_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
@@ -392,6 +406,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserSystemActionPermission` (I
             FROM role_user_account 
             WHERE user_account_id = p_user_account_id
           );
+END$$
+
+DROP PROCEDURE IF EXISTS `checkWarehouseExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkWarehouseExist` (IN `p_warehouse_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkWarehouseTypeExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkWarehouseTypeExist` (IN `p_warehouse_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse_type
+    WHERE warehouse_type_id = p_warehouse_type_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkWorkLocationExist`$$
@@ -1126,6 +1154,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemAction` (IN `p_system_a
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `deleteTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteTax` (IN `p_tax_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM tax WHERE tax_id = p_tax_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `deleteUploadSetting`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -1183,6 +1225,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_acco
 
     DELETE FROM user_account
     WHERE user_account_id = p_user_account_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteWarehouse`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWarehouse` (IN `p_warehouse_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM warehouse WHERE warehouse_id = p_warehouse_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteWarehouseType`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWarehouseType` (IN `p_warehouse_type_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM warehouse_type WHERE warehouse_type_id = p_warehouse_type_id;
 
     COMMIT;
 END$$
@@ -1586,6 +1656,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchOTP` (IN `p_user_account_id` I
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProduct` (IN `p_product_id` INT)   BEGIN
+	SELECT * FROM product
+	WHERE product_id = p_product_id
+    LIMIT 1;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchProductCategory`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductCategory` (IN `p_product_category_id` INT)   BEGIN
 	SELECT * FROM product_category
@@ -1668,6 +1745,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchSystemNotificationTemplate` (I
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchTax` (IN `p_tax_id` INT)   BEGIN
+	SELECT * FROM tax
+	WHERE tax_id = p_tax_id
+    LIMIT 1;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchUploadSetting`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
 	SELECT * FROM upload_setting
@@ -1685,6 +1769,20 @@ DROP PROCEDURE IF EXISTS `fetchUserAccount`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchUserAccount` (IN `p_user_account_id` INT)   BEGIN
 	SELECT * FROM user_account
 	WHERE user_account_id = p_user_account_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchWarehouse`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchWarehouse` (IN `p_warehouse_id` INT)   BEGIN
+	SELECT * FROM warehouse
+	WHERE warehouse_id = p_warehouse_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchWarehouseType`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchWarehouseType` (IN `p_warehouse_type_id` INT)   BEGIN
+	SELECT * FROM warehouse_type
+	WHERE warehouse_type_id = p_warehouse_type_id
     LIMIT 1;
 END$$
 
@@ -2735,6 +2833,60 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateTableOptions` (IN `p_databa
     WHERE table_schema = p_database_name;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateTaxOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateTaxOptions` ()   BEGIN
+	SELECT tax_id, tax_name 
+    FROM tax 
+    ORDER BY tax_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateTaxTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateTaxTable` (IN `p_filter_by_tax_type` TEXT, IN `p_filter_by_tax_computation` TEXT, IN `p_filter_by_tax_scope` TEXT, IN `p_filter_by_tax_status` TEXT)   BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT tax_id, tax_name, tax_rate, tax_type, tax_computation, tax_scope 
+                FROM tax ';
+
+    IF p_filter_by_tax_type IS NOT NULL AND p_filter_by_tax_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_type IN (', p_filter_by_tax_type, ')');
+    END IF;
+
+    IF p_filter_by_tax_computation IS NOT NULL AND p_filter_by_tax_computation <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_computation IN (', p_filter_by_tax_computation, ')');
+    END IF;
+
+    IF p_filter_by_tax_scope IS NOT NULL AND p_filter_by_tax_scope <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_scope IN (', p_filter_by_tax_scope, ')');
+    END IF;
+
+    IF p_filter_by_tax_status IS NOT NULL AND p_filter_by_tax_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_status IN (', p_filter_by_tax_status, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY tax_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateUploadSettingFileExtensionList`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUploadSettingFileExtensionList` (IN `p_upload_setting_id` INT)   BEGIN
 	SELECT upload_setting_file_extension_id, file_extension_id, file_extension_name, file_extension
@@ -2788,6 +2940,78 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_ac
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateWarehouseOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWarehouseOptions` ()   BEGIN
+	SELECT warehouse_id, warehouse_name 
+    FROM warehouse 
+    ORDER BY warehouse_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateWarehouseTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWarehouseTable` (IN `p_filter_by_warehouse_type` TEXT, IN `p_filter_by_city` TEXT, IN `p_filter_by_state` TEXT, IN `p_filter_by_country` TEXT, IN `p_filter_by_warehouse_status` TEXT)   BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT warehouse_id, warehouse_name, address, city_name, state_name, country_name 
+                FROM warehouse ';
+
+    IF p_filter_by_warehouse_type IS NOT NULL AND p_filter_by_warehouse_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' warehouse_type_id IN (', p_filter_by_warehouse_type, ')');
+    END IF;
+
+    IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
+    END IF;
+
+    IF p_filter_by_state IS NOT NULL AND p_filter_by_state <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' state_id IN (', p_filter_by_state, ')');
+    END IF;
+
+    IF p_filter_by_country IS NOT NULL AND p_filter_by_country <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' country_id IN (', p_filter_by_country, ')');
+    END IF;
+
+    IF p_filter_by_warehouse_status IS NOT NULL AND p_filter_by_warehouse_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' warehouse_status IN (', p_filter_by_warehouse_status, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY warehouse_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateWarehouseTypeOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWarehouseTypeOptions` ()   BEGIN
+	SELECT warehouse_type_id, warehouse_type_name 
+    FROM warehouse_type 
+    ORDER BY warehouse_type_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateWarehouseTypeTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWarehouseTypeTable` ()   BEGIN
+	SELECT warehouse_type_id, warehouse_type_name
+    FROM warehouse_type 
+    ORDER BY warehouse_type_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateWorkLocationOptions`$$
@@ -2946,6 +3170,35 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLoginAttempt` (IN `p_user_acc
     END IF;
 
     COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProduct` (IN `p_product_name` VARCHAR(100), IN `p_product_description` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_product_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product (
+        product_name,
+        product_description,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_name,
+        p_product_description,
+        p_last_log_by
+    );
+
+    SET v_new_product_id = LAST_INSERT_ID();
+
+    COMMIT;
+
+    SELECT v_new_product_id AS new_product_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `insertRolePermission`$$
@@ -5260,6 +5513,54 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveSystemNotificationTemplate` (IN
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `saveTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveTax` (IN `p_tax_id` INT, IN `p_tax_name` VARCHAR(200), IN `p_tax_rate` DECIMAL(5,2), IN `p_tax_type` VARCHAR(50), IN `p_tax_computation` VARCHAR(50), IN `p_tax_scope` VARCHAR(50), IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_tax_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_tax_id IS NULL OR NOT EXISTS (SELECT 1 FROM tax WHERE tax_id = p_tax_id) THEN
+        INSERT INTO tax (
+            tax_name,
+            tax_rate,
+            tax_type,
+            tax_computation,
+            tax_scope,
+            last_log_by
+        ) 
+        VALUES(
+            p_tax_name,
+            p_tax_rate,
+            p_tax_type,
+            p_tax_computation,
+            p_tax_scope,
+            p_last_log_by
+        ); 
+        
+        SET v_new_tax_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE tax
+        SET tax_name            = p_tax_name,
+            tax_rate            = p_tax_rate,
+            tax_type            = p_tax_type,
+            tax_computation     = p_tax_computation,
+            tax_scope           = p_tax_scope,
+            last_log_by         = p_last_log_by
+        WHERE tax_id            = p_tax_id;
+
+        SET v_new_tax_id = p_tax_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_tax_id AS new_tax_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `saveUploadSetting`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `saveUploadSetting` (IN `p_upload_setting_id` INT, IN `p_upload_setting_name` VARCHAR(100), IN `p_upload_setting_description` VARCHAR(200), IN `p_max_file_size` DOUBLE, IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_upload_setting_id INT;
@@ -5305,6 +5606,125 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveUploadSetting` (IN `p_upload_se
     COMMIT;
 
     SELECT v_new_upload_setting_id AS new_upload_setting_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `saveWarehouse`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveWarehouse` (IN `p_warehouse_id` INT, IN `p_warehouse_name` VARCHAR(200), IN `p_short_name` VARCHAR(200), IN `p_contact_person` VARCHAR(500), IN `p_phone` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(255), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_city_name` VARCHAR(100), IN `p_state_id` INT, IN `p_state_name` VARCHAR(100), IN `p_country_id` INT, IN `p_country_name` VARCHAR(100), IN `p_warehouse_type_id` INT, IN `p_warehouse_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_warehouse_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_warehouse_id IS NULL OR NOT EXISTS (SELECT 1 FROM warehouse WHERE warehouse_id = p_warehouse_id) THEN
+        INSERT INTO warehouse (
+            warehouse_name,
+            short_name,
+            contact_person,
+            phone,
+            telephone,
+            email,
+            address,
+            city_id,
+            city_name,
+            state_id,
+            state_name,
+            country_id,
+            country_name,
+            warehouse_type_id,
+            warehouse_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_warehouse_name,
+            p_short_name,
+            p_contact_person,
+            p_phone,
+            p_telephone,
+            p_email,
+            p_address,
+            p_city_id,
+            p_city_name,
+            p_state_id,
+            p_state_name,
+            p_country_id,
+            p_country_name,
+            p_warehouse_type_id,
+            p_warehouse_type_name,
+            p_last_log_by
+        ); 
+        
+        SET v_new_warehouse_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE warehouse
+        SET warehouse_name          = p_warehouse_name,
+            short_name              = p_short_name,
+            contact_person          = p_contact_person,
+            phone                   = p_phone,
+            telephone               = p_telephone,
+            email                   = p_email,
+            address                 = p_address,
+            city_id                 = p_city_id,
+            city_name               = p_city_name,
+            state_id                = p_state_id,
+            state_name              = p_state_name,
+            country_id              = p_country_id,
+            country_name            = p_country_name,
+            warehouse_type_id       = p_warehouse_type_id,
+            warehouse_type_name     = p_warehouse_type_name,
+            last_log_by             = p_last_log_by
+        WHERE warehouse_id          = p_warehouse_id;
+
+        SET v_new_warehouse_id = p_warehouse_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_warehouse_id AS new_warehouse_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `saveWarehouseType`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveWarehouseType` (IN `p_warehouse_type_id` INT, IN `p_warehouse_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_warehouse_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_warehouse_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM warehouse_type WHERE warehouse_type_id = p_warehouse_type_id) THEN
+        INSERT INTO warehouse_type (
+            warehouse_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_warehouse_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_warehouse_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE warehouse
+        SET warehouse_type_name   = p_warehouse_type_name,
+            last_log_by         = p_last_log_by
+        WHERE warehouse_type_id   = p_warehouse_type_id;
+
+        UPDATE warehouse_type
+        SET warehouse_type_name   = p_warehouse_type_name,
+            last_log_by         = p_last_log_by
+        WHERE warehouse_type_id   = p_warehouse_type_id;
+
+        SET v_new_warehouse_type_id = p_warehouse_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_warehouse_type_id AS new_warehouse_type_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `saveWorkLocation`$$
@@ -6042,6 +6462,40 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateSupplierUnarchive` (IN `p_sup
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `updateTaxArchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateTaxArchive` (IN `p_tax_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE tax
+    SET tax_status      = 'Archived',
+        last_log_by     = p_last_log_by
+    WHERE tax_id        = p_tax_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateTaxUnarchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateTaxUnarchive` (IN `p_tax_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE tax
+    SET tax_status      = 'Active',
+        last_log_by     = p_last_log_by
+    WHERE tax_id        = p_tax_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateUserAccount`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserAccount` (IN `p_user_account_id` INT, IN `p_value` VARCHAR(500), IN `p_update_type` VARCHAR(50), IN `p_last_log_by` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6123,6 +6577,40 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserPassword` (IN `p_user_acc
     SET password                = p_password,
         last_log_by             = p_user_account_id
     WHERE user_account_id       = p_user_account_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateWarehouseArchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWarehouseArchive` (IN `p_warehouse_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE warehouse
+    SET warehouse_status    = 'Archived',
+        last_log_by         = p_last_log_by
+    WHERE warehouse_id      = p_warehouse_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateWarehouseUnarchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWarehouseUnarchive` (IN `p_warehouse_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE warehouse
+    SET warehouse_status    = 'Active',
+        last_log_by         = p_last_log_by
+    WHERE warehouse_id      = p_warehouse_id;
 
     COMMIT;
 END$$
@@ -12506,7 +12994,9 @@ CREATE TABLE `login_attempts` (
 INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `ip_address`, `attempt_time`, `success`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-21 21:41:38', 1, '2025-10-21 21:41:38', '2025-10-21 21:41:38', 1),
 (2, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-21 21:48:16', 1, '2025-10-21 21:48:16', '2025-10-21 21:48:16', 1),
-(3, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-22 09:21:27', 1, '2025-10-22 09:21:27', '2025-10-22 09:21:27', 1);
+(3, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-22 09:21:27', 1, '2025-10-22 09:21:27', '2025-10-22 09:21:27', 1),
+(4, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-22 21:18:07', 1, '2025-10-22 21:18:07', '2025-10-22 21:18:07', 1),
+(5, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-23 08:58:34', 1, '2025-10-23 08:58:34', '2025-10-23 08:58:34', 1);
 
 -- --------------------------------------------------------
 
@@ -13157,22 +13647,35 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `product_id` int(10) UNSIGNED NOT NULL,
   `product_name` varchar(100) NOT NULL,
+  `product_description` varchar(1000) NOT NULL,
   `product_image` varchar(500) DEFAULT NULL,
   `product_type` enum('Goods','Services') DEFAULT 'Goods',
-  `product_category_id` int(10) UNSIGNED NOT NULL,
-  `product_category_name` varchar(100) NOT NULL,
-  `is_sellable` varchar(5) DEFAULT 'Yes',
-  `is_purchasable` varchar(5) DEFAULT 'Yes',
-  `show_on_pos` varchar(5) DEFAULT 'Yes',
+  `sku` varchar(200) DEFAULT NULL,
+  `barcode` varchar(200) DEFAULT NULL,
+  `is_sellable` enum('Yes','No') DEFAULT 'Yes',
+  `is_purchasable` enum('Yes','No') DEFAULT 'Yes',
+  `show_on_pos` enum('Yes','No') DEFAULT 'Yes',
   `quantity_on_hand` int(11) DEFAULT 0,
   `sales_price` double DEFAULT 0,
   `cost` double DEFAULT 0,
+  `discount_type` enum('Fixed','None','Percentage') DEFAULT 'None',
+  `discount_rate` decimal(5,2) DEFAULT 0.00,
+  `weight` decimal(5,2) DEFAULT 0.00,
+  `width` decimal(5,2) DEFAULT 0.00,
+  `height` decimal(5,2) DEFAULT 0.00,
+  `length` decimal(5,2) DEFAULT 0.00,
   `product_status` enum('Active','Archived') DEFAULT 'Active',
-  `remarks` varchar(5000) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product`
+--
+
+INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `product_image`, `product_type`, `sku`, `barcode`, `is_sellable`, `is_purchasable`, `show_on_pos`, `quantity_on_hand`, `sales_price`, `cost`, `discount_type`, `discount_rate`, `weight`, `width`, `height`, `length`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'test', '', NULL, 'Goods', NULL, NULL, 'Yes', 'Yes', 'Yes', 0, 0, 0, 'None', 0.00, 0.00, 0.00, 0.00, 0.00, 'Active', '2025-10-23 17:21:54', '2025-10-23 17:21:54', 2);
 
 --
 -- Triggers `product`
@@ -13196,12 +13699,20 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
     END IF;
 
+    IF NEW.product_description <> OLD.product_description THEN
+        SET audit_log = CONCAT(audit_log, "Product Description: ", OLD.product_description, " -> ", NEW.product_description, "<br/>");
+    END IF;
+
     IF NEW.product_type <> OLD.product_type THEN
         SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type, " -> ", NEW.product_type, "<br/>");
     END IF;
 
-    IF NEW.product_category_name <> OLD.product_category_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Category: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    IF NEW.sku <> OLD.sku THEN
+        SET audit_log = CONCAT(audit_log, "SKU: ", OLD.sku, " -> ", NEW.sku, "<br/>");
+    END IF;
+
+    IF NEW.barcode <> OLD.barcode THEN
+        SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
 
     IF NEW.is_sellable <> OLD.is_sellable THEN
@@ -13228,12 +13739,32 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
     END IF;
 
-    IF NEW.product_status <> OLD.product_status THEN
-        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
+    IF NEW.discount_type <> OLD.discount_type THEN
+        SET audit_log = CONCAT(audit_log, "Discount Type: ", OLD.discount_type, " -> ", NEW.discount_type, "<br/>");
     END IF;
 
-    IF NEW.remarks <> OLD.remarks THEN
-        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    IF NEW.discount_rate <> OLD.discount_rate THEN
+        SET audit_log = CONCAT(audit_log, "Discount Rate: ", OLD.discount_rate, " -> ", NEW.discount_rate, "<br/>");
+    END IF;
+
+    IF NEW.weight <> OLD.weight THEN
+        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " -> ", NEW.weight, " kg<br/>");
+    END IF;
+
+    IF NEW.width <> OLD.width THEN
+        SET audit_log = CONCAT(audit_log, "Width: ", OLD.width, " -> ", NEW.width, " cm<br/>");
+    END IF;
+
+    IF NEW.height <> OLD.height THEN
+        SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " -> ", NEW.height, " cm<br/>");
+    END IF;
+
+    IF NEW.length <> OLD.length THEN
+        SET audit_log = CONCAT(audit_log, "Length: ", OLD.length, " -> ", NEW.length, " cm<br/>");
+    END IF;
+
+    IF NEW.product_status <> OLD.product_status THEN
+        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN
@@ -13261,6 +13792,13 @@ CREATE TABLE `product_category` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_category`
+--
+
+INSERT INTO `product_category` (`product_category_id`, `product_category_name`, `parent_category_id`, `parent_category_name`, `costing_method`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(5, 'teste', 0, '', 'First In First Out', '2025-10-23 10:23:44', '2025-10-23 10:23:44', 2);
 
 --
 -- Triggers `product_category`
@@ -13909,7 +14447,11 @@ INSERT INTO `role_system_action_permission` (`role_system_action_permission_id`,
 (13, 1, 'Super Admin', 13, 'Archive Supplier', 1, '2025-10-22 16:37:48', '2025-10-22 16:37:48', '2025-10-22 16:37:49', 2),
 (14, 1, 'Super Admin', 14, 'Unarchive Supplier', 1, '2025-10-22 16:38:11', '2025-10-22 16:38:11', '2025-10-22 16:38:12', 2),
 (15, 1, 'Super Admin', 15, 'Archive Tax', 1, '2025-10-22 17:10:36', '2025-10-22 17:10:36', '2025-10-22 17:10:37', 2),
-(16, 1, 'Super Admin', 16, 'Unarchive Tax', 1, '2025-10-22 17:10:51', '2025-10-22 17:10:51', '2025-10-22 17:10:52', 2);
+(16, 1, 'Super Admin', 16, 'Unarchive Tax', 1, '2025-10-22 17:10:51', '2025-10-22 17:10:51', '2025-10-22 17:10:52', 2),
+(17, 1, 'Super Admin', 17, 'Archive Warehouse', 1, '2025-10-22 21:58:17', '2025-10-22 21:58:17', '2025-10-22 21:58:18', 2),
+(18, 1, 'Super Admin', 18, 'Unarchive Warehouse', 1, '2025-10-22 21:58:37', '2025-10-22 21:58:37', '2025-10-22 21:58:38', 2),
+(19, 1, 'Super Admin', 19, 'Archive Product', 1, '2025-10-23 12:30:50', '2025-10-23 12:30:50', '2025-10-23 12:30:52', 2),
+(20, 1, 'Super Admin', 20, 'Unarchive Product', 1, '2025-10-23 12:31:26', '2025-10-23 12:31:26', '2025-10-23 12:31:27', 2);
 
 --
 -- Triggers `role_system_action_permission`
@@ -14031,7 +14573,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$jEDIOtYnT1Hlqci8KVTvQOfdR44ubuVrkdhDeXxbz6fcZeKDZkl4W', '2025-10-21 21:41:38', '2025-10-22 09:21:27', 1);
+(1, 2, '$2y$10$V0C0zXeyrGX1f0bGWnaOqeSmZBvCaE3rW7Qdid.bUW9cFVjNKnfMe', '2025-10-21 21:41:38', '2025-10-23 08:58:34', 1);
 
 -- --------------------------------------------------------
 
@@ -14322,7 +14864,11 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `system_a
 (13, 'Archive Supplier', 'Access to archive a supplier.', '2025-10-22 16:37:36', 2),
 (14, 'Unarchive Supplier', 'Access to unarchive a supplier.', '2025-10-22 16:38:08', 2),
 (15, 'Archive Tax', 'Access to archive a tax.', '2025-10-22 17:10:33', 2),
-(16, 'Unarchive Tax', 'Access to unarchive a tax.', '2025-10-22 17:10:47', 2);
+(16, 'Unarchive Tax', 'Access to unarchive a tax.', '2025-10-22 17:10:47', 2),
+(17, 'Archive Warehouse', 'Access to archive a warehouse.', '2025-10-22 21:58:13', 2),
+(18, 'Unarchive Warehouse', 'Access to unarchive a warehouse.', '2025-10-22 21:58:33', 2),
+(19, 'Archive Product', 'Access to archive a product.', '2025-10-23 12:30:47', 2),
+(20, 'Unarchive Product', 'Access to unarchive a product.', '2025-10-23 12:31:21', 2);
 
 --
 -- Triggers `system_action`
@@ -14627,7 +15173,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-21 21:37:59', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-22 09:21:27', NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-22 09:21:27', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-23 08:58:34', NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-23 08:58:34', 1);
 
 --
 -- Triggers `user_account`
@@ -14706,6 +15252,10 @@ CREATE TABLE `warehouse` (
   `warehouse_id` int(10) UNSIGNED NOT NULL,
   `warehouse_name` varchar(200) NOT NULL,
   `short_name` varchar(200) NOT NULL,
+  `contact_person` varchar(500) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `telephone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
   `address` varchar(1000) DEFAULT NULL,
   `city_id` int(10) UNSIGNED NOT NULL,
   `city_name` varchar(100) NOT NULL,
@@ -14715,10 +15265,6 @@ CREATE TABLE `warehouse` (
   `country_name` varchar(100) NOT NULL,
   `warehouse_type_id` int(10) UNSIGNED DEFAULT NULL,
   `warehouse_type_name` varchar(100) NOT NULL,
-  `contact_person` varchar(500) DEFAULT NULL,
-  `phone` varchar(50) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `telephone` varchar(20) DEFAULT NULL,
   `warehouse_status` enum('Active','Archived') DEFAULT 'Active',
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -14726,18 +15272,15 @@ CREATE TABLE `warehouse` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `warehouse`
+--
+
+INSERT INTO `warehouse` (`warehouse_id`, `warehouse_name`, `short_name`, `contact_person`, `phone`, `telephone`, `email`, `address`, `city_id`, `city_name`, `state_id`, `state_name`, `country_id`, `country_name`, `warehouse_type_id`, `warehouse_type_name`, `warehouse_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'testasdasd', 'asdasdasd', 'asdasdasda', 'asd', 'asdasd', 'sadasd@gmail.com', 'testasdasdasd', 212, 'Accusilian', 2, 'Agusan del Norte', 1, 'Philippines', 3, 'Kitchen', 'Active', '2025-10-22 22:55:54', '2025-10-22 22:58:27', 2);
+
+--
 -- Triggers `warehouse`
 --
-DROP TRIGGER IF EXISTS `trg_warehouse_insert`;
-DELIMITER $$
-CREATE TRIGGER `trg_warehouse_insert` AFTER INSERT ON `warehouse` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Warehouse created.';
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
-END
-$$
-DELIMITER ;
 DROP TRIGGER IF EXISTS `trg_warehouse_update`;
 DELIMITER $$
 CREATE TRIGGER `trg_warehouse_update` AFTER UPDATE ON `warehouse` FOR EACH ROW BEGIN
@@ -14749,6 +15292,22 @@ CREATE TRIGGER `trg_warehouse_update` AFTER UPDATE ON `warehouse` FOR EACH ROW B
 
     IF NEW.short_name <> OLD.short_name THEN
         SET audit_log = CONCAT(audit_log, "Short Name: ", OLD.short_name, " -> ", NEW.short_name, "<br/>");
+    END IF;
+
+    IF NEW.contact_person <> OLD.contact_person THEN
+        SET audit_log = CONCAT(audit_log, "Contact Person: ", OLD.contact_person, " -> ", NEW.contact_person, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
     END IF;
 
     IF NEW.address <> OLD.address THEN
@@ -14769,22 +15328,6 @@ CREATE TRIGGER `trg_warehouse_update` AFTER UPDATE ON `warehouse` FOR EACH ROW B
 
     IF NEW.warehouse_type_name <> OLD.warehouse_type_name THEN
         SET audit_log = CONCAT(audit_log, "Warehouse Type: ", OLD.warehouse_type_name, " -> ", NEW.warehouse_type_name, "<br/>");
-    END IF;
-
-    IF NEW.contact_person <> OLD.contact_person THEN
-        SET audit_log = CONCAT(audit_log, "Contact Person: ", OLD.contact_person, " -> ", NEW.contact_person, "<br/>");
-    END IF;
-
-    IF NEW.phone <> OLD.phone THEN
-        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
-    END IF;
-
-    IF NEW.email <> OLD.email THEN
-        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
-    END IF;
-
-    IF NEW.telephone <> OLD.telephone THEN
-        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
     END IF;
 
     IF NEW.warehouse_status <> OLD.warehouse_status THEN
@@ -14819,8 +15362,7 @@ CREATE TABLE `warehouse_type` (
 --
 
 INSERT INTO `warehouse_type` (`warehouse_type_id`, `warehouse_type_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Main', '2025-10-21 21:38:03', '2025-10-21 21:38:03', 1),
-(2, 'Branch', '2025-10-21 21:38:03', '2025-10-21 21:38:03', 1),
+(2, 'Branchest', '2025-10-21 21:38:03', '2025-10-22 21:56:12', 2),
 (3, 'Kitchen', '2025-10-21 21:38:03', '2025-10-21 21:38:03', 1),
 (4, 'Storage', '2025-10-21 21:38:03', '2025-10-21 21:38:03', 1);
 
@@ -15286,12 +15828,16 @@ ALTER TABLE `otp`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`product_id`),
+  ADD UNIQUE KEY `sku` (`sku`),
+  ADD UNIQUE KEY `barcode` (`barcode`),
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_product_product_type` (`product_type`),
+  ADD KEY `idx_product_barcode` (`barcode`),
+  ADD KEY `idx_product_sku` (`sku`),
   ADD KEY `idx_product_is_sellable` (`is_sellable`),
   ADD KEY `idx_product_is_purchasable` (`is_purchasable`),
   ADD KEY `idx_product_show_on_pos` (`show_on_pos`),
-  ADD KEY `idx_product_product_category_id` (`product_category_id`);
+  ADD KEY `idx_product_discount_type` (`discount_type`);
 
 --
 -- Indexes for table `product_category`
@@ -15705,7 +16251,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -15753,13 +16299,13 @@ ALTER TABLE `otp`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `product_pricelist`
@@ -15813,7 +16359,7 @@ ALTER TABLE `role_permission`
 -- AUTO_INCREMENT for table `role_system_action_permission`
 --
 ALTER TABLE `role_system_action_permission`
-  MODIFY `role_system_action_permission_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `role_system_action_permission_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `role_user_account`
@@ -15843,13 +16389,13 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `tax`
 --
 ALTER TABLE `tax`
-  MODIFY `tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `upload_setting`
@@ -15873,13 +16419,13 @@ ALTER TABLE `user_account`
 -- AUTO_INCREMENT for table `warehouse`
 --
 ALTER TABLE `warehouse`
-  MODIFY `warehouse_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `warehouse_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `warehouse_type`
 --
 ALTER TABLE `warehouse_type`
-  MODIFY `warehouse_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `warehouse_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `work_location`
@@ -16168,8 +16714,7 @@ ALTER TABLE `otp`
 -- Constraints for table `product`
 --
 ALTER TABLE `product`
-  ADD CONSTRAINT `product_ibfk_1` FOREIGN KEY (`product_category_id`) REFERENCES `product_category` (`product_category_id`),
-  ADD CONSTRAINT `product_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+  ADD CONSTRAINT `product_ibfk_1` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `product_category`

@@ -8,54 +8,30 @@ class Product extends Model {
     /* =============================================================================================
         SECTION 1: SAVE METHODS
     ============================================================================================= */
+    
+    /* =============================================================================================
+        SECTION 2: INSERT METHODS
+    ============================================================================================= */
 
-    public function saveProduct(
-        $p_product_id,
+    public function insertProduct(
         $p_product_name,
-        $p_barcode,
-        $p_product_type_id,
-        $p_product_type_name,
-        $p_product_category_id,
-        $p_product_category_name,
-        $p_quantity,
-        $p_sales_price,
-        $p_cost,
+        $p_product_description,
         $p_last_log_by
     )    {
-        $sql = 'CALL saveProduct(
-            :p_product_id,
+        $sql = 'CALL insertProduct(
             :p_product_name,
-            :p_barcode,
-            :p_product_type_id,
-            :p_product_type_name,
-            :p_product_category_id,
-            :p_product_category_name,
-            :p_quantity,
-            :p_sales_price,
-            :p_cost,
+            :p_product_description,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
-            'p_product_id'              => $p_product_id,
             'p_product_name'            => $p_product_name,
-            'p_barcode'                 => $p_barcode,
-            'p_product_type_id'         => $p_product_type_id,
-            'p_product_type_name'       => $p_product_type_name,
-            'p_product_category_id'     => $p_product_category_id,
-            'p_product_category_name'   => $p_product_category_name,
-            'p_quantity'                => $p_quantity,
-            'p_sales_price'             => $p_sales_price,
-            'p_cost'                    => $p_cost,
+            'p_product_description'     => $p_product_description,
             'p_last_log_by'             => $p_last_log_by
         ]);
 
         return $row['new_product_id'] ?? null;
     }
-    
-    /* =============================================================================================
-        SECTION 2: INSERT METHODS
-    ============================================================================================= */
 
     /* =============================================================================================
         SECTION 3: UPDATE METHODS

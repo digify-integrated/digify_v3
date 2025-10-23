@@ -7,10 +7,10 @@ export const discardCreate = (pageLink) => {
     confirmButtonText: 'Yes, discard it!',
     cancelButtonText: 'Cancel',
     customClass: {
-      confirmButton: 'btn btn-warning mt-2',
+      confirmButton: 'btn btn-danger mt-2',
       cancelButton: 'btn btn-secondary ms-2 mt-2'
     },
-    reverseButtons: true,
+    buttonsStyling: false,
   }).then(({ isConfirmed }) => {
     if (isConfirmed) {
       window.location.href = pageLink;

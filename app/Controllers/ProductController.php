@@ -5,7 +5,6 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\Product;
-use App\Models\ProductType;
 use App\Models\ProductCategory;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
@@ -17,7 +16,6 @@ require_once '../../config/config.php';
 class ProductController
 {
     protected Product $product;
-    protected ProductType $productType;
     protected ProductCategory $productCategory;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
@@ -26,7 +24,6 @@ class ProductController
 
     public function __construct(
         Product $product,
-        ProductType $productType,
         ProductCategory $productCategory,
         Authentication $authentication,
         UploadSetting $uploadSetting,
@@ -34,7 +31,6 @@ class ProductController
         SystemHelper $systemHelper
     ) {
         $this->product          = $product;
-        $this->productType      = $productType;
         $this->productCategory  = $productCategory;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
@@ -82,7 +78,7 @@ class ProductController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save product'              => $this->saveProduct($lastLogBy),
+            'insert product'            => $this->insertProduct($lastLogBy),
             'update product image'      => $this->updateProductImage($lastLogBy),
             'delete product'            => $this->deleteProduct(),
             'delete multiple product'   => $this->deleteMultipleProduct(),
@@ -96,7 +92,7 @@ class ProductController
         };
     }
 
-    public function saveProduct($lastLogBy){
+    public function insertProduct($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_form')) {
@@ -106,22 +102,10 @@ class ProductController
             );
         }
 
-        $productId          = $_POST['product_id'] ?? null;
-        $productName        = $_POST['product_name'] ?? null;
-        $barcode            = $_POST['barcode'] ?? null;
-        $productTypeId      = $_POST['product_type_id'] ?? null;
-        $productCategoryId  = $_POST['product_category_id'] ?? null;
-        $quantity           = $_POST['quantity'] ?? 0;
-        $salesPrice         = $_POST['sales_price'] ?? 0;
-        $cost               = $_POST['cost'] ?? 0;
+        $productName            = $_POST['product_name'] ?? null;
+        $productDescription     = $_POST['product_description'] ?? null;
 
-        $productTypeDetails     = $this->productType->fetchProductType($productTypeId);
-        $productTypeName        = $productTypeDetails['product_type_name'] ?? null;
-
-        $productCategofyDetails     = $this->productCategory->fetchProductCategory($productCategoryId);
-        $productCategoryName        = $productCategofyDetails['product_category_name'] ?? null;
-
-        $productId = $this->product->saveProduct($productId, $productName, $barcode, $productTypeId, $productTypeName, $productCategoryId, $productCategoryName, $quantity, $salesPrice, $cost, $lastLogBy);
+        $productId = $this->product->insertProduct($productName, $productDescription, $lastLogBy);
 
         $encryptedproductId = $this->security->encryptData($productId);
 
@@ -133,7 +117,7 @@ class ProductController
     }
 
     public function updateProductImage($lastLogBy){
-        $productId   = $_POST['product_id'] ?? null;
+        $productId = $_POST['product_id'] ?? null;
        
         $productImageFileName               = $_FILES['product_image']['name'];
         $productImageFileSize               = $_FILES['product_image']['size'];
@@ -416,7 +400,6 @@ class ProductController
 # Bootstrap the controller
 $controller = new ProductController(
     new Product(),
-    new ProductType(),
     new ProductCategory(),
     new Authentication(),
     new UploadSetting(),

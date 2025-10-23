@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxData: {
             filter_by_product_type: $('#product_type_filter').val(),
             filter_by_product_category: $('#product_category_filter').val(),
+            filter_by_is_sellable: $('#is_sellable_filter').val(),
+            filter_by_is_purchasable: $('#is_purchasable_filter').val(),
+            filter_by_show_on_pos: $('#show_on_pos_filter').val(),
             filter_by_product_status: $('#product_status_filter').val()
         },
         columns: [
@@ -27,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'QUANTITY' },
             { data: 'SALES_PRICE' },
             { data: 'COST' },
+            { data: 'STATUS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -37,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { width: 'auto', targets: 5, responsivePriority: 6 },
             { width: 'auto', targets: 6, responsivePriority: 7 },
             { width: 'auto', targets: 7, responsivePriority: 8 },
+            { width: 'auto', targets: 8, responsivePriority: 9 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -50,17 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const containerId = 'product-card';
     const container = document.querySelector(`#${containerId}`);
 
-    const dropdownConfigs = [
-        { url: './app/Controllers/ProductTypeController.php', selector: '#product_type_filter', transaction: 'generate product type options' },
-        { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_filter', transaction: 'generate product category options' },
-    ];
-
-    dropdownConfigs.forEach(cfg => {
-        generateDropdownOptions({
-            url: cfg.url,
-            dropdownSelector: cfg.selector,
-            data: { transaction: cfg.transaction, multiple: true }
-        });
+    generateDropdownOptions({
+        url: './app/Controllers/ProductCategoryController.php',
+        dropdownSelector: '#product_category_filter',
+        data: { transaction: 'generate product category options', multiple: true }
     });
 
     const spinner = document.createElement('div');
@@ -106,6 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 search_value: document.querySelector('#datatable-search')?.value || '',
                 filter_by_product_type: $('#product_type_filter').val(),
                 filter_by_product_category: $('#product_category_filter').val(),
+                filter_by_is_sellable: $('#is_sellable_filter').val(),
+                filter_by_is_purchasable: $('#is_purchasable_filter').val(),
+                filter_by_show_on_pos: $('#show_on_pos_filter').val(),
                 filter_by_product_status: $('#product_status_filter').val()
             };
 
@@ -180,6 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#reset-filter')) {
             $('#product_type_filter').val(null).trigger('change');
             $('#product_category_filter').val(null).trigger('change');
+            $('#is_sellable_filter').val(null).trigger('change');
+            $('#is_purchasable_filter').val(null).trigger('change');
+            $('#show_on_pos_filter').val(null).trigger('change');
             $('#product_status_filter').val('Active').trigger('change');
 
             observer.observe(sentinel);
@@ -191,8 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#delete-product')) {
             const transaction   = 'delete multiple product';
             const product_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                            .filter(el => el.checked)
-                                            .map(el => el.value);
+                                        .filter(el => el.checked)
+                                        .map(el => el.value);
 
             if (product_id.length === 0) {
                 showNotification('Deletion Multiple Products Error', 'Please select the products you wish to delete.', 'error');
