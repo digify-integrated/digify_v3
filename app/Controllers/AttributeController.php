@@ -24,7 +24,7 @@ class AttributeController
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->attribute           = $attribute;
+        $this->attribute        = $attribute;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -81,6 +81,7 @@ class AttributeController
             'generate attribute table'          => $this->generateAttributeTable(),
             'generate attribute value table'    => $this->generateAttributeValueTable($lastLogBy, $pageId),
             'generate attribute options'        => $this->generateAttributeOptions(),
+            'generate attribute value options'  => $this->generateAttributeValueOptions(),
             default                             => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -305,6 +306,38 @@ class AttributeController
             $response[] = [
                 'id'    => $row['attribute_id'],
                 'text'  => $row['attribute_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateAttributeValueOptions()
+    {
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $attributeValues = $this->attribute->generateAttributeValueOptions();
+
+        $grouped = [];
+        foreach ($attributeValues as $row) {
+            $grouped[$row['attribute_name']][] = [
+                'id'   => $row['attribute_value_id'],
+                'text' => $row['attribute_value_name']
+            ];
+        }
+
+        foreach ($grouped as $attributeName => $children) {
+            $response[] = [
+                'text'     => $attributeName,
+                'children' => $children
             ];
         }
 

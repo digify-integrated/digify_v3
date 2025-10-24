@@ -40,33 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#length').val(data.length || 0);
 
                 $('#product_type').val(data.productType || '').trigger('change');
+                $('#discount_type').val(data.discountType || '').trigger('change');
 
                 document.getElementById('is-sellable').checked = data.isSellable === 'Yes';
                 document.getElementById('is-purchasable').checked = data.isPurchasable === 'Yes';
                 document.getElementById('show-on-pos').checked = data.showOnPos === 'Yes';
                 
                 document.getElementById('product_image_thumbnail').style.backgroundImage = `url(${data.productImage})`;
-
-                if (data.discountType) {
-                    document.querySelectorAll('[data-kt-button="true"]').forEach(label => {
-                        label.classList.remove('active');
-                    });
-
-                    const radio = document.querySelector(`input[name="discount_option"][value="${data.discountType}"]`);
-
-                    if (radio) {
-                        radio.checked = true;
-                        radio.closest('label')?.classList.add('active');
-                    }
-                    else {
-                        const defaultRadio = document.querySelector('input[name="discount_option"][value="None"]');
-                        if (defaultRadio) {
-                            defaultRadio.checked = true;
-                            defaultRadio.closest('label')?.classList.add('active');
-                        }
-                    }
-                }
-
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -114,13 +94,48 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
         }
-    };
+    }
+
+    const displayProductTaxDetails = async () => {
+        const transaction = 'fetch product tax details';
+
+        try {            
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+
+            const response = await fetch('./app/Controllers/ProductController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+               $('#sales_tax_id').val(data.salesTax || '').trigger('change');
+               $('#purchase_tax_id').val(data.purchaseTax || '').trigger('change');
+            }
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = page_link;
+            }
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+        }
+    }
 
     (async () => {
         const dropdownConfigs = [
             { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options' },
             { url: './app/Controllers/TaxController.php', selector: '#sales_tax_id', transaction: 'generate sales tax options' },
-            { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options' },
+            { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options' }
         ];
             
         for (const cfg of dropdownConfigs) {
@@ -130,10 +145,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: { transaction: cfg.transaction, multiple: true }
             });
         }
+
+        await generateDropdownOptions({
+            url: './app/Controllers/AttributeController.php',
+            dropdownSelector: '#attribute_value_id',
+            data: { transaction: 'generate attribute value options' }
+        });
     
         await displayDetails();
         await displayProductCategoriesDetails();
+        await displayProductTaxDetails();
     })();
+
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'product');
 
     $('#product_category_form').validate({
         errorPlacement: (error, element) => {
@@ -256,6 +280,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 enableButton('submit-general');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#product_pricing_form').validate({
+        rules: {
+            sales_price: { required: true }
+        },
+        messages: {
+            sales_price: { required: 'Enter the sales price' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'update product pricing';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+
+            disableButton('submit-pricing');
+
+            try {
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-pricing');
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-pricing');
+                }
+            } catch (error) {
+                enableButton('submit-pricing');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -395,7 +485,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.addEventListener('click', async (event) => {    
+    document.addEventListener('click', async (event) => {
+        if (event.target.closest('#archive-product')){
+            const transaction = 'update product archive';
+
+            Swal.fire({
+                title: 'Confirm Product Archive',
+                text: 'Are you sure you want to unarchive this product?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Archive',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('product_id', product_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/ProductController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#unarchive-product')){
+            const transaction = 'update product unarchive';
+
+            Swal.fire({
+                title: 'Confirm Product Unarchive',
+                text: 'Are you sure you want to archive this product?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Unarchive',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-success mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('product_id', product_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/ProductController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
         if (event.target.closest('#is-sellable')){
             const transaction = 'update product is sellable';
     

@@ -175,6 +175,12 @@ class Attribute extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateAttributeValueOptions() {
+        $sql = 'CALL generateAttributeValueOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

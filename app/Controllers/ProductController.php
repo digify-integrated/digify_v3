@@ -87,14 +87,18 @@ class ProductController
             'update product general'            => $this->updateProductGeneral($lastLogBy),
             'update product inventory'          => $this->updateProductInventory($lastLogBy),
             'update product shipping'           => $this->updateProductShipping($lastLogBy),
+            'update product pricing'            => $this->updateProductPricing($lastLogBy),
             'update product is sellable'        => $this->updateProductIsSellable($lastLogBy),
             'update product is purchasable'     => $this->updateProductIsPurchasable($lastLogBy),
             'update product show on pos'        => $this->updateProductShowOnPos($lastLogBy),
+            'update product archive'            => $this->updateProductArchive($lastLogBy),
+            'update product unarchive'          => $this->updateProductUnarchive($lastLogBy),
             'update product image'              => $this->updateProductImage($lastLogBy),
             'delete product'                    => $this->deleteProduct(),
             'delete multiple product'           => $this->deleteMultipleProduct(),
             'fetch product details'             => $this->fetchProductDetails(),
             'fetch product categories details'  => $this->fetchProductCategoriesDetails(),
+            'fetch product tax details'         => $this->fetchProductTaxDetails(),
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
             default                             => $this->systemHelper::sendErrorResponse(
@@ -181,6 +185,50 @@ class ProductController
         $productDescription     = $_POST['product_description'] ?? null;
 
         $this->product->updateProductGeneral($productId, $productName, $productDescription, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Update Product Success',
+            'The product has been updated successfully.'
+        );
+    }
+
+    public function updateProductPricing($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_pricing_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId          = $_POST['product_id'] ?? null;
+        $salesPrice         = $_POST['sales_price'] ?? 0;
+        $discountType       = $_POST['discount_type'] ?? 'None';
+        $discountRate       = $_POST['discount_rate'] ?? 0;
+        $salesTaxIds        = $_POST['sales_tax_id'] ?? [];
+        $purchaseTaxIds     = $_POST['purchase_tax_id'] ?? [];
+
+        $this->product->updateProductPricing($productId, $salesPrice, $discountType, $discountRate, $lastLogBy);
+
+        $this->product->deleteProductTax($productId);
+
+        $productDetails   = $this->product->fetchProduct($productId);
+        $productName      = $productDetails['product_name'] ?? '';
+
+        foreach ($salesTaxIds as $salesTaxId) {
+            $taxDetails     = $this->tax->fetchTax($salesTaxId);
+            $taxName        = $taxDetails['tax_name'] ?? null;
+
+            $this->product->insertProductTax($productId, $productName, 'Sales', $salesTaxId, $taxName, $lastLogBy);
+        }
+
+        foreach ($purchaseTaxIds as $purchaseTaxId) {
+            $taxDetails     = $this->tax->fetchTax($purchaseTaxId);
+            $taxName        = $taxDetails['tax_name'] ?? null;
+
+            $this->product->insertProductTax($productId, $productName, 'Purchases', $purchaseTaxId, $taxName, $lastLogBy);
+        }
 
         $this->systemHelper->sendSuccessResponse(
             'Update Product Success',
@@ -295,6 +343,28 @@ class ProductController
         $this->systemHelper->sendSuccessResponse(
             'Update Point of Sale Success',
             'The point of sale has been updated successfully.'
+        );
+    }
+
+    public function updateProductArchive($lastLogBy){
+        $productId = $_POST['product_id'] ?? null;
+
+        $this->product->updateProductArchive($productId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Product Archive Success',
+            'The product has been archived successfully.'
+        );
+    }
+
+    public function updateProductUnarchive($lastLogBy){
+        $productId = $_POST['product_id'] ?? null;
+
+        $this->product->updateProductUnarchive($productId, $lastLogBy);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Product Unarchive Success',
+            'The product has been unarchived successfully.'
         );
     }
 
@@ -454,6 +524,42 @@ class ProductController
             'height'                => $productDetails['height'] ?? 0,
             'length'                => $productDetails['length'] ?? 0,
             'productImage'          => $productImage
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchProductTaxDetails(){
+        $productId          = $_POST['product_id'] ?? null;
+        $checkProductExist  = $this->product->checkProductExist($productId);
+        $total              = $checkProductExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper->sendErrorResponse(
+                'Get Product Categories Details',
+                'The product does not exist',
+                ['notExist' => true]
+            );
+        }
+
+        $salesTaxDetails        = $this->product->fetchProductTax($productId, 'Sales');
+        $purchaseTaxDetails     = $this->product->fetchProductTax($productId, 'Purchases');
+
+        $salesTax = [];
+        foreach ($salesTaxDetails as $row) {
+            $salesTax[] = $row['tax_id'];
+        }
+
+        $purchaseTax = [];
+        foreach ($purchaseTaxDetails as $row) {
+            $purchaseTax[] = $row['tax_id'];
+        }
+
+        $response = [
+            'success'       => true,
+            'salesTax'      => $salesTax,
+            'purchaseTax'   => $purchaseTax
         ];
 
         echo json_encode($response);

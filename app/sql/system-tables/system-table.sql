@@ -7123,6 +7123,49 @@ CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
   END OF TABLE DEFINITIONS
 ============================================================================================= */
 
+/* =============================================================================================
+  TABLE: PRODUCT PRICELIST
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_pricelist;
+
+CREATE TABLE product_pricelist (
+  product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  product_variant_id INT UNSIGNED NULL,
+  rule_type ENUM('Add-On','Discount') DEFAULT 'Discount',
+  pricelist_computation ENUM('Fixed','Percentage') DEFAULT 'Percentage',
+  pricelist_rate DECIMAL(5,2) DEFAULT 0, 
+  validity_start_date DATE NOT NULL,
+  validity_end_date DATE,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT VARIANT
+============================================================================================= */
+
+CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
+CREATE INDEX idx_product_pricelist_product_variant_id ON product_pricelist(product_variant_id);
+CREATE INDEX idx_product_pricelist_validity_start_date ON product_pricelist(validity_start_date);
+CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validity_end_date);
+CREATE INDEX idx_product_pricelist_rule_type ON product_pricelist(rule_type);
+CREATE INDEX idx_product_pricelist_pricelist_computation ON product_pricelist(pricelist_computation);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT VARIANT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
 
 
 /* =============================================================================================

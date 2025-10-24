@@ -137,7 +137,7 @@
                             
                                     if($archiveProduct['total'] > 0 && $productStatus === 'Active'){
                                         $action .= ' <div class="menu-item px-3">
-                                                        <a href="javascript:void(0);" class="menu-link px-3" data-bs-toggle="modal" data-bs-target="#archive_product_modal">
+                                                        <a href="javascript:void(0);" class="menu-link px-3" id="archive-product">
                                                             Archive
                                                         </a>
                                                     </div>';
@@ -213,56 +213,28 @@
                                 <input type="number" id="sales_price" name="sales_price" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>/>
                                 <div class="text-muted fs-7">Set the product price.</div>
                             </div>
-                            
-                            <div class="fv-row mb-10">
-                                <label class="fs-6 fw-semibold mb-2">
-                                    Discount Type
-                                    <span class="ms-1"  data-bs-toggle="tooltip" title="Select a discount type that will be applied to this product" >
-                                    <i class="ki-outline ki-information-5 text-gray-500 fs-6"></i></span>
-                                </label>
-                                
-                                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-1 row-cols-xl-3 g-9" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button='true']">
-                                    <div class="col">
-                                        <label class="btn btn-outline btn-outline-dashed btn-active-light-primary active d-flex text-start p-6" data-kt-button="true">
-                                            <span class="form-check form-check-custom form-check-solid form-check-sm align-items-start mt-1">
-                                                <input class="form-check-input" type="radio" id="discount-none" name="discount_option" value="None" checked="checked" <?php echo $disabled; ?>/>
-                                            </span>
-                                            <span class="ms-5">
-                                                <span class="fs-4 fw-bold text-gray-800 d-block">No Discount</span>
-                                            </span>
-                                        </label>
+                        
+                            <div class="d-flex flex-wrap gap-5">
+                                <div class="fv-row w-100 flex-md-root">
+                                   <label class="required form-label">Discount Type</label>
+                                    <div class="d-flex gap-3">
+                                        <select id="discount_type" name="discount_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                                            <option value="None">None</option>
+                                            <option value="Fixed">Fixed</option>
+                                            <option value="Percentage">Percentage</option>
+                                        </select>
                                     </div>
-                                    
-                                    <div class="col">
-                                        <label class="btn btn-outline btn-outline-dashed btn-active-light-primary d-flex text-start p-6" data-kt-button="true">
-                                            <span class="form-check form-check-custom form-check-solid form-check-sm align-items-start mt-1">
-                                                <input class="form-check-input" type="radio" id="discount-percentage" name="discount_option" value="Percentage" <?php echo $disabled; ?>/>
-                                            </span>
-
-                                            <span class="ms-5">
-                                                <span class="fs-4 fw-bold text-gray-800 d-block">Percentage %</span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="col">
-                                        <label class="btn btn-outline btn-outline-dashed btn-active-light-primary d-flex text-start p-6" data-kt-button="true">
-                                            <span class="form-check form-check-custom form-check-solid form-check-sm align-items-start mt-1">
-                                                <input class="form-check-input" type="radio" id="discount-fixed" name="discount_option" value="Fixed" <?php echo $disabled; ?>/>
-                                            </span>
-                                            
-                                            <span class="ms-5">
-                                                <span class="fs-4 fw-bold text-gray-800 d-block">Fixed Price</span>
-                                            </span>
-                                        </label>
-                                    </div>
+                                    <div class="text-muted fs-7">Select a discount type that will be applied to this product</div>
+                                </div>
+                                <div class="fv-row w-100 flex-md-root">
+                                    <label class="form-label">Discount Rate</label>
+                                    <input type="text" id="discount_rate" name="discount_rate" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>/>
+                                    <div class="text-muted fs-7">Set the discounted product price. The product will be reduced at the determined fixed price</div>
                                 </div>
                             </div>
 
                             <div class="mb-10 fv-row">
-                                <label class="form-label">Discount Rate</label>
-                                <input type="text" id="discount_rate" name="discount_rate" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>/>
-                                <div class="text-muted fs-7">Set the discounted product price. The product will be reduced at the determined fixed price</div>
+                               
                             </div>
                             
                             <div class="d-flex flex-wrap gap-5">
@@ -272,7 +244,7 @@
                                 </div>
                                 <div class="fv-row w-100 flex-md-root">
                                     <label class="form-label">Purchase Tax</label>
-                                <select id="purchase_tax_id" name="purchase_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                    <select id="purchase_tax_id" name="purchase_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                                 </div>
                             </div>
                         </form>
@@ -353,9 +325,55 @@
                             <div class="card-title">
                                 <h2>Variations</h2>
                             </div>
+                            <div class="card-toolbar">
+                                <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                    <?php
+                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-variations-modal" id="product-variation">Add Variation</button>' : '';
+                                    ?> 
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="card-body pt-0">
+                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="role-permission-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800">
+                                        <th>Variation</th>
+                                        <th>Attribute</th>
+                                        <th>Extra Price</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card card-flush py-4">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>Pricelist</h2>
+                            </div>
+                            <div class="card-toolbar">
+                                <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                    <?php
+                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" id="product-pricelist">Add Pricelist</button>' : '';
+                                    ?> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body pt-0">
+                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="role-permission-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800">
+                                        <th>Variation</th>
+                                        <th>Attribute</th>
+                                        <th>Extra Price</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600"></tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -402,6 +420,51 @@
                         ?>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="product-variations-modal" class="modal fade" tabindex="-1" aria-labelledby="product-variations-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Variation</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="personal_details_form" method="post" action="#">
+                    <?= $security->csrfInput('personal_details_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="blood_type_id">Variation</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="attribute_value_id" name="attribute_value_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="extra_price">Extra Price</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input type="number" class="form-control" id="extra_price" name="extra_price" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="role_permission_assignment_form" class="btn btn-primary" id="submit-assignment">Assign</button>
             </div>
         </div>
     </div>

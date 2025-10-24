@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 23, 2025 at 06:16 PM
+-- Generation Time: Oct 24, 2025 at 11:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1041,6 +1041,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductCategory` (IN `p_produ
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `deleteProductTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductTax` (IN `p_product_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_tax 
+    WHERE product_id = p_product_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `deleteRelationship`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRelationship` (IN `p_relationship_id` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -1707,6 +1722,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductCategory` (IN `p_produc
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchProductTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductTax` (IN `p_product_id` INT, IN `p_tax_type` VARCHAR(50))   BEGIN
+	SELECT * FROM product_tax
+	WHERE product_id = p_product_id AND tax_type = p_tax_type;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchRelationship`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchRelationship` (IN `p_relationship_id` INT)   BEGIN
 	SELECT * FROM relationship
@@ -1870,6 +1891,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAttributeTable` ()   BEGIN
 	SELECT attribute_id, attribute_name
     FROM attribute 
     ORDER BY attribute_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateAttributeValueOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAttributeValueOptions` ()   BEGIN
+	SELECT attribute_value_id, attribute_value_name, attribute_id, attribute_name
+    FROM attribute_value
+    ORDER BY attribute_name ASC, attribute_value_name ASC;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateAttributeValueTable`$$
@@ -3380,6 +3408,35 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductCategories` (IN `p_pro
         p_product_name,
         p_product_category_id,
         p_product_category_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertProductTax`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductTax` (IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_tax_type` VARCHAR(50), IN `p_tax_id` INT, IN `p_tax_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_tax (
+        product_id,
+        product_name,
+        tax_type,
+        tax_id,
+        tax_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_tax_type,
+        p_tax_id,
+        p_tax_name,
         p_last_log_by
     );
 
@@ -6556,6 +6613,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTPAsExpired` (IN `p_user_acc
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `updateProductArchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductArchive` (IN `p_product_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status  = 'Archived',
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateProductGeneral`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductGeneral` (IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_product_description` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6611,6 +6685,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductInventory` (IN `p_prod
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `updateProductPricing`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductPricing` (IN `p_product_id` INT, IN `p_sales_price` DOUBLE, IN `p_discount_type` VARCHAR(50), IN `p_discount_rate` DECIMAL(5,2), IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET sales_price     = p_sales_price,
+        discount_type   = p_discount_type,
+        discount_rate   = p_discount_rate,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateProductSettings`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductSettings` (IN `p_product_id` INT, IN `p_value` VARCHAR(500), IN `p_update_type` VARCHAR(50), IN `p_last_log_by` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6657,6 +6750,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductShipping` (IN `p_produ
         width           = p_width,
         height          = p_height,
         length          = p_length,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateProductUnarchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductUnarchive` (IN `p_product_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status  = 'Active',
         last_log_by     = p_last_log_by
     WHERE product_id    = p_product_id;
 
@@ -7053,6 +7163,14 @@ CREATE TABLE `attribute` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `attribute`
+--
+
+INSERT INTO `attribute` (`attribute_id`, `attribute_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(5, 'Brand', '2025-10-24 17:14:11', '2025-10-24 17:14:27', 2),
+(6, 'Color', '2025-10-24 17:14:32', '2025-10-24 17:14:32', 2);
+
+--
 -- Triggers `attribute`
 --
 DROP TRIGGER IF EXISTS `trg_attribute_insert`;
@@ -7098,6 +7216,16 @@ CREATE TABLE `attribute_value` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `attribute_value`
+--
+
+INSERT INTO `attribute_value` (`attribute_value_id`, `attribute_value_name`, `attribute_id`, `attribute_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(6, 'brand 1', 5, 'Brand', '2025-10-24 17:14:19', '2025-10-24 17:14:27', 2),
+(7, 'Brand 2', 5, 'Brand', '2025-10-24 17:14:23', '2025-10-24 17:14:27', 2),
+(8, 'Red', 6, 'Color', '2025-10-24 17:14:36', '2025-10-24 17:14:36', 2),
+(9, 'Blue', 6, 'Color', '2025-10-24 17:14:40', '2025-10-24 17:14:40', 2);
 
 --
 -- Triggers `attribute_value`
@@ -13289,7 +13417,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (3, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-22 09:21:27', 1, '2025-10-22 09:21:27', '2025-10-22 09:21:27', 1),
 (4, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-22 21:18:07', 1, '2025-10-22 21:18:07', '2025-10-22 21:18:07', 1),
 (5, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-23 08:58:34', 1, '2025-10-23 08:58:34', '2025-10-23 08:58:34', 1),
-(6, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-23 19:42:35', 1, '2025-10-23 19:42:35', '2025-10-23 19:42:35', 1);
+(6, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-23 19:42:35', 1, '2025-10-23 19:42:35', '2025-10-23 19:42:35', 1),
+(7, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-24 12:06:23', 1, '2025-10-24 12:06:23', '2025-10-24 12:06:23', 1);
 
 -- --------------------------------------------------------
 
@@ -13969,7 +14098,7 @@ CREATE TABLE `product` (
 
 INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `product_image`, `product_type`, `sku`, `barcode`, `is_sellable`, `is_purchasable`, `show_on_pos`, `quantity_on_hand`, `sales_price`, `cost`, `discount_type`, `discount_rate`, `weight`, `width`, `height`, `length`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'test', '', NULL, 'Goods', NULL, NULL, 'Yes', 'Yes', 'Yes', 0, 0, 0, 'None', 0.00, 0.00, 0.00, 0.00, 0.00, 'Active', '2025-10-23 17:21:54', '2025-10-23 17:21:54', 2),
-(2, 'testtest', 'testtest\n', 'storage/uploads/product/2/ls9jFRr.png', 'Services', '1', '1', 'Yes', 'Yes', 'Yes', 1, 0, 0, 'Fixed', 0.00, 1.00, 2.00, 3.00, 4.00, 'Active', '2025-10-23 19:42:48', '2025-10-23 23:41:15', 2);
+(2, '#a51212', 'testtest\n', 'storage/uploads/product/2/ls9jFRr.png', 'Services', '1', '1', 'Yes', 'Yes', 'Yes', 1, 11, 0, 'Fixed', 13.00, 1.00, 2.00, 3.00, 4.00, 'Active', '2025-10-23 19:42:48', '2025-10-24 15:43:03', 2);
 
 --
 -- Triggers `product`
@@ -14284,6 +14413,14 @@ CREATE TABLE `product_tax` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_tax`
+--
+
+INSERT INTO `product_tax` (`product_tax_id`, `product_id`, `product_name`, `tax_type`, `tax_id`, `tax_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(11, 2, 'testtest', 'Sales', 3, 'VAT', '2025-10-24 14:05:56', '2025-10-24 14:05:56', 2),
+(12, 2, 'testtest', 'Purchases', 4, 'Withholding Tax', '2025-10-24 14:05:56', '2025-10-24 14:05:56', 2);
 
 --
 -- Triggers `product_tax`
@@ -14929,7 +15066,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$IcdAEl/8LU9pac7uc/gXNOQ/7jtW9UpSY1CeOfImo/ZB0nAkVKu6S', '2025-10-21 21:41:38', '2025-10-23 19:42:35', 1);
+(1, 2, '$2y$10$9fR4mJv9cwJZgBMkOfH17ORqV8HOzJH71sTE.slSkdTQr7UTNHxv2', '2025-10-21 21:41:38', '2025-10-24 12:06:23', 1);
 
 -- --------------------------------------------------------
 
@@ -15541,7 +15678,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-21 21:37:59', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-23 19:42:35', NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-23 19:42:35', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-24 12:06:23', NULL, NULL, NULL, '2025-10-21 21:37:59', '2025-10-24 12:06:23', 1);
 
 --
 -- Triggers `user_account`
@@ -16436,13 +16573,13 @@ ALTER TABLE `app_module`
 -- AUTO_INCREMENT for table `attribute`
 --
 ALTER TABLE `attribute`
-  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `attribute_value`
 --
 ALTER TABLE `attribute_value`
-  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `audit_log`
@@ -16628,7 +16765,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -16700,7 +16837,7 @@ ALTER TABLE `product_pricelist`
 -- AUTO_INCREMENT for table `product_tax`
 --
 ALTER TABLE `product_tax`
-  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `product_variant`

@@ -8960,6 +8960,15 @@ BEGIN
     ORDER BY attribute_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateAttributeValueOptions//
+
+CREATE PROCEDURE generateAttributeValueOptions()
+BEGIN
+	SELECT attribute_value_id, attribute_value_name, attribute_id, attribute_name
+    FROM attribute_value
+    ORDER BY attribute_name ASC, attribute_value_name ASC;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -10212,6 +10221,44 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS insertProductTax//
+
+CREATE PROCEDURE insertProductTax(
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(100), 
+    IN p_tax_type VARCHAR(50), 
+    IN p_tax_id INT, 
+    IN p_tax_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_tax (
+        product_id,
+        product_name,
+        tax_type,
+        tax_id,
+        tax_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_tax_type,
+        p_tax_id,
+        p_tax_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -10270,6 +10317,33 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateProductPricing//
+
+CREATE PROCEDURE updateProductPricing(
+	IN p_product_id INT, 
+	IN p_sales_price DOUBLE, 
+	IN p_discount_type VARCHAR(50), 
+	IN p_discount_rate DECIMAL(5,2),
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET sales_price     = p_sales_price,
+        discount_type   = p_discount_type,
+        discount_rate   = p_discount_rate,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS updateProductShipping//
 
 CREATE PROCEDURE updateProductShipping(
@@ -10293,6 +10367,50 @@ BEGIN
         width           = p_width,
         height          = p_height,
         length          = p_length,
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductArchive//
+
+CREATE PROCEDURE updateProductArchive(
+	IN p_product_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status  = 'Archived',
+        last_log_by     = p_last_log_by
+    WHERE product_id    = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateProductUnarchive//
+
+CREATE PROCEDURE updateProductUnarchive(
+	IN p_product_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status  = 'Active',
         last_log_by     = p_last_log_by
     WHERE product_id    = p_product_id;
 
@@ -10386,6 +10504,17 @@ BEGIN
 	WHERE product_id = p_product_id;
 END //
 
+DROP PROCEDURE IF EXISTS fetchProductTax//
+
+CREATE PROCEDURE fetchProductTax(
+	IN p_product_id INT,
+    IN p_tax_type VARCHAR(50)
+)
+BEGIN
+	SELECT * FROM product_tax
+	WHERE product_id = p_product_id AND tax_type = p_tax_type;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -10404,6 +10533,25 @@ BEGIN
     START TRANSACTION;
 
     DELETE FROM product_categories 
+    WHERE product_id = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteProductTax//
+
+CREATE PROCEDURE deleteProductTax(
+    IN p_product_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_tax 
     WHERE product_id = p_product_id;
 
     COMMIT;

@@ -57,6 +57,33 @@ class Product extends Model {
         ]);
     }
 
+    public function insertProductTax(
+        $p_product_id,
+        $p_product_name,
+        $p_tax_type,
+        $p_tax_id,
+        $p_tax_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertProductTax(
+            :p_product_id,
+            :p_product_name,
+            :p_tax_type,
+            :p_tax_id,
+            :p_tax_name,
+            :p_last_log_by
+        )';
+
+        $row = $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_product_name'    => $p_product_name,
+            'p_tax_type'        => $p_tax_type,
+            'p_tax_id'          => $p_tax_id,
+            'p_tax_name'        => $p_tax_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
@@ -109,6 +136,30 @@ class Product extends Model {
         ]);
     }
 
+    public function updateProductPricing(
+        $p_product_id,
+        $p_sales_price,
+        $p_discount_type,
+        $p_discount_rate,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductPricing(
+            :p_product_id,
+            :p_sales_price,
+            :p_discount_type,
+            :p_discount_rate,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_sales_price'     => $p_sales_price,
+            'p_discount_type'   => $p_discount_type,
+            'p_discount_rate'   => $p_discount_rate,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     public function updateProductShipping(
         $p_product_id,
         $p_weight,
@@ -132,6 +183,36 @@ class Product extends Model {
             'p_width'           => $p_width,
             'p_height'          => $p_height,
             'p_length'          => $p_length,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateProductArchive(
+        $p_product_id,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductArchive(
+            :p_product_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateProductUnarchive(
+        $p_product_id,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateProductUnarchive(
+            :p_product_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id'      => $p_product_id,
             'p_last_log_by'     => $p_last_log_by
         ]);
     }
@@ -202,6 +283,21 @@ class Product extends Model {
             'p_product_id' => $p_product_id
         ]);
     }
+
+    public function fetchProductTax(
+        $p_product_id,
+        $p_tax_type
+    ) {
+        $sql = 'CALL fetchProductTax(
+            :p_product_id,
+            :p_tax_type
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_product_id'  => $p_product_id,
+            'p_tax_type'    => $p_tax_type
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -223,6 +319,18 @@ class Product extends Model {
         $p_product_id
     ) {
         $sql = 'CALL deleteProductCategories(
+            :p_product_id
+        )';
+        
+        return $this->query($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function deleteProductTax(
+        $p_product_id
+    ) {
+        $sql = 'CALL deleteProductTax(
             :p_product_id
         )';
         
