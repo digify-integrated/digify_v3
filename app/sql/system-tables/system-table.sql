@@ -53,7 +53,7 @@ VALUES
 DROP TABLE IF EXISTS audit_log;
 
 CREATE TABLE audit_log (
-  audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   table_name VARCHAR(100) NOT NULL,
   reference_id INT NOT NULL,
   log TEXT NOT NULL,
@@ -230,7 +230,7 @@ CREATE INDEX idx_sessions_user_account_id ON sessions(user_account_id);
 DROP TABLE IF EXISTS notification_setting;
 
 CREATE TABLE notification_setting (
-  notification_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  notification_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   notification_setting_name VARCHAR(100) NOT NULL,
   notification_setting_description VARCHAR(200) NOT NULL,
   system_notification INT(1) DEFAULT 1,
@@ -262,7 +262,7 @@ VALUES
 DROP TABLE IF EXISTS notification_setting_email_template;
 
 CREATE TABLE notification_setting_email_template (
-  notification_setting_email_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  notification_setting_email_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   notification_setting_id INT UNSIGNED NOT NULL,
   email_notification_subject VARCHAR(200) NOT NULL,
   email_notification_body LONGTEXT NOT NULL,
@@ -297,7 +297,7 @@ VALUES
 DROP TABLE IF EXISTS notification_setting_system_template;
 
 CREATE TABLE notification_setting_system_template (
-  notification_setting_system_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  notification_setting_system_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   notification_setting_id INT UNSIGNED NOT NULL,
   system_notification_title VARCHAR(200) NOT NULL,
   system_notification_message VARCHAR(500) NOT NULL,
@@ -325,7 +325,7 @@ CREATE INDEX idx_notification_system_setting_id ON notification_setting_system_t
 DROP TABLE IF EXISTS notification_setting_sms_template;
 
 CREATE TABLE notification_setting_sms_template (
-  notification_setting_sms_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  notification_setting_sms_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   notification_setting_id INT UNSIGNED NOT NULL,
   sms_notification_message VARCHAR(500) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -358,7 +358,7 @@ CREATE INDEX idx_notification_sms_setting_id ON notification_setting_sms_templat
 DROP TABLE IF EXISTS app_module;
 
 CREATE TABLE app_module (
-  app_module_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  app_module_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   app_module_name VARCHAR(100) NOT NULL,
   app_module_description VARCHAR(500) NOT NULL,
   app_logo VARCHAR(500),
@@ -400,7 +400,7 @@ INSERT INTO app_module (app_module_name, app_module_description, app_logo, menu_
 DROP TABLE IF EXISTS menu_item;
 
 CREATE TABLE menu_item (
-  menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   menu_item_name VARCHAR(100) NOT NULL,
   menu_item_url VARCHAR(50),
   menu_item_icon VARCHAR(50),
@@ -491,7 +491,7 @@ VALUES
 DROP TABLE IF EXISTS system_action;
 
 CREATE TABLE system_action(
-	system_action_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	system_action_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	system_action_name VARCHAR(100) NOT NULL,
 	system_action_description VARCHAR(200) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -519,7 +519,15 @@ INSERT INTO system_action (system_action_name, system_action_description) VALUES
 ('Update Role System Action Access', 'Access to update the role system action access.'),
 ('Delete Role System Action Access', 'Access to delete the role system action access.'),
 ('Archive Employee', 'Access to archive an employee.'),
-('Unarchive Employee', 'Access to unarchive an employee.');
+('Unarchive Employee', 'Access to unarchive an employee.'),
+('Archive Supplier', 'Access to archive a supplier.'),
+('Unarchive Supplier', 'Access to unarchive a supplier.'),
+('Archive Tax', 'Access to archive a tax.'),
+('Unarchive Tax', 'Access to unarchive a tax.'),
+('Archive Warehouse', 'Access to archive a warehouse.'),
+('Unarchive Warehouse', 'Access to unarchive a warehouse.'),
+('Archive Product', 'Access to archive a product.'),
+('Unarchive Product', 'Access to unarchive a product.');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -534,7 +542,7 @@ INSERT INTO system_action (system_action_name, system_action_description) VALUES
 DROP TABLE IF EXISTS role;
 
 CREATE TABLE role(
-	role_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	role_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	role_name VARCHAR(100) NOT NULL,
 	role_description VARCHAR(200) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -562,7 +570,7 @@ VALUES
 DROP TABLE IF EXISTS role_permission;
 
 CREATE TABLE role_permission(
-	role_permission_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	role_permission_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	role_id INT UNSIGNED NOT NULL,
 	role_name VARCHAR(100) NOT NULL,
 	menu_item_id INT UNSIGNED NOT NULL,
@@ -690,7 +698,15 @@ INSERT INTO role_system_action_permission (role_id, role_name, system_action_id,
 (1, 'Super Admin', 9, 'Update Role System Action Access', 1),
 (1, 'Super Admin', 10, 'Delete Role System Action Access', 1),
 (1, 'Super Admin', 11, 'Archive Employee', 1),
-(1, 'Super Admin', 12, 'Unarchive Employee', 1);
+(1, 'Super Admin', 12, 'Unarchive Employee', 1),
+(1, 'Super Admin', 13, 'Archive Supplier', 1),
+(1, 'Super Admin', 14, 'Unarchive Supplier', 1),
+(1, 'Super Admin', 15, 'Archive Tax', 1),
+(1, 'Super Admin', 16, 'Unarchive Tax', 1),
+(1, 'Super Admin', 17, 'Archive Warehouse', 1),
+(1, 'Super Admin', 18, 'Unarchive Warehouse', 1),
+(1, 'Super Admin', 19, 'Archive Product', 1),
+(1, 'Super Admin', 20, 'Unarchive Product', 1);
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT
@@ -698,7 +714,7 @@ INSERT INTO role_system_action_permission (role_id, role_name, system_action_id,
 
 DROP TABLE IF EXISTS role_user_account;
 CREATE TABLE role_user_account(
-	role_user_account_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	role_user_account_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	role_id INT UNSIGNED NOT NULL,
 	role_name VARCHAR(100) NOT NULL,
 	user_account_id INT UNSIGNED NOT NULL,
@@ -741,7 +757,7 @@ VALUES
 DROP TABLE IF EXISTS file_type;
 
 CREATE TABLE file_type (
-  file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   file_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -786,7 +802,7 @@ INSERT INTO file_type (file_type_name) VALUES
 DROP TABLE IF EXISTS file_extension;
 
 CREATE TABLE file_extension (
-  file_extension_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  file_extension_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   file_extension_name VARCHAR(100) NOT NULL,
   file_extension VARCHAR(10) NOT NULL,
   file_type_id INT UNSIGNED NOT NULL,
@@ -954,7 +970,7 @@ INSERT INTO file_extension (file_extension_name, file_extension, file_type_id, f
 DROP TABLE IF EXISTS upload_setting;
 
 CREATE TABLE upload_setting(
-	upload_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	upload_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	upload_setting_name VARCHAR(100) NOT NULL,
 	upload_setting_description VARCHAR(200) NOT NULL,
 	max_file_size DOUBLE NOT NULL,
@@ -994,7 +1010,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 DROP TABLE IF EXISTS upload_setting_file_extension;
 
 CREATE TABLE upload_setting_file_extension(
-  upload_setting_file_extension_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  upload_setting_file_extension_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	upload_setting_id INT UNSIGNED NOT NULL,
 	upload_setting_name VARCHAR(100) NOT NULL,
 	file_extension_id INT UNSIGNED NOT NULL,
@@ -1070,7 +1086,7 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, upload_setting_nam
 DROP TABLE IF EXISTS country;
 
 CREATE TABLE country(
-	country_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	country_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	country_name VARCHAR(100) NOT NULL,
 	country_code VARCHAR(10) NOT NULL,
 	phone_code VARCHAR(10) NOT NULL,
@@ -1105,7 +1121,7 @@ VALUES
 DROP TABLE IF EXISTS state;
 
 CREATE TABLE state(
-	state_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	state_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	state_name VARCHAR(100) NOT NULL,
 	country_id INT UNSIGNED NOT NULL,
 	country_name VARCHAR(100) NOT NULL,
@@ -1242,7 +1258,7 @@ VALUES
 DROP TABLE IF EXISTS city;
 
 CREATE TABLE city(
-	city_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	city_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	city_name VARCHAR(100) NOT NULL,
 	state_id INT UNSIGNED NOT NULL,
 	state_name VARCHAR(100) NOT NULL,
@@ -5048,7 +5064,7 @@ VALUES
 DROP TABLE IF EXISTS currency;
 
 CREATE TABLE currency(
-	currency_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	currency_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	currency_name VARCHAR(100) NOT NULL,
 	symbol VARCHAR(5) NOT NULL,
 	shorthand VARCHAR(10) NOT NULL,
@@ -5088,7 +5104,7 @@ VALUES
 DROP TABLE IF EXISTS nationality;
 
 CREATE TABLE nationality (
-  nationality_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  nationality_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nationality_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5310,7 +5326,7 @@ VALUES
 DROP TABLE IF EXISTS company;
 
 CREATE TABLE company(
-	company_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	company_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	company_name VARCHAR(100) NOT NULL,
 	company_logo VARCHAR(500),
 	address VARCHAR(1000),
@@ -5362,7 +5378,7 @@ CREATE INDEX idx_company_currency_id ON company(currency_id);
 DROP TABLE IF EXISTS blood_type;
 
 CREATE TABLE blood_type (
-  blood_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  blood_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   blood_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5403,7 +5419,7 @@ VALUES
 DROP TABLE IF EXISTS civil_status;
 
 CREATE TABLE civil_status (
-  civil_status_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  civil_status_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   civil_status_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5440,7 +5456,7 @@ VALUES
 DROP TABLE IF EXISTS credential_type;
 
 CREATE TABLE credential_type (
-  credential_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  credential_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   credential_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5503,7 +5519,7 @@ VALUES
 DROP TABLE IF EXISTS educational_stage;
 
 CREATE TABLE educational_stage (
-  educational_stage_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  educational_stage_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   educational_stage_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5544,7 +5560,7 @@ VALUES
 DROP TABLE IF EXISTS gender;
 
 CREATE TABLE gender (
-  gender_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  gender_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   gender_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5578,7 +5594,7 @@ VALUES
 DROP TABLE IF EXISTS relationship;
 
 CREATE TABLE relationship (
-  relationship_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  relationship_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   relationship_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5628,7 +5644,7 @@ VALUES
 DROP TABLE IF EXISTS religion;
 
 CREATE TABLE religion (
-  religion_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  religion_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   religion_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5679,7 +5695,7 @@ VALUES
 DROP TABLE IF EXISTS language;
 
 CREATE TABLE language (
-  language_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  language_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   language_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5861,7 +5877,7 @@ INSERT INTO language (language_name) VALUES
 DROP TABLE IF EXISTS language_proficiency;
 
 CREATE TABLE language_proficiency(
-	language_proficiency_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	language_proficiency_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	language_proficiency_name VARCHAR(100) NOT NULL,
 	language_proficiency_description VARCHAR(200) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -5900,7 +5916,7 @@ VALUES
 DROP TABLE IF EXISTS address_type;
 
 CREATE TABLE address_type (
-  address_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  address_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   address_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5936,7 +5952,7 @@ INSERT INTO address_type (address_type_name) VALUES
 DROP TABLE IF EXISTS contact_information_type;
 
 CREATE TABLE contact_information_type (
-  contact_information_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  contact_information_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   contact_information_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -5970,7 +5986,7 @@ VALUES
 DROP TABLE IF EXISTS bank;
 
 CREATE TABLE bank(
-	bank_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	bank_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	bank_name VARCHAR(100) NOT NULL,
   bank_identifier_code VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -6040,7 +6056,7 @@ INSERT INTO bank (bank_name, bank_identifier_code) VALUES
 DROP TABLE IF EXISTS bank_account_type;
 
 CREATE TABLE bank_account_type (
-  bank_account_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  bank_account_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   bank_account_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6074,7 +6090,7 @@ VALUES
 DROP TABLE IF EXISTS department;
 
 CREATE TABLE department (
-  department_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  department_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   department_name VARCHAR(100) NOT NULL,
   parent_department_id INT,
   parent_department_name VARCHAR(100),
@@ -6110,7 +6126,7 @@ CREATE INDEX idx_department_manager_id ON department(manager_id);
 DROP TABLE IF EXISTS departure_reason;
 
 CREATE TABLE departure_reason (
-  departure_reason_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  departure_reason_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   departure_reason_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6157,7 +6173,7 @@ VALUES
 DROP TABLE IF EXISTS employment_location_type;
 
 CREATE TABLE employment_location_type (
-  employment_location_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employment_location_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employment_location_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6192,7 +6208,7 @@ VALUES
 DROP TABLE IF EXISTS employment_type;
 
 CREATE TABLE employment_type (
-  employment_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employment_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employment_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6234,7 +6250,7 @@ VALUES
 DROP TABLE IF EXISTS job_position;
 
 CREATE TABLE job_position (
-  job_position_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  job_position_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   job_position_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6263,7 +6279,7 @@ CREATE TABLE job_position (
 DROP TABLE IF EXISTS work_location;
 
 CREATE TABLE work_location(
-	work_location_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_location_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	work_location_name VARCHAR(100) NOT NULL,
 	address VARCHAR(1000),
 	city_id INT UNSIGNED NOT NULL,
@@ -6309,7 +6325,7 @@ CREATE INDEX idx_work_location_country_id ON work_location(country_id);
 DROP TABLE IF EXISTS employee;
 
 CREATE TABLE employee (
-  employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_image VARCHAR(500),
   full_name VARCHAR(1000) NOT NULL,
   first_name VARCHAR(300) NOT NULL,
@@ -6410,7 +6426,7 @@ CREATE INDEX idx_employee_employment_status ON employee(employment_status);
 DROP TABLE IF EXISTS employee_experience;
 
 CREATE TABLE employee_experience (
-  employee_experience_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_experience_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   job_title VARCHAR(100) NOT NULL,
   employment_type_id INT UNSIGNED,
@@ -6453,7 +6469,7 @@ CREATE INDEX idx_employee_experience_employment_type_id ON employee_experience(e
 DROP TABLE IF EXISTS employee_education;
 
 CREATE TABLE employee_education (
-  employee_education_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_education_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   school VARCHAR(100) NOT NULL,
   degree VARCHAR(100),
@@ -6494,7 +6510,7 @@ CREATE INDEX idx_employee_education_employee_id ON employee_education(employee_i
 DROP TABLE IF EXISTS employee_license;
 
 CREATE TABLE employee_license (
-  employee_license_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_license_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   licensed_profession VARCHAR(200) NOT NULL,
   licensing_body VARCHAR(200) NOT NULL,
@@ -6531,7 +6547,7 @@ CREATE INDEX idx_employee_license_employee_id ON employee_license(employee_id);
 DROP TABLE IF EXISTS employee_emergency_contact;
 
 CREATE TABLE employee_emergency_contact (
-  employee_emergency_contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_emergency_contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   emergency_contact_name VARCHAR(500) NOT NULL,
   relationship_id INT UNSIGNED NOT NULL,
@@ -6571,7 +6587,7 @@ CREATE INDEX idx_employee_emergency_contact_relationship_id ON employee_emergenc
 DROP TABLE IF EXISTS employee_language;
 
 CREATE TABLE employee_language (
-  employee_language_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_language_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   language_id INT UNSIGNED NOT NULL,
   language_name VARCHAR(100) NOT NULL,
@@ -6611,7 +6627,7 @@ CREATE INDEX idx_employee_language_language_proficiency_id ON employee_language(
 DROP TABLE IF EXISTS employee_document_type;
 
 CREATE TABLE employee_document_type (
-  employee_document_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_document_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_document_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6663,7 +6679,7 @@ VALUES
 DROP TABLE IF EXISTS employee_document;
 
 CREATE TABLE employee_document (
-  employee_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  employee_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   employee_id INT UNSIGNED NOT NULL,
   document_name VARCHAR(200) NOT NULL,
   document_file VARCHAR(500) NOT NULL,
@@ -6698,11 +6714,11 @@ CREATE TABLE employee_document (
 DROP TABLE IF EXISTS attribute;
 
 CREATE TABLE attribute (
-  attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   attribute_name VARCHAR(100) NOT NULL,
   attribute_description VARCHAR(500),
   variant_creation ENUM('Instantly','Never') DEFAULT 'Instantly',
-  display_type ENUM('Radio','Checkbox') DEFAULT 'Radio'
+  display_type ENUM('Radio','Checkbox') DEFAULT 'Radio',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6729,7 +6745,7 @@ CREATE TABLE attribute (
 DROP TABLE IF EXISTS attribute_value;
 
 CREATE TABLE attribute_value (
-  attribute_value_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  attribute_value_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   attribute_value_name VARCHAR(100) NOT NULL,
   attribute_id INT UNSIGNED NOT NULL,
   attribute_name VARCHAR(100) NOT NULL,
@@ -6919,7 +6935,7 @@ INSERT INTO warehouse_type (warehouse_type_name) VALUES
 DROP TABLE IF EXISTS warehouse;
 
 CREATE TABLE warehouse (
-  warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   warehouse_name VARCHAR(200) NOT NULL,
   short_name VARCHAR(200) NOT NULL,
   contact_person VARCHAR(500),
@@ -6935,7 +6951,6 @@ CREATE TABLE warehouse (
 	country_name VARCHAR(100) NOT NULL,
   warehouse_type_id INT UNSIGNED,
   warehouse_type_name VARCHAR(100) NOT NULL,
-  is_main_branch ENUM('Yes','No') DEFAULT 'No',
   warehouse_status ENUM('Active', 'Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6965,6 +6980,71 @@ CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
 
 
 /* =============================================================================================
+  TABLE: UOM CATEGORY
+============================================================================================= */
+
+DROP TABLE IF EXISTS uom_category;
+
+CREATE TABLE uom_category (
+  uom_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  uom_category_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: UOM CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: UOM CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: UOM
+============================================================================================= */
+
+DROP TABLE IF EXISTS uom;
+
+CREATE TABLE uom (
+  uom_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  uom_name VARCHAR(100) NOT NULL,
+  uom_abbreviation VARCHAR(20),
+  uom_category_id INT UNSIGNED NOT NULL,
+  uom_category_name VARCHAR(100) NOT NULL,
+  ratio_to_base DECIMAL(15,6) DEFAULT 1,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (uom_category_id) REFERENCES uom_category(uom_category_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: UOM
+============================================================================================= */
+
+CREATE INDEX idx_uom_uom_category_id ON uom(uom_category_id);
+
+/* =============================================================================================
+  INITIAL VALUES: UOM
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
   TABLE: PRODUCT
 ============================================================================================= */
 
@@ -6972,30 +7052,36 @@ DROP TABLE IF EXISTS product;
 
 CREATE TABLE product (
   product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_name VARCHAR(100) NOT NULL,
-  product_description VARCHAR(1000) NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  product_description VARCHAR(1000),
   product_image VARCHAR(500),
-  product_type ENUM('Goods','Services') DEFAULT 'Goods',
+  product_type ENUM('Goods','Services','Combo') DEFAULT 'Goods',
+  parent_product_id INT UNSIGNED NULL,
   sku VARCHAR(200) UNIQUE,
   barcode VARCHAR(200) UNIQUE,
+  uom_id INT UNSIGNED,
+  purchase_uom_id INT UNSIGNED,
+  quantity_on_hand DECIMAL(15,4) DEFAULT 0,
+  cost DECIMAL(15,4) DEFAULT 0,
+  sales_price DECIMAL(15,4) DEFAULT 0,
+  is_variant ENUM('Yes','No') DEFAULT 'No',   
   is_sellable ENUM('Yes','No') DEFAULT 'Yes',
   is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
   show_on_pos ENUM('Yes','No') DEFAULT 'Yes',
-  quantity_on_hand INT DEFAULT 0,
-  sales_price DOUBLE DEFAULT 0,
-  cost DOUBLE DEFAULT 0,
-  discount_type ENUM('Fixed','None', 'Percentage') DEFAULT 'None',
-  discount_rate DECIMAL(5,2) DEFAULT 0,
-  weight DECIMAL(5,2) DEFAULT 0,
-  width DECIMAL(5,2) DEFAULT 0,
-  height DECIMAL(5,2) DEFAULT 0,
-  length DECIMAL(5,2) DEFAULT 0,
+  weight DECIMAL(10,4) DEFAULT 0,
+  width DECIMAL(10,4) DEFAULT 0,
+  height DECIMAL(10,4) DEFAULT 0,
+  length DECIMAL(10,4) DEFAULT 0,
   product_status ENUM('Active','Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
+  FOREIGN KEY (uom_id) REFERENCES uom(uom_id),
+  FOREIGN KEY (purchase_uom_id) REFERENCES uom(uom_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
+
 
 /* =============================================================================================
   INDEX: PRODUCT
@@ -7004,10 +7090,12 @@ CREATE TABLE product (
 CREATE INDEX idx_product_product_type ON product(product_type);
 CREATE INDEX idx_product_barcode ON product(barcode);
 CREATE INDEX idx_product_sku ON product(sku);
+CREATE INDEX idx_product_uom_id ON product(uom_id);
+CREATE INDEX idx_product_purchase_uom_id ON product(purchase_uom_id);
+CREATE INDEX idx_product_is_variant ON product(is_variant);
 CREATE INDEX idx_product_is_sellable ON product(is_sellable);
 CREATE INDEX idx_product_is_purchasable ON product(is_purchasable);
 CREATE INDEX idx_product_show_on_pos ON product(show_on_pos);
-CREATE INDEX idx_product_discount_type ON product(discount_type);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT

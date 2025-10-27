@@ -37,23 +37,7 @@
                         <select id="warehouse_type_id" name="warehouse_type_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
-                
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="is_main_branch">
-                            <span class="required">Is Main Branch?</span>
-                        </label>
 
-                        <select id="is_main_branch" name="is_main_branch" class="form-select" data-control="select2" data-allow-clear="false">
-                            <option value="">--</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                </div>      
-            </div>
-            
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="contact_person">
@@ -63,7 +47,9 @@
                         <input type="text" class="form-control" id="contact_person" name="contact_person" maxlength="500" autocomplete="off">
                     </div>
                 </div>
-
+            </div>
+            
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="address">
@@ -73,9 +59,7 @@
                         <input type="text" class="form-control" id="address" name="address" maxlength="1000" autocomplete="off">
                     </div>
                 </div>
-            </div>
 
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="city_id">
@@ -85,7 +69,9 @@
                         <select id="city_id" name="city_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
+            </div>
 
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="phone">
@@ -95,9 +81,7 @@
                         <input type="text" class="form-control" id="phone" name="phone" maxlength="20" autocomplete="off">
                     </div>
                 </div>
-            </div>
 
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="telephone">
@@ -107,7 +91,9 @@
                         <input type="text" class="form-control" id="telephone" name="telephone" maxlength="20" autocomplete="off">
                     </div>
                 </div>
+            </div>
 
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="email">

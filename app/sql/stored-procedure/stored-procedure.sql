@@ -8737,8 +8737,8 @@ CREATE PROCEDURE saveAttribute(
     IN p_attribute_id INT, 
     IN p_attribute_name VARCHAR(100), 
     IN p_attribute_description VARCHAR(500), 
-    IN p_variant_creation VARCHAR(50), 
-    IN p_display_type VARCHAR(50), 
+    IN p_variant_creation ENUM('Instantly','Never'), 
+    IN p_display_type ENUM('Radio','Checkbox'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9020,7 +9020,7 @@ CREATE PROCEDURE saveProductCategory(
     IN p_product_category_name VARCHAR(100), 
     IN p_parent_category_id INT, 
     IN p_parent_category_name VARCHAR(100), 
-    IN p_costing_method VARCHAR(100), 
+    IN p_costing_method ENUM('Average Cost','First In First Out', 'Standard Price'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9489,9 +9489,9 @@ CREATE PROCEDURE saveTax(
     IN p_tax_id INT, 
     IN p_tax_name VARCHAR(200), 
     IN p_tax_rate DECIMAL(5,2), 
-    IN p_tax_type VARCHAR(50), 
-    IN p_tax_computation VARCHAR(50), 
-    IN p_tax_scope VARCHAR(50), 
+    IN p_tax_type ENUM('None', 'Purchases','Sales'), 
+    IN p_tax_computation ENUM('Fixed','Percentage'), 
+    IN p_tax_scope ENUM('Goods','Services'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9907,8 +9907,7 @@ CREATE PROCEDURE saveWarehouse(
     IN p_country_id INT, 
     IN p_country_name VARCHAR(100), 
     IN p_warehouse_type_id INT, 
-    IN p_warehouse_type_name VARCHAR(100), 
-    IN p_is_main_branch ENUM('Yes','No'), 
+    IN p_warehouse_type_name VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -9938,7 +9937,6 @@ BEGIN
             country_name,
             warehouse_type_id,
             warehouse_type_name,
-            is_main_branch,
             last_log_by
         ) 
         VALUES(
@@ -9957,7 +9955,6 @@ BEGIN
             p_country_name,
             p_warehouse_type_id,
             p_warehouse_type_name,
-            p_is_main_branch,
             p_last_log_by
         ); 
         
@@ -9979,7 +9976,6 @@ BEGIN
             country_name            = p_country_name,
             warehouse_type_id       = p_warehouse_type_id,
             warehouse_type_name     = p_warehouse_type_name,
-            is_main_branch          = p_is_main_branch,
             last_log_by             = p_last_log_by
         WHERE warehouse_id          = p_warehouse_id;
 
@@ -10174,6 +10170,317 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: UOM CATEGORY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveUOMCategory//
+
+CREATE PROCEDURE saveUOMCategory(
+    IN p_uom_category_id INT, 
+    IN p_uom_category_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_uom_category_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_uom_category_id IS NULL OR NOT EXISTS (SELECT 1 FROM uom_category WHERE uom_category_id = p_uom_category_id) THEN
+        INSERT INTO uom_category (
+            uom_category_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_uom_category_name,
+            p_last_log_by
+        );
+        
+        SET v_new_uom_category_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE uom
+        SET uom_category_name   = p_uom_category_name,
+            last_log_by         = p_last_log_by
+        WHERE uom_category_id   = p_uom_category_id;
+
+        UPDATE uom_category
+        SET uom_category_name   = p_uom_category_name,
+            last_log_by         = p_last_log_by
+        WHERE uom_category_id   = p_uom_category_id;
+
+        SET v_new_uom_category_id = p_uom_category_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_uom_category_id AS new_uom_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchUOMCategory//
+
+CREATE PROCEDURE fetchUOMCategory(
+    IN p_uom_category_id INT
+)
+BEGIN
+	SELECT * FROM uom_category
+	WHERE uom_category_id = p_uom_category_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteUOMCategory//
+
+CREATE PROCEDURE deleteUOMCategory(
+    IN p_uom_category_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM uom_category WHERE uom_category_id = p_uom_category_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkUOMCategoryExist//
+
+CREATE PROCEDURE checkUOMCategoryExist(
+    IN p_uom_category_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM uom_category
+    WHERE uom_category_id = p_uom_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateUOMCategoryTable//
+
+CREATE PROCEDURE generateUOMCategoryTable()
+BEGIN
+	SELECT uom_category_id, uom_category_name
+    FROM uom_category 
+    ORDER BY uom_category_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateUOMCategoryOptions//
+
+CREATE PROCEDURE generateUOMCategoryOptions()
+BEGIN
+	SELECT uom_category_id, uom_category_name 
+    FROM uom_category 
+    ORDER BY uom_category_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: WAREHOUSE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveUOM//
+
+CREATE PROCEDURE saveUOM(
+    IN p_uom_id INT, 
+    IN p_uom_name VARCHAR(200), 
+    IN p_uom_abbreviation VARCHAR(20), 
+    IN p_uom_category_id INT, 
+    IN p_uom_category_name VARCHAR(100), 
+    IN p_ratio_to_base DECIMAL(15,6),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_uom_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_uom_id IS NULL OR NOT EXISTS (SELECT 1 FROM uom WHERE uom_id = p_uom_id) THEN
+        INSERT INTO uom (
+            uom_name,
+            uom_abbreviation,
+            uom_category_id,
+            uom_category_name,
+            ratio_to_base,
+            last_log_by
+        ) 
+        VALUES(
+            p_uom_name,
+            p_uom_abbreviation,
+            p_uom_category_id,
+            p_uom_category_name,
+            p_ratio_to_base,
+            p_last_log_by
+        ); 
+        
+        SET v_new_uom_id = LAST_INSERT_ID();
+    ELSE        
+        UPDATE uom
+        SET uom_name            = p_uom_name,
+            uom_abbreviation    = p_uom_abbreviation,
+            uom_category_id     = p_uom_category_id,
+            uom_category_name   = p_uom_category_name,
+            ratio_to_base       = p_ratio_to_base,
+            last_log_by         = p_last_log_by
+        WHERE uom_id            = p_uom_id;
+
+        SET v_new_uom_id = p_uom_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_uom_id AS new_uom_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchUOM//
+
+CREATE PROCEDURE fetchUOM(
+    IN p_uom_id INT
+)
+BEGIN
+	SELECT * FROM uom
+	WHERE uom_id = p_uom_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteUOM//
+
+CREATE PROCEDURE deleteUOM(
+    IN p_uom_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM uom WHERE uom_id = p_uom_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkUOMExist//
+
+CREATE PROCEDURE checkUOMExist(
+    IN p_uom_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM uom
+    WHERE uom_id = p_uom_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateUOMTable//
+
+CREATE PROCEDURE generateUOMTable(
+    IN p_filter_by_uom_category TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT uom_id, uom_name, uom_abbreviation, uom_category_name, ratio_to_base 
+                FROM uom ';
+
+    IF p_filter_by_uom_category IS NOT NULL AND p_filter_by_uom_category <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' uom_category_id IN (', p_filter_by_uom_category, ')');
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY uom_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateUOMOptions//
+
+CREATE PROCEDURE generateUOMOptions()
+BEGIN
+	SELECT uom_id, uom_name 
+    FROM uom 
+    ORDER BY uom_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
    STORED PROCEDURE: PRODUCT
 ============================================================================================= */
 
@@ -10328,7 +10635,7 @@ CREATE PROCEDURE updateProductInventory(
 	IN p_product_id INT, 
 	IN p_sku VARCHAR(200), 
 	IN p_barcode VARCHAR(200), 
-	IN p_product_type VARCHAR(50), 
+	IN p_product_type ENUM('Goods','Services'), 
 	IN p_quantity_on_hand INT, 
 	IN p_last_log_by INT
 )
@@ -10355,9 +10662,7 @@ DROP PROCEDURE IF EXISTS updateProductPricing//
 
 CREATE PROCEDURE updateProductPricing(
 	IN p_product_id INT, 
-	IN p_sales_price DOUBLE, 
-	IN p_discount_type VARCHAR(50), 
-	IN p_discount_rate DECIMAL(5,2),
+	IN p_sales_price DECIMAL(12,2),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -10370,8 +10675,6 @@ BEGIN
 
     UPDATE product
     SET sales_price     = p_sales_price,
-        discount_type   = p_discount_type,
-        discount_rate   = p_discount_rate,
         last_log_by     = p_last_log_by
     WHERE product_id    = p_product_id;
 
@@ -10382,10 +10685,10 @@ DROP PROCEDURE IF EXISTS updateProductShipping//
 
 CREATE PROCEDURE updateProductShipping(
 	IN p_product_id INT, 
-	IN p_weight DECIMAL(5,2), 
-	IN p_width DECIMAL(5,2), 
-	IN p_height DECIMAL(5,2), 
-	IN p_length DECIMAL(5,2), 
+	IN p_weight DECIMAL(10,2), 
+	IN p_width DECIMAL(10,2), 
+	IN p_height DECIMAL(10,2), 
+	IN p_length DECIMAL(10,2), 
 	IN p_last_log_by INT
 )
 BEGIN

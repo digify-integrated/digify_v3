@@ -41,7 +41,6 @@ class Supplier extends Model {
             :p_country_id,
             :p_country_name,
             :p_tax_id_number,
-            :p_credit_terms,
             :p_last_log_by
         )';
 
