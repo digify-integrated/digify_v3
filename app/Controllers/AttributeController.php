@@ -99,10 +99,13 @@ class AttributeController
             );
         }
 
-        $attributeId       = $_POST['attribute_id'] ?? null;
-        $attributeName     = $_POST['attribute_name'] ?? null;
+        $attributeId            = $_POST['attribute_id'] ?? null;
+        $attributeName          = $_POST['attribute_name'] ?? null;
+        $attributeDescription   = $_POST['attribute_description'] ?? null;
+        $variantCreation        = $_POST['variant_creation'] ?? null;
+        $displayType            = $_POST['display_type'] ?? null;
 
-        $attributeId           = $this->attribute->saveAttribute($attributeId, $attributeName, $lastLogBy);
+        $attributeId           = $this->attribute->saveAttribute($attributeId, $attributeName, $attributeDescription, $variantCreation, $displayType, $lastLogBy);
         $encryptedAttributeId  = $this->security->encryptData($attributeId);
 
         $this->systemHelper->sendSuccessResponse(
@@ -188,8 +191,11 @@ class AttributeController
         $attributeDetails = $this->attribute->fetchAttribute($attributeId);
 
         $response = [
-            'success'       => true,
-            'attributeName'    => $attributeDetails['attribute_name'] ?? null
+            'success'               => true,
+            'attributeName'         => $attributeDetails['attribute_name'] ?? null,
+            'attributeDescription'  => $attributeDetails['attribute_description'] ?? null,
+            'variantCreation'       => $attributeDetails['variant_creation'] ?? null,
+            'displayType'           => $attributeDetails['display_type'] ?? null,
         ];
 
         echo json_encode($response);
@@ -222,22 +228,31 @@ class AttributeController
 
     public function generateAttributeTable()
     {
-        $pageLink   = $_POST['page_link'] ?? null;
-        $response   = [];
+        $pageLink               = $_POST['page_link'] ?? null;
+        $variantCreationFilter  = $this->systemHelper->checkFilter($_POST['variant_creation_filter'] ?? null);
+        $displayTypeFilter      = $this->systemHelper->checkFilter($_POST['display_type_filter'] ?? null);
+        $response               = [];
 
-        $attributes = $this->attribute->generateAttributeTable();
+        $attributes = $this->attribute->generateAttributeTable($variantCreationFilter, $displayTypeFilter);
 
         foreach ($attributes as $row) {
-            $attributeId    = $row['attribute_id'];
-            $attributeName  = $row['attribute_name'];
-
-            $attributeIdEncrypted = $this->security->encryptData($attributeId);
+            $attributeId            = $row['attribute_id'];
+            $attributeName          = $row['attribute_name'];
+            $attributeDescription   = $row['attribute_description'];
+            $variantCreation        = $row['variant_creation'];
+            $displayType            = $row['display_type'];
+            $attributeIdEncrypted   = $this->security->encryptData($attributeId);
 
             $response[] = [
                 'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                             <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $attributeId .'">
                                         </div>',
-                'ATTRIBUTE_NAME'    => $attributeName,
+                'ATTRIBUTE_NAME'    => '<div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-bold mb-1">'. $attributeName .'</span>
+                                            <small class="text-gray-600">'. $attributeDescription .'</small>
+                                        </div>',
+                'VARIANT_CREATION'  => $variantCreation,
+                'DISPLAY_TYPE'      => $displayType,
                 'LINK'              => $pageLink .'&id='. $attributeIdEncrypted
             ];
         }

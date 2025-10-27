@@ -113,6 +113,7 @@ class WarehouseController
         $telephone          = $_POST['telephone'] ?? null;
         $email              = $_POST['email'] ?? null;
         $warehouseTypeId    = $_POST['warehouse_type_id'] ?? null;
+        $isMainBranch       = $_POST['is_main_branch'] ?? null;
 
         $warehouseTypeDetails    = $this->warehouseType->fetchWarehouseType($warehouseTypeId);
         $warehouseTypeName       = $warehouseTypeDetails['warehouse_type_name'] ?? null;
@@ -124,7 +125,7 @@ class WarehouseController
         $countryId      = $cityDetails['country_id'] ?? null;
         $countryName    = $cityDetails['country_name'] ?? null;
 
-        $warehouseId = $this->warehouse->saveWarehouse($warehouseId, $warehouseName, $shortName, $contactPerson, $phone, $telephone, $email, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $warehouseTypeId, $warehouseTypeName, $lastLogBy);
+        $warehouseId = $this->warehouse->saveWarehouse($warehouseId, $warehouseName, $shortName, $contactPerson, $phone, $telephone, $email, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $warehouseTypeId, $warehouseTypeName, $isMainBranch, $lastLogBy);
 
         $encryptedwarehouseId = $this->security->encryptData($warehouseId);
 
@@ -206,7 +207,8 @@ class WarehouseController
             'phone'             => $warehouseDetails['phone'] ?? null,
             'telephone'         => $warehouseDetails['telephone'] ?? null,
             'email'             => $warehouseDetails['email'] ?? null,
-            'warehouseTypeId'  => $warehouseDetails['warehouse_type_id'] ?? null
+            'warehouseTypeId'   => $warehouseDetails['warehouse_type_id'] ?? null,
+            'isMainBranch'      => $warehouseDetails['is_main_branch'] ?? null
         ];
 
         echo json_encode($response);
@@ -219,8 +221,8 @@ class WarehouseController
         $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
         $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
         $countryFilter          = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $warehouseTypeFilter   = $this->systemHelper->checkFilter($_POST['warehouse_type_filter'] ?? null);
-        $warehouseStatusFilter   = $this->systemHelper->checkFilter($_POST['warehouse_status_filter'] ?? null);
+        $warehouseTypeFilter    = $this->systemHelper->checkFilter($_POST['warehouse_type_filter'] ?? null);
+        $warehouseStatusFilter  = $this->systemHelper->checkFilter($_POST['warehouse_status_filter'] ?? null);
         $response               = [];
 
         $warehouses = $this->warehouse->generateWarehouseTable($warehouseTypeFilter, $cityFilter, $stateFilter, $countryFilter, $warehouseStatusFilter);

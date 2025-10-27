@@ -31,7 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('attribute_name').value = data.attributeName || '';
+                document.getElementById('attribute_name').value         = data.attributeName || '';
+                document.getElementById('attribute_description').value  = data.attributeDescription || '';
+
+                $('#variant_creation').val(data.variantCreation || '').trigger('change');
+                $('#display_type').val(data.displayType || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -105,10 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#attribute_form').validate({
         rules: {
-            attribute_name: { required: true }
+            attribute_name: { required: true },
+            variant_creation: { required: true },
+            display_type: { required: true }
         },
         messages: {
-            attribute_name: { required: 'Enter the display name' }
+            attribute_name: { required: 'Enter the display name' },
+            variant_creation: { required: 'Choose the variant creation' },
+            display_type: { required: 'Choose the display type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

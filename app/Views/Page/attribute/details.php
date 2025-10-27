@@ -35,6 +35,42 @@
 
                 <input type="text" class="form-control" id="attribute_name" name="attribute_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="variant_creation">
+                            <span class="required">Variant Creation</span>
+                        </label>
+
+                        <select id="variant_creation" name="variant_creation" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                            <option value="">--</option>
+                            <option value="Instantly">Instantly</option>
+                            <option value="Never">Never</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="display_type">
+                            <span class="required">Display Type</span>
+                        </label>
+
+                        <select id="display_type" name="display_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                            <option value="">--</option>
+                            <option value="Radio">Radio</option>
+                            <option value="Checkbox">Checkbox</option>
+                        </select>
+                    </div>
+                </div>      
+            </div>
+            <div class="fv-row mb-4">
+                <label class="fs-6 fw-semibold form-label mt-3" for="attribute_description">
+                    Description
+                </label>
+
+                <textarea class="form-control" id="attribute_description" name="attribute_description" maxlength="500" rows="3" <?php echo $disabled; ?>></textarea>
+            </div>
         </form>
     </div>
 

@@ -26,6 +26,7 @@ class Warehouse extends Model {
         $p_country_name,
         $p_warehouse_type_id,
         $p_warehouse_type_name,
+        $p_is_main_branch,
         $p_last_log_by
     )    {
         $sql = 'CALL saveWarehouse(
@@ -45,6 +46,7 @@ class Warehouse extends Model {
             :p_country_name,
             :p_warehouse_type_id,
             :p_warehouse_type_name,
+            :p_is_main_branch,
             :p_last_log_by
         )';
 
@@ -65,6 +67,7 @@ class Warehouse extends Model {
             'p_country_name'            => $p_country_name,
             'p_warehouse_type_id'       => $p_warehouse_type_id,
             'p_warehouse_type_name'     => $p_warehouse_type_name,
+            'p_is_main_branch'          => $p_is_main_branch,
             'p_last_log_by'             => $p_last_log_by
         ]);
 

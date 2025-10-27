@@ -8736,6 +8736,9 @@ DROP PROCEDURE IF EXISTS saveAttribute//
 CREATE PROCEDURE saveAttribute(
     IN p_attribute_id INT, 
     IN p_attribute_name VARCHAR(100), 
+    IN p_attribute_description VARCHAR(500), 
+    IN p_variant_creation VARCHAR(50), 
+    IN p_display_type VARCHAR(50), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -8751,10 +8754,16 @@ BEGIN
     IF p_attribute_id IS NULL OR NOT EXISTS (SELECT 1 FROM attribute WHERE attribute_id = p_attribute_id) THEN
         INSERT INTO attribute (
             attribute_name,
+            attribute_description,
+            variant_creation,
+            display_type,
             last_log_by
         ) 
         VALUES(
             p_attribute_name,
+            p_attribute_description,
+            p_variant_creation,
+            p_display_type,
             p_last_log_by
         );
         
@@ -8765,15 +8774,13 @@ BEGIN
             last_log_by     = p_last_log_by
         WHERE attribute_id  = p_attribute_id;
 
-        UPDATE product_variant
-        SET attribute_name  = p_attribute_name,
-            last_log_by     = p_last_log_by
-        WHERE attribute_id  = p_attribute_id;
-
         UPDATE attribute
-        SET attribute_name  = p_attribute_name,
-            last_log_by     = p_last_log_by
-        WHERE attribute_id  = p_attribute_id;
+        SET attribute_name          = p_attribute_name,
+            attribute_description   = p_attribute_description,
+            variant_creation        = p_variant_creation,
+            display_type            = p_display_type,
+            last_log_by             = p_last_log_by
+        WHERE attribute_id          = p_attribute_id;
 
         SET v_new_attribute_id = p_attribute_id;
     END IF;
@@ -8932,11 +8939,34 @@ END //
 
 DROP PROCEDURE IF EXISTS generateAttributeTable//
 
-CREATE PROCEDURE generateAttributeTable()
+CREATE PROCEDURE generateAttributeTable(
+    IN p_filter_by_variant_creation TEXT,
+    IN p_filter_by_display_type TEXT
+)
 BEGIN
-	SELECT attribute_id, attribute_name
-    FROM attribute 
-    ORDER BY attribute_id;
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT attribute_id, attribute_name, attribute_description, variant_creation, display_type 
+                FROM attribute ';
+
+    IF p_filter_by_variant_creation IS NOT NULL AND p_filter_by_variant_creation <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' variant_creation IN (', p_filter_by_variant_creation, ')');
+    END IF;
+
+    IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' display_type IN (', p_filter_by_display_type, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY attribute_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 DROP PROCEDURE IF EXISTS generateAttributeValueTable//
@@ -9878,6 +9908,7 @@ CREATE PROCEDURE saveWarehouse(
     IN p_country_name VARCHAR(100), 
     IN p_warehouse_type_id INT, 
     IN p_warehouse_type_name VARCHAR(100), 
+    IN p_is_main_branch ENUM('Yes','No'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9907,6 +9938,7 @@ BEGIN
             country_name,
             warehouse_type_id,
             warehouse_type_name,
+            is_main_branch,
             last_log_by
         ) 
         VALUES(
@@ -9925,6 +9957,7 @@ BEGIN
             p_country_name,
             p_warehouse_type_id,
             p_warehouse_type_name,
+            p_is_main_branch,
             p_last_log_by
         ); 
         
@@ -9946,6 +9979,7 @@ BEGIN
             country_name            = p_country_name,
             warehouse_type_id       = p_warehouse_type_id,
             warehouse_type_name     = p_warehouse_type_name,
+            is_main_branch          = p_is_main_branch,
             last_log_by             = p_last_log_by
         WHERE warehouse_id          = p_warehouse_id;
 

@@ -294,6 +294,7 @@
                                                 <div class="d-flex gap-3">
                                                     <select id="product_type" name="product_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
                                                         <option value="">--</option>
+                                                        <option value="Combo">Combo</option>
                                                         <option value="Goods">Goods</option>
                                                         <option value="Services">Services</option>
                                                     </select>

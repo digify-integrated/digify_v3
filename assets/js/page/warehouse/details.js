@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 $('#city_id').val(data.cityID || '').trigger('change');
                 $('#warehouse_type_id').val(data.warehouseTypeId || '').trigger('change');
+                $('#is_main_branch').val(data.isMainBranch || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -74,13 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
             warehouse_name: { required: true },
             address: {required: true },
             city_id: { required: true },
-            warehouse_type_id: { required: true }
+            warehouse_type_id: { required: true },
+            is_main_branch: { required: true },
         },
         messages: {
             warehouse_name: { required: 'Enter the display name' },
             address: { required: 'Enter the address' },
             city_id: { required: 'Choose the city' },
-            warehouse_type_id: { required: 'Choose the warehouse type' }
+            warehouse_type_id: { required: 'Choose the warehouse type' },
+            is_main_branch: { required: 'Choose if this is the main branch' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

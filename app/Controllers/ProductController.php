@@ -97,7 +97,7 @@ class ProductController
             'delete product'                    => $this->deleteProduct(),
             'delete multiple product'           => $this->deleteMultipleProduct(),
             'fetch product details'             => $this->fetchProductDetails(),
-            'fetch product categories details'  => $this->fetchProductCategoriesDetails(),
+            'fetch product categories details'  => $this->fetchProductCategoryMapDetails(),
             'fetch product tax details'         => $this->fetchProductTaxDetails(),
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
@@ -123,12 +123,12 @@ class ProductController
 
         if(empty($productCategoryIds)){
             $this->systemHelper::sendErrorResponse(
-                'Assign File Extension Error',
-                'Please select the file extension(s) you wish to assign to the upload setting.'
+                'Save Product Category Error',
+                'Please select the product categories.'
             );
         }
 
-        $this->product->deleteProductCategories($productId);
+        $this->product->deleteProductCategoryMap($productId);
 
         $productDetails   = $this->product->fetchProduct($productId);
         $productName      = $productDetails['product_name'] ?? '';
@@ -137,12 +137,12 @@ class ProductController
             $productCategoryDetails   = $this->productCategory->fetchProductCategory($productCategoryId);
             $productCategoryName      = $productCategoryDetails['product_category_name'] ?? null;
 
-            $this->product->insertProductCategories($productId, $productName, $productCategoryId, $productCategoryName, $lastLogBy);
+            $this->product->insertProductCategoryMap($productId, $productName, $productCategoryId, $productCategoryName, $lastLogBy);
         }
 
         $this->systemHelper->sendSuccessResponse(
-            'Assign File Extension Success',
-            'The file extension has been assigned successfully.'
+            'Save Product Category Success',
+            'The product categories have been added successfully.'
         );
     }
 
@@ -566,7 +566,7 @@ class ProductController
         exit;
     }
 
-    public function fetchProductCategoriesDetails(){
+    public function fetchProductCategoryMapDetails(){
         $productId          = $_POST['product_id'] ?? null;
         $checkProductExist  = $this->product->checkProductExist($productId);
         $total              = $checkProductExist['total'] ?? 0;
@@ -579,7 +579,7 @@ class ProductController
             );
         }
 
-        $productCategoriesDetails = $this->product->fetchProductCategories($productId);
+        $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId);
 
         $productCategories = [];
         foreach ($productCategoriesDetails as $row) {
@@ -678,7 +678,7 @@ class ProductController
 
             $productIdEncrypted = $this->security->encryptData($productId);
 
-            $productCategoriesDetails = $this->product->fetchProductCategories($productId);
+            $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId);
 
             $productCategories = '';
             foreach ($productCategoriesDetails as $row) {

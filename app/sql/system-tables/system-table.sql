@@ -6700,6 +6700,9 @@ DROP TABLE IF EXISTS attribute;
 CREATE TABLE attribute (
   attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   attribute_name VARCHAR(100) NOT NULL,
+  attribute_description VARCHAR(500),
+  variant_creation ENUM('Instantly','Never') DEFAULT 'Instantly',
+  display_type ENUM('Radio','Checkbox') DEFAULT 'Radio'
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6932,6 +6935,7 @@ CREATE TABLE warehouse (
 	country_name VARCHAR(100) NOT NULL,
   warehouse_type_id INT UNSIGNED,
   warehouse_type_name VARCHAR(100) NOT NULL,
+  is_main_branch ENUM('Yes','No') DEFAULT 'No',
   warehouse_status ENUM('Active', 'Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -7050,13 +7054,13 @@ CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
 
 
 /* =============================================================================================
-  TABLE: PRODUCT CATEGORIES
+  TABLE: PRODUCT CATEGORY MAP
 ============================================================================================= */
 
-DROP TABLE IF EXISTS product_categories;
+DROP TABLE IF EXISTS product_category_map;
 
-CREATE TABLE product_categories (
-  product_categories_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE product_category_map (
+  product_category_map_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
   product_category_id INT UNSIGNED NOT NULL,
@@ -7070,100 +7074,14 @@ CREATE TABLE product_categories (
 );
 
 /* =============================================================================================
-  INDEX: PRODUCT TAX
+  INDEX: PRODUCT CATEGORY MAP
 ============================================================================================= */
 
-CREATE INDEX idx_product_tax_product_id ON product_tax(product_id);
-CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
+CREATE INDEX idx_product_category_map_product_id ON product_category_map(product_id);
+CREATE INDEX idx_product_category_map_category_id ON product_category_map(product_category_id);
 
 /* =============================================================================================
-  INITIAL VALUES: PRODUCT TAX
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: PRODUCT VARIANT
-============================================================================================= */
-
-DROP TABLE IF EXISTS product_variant;
-
-CREATE TABLE product_variant (
-  product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  product_variant_image VARCHAR(500),
-  attribute_value_id INT UNSIGNED NOT NULL,
-  attribute_value_name VARCHAR(100) NOT NULL,
-  attribute_id INT UNSIGNED NOT NULL,
-  attribute_name VARCHAR(100) NOT NULL,
-  extra_price DOUBLE DEFAULT 0,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
-  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: PRODUCT VARIANT
-============================================================================================= */
-
-CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
-CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute_value_id);
-CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
-
-/* =============================================================================================
-  INITIAL VALUES: PRODUCT VARIANT
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-/* =============================================================================================
-  TABLE: PRODUCT PRICELIST
-============================================================================================= */
-
-DROP TABLE IF EXISTS product_pricelist;
-
-CREATE TABLE product_pricelist (
-  product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  product_variant_id INT UNSIGNED NULL,
-  rule_type ENUM('Add-On','Discount') DEFAULT 'Discount',
-  pricelist_computation ENUM('Fixed','Percentage') DEFAULT 'Percentage',
-  pricelist_rate DECIMAL(5,2) DEFAULT 0, 
-  validity_start_date DATE NOT NULL,
-  validity_end_date DATE,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: PRODUCT VARIANT
-============================================================================================= */
-
-CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
-CREATE INDEX idx_product_pricelist_product_variant_id ON product_pricelist(product_variant_id);
-CREATE INDEX idx_product_pricelist_validity_start_date ON product_pricelist(validity_start_date);
-CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validity_end_date);
-CREATE INDEX idx_product_pricelist_rule_type ON product_pricelist(rule_type);
-CREATE INDEX idx_product_pricelist_pricelist_computation ON product_pricelist(pricelist_computation);
-
-/* =============================================================================================
-  INITIAL VALUES: PRODUCT VARIANT
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
+  INITIAL VALUES: PRODUCT CATEGORY MAP
 ============================================================================================= */
 
 

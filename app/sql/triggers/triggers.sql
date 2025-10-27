@@ -2796,6 +2796,18 @@ BEGIN
     IF NEW.attribute_name <> OLD.attribute_name THEN
         SET audit_log = CONCAT(audit_log, "Attribute Name: ", OLD.attribute_name, " -> ", NEW.attribute_name, "<br/>");
     END IF;
+
+    IF NEW.attribute_description <> OLD.attribute_description THEN
+        SET audit_log = CONCAT(audit_log, "Attribute Description: ", OLD.attribute_description, " -> ", NEW.attribute_description, "<br/>");
+    END IF;
+
+    IF NEW.variant_creation <> OLD.variant_creation THEN
+        SET audit_log = CONCAT(audit_log, "Variant Creation: ", OLD.variant_creation, " -> ", NEW.variant_creation, "<br/>");
+    END IF;
+
+    IF NEW.display_type <> OLD.display_type THEN
+        SET audit_log = CONCAT(audit_log, "Display Type: ", OLD.display_type, " -> ", NEW.display_type, "<br/>");
+    END IF;
     
     IF audit_log <> 'Attribute changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -3195,6 +3207,10 @@ BEGIN
 
     IF NEW.warehouse_type_name <> OLD.warehouse_type_name THEN
         SET audit_log = CONCAT(audit_log, "Warehouse Type: ", OLD.warehouse_type_name, " -> ", NEW.warehouse_type_name, "<br/>");
+    END IF;
+
+    IF NEW.is_main_branch <> OLD.is_main_branch THEN
+        SET audit_log = CONCAT(audit_log, "Is Main Branch: ", OLD.is_main_branch, " -> ", NEW.is_main_branch, "<br/>");
     END IF;
 
     IF NEW.warehouse_status <> OLD.warehouse_status THEN

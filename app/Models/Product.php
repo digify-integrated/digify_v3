@@ -33,14 +33,14 @@ class Product extends Model {
         return $row['new_product_id'] ?? null;
     }
 
-    public function insertProductCategories(
+    public function insertProductCategoryMap(
         $p_product_id,
         $p_product_name,
         $p_category_id,
         $p_category_name,
         $p_last_log_by
     )    {
-        $sql = 'CALL insertProductCategories(
+        $sql = 'CALL insertProductCategoryMap(
             :p_product_id,
             :p_product_name,
             :p_category_id,
@@ -272,10 +272,10 @@ class Product extends Model {
         ]);
     }
 
-    public function fetchProductCategories(
+    public function fetchProductCategoryMap(
         $p_product_id
     ) {
-        $sql = 'CALL fetchProductCategories(
+        $sql = 'CALL fetchProductCategoryMap(
             :p_product_id
         )';
         
@@ -315,10 +315,10 @@ class Product extends Model {
         ]);
     }
 
-    public function deleteProductCategories(
+    public function deleteProductCategoryMap(
         $p_product_id
     ) {
-        $sql = 'CALL deleteProductCategories(
+        $sql = 'CALL deleteProductCategoryMap(
             :p_product_id
         )';
         

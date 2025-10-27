@@ -5,10 +5,14 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {    
     $('#attribute_form').validate({
         rules: {
-            attribute_name: { required: true }
+            attribute_name: { required: true },
+            variant_creation: { required: true },
+            display_type: { required: true }
         },
         messages: {
-            attribute_name: { required: 'Enter the display name' }
+            attribute_name: { required: 'Enter the display name' },
+            variant_creation: { required: 'Choose the variant creation' },
+            display_type: { required: 'Choose the display type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

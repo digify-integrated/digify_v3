@@ -12,18 +12,27 @@ class Attribute extends Model {
     public function saveAttribute(
         $p_attribute_id,
         $p_attribute_name,
+        $p_attribute_description,
+        $p_variant_creation,
+        $p_display_type,
         $p_last_log_by
     )    {
         $sql = 'CALL saveAttribute(
             :p_attribute_id,
             :p_attribute_name,
+            :p_attribute_description,
+            :p_variant_creation,
+            :p_display_type,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
-            'p_attribute_id'    => $p_attribute_id,
-            'p_attribute_name'  => $p_attribute_name,
-            'p_last_log_by'     => $p_last_log_by
+            'p_attribute_id'            => $p_attribute_id,
+            'p_attribute_name'          => $p_attribute_name,
+            'p_attribute_description'   => $p_attribute_description,
+            'p_variant_creation'        => $p_variant_creation,
+            'p_display_type'            => $p_display_type,
+            'p_last_log_by'             => $p_last_log_by
         ]);
 
         return $row['new_attribute_id'] ?? null;
@@ -151,10 +160,19 @@ class Attribute extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-    public function generateAttributeTable() {
-        $sql = 'CALL generateAttributeTable()';
+    public function generateAttributeTable(
+        $p_filter_by_variant_creation,
+        $p_filter_by_display_type
+    ) {
+        $sql = 'CALL generateAttributeTable(
+            :p_filter_by_variant_creation,
+            :p_filter_by_display_type
+        )';
         
-        return $this->fetchAll($sql);
+        return $this->fetchAll($sql, [
+            'p_filter_by_variant_creation'  => $p_filter_by_variant_creation,
+            'p_filter_by_display_type'      => $p_filter_by_display_type
+        ]);
     }
 
     public function generateAttributeValueTable(
