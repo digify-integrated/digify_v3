@@ -7196,6 +7196,10 @@ CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
   INITIAL VALUES: PRODUCT TAX
 ============================================================================================= */
 
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
 
 
 /* =============================================================================================
@@ -7229,6 +7233,10 @@ CREATE INDEX idx_product_category_map_category_id ON product_category_map(produc
   INITIAL VALUES: PRODUCT CATEGORY MAP
 ============================================================================================= */
 
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
 
 
 /* =============================================================================================
@@ -7260,6 +7268,118 @@ CREATE INDEX idx_product_category_map_category_id ON product_category_map(produc
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT CATEGORY MAP
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT ATTIBUTE
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_attribute;
+
+CREATE TABLE product_attribute (
+  product_attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  attribute_id INT UNSIGNED NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT ATTIBUTE
+============================================================================================= */
+
+CREATE INDEX idx_product_attribute_product_id ON product_attribute(product_id);
+CREATE INDEX idx_product_attribute_attribute_id ON product_attribute(attribute_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT ATTIBUTE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT ATTIBUTE VALUE
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_attribute_value;
+
+CREATE TABLE product_attribute_value (
+  product_attribute_value_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  attribute_id INT UNSIGNED NOT NULL,
+  attribute_value_id INT UNSIGNED NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT ATTIBUTE VALUE
+============================================================================================= */
+
+CREATE INDEX idx_product_attribute_value_product_id ON product_attribute(product_id);
+CREATE INDEX idx_product_attribute_value_attribute_id ON product_attribute(attribute_id);
+CREATE INDEX idx_product_attribute_value_attribute_value_id ON product_attribute(attribute_value_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT ATTIBUTE VALUE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT ADDON
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_addon;
+
+CREATE TABLE product_addon (
+  product_addon_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  attribute_id INT UNSIGNED NOT NULL,
+  attribute_value_id INT UNSIGNED NOT NULL,
+  price_adjustment DECIMAL(10,2) DEFAULT 0.00,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT ADDON
+============================================================================================= */
+
+CREATE INDEX idx_product_addon_product_id ON product_attribute(product_id);
+CREATE INDEX idx_product_addon_attribute_id ON product_attribute(attribute_id);
+CREATE INDEX idx_product_addon_attribute_value_id ON product_attribute(attribute_value_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT ADDON
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
 ============================================================================================= */
 
 
