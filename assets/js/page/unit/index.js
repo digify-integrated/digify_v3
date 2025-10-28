@@ -5,19 +5,18 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
-        selector: '#product-category-table',
-        ajaxUrl: './app/Controllers/ProductCategoryController.php',
-        transaction: 'generate product category table',
+        selector: '#unit-table',
+        ajaxUrl: './app/Controllers/UnitController.php',
+        transaction: 'generate unit table',
         ajaxData: {
-            parent_category_filter: $('#parent_category_filter').val(),
-            costing_method_filter: $('#costing_method_filter').val()
+            unit_type_filter: $('#unit_type_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'PRODUCT_CATEGORY_NAME' },
-            { data: 'PARENT_CATEGORY_NAME' },
-            { data: 'COSTING_METHOD' },
-            { data: 'DISPLAY_ORDER' }
+            { data: 'UNIT_NAME' },
+            { data: 'UNIT_ABBREVIATION' },
+            { data: 'UNIT_TYPE_NAME' },
+            { data: 'RATIO_TO_BASE' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -30,15 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
-
+    
     generateDropdownOptions({
-        url: './app/Controllers/ProductCategoryController.php',
-        dropdownSelector: '#parent_category_filter',
-        data: { transaction: 'generate product category options' , multiple : true }
+        url: './app/Controllers/UnitTypeController.php',
+        dropdownSelector: '#unit_type_filter',
+        data: { transaction: 'generate unit type options', multiple : true }
     });
-        
-    initializeDatatableControls('#product-category-table');
-    initializeExportFeature('product_category');
+
+    initializeDatatableControls('#unit-table');
+    initializeExportFeature('unit');
     initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
@@ -47,26 +46,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#parent_category_filter').val(null).trigger('change');
-            $('#costing_method_filter').val(null).trigger('change');
+            $('#unit_type_filter').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
-        if (event.target.closest('#delete-product-category')){
-            const transaction           = 'delete multiple product category';
-            const product_category_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                                .filter(el => el.checked)
-                                                .map(el => el.value);
+        if (event.target.closest('#delete-unit')){
+            const transaction   = 'delete multiple unit';
+            const unit_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
 
-            if (product_category_id.length === 0) {
-                showNotification('Deletion Multiple Product Categories Error', 'Please select the categories you wish to delete.', 'error');
+            if (unit_id.length === 0) {
+                showNotification('Deletion Multiple Units Error', 'Please select the units you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple Product Categories Deletion',
-                text: 'Are you sure you want to delete these categories?',
+                title: 'Confirm Multiple Units Deletion',
+                text: 'Are you sure you want to delete these units?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -78,28 +76,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 buttonsStyling: false
             });
 
-            if (!result.isConfirmed) return;
+            if (!result.value) return;
 
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                product_category_id.forEach(id => formData.append('product_category_id[]', id));
+                unit_id.forEach(id => formData.append('unit_id[]', id));
 
-                const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+                const response = await fetch('./app/Controllers/UnitController.php', {
                     method: 'POST',
                     body: formData
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Deletion failed with status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
 
                 const data = await response.json();
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    reloadDatatable('#product-category-table');
-                }
+                    reloadDatatable('#unit-table');
+                } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
                     window.location.href = data.redirect_link;
@@ -108,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete units: ${error.message}`);
             }
         }
     });

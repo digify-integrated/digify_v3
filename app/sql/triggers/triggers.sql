@@ -2984,6 +2984,10 @@ BEGIN
     IF NEW.costing_method <> OLD.costing_method THEN
         SET audit_log = CONCAT(audit_log, "Costing Method: ", OLD.costing_method, " -> ", NEW.costing_method, "<br/>");
     END IF;
+
+    IF NEW.display_order <> OLD.display_order THEN
+        SET audit_log = CONCAT(audit_log, "Display Order: ", OLD.display_order, " -> ", NEW.display_order, "<br/>");
+    END IF;
     
     IF audit_log <> 'Product category changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -3242,28 +3246,28 @@ END //
 
 
 /* =============================================================================================
-   TRIGGER: UOM CATEGORY
+   TRIGGER: UOM TYPE
 ============================================================================================= */
 
 /* =============================================================================================
    SECTION 1: UPDATE TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_uom_category_update//
+DROP TRIGGER IF EXISTS trg_unit_type_update//
 
-CREATE TRIGGER trg_uom_category_update
-AFTER UPDATE ON uom_category
+CREATE TRIGGER trg_unit_type_update
+AFTER UPDATE ON unit_type
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Unit of measurement category changed.<br/><br/>';
+    DECLARE audit_log TEXT DEFAULT 'Unit type changed.<br/><br/>';
 
-    IF NEW.uom_category_name <> OLD.uom_category_name THEN
-        SET audit_log = CONCAT(audit_log, "Unit of Measurement Category Name: ", OLD.uom_category_name, " -> ", NEW.uom_category_name, "<br/>");
+    IF NEW.unit_type_name <> OLD.unit_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit Type Name: ", OLD.unit_type_name, " -> ", NEW.unit_type_name, "<br/>");
     END IF;
     
-    IF audit_log <> 'Unit of measurement category changed.<br/><br/>' THEN
+    IF audit_log <> 'Unit type changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('uom_category', NEW.uom_category_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('unit_type', NEW.unit_type_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -3271,16 +3275,16 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_uom_category_insert//
+DROP TRIGGER IF EXISTS trg_unit_type_insert//
 
-CREATE TRIGGER trg_uom_category_insert
-AFTER INSERT ON uom_category
+CREATE TRIGGER trg_unit_type_insert
+AFTER INSERT ON unit_type
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Unit of measurement category created.';
+    DECLARE audit_log TEXT DEFAULT 'Unit type created.';
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('uom_category', NEW.uom_category_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('unit_type', NEW.unit_type_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================
@@ -3297,33 +3301,33 @@ END //
    SECTION 1: UPDATE TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_uom_update//
+DROP TRIGGER IF EXISTS trg_unit_update//
 
-CREATE TRIGGER trg_uom_update
-AFTER UPDATE ON uom
+CREATE TRIGGER trg_unit_update
+AFTER UPDATE ON unit
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Unit of measurement changed.<br/><br/>';
+    DECLARE audit_log TEXT DEFAULT 'Unit changed.<br/><br/>';
 
-    IF NEW.uom_name <> OLD.uom_name THEN
-        SET audit_log = CONCAT(audit_log, "Unit of Measurement Name: ", OLD.uom_name, " -> ", NEW.uom_name, "<br/>");
+    IF NEW.unit_name <> OLD.unit_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit Name: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
     END IF;
 
-    IF NEW.uom_abbreviation <> OLD.uom_abbreviation THEN
-        SET audit_log = CONCAT(audit_log, "Unit of Measurement Abbreviation: ", OLD.uom_abbreviation, " -> ", NEW.uom_abbreviation, "<br/>");
+    IF NEW.unit_abbreviation <> OLD.unit_abbreviation THEN
+        SET audit_log = CONCAT(audit_log, "Unit Abbreviation: ", OLD.unit_abbreviation, " -> ", NEW.unit_abbreviation, "<br/>");
     END IF;
 
-    IF NEW.uom_category_name <> OLD.uom_category_name THEN
-        SET audit_log = CONCAT(audit_log, "Unit of Measurement Category: ", OLD.uom_category_name, " -> ", NEW.uom_category_name, "<br/>");
+    IF NEW.unit_type_name <> OLD.unit_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit Type: ", OLD.unit_type_name, " -> ", NEW.unit_type_name, "<br/>");
     END IF;
 
     IF NEW.ratio_to_base <> OLD.ratio_to_base THEN
         SET audit_log = CONCAT(audit_log, "Ratio to Base: ", OLD.ratio_to_base, " -> ", NEW.ratio_to_base, "<br/>");
     END IF;
     
-    IF audit_log <> 'Unit of measurement changed.<br/><br/>' THEN
+    IF audit_log <> 'Unit changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('uom', NEW.uom_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('unit', NEW.unit_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -3331,16 +3335,16 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_uom_insert//
+DROP TRIGGER IF EXISTS trg_unit_insert//
 
-CREATE TRIGGER trg_uom_insert
-AFTER INSERT ON uom
+CREATE TRIGGER trg_unit_insert
+AFTER INSERT ON unit
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Unit of measurement created.';
+    DECLARE audit_log TEXT DEFAULT 'Unit created.';
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('uom', NEW.uom_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('unit', NEW.unit_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================
@@ -3385,6 +3389,30 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
 
+    IF NEW.unit_name <> OLD.unit_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
+    END IF;
+
+    IF NEW.unit_abbreviation <> OLD.unit_abbreviation THEN
+        SET audit_log = CONCAT(audit_log, "Unit Abbreviation: ", OLD.unit_abbreviation, " -> ", NEW.unit_abbreviation, "<br/>");
+    END IF;
+
+    IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
+        SET audit_log = CONCAT(audit_log, "Quantity On Hand: ", OLD.quantity_on_hand, " -> ", NEW.quantity_on_hand, "<br/>");
+    END IF;
+
+    IF NEW.cost <> OLD.cost THEN
+        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
+    END IF;
+
+    IF NEW.sales_price <> OLD.sales_price THEN
+        SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
+    END IF;
+
+    IF NEW.is_variant <> OLD.is_variant THEN
+        SET audit_log = CONCAT(audit_log, "Is Variant: ", OLD.is_variant, " -> ", NEW.is_variant, "<br/>");
+    END IF;
+
     IF NEW.is_sellable <> OLD.is_sellable THEN
         SET audit_log = CONCAT(audit_log, "Is Sellable: ", OLD.is_sellable, " -> ", NEW.is_sellable, "<br/>");
     END IF;
@@ -3395,18 +3423,6 @@ BEGIN
 
     IF NEW.show_on_pos <> OLD.show_on_pos THEN
         SET audit_log = CONCAT(audit_log, "Show on POS: ", OLD.show_on_pos, " -> ", NEW.show_on_pos, "<br/>");
-    END IF;
-
-    IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
-        SET audit_log = CONCAT(audit_log, "Quantity On Hand: ", OLD.quantity_on_hand, " -> ", NEW.quantity_on_hand, "<br/>");
-    END IF;
-
-    IF NEW.sales_price <> OLD.sales_price THEN
-        SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
-    END IF;
-
-    IF NEW.cost <> OLD.cost THEN
-        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
     END IF;
     
     IF NEW.weight <> OLD.weight THEN

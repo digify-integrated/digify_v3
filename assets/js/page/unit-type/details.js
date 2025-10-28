@@ -1,23 +1,23 @@
-import { disableButton, enableButton, resetForm, generateDropdownOptions } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
 import { attachLogNotesHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const page_link             = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-    const product_category_id   = document.getElementById('details-id')?.textContent.trim();
+    const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const unit_type_id   = document.getElementById('details-id')?.textContent.trim();
 
     const displayDetails = async () => {
-        const transaction = 'fetch product category details';
+        const transaction = 'fetch unit type details';
 
         try {
-            resetForm('product_category_form');
+            resetForm('unit_type_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('product_category_id', product_category_id);
+            formData.append('unit_type_id', unit_type_id);
 
-            const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+            const response = await fetch('./app/Controllers/UnitTypeController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -29,11 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('product_category_name').value = data.productCategoryName || '';
-
-                $('#parent_category_id').val(data.parentCategoryId || '').trigger('change');
-                $('#costing_method').val(data.costingMethod || '').trigger('change');
-                $('#display_order').val(data.displayOrder || '').trigger('change');
+                document.getElementById('unit_type_name').value = data.unitTypeName || '';
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -47,32 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    (async () => {
-        await generateDropdownOptions({
-            url: './app/Controllers/ProductCategoryController.php',
-            dropdownSelector: '#parent_category_id',
-            data: { 
-                transaction: 'generate parent category options', 
-                product_category_id: product_category_id
-            }
-        });
-    
-        await displayDetails();
-    })();
-
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'product_category');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'unit_type');
     displayDetails();
 
-    $('#product_category_form').validate({
+    $('#unit_type_form').validate({
         rules: {
-            product_category_name: { required: true },
-            costing_method: { required: true },
-            display_order: { required: true }
+            unit_type_name: { required: true }
         },
         messages: {
-            product_category_name: { required: 'Enter the display name' },
-            costing_method: { required: 'Choose the costing method' },
-            display_order: { required: 'Enter the display order' }
+            unit_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -94,22 +73,22 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction = 'save product category';
+            const transaction = 'save unit type';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('product_category_id', product_category_id);
+            formData.append('unit_type_id', unit_type_id);
 
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+                const response = await fetch('./app/Controllers/UnitTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save product category failed with status: ${response.status}`);
+                    throw new Error(`Save unit type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -136,13 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-product-category')) return;
+        if (!event.target.closest('#delete-unit-type')) return;
 
-        const transaction = 'delete product category';
+        const transaction = 'delete unit type';
 
         const result = await Swal.fire({
-            title: 'Confirm Product Category Deletion',
-            text: 'Are you sure you want to delete this product category?',
+            title: 'Confirm Unit Type Deletion',
+            text: 'Are you sure you want to delete this unit type?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -158,9 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('product_category_id', product_category_id);
+                formData.append('unit_type_id', unit_type_id);
 
-                const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+                const response = await fetch('./app/Controllers/UnitTypeController.php', {
                     method: 'POST',
                     body: formData
                 });

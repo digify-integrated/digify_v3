@@ -6823,6 +6823,7 @@ CREATE TABLE product_category (
   parent_category_id INT UNSIGNED NULL,
   parent_category_name VARCHAR(100) NOT NULL,
   costing_method ENUM('Average Cost','First In First Out', 'Standard Price') DEFAULT 'Standard Price',
+  display_order INT DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6980,14 +6981,14 @@ CREATE INDEX idx_warehouse_warehouse_status ON warehouse(warehouse_status);
 
 
 /* =============================================================================================
-  TABLE: UOM CATEGORY
+  TABLE: UNIT TYPE
 ============================================================================================= */
 
-DROP TABLE IF EXISTS uom_category;
+DROP TABLE IF EXISTS unit_type;
 
-CREATE TABLE uom_category (
-  uom_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  uom_category_name VARCHAR(100) NOT NULL,
+CREATE TABLE unit_type (
+  unit_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  unit_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -6995,11 +6996,24 @@ CREATE TABLE uom_category (
 );
 
 /* =============================================================================================
-  INDEX: UOM CATEGORY
+  INDEX: UNIT TYPE
 ============================================================================================= */
 
+INSERT INTO unit_type (unit_type_name)
+VALUES
+  ('Weight'),
+  ('Volume'),
+  ('Length'),
+  ('Area'),
+  ('Quantity'),
+  ('Temperature'),
+  ('Time'),
+  ('Pack Size'),
+  ('Dosage'),
+  ('Piece Count');
+
 /* =============================================================================================
-  INITIAL VALUES: UOM CATEGORY
+  INITIAL VALUES: UNIT TYPE
 ============================================================================================= */
 
 /* =============================================================================================
@@ -7009,34 +7023,81 @@ CREATE TABLE uom_category (
 
 
 /* =============================================================================================
-  TABLE: UOM
+  TABLE: UNIT
 ============================================================================================= */
 
-DROP TABLE IF EXISTS uom;
+DROP TABLE IF EXISTS unit;
 
-CREATE TABLE uom (
-  uom_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  uom_name VARCHAR(100) NOT NULL,
-  uom_abbreviation VARCHAR(20),
-  uom_category_id INT UNSIGNED NOT NULL,
-  uom_category_name VARCHAR(100) NOT NULL,
+CREATE TABLE unit (
+  unit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  unit_name VARCHAR(100) NOT NULL,
+  unit_abbreviation VARCHAR(20),
+  unit_type_id INT UNSIGNED NOT NULL,
+  unit_type_name VARCHAR(100) NOT NULL,
   ratio_to_base DECIMAL(15,6) DEFAULT 1,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (uom_category_id) REFERENCES uom_category(uom_category_id),
+  FOREIGN KEY (unit_type_id) REFERENCES unit_type(unit_type_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
 /* =============================================================================================
-  INDEX: UOM
+  INDEX: UNIT
 ============================================================================================= */
 
-CREATE INDEX idx_uom_uom_category_id ON uom(uom_category_id);
+CREATE INDEX idx_unit_unit_type_id ON unit(unit_type_id);
 
 /* =============================================================================================
-  INITIAL VALUES: UOM
+  INITIAL VALUES: UNIT
 ============================================================================================= */
+
+INSERT INTO unit (unit_name, unit_abbreviation, unit_type_id, unit_type_name, ratio_to_base)
+VALUES
+  ('Milligram', 'mg', 1, 'Weight', 0.001),
+  ('Gram', 'g', 1, 'Weight', 1),
+  ('Kilogram', 'kg', 1, 'Weight', 1000),
+  ('Pound', 'lb', 1, 'Weight', 453.592),
+  ('Ounce', 'oz', 1, 'Weight', 28.3495),
+  ('Milliliter', 'mL', 2, 'Volume', 1),
+  ('Liter', 'L', 2, 'Volume', 1000),
+  ('Cubic Centimeter', 'cc', 2, 'Volume', 1),
+  ('Gallon', 'gal', 2, 'Volume', 3785.41),
+  ('Pint', 'pt', 2, 'Volume', 473.176),
+  ('Millimeter', 'mm', 3, 'Length', 0.1),
+  ('Centimeter', 'cm', 3, 'Length', 1),
+  ('Meter', 'm', 3, 'Length', 100),
+  ('Inch', 'in', 3, 'Length', 2.54),
+  ('Foot', 'ft', 3, 'Length', 30.48),
+  ('Square Centimeter', 'cm²', 4, 'Area', 0.0001),
+  ('Square Meter', 'm²', 4, 'Area', 1),
+  ('Square Foot', 'ft²', 4, 'Area', 0.092903),
+  ('Acre', 'ac', 4, 'Area', 4046.86),
+  ('Piece', 'pc', 5, 'Quantity', 1),
+  ('Dozen', 'dz', 5, 'Quantity', 12),
+  ('Pair', 'pair', 5, 'Quantity', 2),
+  ('Pack', 'pack', 5, 'Quantity', 1),
+  ('Box', 'box', 5, 'Quantity', 1),
+  ('Celsius', '°C', 6, 'Temperature', 1),
+  ('Fahrenheit', '°F', 6, 'Temperature', 1),
+  ('Kelvin', 'K', 6, 'Temperature', 1),
+  ('Second', 's', 7, 'Time', 1),
+  ('Minute', 'min', 7, 'Time', 60),
+  ('Hour', 'h', 7, 'Time', 3600),
+  ('Day', 'd', 7, 'Time', 86400),
+  ('Single', '1x', 8, 'Pack Size', 1),
+  ('6-Pack', '6x', 8, 'Pack Size', 6),
+  ('12-Pack', '12x', 8, 'Pack Size', 12),
+  ('24-Pack', '24x', 8, 'Pack Size', 24),
+  ('Tablet', 'tab', 9, 'Dosage', 1),
+  ('Capsule', 'cap', 9, 'Dosage', 1),
+  ('Syringe', 'syr', 9, 'Dosage', 1),
+  ('Drop', 'gtt', 9, 'Dosage', 0.05),
+  ('Each', 'ea', 10, 'Piece Count', 1),
+  ('Set', 'set', 10, 'Piece Count', 1),
+  ('Bundle', 'bndl', 10, 'Piece Count', 1),
+  ('Roll', 'roll', 10, 'Piece Count', 1),
+  ('Case', 'case', 10, 'Piece Count', 1);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -7056,11 +7117,11 @@ CREATE TABLE product (
   product_description VARCHAR(1000),
   product_image VARCHAR(500),
   product_type ENUM('Goods','Services','Combo') DEFAULT 'Goods',
-  parent_product_id INT UNSIGNED NULL,
   sku VARCHAR(200) UNIQUE,
   barcode VARCHAR(200) UNIQUE,
-  uom_id INT UNSIGNED,
-  purchase_uom_id INT UNSIGNED,
+  unit_id INT UNSIGNED,
+  unit_name VARCHAR(100) NOT NULL,
+  unit_abbreviation VARCHAR(20),
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   cost DECIMAL(15,4) DEFAULT 0,
   sales_price DECIMAL(15,4) DEFAULT 0,
@@ -7076,12 +7137,9 @@ CREATE TABLE product (
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
-  FOREIGN KEY (uom_id) REFERENCES uom(uom_id),
-  FOREIGN KEY (purchase_uom_id) REFERENCES uom(uom_id),
+  FOREIGN KEY (unit_id) REFERENCES unit(unit_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
-
 
 /* =============================================================================================
   INDEX: PRODUCT
@@ -7090,8 +7148,7 @@ CREATE TABLE product (
 CREATE INDEX idx_product_product_type ON product(product_type);
 CREATE INDEX idx_product_barcode ON product(barcode);
 CREATE INDEX idx_product_sku ON product(sku);
-CREATE INDEX idx_product_uom_id ON product(uom_id);
-CREATE INDEX idx_product_purchase_uom_id ON product(purchase_uom_id);
+CREATE INDEX idx_product_unit_id ON product(unit_id);
 CREATE INDEX idx_product_is_variant ON product(is_variant);
 CREATE INDEX idx_product_is_sellable ON product(is_sellable);
 CREATE INDEX idx_product_is_purchasable ON product(is_purchasable);
@@ -7149,6 +7206,39 @@ DROP TABLE IF EXISTS product_category_map;
 
 CREATE TABLE product_category_map (
   product_category_map_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  product_category_id INT UNSIGNED NOT NULL,
+  product_category_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT CATEGORY MAP
+============================================================================================= */
+
+CREATE INDEX idx_product_category_map_product_id ON product_category_map(product_id);
+CREATE INDEX idx_product_category_map_category_id ON product_category_map(product_category_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT CATEGORY MAP
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT VARIATION
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_variation;
+
+CREATE TABLE product_variation (
+  product_variation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
   product_category_id INT UNSIGNED NOT NULL,

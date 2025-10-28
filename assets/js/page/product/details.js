@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#product_name').val(data.productName || '');
                 $('#product_description').val(data.productDescription || '');
                 $('#sales_price').val(data.salesPrice || 0);
-                $('#discount_rate').val(data.discountRate || 0);
+                $('#cost').val(data.cost || 0);
                 $('#sku').val(data.sku || '');
                 $('#barcode').val(data.barcode || '');
                 $('#quantity_on_hand').val(data.quantityOnHand || 0);
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#length').val(data.length || 0);
 
                 $('#product_type').val(data.productType || '').trigger('change');
-                $('#discount_type').val(data.discountType || '').trigger('change');
+                $('#unit_id').val(data.unitId || '').trigger('change');
 
                 document.getElementById('is-sellable').checked = data.isSellable === 'Yes';
                 document.getElementById('is-purchasable').checked = data.isPurchasable === 'Yes';
@@ -133,24 +133,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async () => {
         const dropdownConfigs = [
-            { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options' },
-            { url: './app/Controllers/TaxController.php', selector: '#sales_tax_id', transaction: 'generate sales tax options' },
-            { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options' }
+            { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options', extraData: { multiple: true } },
+            { url: './app/Controllers/TaxController.php', selector: '#sales_tax_id', transaction: 'generate sales tax options', extraData: { multiple: true } },
+            { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options', extraData: { multiple: true } },
+            { url: './app/Controllers/AttributeController.php', selector: '#attribute_value_id', transaction: 'generate attribute value options' },
+            { url: './app/Controllers/UnitController.php', selector: '#unit_id', transaction: 'generate unit options' }
         ];
             
         for (const cfg of dropdownConfigs) {
             await generateDropdownOptions({
                 url: cfg.url,
                 dropdownSelector: cfg.selector,
-                data: { transaction: cfg.transaction, multiple: true }
+                 data: { 
+                    transaction: cfg.transaction, 
+                    ...(cfg.extraData || {})
+                }
             });
         }
-
-        await generateDropdownOptions({
-            url: './app/Controllers/AttributeController.php',
-            dropdownSelector: '#attribute_value_id',
-            data: { transaction: 'generate attribute value options' }
-        });
     
         await displayDetails();
         await displayProductCategoriesDetails();
@@ -289,10 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#product_pricing_form').validate({
         rules: {
-            sales_price: { required: true }
+            sales_price: { required: true },
+            cost: { required: true }
         },
         messages: {
-            sales_price: { required: 'Enter the sales price' }
+            sales_price: { required: 'Enter the sales price' },
+            cost: { required: 'Enter the cost' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -359,12 +360,14 @@ document.addEventListener('DOMContentLoaded', () => {
             barcode: { required: true },
             product_type: { required: true },
             quantity_on_hand: { required: true },
+            unit_id: { required: true }
         },
         messages: {
             sku: { required: 'Enter the SKU' },
             barcode: { required: 'Enter the barcode' },
             product_type: { required: 'Choose the product type' },
             quantity_on_hand: { required: 'Enter the quantity on hand' },
+            unit_id: { required: 'Choose the unit of measurement' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

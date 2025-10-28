@@ -7,6 +7,7 @@ session_start();
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Tax;
+use App\Models\Unit;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -19,6 +20,7 @@ class ProductController
     protected Product $product;
     protected ProductCategory $productCategory;
     protected Tax $tax;
+    protected Unit $unit;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -28,6 +30,7 @@ class ProductController
         Product $product,
         ProductCategory $productCategory,
         Tax $tax,
+        Unit $unit,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -36,6 +39,7 @@ class ProductController
         $this->product          = $product;
         $this->productCategory  = $productCategory;
         $this->tax              = $tax;
+        $this->unit             = $unit;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -204,12 +208,11 @@ class ProductController
 
         $productId          = $_POST['product_id'] ?? null;
         $salesPrice         = $_POST['sales_price'] ?? 0;
-        $discountType       = $_POST['discount_type'] ?? 'None';
-        $discountRate       = $_POST['discount_rate'] ?? 0;
+        $cost               = $_POST['cost'] ?? 0;
         $salesTaxIds        = $_POST['sales_tax_id'] ?? [];
         $purchaseTaxIds     = $_POST['purchase_tax_id'] ?? [];
 
-        $this->product->updateProductPricing($productId, $salesPrice, $discountType, $discountRate, $lastLogBy);
+        $this->product->updateProductPricing($productId, $salesPrice, $cost, $lastLogBy);
 
         $this->product->deleteProductTax($productId);
 
@@ -250,10 +253,15 @@ class ProductController
         $sku                = $_POST['sku'] ?? null;
         $barcode            = $_POST['barcode'] ?? null;
         $productType        = $_POST['product_type'] ?? null;
-        $quantityOnHand     = $_POST['quantity_on_hand'] ?? null;
+        $quantityOnHand     = $_POST['quantity_on_hand'] ?? 0;
+        $unitId             = $_POST['unit_id'] ?? null;
+
+        $unitIdDetails      = $this->unit->fetchUnit($unitId);
+        $unitName           = $unitIdDetails['unit_name'] ?? null;
+        $unitAbbreviation   = $unitIdDetails['unit_abbreviation'] ?? null;
         
         $checkProductSKUExist       = $this->product->checkProductSKUExist($productId, $sku);
-        $totalSKU                   = $checkProcheckProductSKUExistductExist['total'] ?? 0;
+        $totalSKU                   = $checkProductSKUExist['total'] ?? 0;
 
         $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
         $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
@@ -272,7 +280,7 @@ class ProductController
             );
         }
 
-        $this->product->updateProductInventory($productId, $sku, $barcode, $productType, $quantityOnHand, $lastLogBy);
+        $this->product->updateProductInventory($productId, $sku, $barcode, $productType, $quantityOnHand, $unitId, $unitName, $unitAbbreviation, $lastLogBy);
 
         $this->systemHelper->sendSuccessResponse(
             'Update Product Success',
@@ -509,16 +517,15 @@ class ProductController
             'productName'           => $productDetails['product_name'] ?? null,
             'productDescription'    => $productDetails['product_description'] ?? null,
             'productType'           => $productDetails['product_type'] ?? null,
-            'barcode'               => $productDetails['barcode'] ?? null,
             'sku'                   => $productDetails['sku'] ?? null,
+            'barcode'               => $productDetails['barcode'] ?? null,
+            'unitId'                => $productDetails['unit_id'] ?? null,
             'isSellable'            => $productDetails['is_sellable'] ?? 'Yes',
             'isPurchasable'         => $productDetails['is_purchasable'] ?? 'Yes',
             'showOnPos'             => $productDetails['show_on_pos'] ?? 'Yes',
             'quantityOnHand'        => $productDetails['quantity_on_hand'] ?? 0,
             'salesPrice'            => $productDetails['sales_price'] ?? 0,
             'cost'                  => $productDetails['cost'] ?? 0,
-            'discountType'          => $productDetails['discount_type'] ?? 'None',
-            'discountRate'          => $productDetails['discount_rate'] ?? 0,
             'weight'                => $productDetails['weight'] ?? 0,
             'width'                 => $productDetails['width'] ?? 0,
             'height'                => $productDetails['height'] ?? 0,
@@ -743,6 +750,7 @@ $controller = new ProductController(
     new Product(),
     new ProductCategory(),
     new Tax(),
+    new Unit(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

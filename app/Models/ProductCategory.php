@@ -15,6 +15,7 @@ class ProductCategory extends Model {
         $p_parent_category_id,
         $p_parent_category_name,
         $p_costing_method,
+        $p_display_order,
         $p_last_log_by
     )    {
         $sql = 'CALL saveProductCategory(
@@ -23,6 +24,7 @@ class ProductCategory extends Model {
             :p_parent_category_id,
             :p_parent_category_name,
             :p_costing_method,
+            :p_display_order,
             :p_last_log_by
         )';
 
@@ -32,6 +34,7 @@ class ProductCategory extends Model {
             'p_parent_category_id'      => $p_parent_category_id,
             'p_parent_category_name'    => $p_parent_category_name,
             'p_costing_method'          => $p_costing_method,
+            'p_display_order'           => $p_display_order,
             'p_last_log_by'             => $p_last_log_by
         ]);
 

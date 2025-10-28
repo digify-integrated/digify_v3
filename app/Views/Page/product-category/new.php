@@ -42,6 +42,16 @@
                         </select>
                     </div>
                 </div>
+                
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="display_order">
+                            <span class="required">Display Order</span>
+                        </label>
+
+                        <input type="number" id="display_order" name="display_order" class="form-control mb-2" min="0" step="1"/>
+                    </div>
+                </div>
             </div>
         </form>
     </div>

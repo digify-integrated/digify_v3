@@ -31,16 +31,16 @@
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
                                     if($newRecord){
-                                        require_once './app/Views/Page/contact-information-type/new.php';
+                                        require_once './app/Views/Page/unit-type/new.php';
                                     }
                                     else if(!empty($detailID)){
-                                        require_once './app/Views/Page/contact-information-type/details.php';
+                                        require_once './app/Views/Page/unit-type/details.php';
                                     }
                                     else if(isset($_GET['import']) && !empty($_GET['import'])){
                                         require_once './app/Views/Page/import/import.php';
                                     }
                                     else{
-                                        require_once './app/Views/Page/contact-information-type/index.php';
+                                        require_once './app/Views/Page/unit-type/index.php';
                                     }
                                 ?>
                             </div>
@@ -58,13 +58,13 @@
 
     <?php
         $version = rand();
-        $scriptFile = './assets/js/page/contact-information-type/index.js';
+        $scriptFile = './assets/js/page/unit-type/index.js';
 
         if ($newRecord) {
-            $scriptFile = './assets/js/page/contact-information-type/new.js';
+            $scriptFile = './assets/js/page/unit-type/new.js';
         }
         else if (!empty($detailID)) {
-            $scriptFile = './assets/js/page/contact-information-type/details.js';
+            $scriptFile = './assets/js/page/unit-type/details.js';
         }
         else if (isset($_GET['import']) && !empty($_GET['import'])) {
             $scriptFile = './assets/js/page/import/import.js'; 

@@ -829,10 +829,10 @@ BEGIN
 
     ELSE
         UPDATE notification_setting_email_template
-        SET email_notification_subject = p_email_notification_subject,
-            email_notification_body    = p_email_notification_body,
-            last_log_by                = p_last_log_by
-        WHERE notification_setting_id = p_notification_setting_id;
+        SET email_notification_subject  = p_email_notification_subject,
+            email_notification_body     = p_email_notification_body,
+            last_log_by                 = p_last_log_by
+        WHERE notification_setting_id   = p_notification_setting_id;
     END IF;
 
     COMMIT;
@@ -1821,17 +1821,17 @@ BEGIN
         WHERE parent_id     = p_menu_item_id;
 
         UPDATE menu_item
-        SET menu_item_name  = p_menu_item_name,
-            menu_item_url   = p_menu_item_url,
-            menu_item_icon  = p_menu_item_icon,
-            app_module_id   = p_app_module_id,
-            app_module_name = p_app_module_name,
-            parent_id       = p_parent_id,
-            parent_name     = p_parent_name,
-            table_name      = p_table_name,
-            order_sequence  = p_order_sequence,
-            last_log_by     = p_last_log_by
-        WHERE menu_item_id  = p_menu_item_id;
+        SET menu_item_name      = p_menu_item_name,
+            menu_item_url       = p_menu_item_url,
+            menu_item_icon      = p_menu_item_icon,
+            app_module_id       = p_app_module_id,
+            app_module_name     = p_app_module_name,
+            parent_id           = p_parent_id,
+            parent_name         = p_parent_name,
+            table_name          = p_table_name,
+            order_sequence      = p_order_sequence,
+            last_log_by         = p_last_log_by
+        WHERE menu_item_id      = p_menu_item_id;
         
         SET v_new_menu_item_id = p_menu_item_id;
     END IF;
@@ -8955,6 +8955,10 @@ BEGIN
     END IF;
 
     IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+        
         SET filter_conditions = CONCAT(filter_conditions, ' display_type IN (', p_filter_by_display_type, ')');
     END IF;
 
@@ -9021,6 +9025,7 @@ CREATE PROCEDURE saveProductCategory(
     IN p_parent_category_id INT, 
     IN p_parent_category_name VARCHAR(100), 
     IN p_costing_method ENUM('Average Cost','First In First Out', 'Standard Price'), 
+    IN p_display_order INT, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9039,6 +9044,7 @@ BEGIN
             parent_category_id,
             parent_category_name,
             costing_method,
+            display_order,
             last_log_by
         ) 
         VALUES(
@@ -9046,17 +9052,13 @@ BEGIN
             p_parent_category_id,
             p_parent_category_name,
             p_costing_method,
+            p_display_order,
             p_last_log_by
         );
         
         SET v_new_product_category_id = LAST_INSERT_ID();
     ELSE
-        UPDATE product
-        SET product_category_name   = p_product_category_name,
-            last_log_by             = p_last_log_by
-        WHERE product_category_id   = p_product_category_id;
-
-        UPDATE product_category
+        UPDATE product_category_map
         SET parent_category_name    = p_product_category_name,
             last_log_by             = p_last_log_by
         WHERE parent_category_id    = p_product_category_id;
@@ -9066,6 +9068,7 @@ BEGIN
             parent_category_id      = p_parent_category_id,
             parent_category_name    = p_parent_category_name,
             costing_method          = p_costing_method,
+            display_order           = p_display_order,
             last_log_by             = p_last_log_by
         WHERE product_category_id   = p_product_category_id;
 
@@ -9151,7 +9154,7 @@ BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT product_category_id, product_category_name, parent_category_name, costing_method
+    SET query = 'SELECT product_category_id, product_category_name, parent_category_name, costing_method, display_order
                 FROM product_category';
 
     IF p_filter_by_parent_category IS NOT NULL AND p_filter_by_parent_category <> '' THEN
@@ -9159,6 +9162,10 @@ BEGIN
     END IF;
 
     IF p_filter_by_costing_method IS NOT NULL AND p_filter_by_costing_method <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
         SET filter_conditions = CONCAT(filter_conditions, ' costing_method IN (', p_filter_by_costing_method, ')');
     END IF;
 
@@ -9776,14 +9783,14 @@ BEGIN
         SET v_new_warehouse_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE warehouse
-        SET warehouse_type_name   = p_warehouse_type_name,
-            last_log_by         = p_last_log_by
-        WHERE warehouse_type_id   = p_warehouse_type_id;
+        SET warehouse_type_name     = p_warehouse_type_name,
+            last_log_by             = p_last_log_by
+        WHERE warehouse_type_id     = p_warehouse_type_id;
 
         UPDATE warehouse_type
-        SET warehouse_type_name   = p_warehouse_type_name,
-            last_log_by         = p_last_log_by
-        WHERE warehouse_type_id   = p_warehouse_type_id;
+        SET warehouse_type_name     = p_warehouse_type_name,
+            last_log_by             = p_last_log_by
+        WHERE warehouse_type_id     = p_warehouse_type_id;
 
         SET v_new_warehouse_type_id = p_warehouse_type_id;
     END IF;
@@ -10116,6 +10123,10 @@ BEGIN
     END IF;
 
     IF p_filter_by_city IS NOT NULL AND p_filter_by_city <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
         SET filter_conditions = CONCAT(filter_conditions, ' city_id IN (', p_filter_by_city, ')');
     END IF;
 
@@ -10170,22 +10181,22 @@ END //
 
 
 /* =============================================================================================
-   STORED PROCEDURE: UOM CATEGORY
+   STORED PROCEDURE: UNIT TYPE
 ============================================================================================= */
 
 /* =============================================================================================
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS saveUOMCategory//
+DROP PROCEDURE IF EXISTS saveUnitType//
 
-CREATE PROCEDURE saveUOMCategory(
-    IN p_uom_category_id INT, 
-    IN p_uom_category_name VARCHAR(100), 
+CREATE PROCEDURE saveUnitType(
+    IN p_unit_type_id INT, 
+    IN p_unit_type_name VARCHAR(100), 
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE v_new_uom_category_id INT;
+    DECLARE v_new_unit_type_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -10194,34 +10205,34 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_uom_category_id IS NULL OR NOT EXISTS (SELECT 1 FROM uom_category WHERE uom_category_id = p_uom_category_id) THEN
-        INSERT INTO uom_category (
-            uom_category_name,
+    IF p_unit_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM unit_type WHERE unit_type_id = p_unit_type_id) THEN
+        INSERT INTO unit_type (
+            unit_type_name,
             last_log_by
         ) 
         VALUES(
-            p_uom_category_name,
+            p_unit_type_name,
             p_last_log_by
         );
         
-        SET v_new_uom_category_id = LAST_INSERT_ID();
+        SET v_new_unit_type_id = LAST_INSERT_ID();
     ELSE
-        UPDATE uom
-        SET uom_category_name   = p_uom_category_name,
+        UPDATE unit
+        SET unit_type_name   = p_unit_type_name,
             last_log_by         = p_last_log_by
-        WHERE uom_category_id   = p_uom_category_id;
+        WHERE unit_type_id   = p_unit_type_id;
 
-        UPDATE uom_category
-        SET uom_category_name   = p_uom_category_name,
+        UPDATE unit_type
+        SET unit_type_name   = p_unit_type_name,
             last_log_by         = p_last_log_by
-        WHERE uom_category_id   = p_uom_category_id;
+        WHERE unit_type_id   = p_unit_type_id;
 
-        SET v_new_uom_category_id = p_uom_category_id;
+        SET v_new_unit_type_id = p_unit_type_id;
     END IF;
 
     COMMIT;
 
-    SELECT v_new_uom_category_id AS new_uom_category_id;
+    SELECT v_new_unit_type_id AS new_unit_type_id;
 END //
 
 /* =============================================================================================
@@ -10236,14 +10247,14 @@ END //
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS fetchUOMCategory//
+DROP PROCEDURE IF EXISTS fetchUnitType//
 
-CREATE PROCEDURE fetchUOMCategory(
-    IN p_uom_category_id INT
+CREATE PROCEDURE fetchUnitType(
+    IN p_unit_type_id INT
 )
 BEGIN
-	SELECT * FROM uom_category
-	WHERE uom_category_id = p_uom_category_id
+	SELECT * FROM unit_type
+	WHERE unit_type_id = p_unit_type_id
     LIMIT 1;
 END //
 
@@ -10251,10 +10262,10 @@ END //
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS deleteUOMCategory//
+DROP PROCEDURE IF EXISTS deleteUnitType//
 
-CREATE PROCEDURE deleteUOMCategory(
-    IN p_uom_category_id INT
+CREATE PROCEDURE deleteUnitType(
+    IN p_unit_type_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -10264,7 +10275,7 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM uom_category WHERE uom_category_id = p_uom_category_id;
+    DELETE FROM unit_type WHERE unit_type_id = p_unit_type_id;
 
     COMMIT;
 END //
@@ -10273,37 +10284,37 @@ END //
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS checkUOMCategoryExist//
+DROP PROCEDURE IF EXISTS checkUnitTypeExist//
 
-CREATE PROCEDURE checkUOMCategoryExist(
-    IN p_uom_category_id INT
+CREATE PROCEDURE checkUnitTypeExist(
+    IN p_unit_type_id INT
 )
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM uom_category
-    WHERE uom_category_id = p_uom_category_id;
+    FROM unit_type
+    WHERE unit_type_id = p_unit_type_id;
 END //
 
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS generateUOMCategoryTable//
+DROP PROCEDURE IF EXISTS generateUnitTypeTable//
 
-CREATE PROCEDURE generateUOMCategoryTable()
+CREATE PROCEDURE generateUnitTypeTable()
 BEGIN
-	SELECT uom_category_id, uom_category_name
-    FROM uom_category 
-    ORDER BY uom_category_id;
+	SELECT unit_type_id, unit_type_name
+    FROM unit_type 
+    ORDER BY unit_type_id;
 END //
 
-DROP PROCEDURE IF EXISTS generateUOMCategoryOptions//
+DROP PROCEDURE IF EXISTS generateUnitTypeOptions//
 
-CREATE PROCEDURE generateUOMCategoryOptions()
+CREATE PROCEDURE generateUnitTypeOptions()
 BEGIN
-	SELECT uom_category_id, uom_category_name 
-    FROM uom_category 
-    ORDER BY uom_category_name;
+	SELECT unit_type_id, unit_type_name 
+    FROM unit_type 
+    ORDER BY unit_type_name;
 END //
 
 /* =============================================================================================
@@ -10313,26 +10324,26 @@ END //
 
 
 /* =============================================================================================
-   STORED PROCEDURE: WAREHOUSE
+   STORED PROCEDURE: UNIT
 ============================================================================================= */
 
 /* =============================================================================================
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS saveUOM//
+DROP PROCEDURE IF EXISTS saveUnit//
 
-CREATE PROCEDURE saveUOM(
-    IN p_uom_id INT, 
-    IN p_uom_name VARCHAR(200), 
-    IN p_uom_abbreviation VARCHAR(20), 
-    IN p_uom_category_id INT, 
-    IN p_uom_category_name VARCHAR(100), 
+CREATE PROCEDURE saveUnit(
+    IN p_unit_id INT, 
+    IN p_unit_name VARCHAR(200), 
+    IN p_unit_abbreviation VARCHAR(20), 
+    IN p_unit_type_id INT, 
+    IN p_unit_type_name VARCHAR(100), 
     IN p_ratio_to_base DECIMAL(15,6),
     IN p_last_log_by INT
 )
 BEGIN
-    DECLARE v_new_uom_id INT;
+    DECLARE v_new_unit_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -10341,41 +10352,47 @@ BEGIN
 
     START TRANSACTION;
 
-    IF p_uom_id IS NULL OR NOT EXISTS (SELECT 1 FROM uom WHERE uom_id = p_uom_id) THEN
-        INSERT INTO uom (
-            uom_name,
-            uom_abbreviation,
-            uom_category_id,
-            uom_category_name,
+    IF p_unit_id IS NULL OR NOT EXISTS (SELECT 1 FROM unit WHERE unit_id = p_unit_id) THEN
+        INSERT INTO unit (
+            unit_name,
+            unit_abbreviation,
+            unit_type_id,
+            unit_type_name,
             ratio_to_base,
             last_log_by
         ) 
         VALUES(
-            p_uom_name,
-            p_uom_abbreviation,
-            p_uom_category_id,
-            p_uom_category_name,
+            p_unit_name,
+            p_unit_abbreviation,
+            p_unit_type_id,
+            p_unit_type_name,
             p_ratio_to_base,
             p_last_log_by
         ); 
         
-        SET v_new_uom_id = LAST_INSERT_ID();
+        SET v_new_unit_id = LAST_INSERT_ID();
     ELSE        
-        UPDATE uom
-        SET uom_name            = p_uom_name,
-            uom_abbreviation    = p_uom_abbreviation,
-            uom_category_id     = p_uom_category_id,
-            uom_category_name   = p_uom_category_name,
+        UPDATE product
+        SET unit_name           = p_unit_name,
+            unit_abbreviation   = p_unit_abbreviation,
+            last_log_by         = p_last_log_by
+        WHERE unit_id           = p_unit_id;
+
+        UPDATE unit
+        SET unit_name           = p_unit_name,
+            unit_abbreviation   = p_unit_abbreviation,
+            unit_type_id        = p_unit_type_id,
+            unit_type_name      = p_unit_type_name,
             ratio_to_base       = p_ratio_to_base,
             last_log_by         = p_last_log_by
-        WHERE uom_id            = p_uom_id;
+        WHERE unit_id           = p_unit_id;
 
-        SET v_new_uom_id = p_uom_id;
+        SET v_new_unit_id = p_unit_id;
     END IF;
 
     COMMIT;
 
-    SELECT v_new_uom_id AS new_uom_id;
+    SELECT v_new_unit_id AS new_unit_id;
 END //
 
 /* =============================================================================================
@@ -10390,14 +10407,14 @@ END //
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS fetchUOM//
+DROP PROCEDURE IF EXISTS fetchUnit//
 
-CREATE PROCEDURE fetchUOM(
-    IN p_uom_id INT
+CREATE PROCEDURE fetchUnit(
+    IN p_unit_id INT
 )
 BEGIN
-	SELECT * FROM uom
-	WHERE uom_id = p_uom_id
+	SELECT * FROM unit
+	WHERE unit_id = p_unit_id
     LIMIT 1;
 END //
 
@@ -10405,10 +10422,10 @@ END //
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS deleteUOM//
+DROP PROCEDURE IF EXISTS deleteUnit//
 
-CREATE PROCEDURE deleteUOM(
-    IN p_uom_id INT
+CREATE PROCEDURE deleteUnit(
+    IN p_unit_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -10418,7 +10435,7 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM uom WHERE uom_id = p_uom_id;
+    DELETE FROM unit WHERE unit_id = p_unit_id;
 
     COMMIT;
 END //
@@ -10427,51 +10444,55 @@ END //
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS checkUOMExist//
+DROP PROCEDURE IF EXISTS checkUnitExist//
 
-CREATE PROCEDURE checkUOMExist(
-    IN p_uom_id INT
+CREATE PROCEDURE checkUnitExist(
+    IN p_unit_id INT
 )
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM uom
-    WHERE uom_id = p_uom_id;
+    FROM unit
+    WHERE unit_id = p_unit_id;
 END //
 
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS generateUOMTable//
+DROP PROCEDURE IF EXISTS generateUnitTable//
 
-CREATE PROCEDURE generateUOMTable(
-    IN p_filter_by_uom_category TEXT
+CREATE PROCEDURE generateUnitTable(
+    IN p_filter_by_unit_type TEXT
 )
 BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT uom_id, uom_name, uom_abbreviation, uom_category_name, ratio_to_base 
-                FROM uom ';
+    SET query = 'SELECT unit_id, unit_name, unit_abbreviation, unit_type_name, ratio_to_base 
+                FROM unit ';
 
-    IF p_filter_by_uom_category IS NOT NULL AND p_filter_by_uom_category <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' uom_category_id IN (', p_filter_by_uom_category, ')');
+    IF p_filter_by_unit_type IS NOT NULL AND p_filter_by_unit_type <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' unit_type_id IN (', p_filter_by_unit_type, ')');
     END IF;
 
-    SET query = CONCAT(query, ' ORDER BY uom_name');
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY unit_name');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
-DROP PROCEDURE IF EXISTS generateUOMOptions//
+DROP PROCEDURE IF EXISTS generateUnitOptions//
 
-CREATE PROCEDURE generateUOMOptions()
+CREATE PROCEDURE generateUnitOptions()
 BEGIN
-	SELECT uom_id, uom_name 
-    FROM uom 
-    ORDER BY uom_name;
+	SELECT unit_id, unit_name, unit_type_id, unit_type_name, unit_abbreviation
+    FROM unit 
+    ORDER BY unit_name;
 END //
 
 /* =============================================================================================
@@ -10527,9 +10548,9 @@ BEGIN
     SELECT v_new_product_id AS new_product_id;
 END //
 
-DROP PROCEDURE IF EXISTS insertProductCategories//
+DROP PROCEDURE IF EXISTS insertproductCategoryMap//
 
-CREATE PROCEDURE insertProductCategories(
+CREATE PROCEDURE insertproductCategoryMap(
     IN p_product_id INT, 
     IN p_product_name VARCHAR(100), 
     IN p_product_category_id INT, 
@@ -10544,7 +10565,7 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO product_categories (
+    INSERT INTO product_category_map (
         product_id,
         product_name,
         product_category_id,
@@ -10635,8 +10656,11 @@ CREATE PROCEDURE updateProductInventory(
 	IN p_product_id INT, 
 	IN p_sku VARCHAR(200), 
 	IN p_barcode VARCHAR(200), 
-	IN p_product_type ENUM('Goods','Services'), 
-	IN p_quantity_on_hand INT, 
+	IN p_product_type ENUM('Goods','Services', 'Combo'), 
+	IN p_quantity_on_hand DECIMAL(15,4), 
+	IN p_unit_id INT, 
+	IN p_unit_name VARCHAR(100), 
+	IN p_unit_abbreviation VARCHAR(20), 
 	IN p_last_log_by INT
 )
 BEGIN
@@ -10652,6 +10676,9 @@ BEGIN
         barcode             = p_barcode,
         product_type        = p_product_type,
         quantity_on_hand    = p_quantity_on_hand,
+        unit_id             = p_unit_id,
+        unit_name           = p_unit_name,
+        unit_abbreviation   = p_unit_abbreviation,
         last_log_by         = p_last_log_by
     WHERE product_id        = p_product_id;
 
@@ -10662,7 +10689,8 @@ DROP PROCEDURE IF EXISTS updateProductPricing//
 
 CREATE PROCEDURE updateProductPricing(
 	IN p_product_id INT, 
-	IN p_sales_price DECIMAL(12,2),
+	IN p_sales_price DECIMAL(15,2),
+	IN p_cost DECIMAL(15,2),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -10675,6 +10703,7 @@ BEGIN
 
     UPDATE product
     SET sales_price     = p_sales_price,
+        cost            = p_cost,
         last_log_by     = p_last_log_by
     WHERE product_id    = p_product_id;
 
@@ -10831,13 +10860,13 @@ BEGIN
     LIMIT 1;
 END //
 
-DROP PROCEDURE IF EXISTS fetchProductCategories//
+DROP PROCEDURE IF EXISTS fetchproductCategoryMap//
 
-CREATE PROCEDURE fetchProductCategories(
+CREATE PROCEDURE fetchproductCategoryMap(
 	IN p_product_id INT
 )
 BEGIN
-	SELECT * FROM product_categories
+	SELECT * FROM product_category_map
 	WHERE product_id = p_product_id;
 END //
 
@@ -10856,9 +10885,9 @@ END //
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS deleteProductCategories//
+DROP PROCEDURE IF EXISTS deleteproductCategoryMap//
 
-CREATE PROCEDURE deleteProductCategories(
+CREATE PROCEDURE deleteproductCategoryMap(
     IN p_product_id INT
 )
 BEGIN
@@ -10869,7 +10898,7 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM product_categories 
+    DELETE FROM product_category_map 
     WHERE product_id = p_product_id;
 
     COMMIT;
@@ -10909,6 +10938,8 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+DROP PROCEDURE IF EXISTS checkProductSKUExist//
+
 CREATE PROCEDURE checkProductSKUExist(
 	IN p_product_id INT,
     IN p_sku VARCHAR(200)
@@ -10919,6 +10950,8 @@ BEGIN
     WHERE product_id != p_product_id 
     AND sku = p_sku;
 END //
+
+DROP PROCEDURE IF EXISTS checkProductBarcodeExist//
 
 CREATE PROCEDURE checkProductBarcodeExist(
 	IN p_product_id INT,
@@ -10973,7 +11006,7 @@ BEGIN
     END IF;
 
     IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
-        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_categories WHERE product_category_id IN (', p_filter_by_product_category, '))');
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_category_map WHERE product_category_id IN (', p_filter_by_product_category, '))');
     END IF;
 
     IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN
@@ -11035,7 +11068,7 @@ BEGIN
     END IF;
 
     IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
-        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_categories WHERE product_category_id IN (', p_filter_by_product_category, '))');
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_category_map WHERE product_category_id IN (', p_filter_by_product_category, '))');
     END IF;
 
     IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN

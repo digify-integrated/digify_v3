@@ -115,6 +115,9 @@ class Product extends Model {
         $p_barcode,
         $p_product_type,
         $p_quantity_on_hand,
+        $p_unit_id,
+        $p_unit_name,
+        $p_unit_abbreviation,
         $p_last_log_by
     ) {
         $sql = 'CALL updateProductInventory(
@@ -123,6 +126,9 @@ class Product extends Model {
             :p_barcode,
             :p_product_type,
             :p_quantity_on_hand,
+            :p_unit_id,
+            :p_unit_name,
+            :p_unit_abbreviation,
             :p_last_log_by
         )';
         
@@ -132,6 +138,9 @@ class Product extends Model {
             'p_barcode'             => $p_barcode,
             'p_product_type'        => $p_product_type,
             'p_quantity_on_hand'    => $p_quantity_on_hand,
+            'p_unit_id'             => $p_unit_id,
+            'p_unit_name'           => $p_unit_name,
+            'p_unit_abbreviation'   => $p_unit_abbreviation,
             'p_last_log_by'         => $p_last_log_by
         ]);
     }
@@ -139,23 +148,20 @@ class Product extends Model {
     public function updateProductPricing(
         $p_product_id,
         $p_sales_price,
-        $p_discount_type,
-        $p_discount_rate,
+        $p_cost,
         $p_last_log_by
     ) {
         $sql = 'CALL updateProductPricing(
             :p_product_id,
             :p_sales_price,
-            :p_discount_type,
-            :p_discount_rate,
+            :p_cost,
             :p_last_log_by
         )';
         
         return $this->query($sql, [
             'p_product_id'      => $p_product_id,
             'p_sales_price'     => $p_sales_price,
-            'p_discount_type'   => $p_discount_type,
-            'p_discount_rate'   => $p_discount_rate,
+            'p_cost'            => $p_cost,
             'p_last_log_by'     => $p_last_log_by
         ]);
     }

@@ -98,11 +98,12 @@ class ProductCategoryController
         $productCategoryName    = $_POST['product_category_name'] ?? null;
         $parentCategoryId       = $_POST['parent_category_id'] ?? null;
         $costingMethod          = $_POST['costing_method'] ?? null;
+        $displayOrder           = $_POST['display_order'] ?? 0;
 
         $parentCategoryDetails  = $this->productCategory->fetchProductCategory($parentCategoryId);
         $parentCategoryName     = $parentCategoryDetails['product_category_name'] ?? '';
 
-        $productCategoryId              = $this->productCategory->saveProductCategory($productCategoryId, $productCategoryName, $parentCategoryId, $parentCategoryName, $costingMethod, $lastLogBy);
+        $productCategoryId              = $this->productCategory->saveProductCategory($productCategoryId, $productCategoryName, $parentCategoryId, $parentCategoryName, $costingMethod, $displayOrder, $lastLogBy);
         $encryptedProductCategoryId     = $this->security->encryptData($productCategoryId);
 
         $this->systemHelper->sendSuccessResponse(
@@ -155,7 +156,8 @@ class ProductCategoryController
             'success'               => true,
             'productCategoryName'   => $productCategoryDetails['product_category_name'] ?? null,
             'parentCategoryId'      => $productCategoryDetails['parent_category_id'] ?? null,
-            'costingMethod'      => $productCategoryDetails['costing_method'] ?? null
+            'costingMethod'         => $productCategoryDetails['costing_method'] ?? null,
+            'displayOrder'          => $productCategoryDetails['display_order'] ?? 0
         ];
 
         echo json_encode($response);
@@ -176,6 +178,7 @@ class ProductCategoryController
             $productCategoryName    = $row['product_category_name'];
             $parentCategoryName     = $row['parent_category_name'];
             $costingMethod          = $row['costing_method'];
+            $displayOrder           = $row['display_order'];
 
             $productCategoryIdEncrypted = $this->security->encryptData($productCategoryId);
 
@@ -186,6 +189,7 @@ class ProductCategoryController
                 'PRODUCT_CATEGORY_NAME'     => $productCategoryName,
                 'PARENT_CATEGORY_NAME'      => $parentCategoryName,
                 'COSTING_METHOD'            => $costingMethod,
+                'DISPLAY_ORDER'             => $displayOrder,
                 'LINK'                      => $pageLink .'&id='. $productCategoryIdEncrypted
             ];
         }

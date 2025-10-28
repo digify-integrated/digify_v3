@@ -181,7 +181,7 @@
                             <?= $security->csrfInput('product_general_form'); ?>
                             <div class="mb-10 fv-row">
                                 <label class="required form-label">Product Name</label>
-                                <input type="text" id="product_name" name="product_name" class="form-control mb-2" maxlength="100" <?php echo $disabled; ?>/>
+                                <input type="text" id="product_name" name="product_name" class="form-control mb-2" maxlength="100" autocomplete="off" <?php echo $disabled; ?>/>
                                 <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
                             </div>
                             
@@ -208,42 +208,26 @@
                     <div class="card-body pt-0">
                         <form id="product_pricing_form" class="form" method="post" action="#">
                             <?= $security->csrfInput('product_pricing_form'); ?>
-                            <div class="mb-10 fv-row">
-                                <label class="required form-label">Sales Price</label>
-                                <input type="number" id="sales_price" name="sales_price" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>/>
-                                <div class="text-muted fs-7">Set the product price.</div>
-                            </div>
-                        
+                            
                             <div class="d-flex flex-wrap gap-5">
-                                <div class="fv-row w-100 flex-md-root">
-                                   <label class="required form-label">Discount Type</label>
-                                    <div class="d-flex gap-3">
-                                        <select id="discount_type" name="discount_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
-                                            <option value="None">None</option>
-                                            <option value="Fixed">Fixed</option>
-                                            <option value="Percentage">Percentage</option>
-                                        </select>
-                                    </div>
-                                    <div class="text-muted fs-7">Select a discount type that will be applied to this product</div>
+                                <div class="fv-row w-100 flex-md-root mb-2">
+                                    <label class="required form-label" for="sales_price">Sales Price</label>
+                                    <input type="number" id="sales_price" name="sales_price" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
-                                <div class="fv-row w-100 flex-md-root">
-                                    <label class="form-label">Discount Rate</label>
-                                    <input type="text" id="discount_rate" name="discount_rate" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>/>
-                                    <div class="text-muted fs-7">Set the discounted product price. The product will be reduced at the determined fixed price</div>
+
+                                <div class="fv-row w-100 flex-md-root mb-10">
+                                    <label class="required form-label" for="cost">Cost</label>
+                                    <input type="number" id="cost" name="cost" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
                             </div>
 
-                            <div class="mb-10 fv-row">
-                               
-                            </div>
-                            
                             <div class="d-flex flex-wrap gap-5">
-                                <div class="fv-row w-100 flex-md-root">
-                                    <label class="form-label">Sales Tax</label>
+                                <div class="fv-row w-100 flex-md-root mb-2">
+                                    <label class="form-label" for="sales_tax_id">Sales Tax</label>
                                     <select id="sales_tax_id" name="sales_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                                 </div>
                                 <div class="fv-row w-100 flex-md-root">
-                                    <label class="form-label">Purchase Tax</label>
+                                    <label class="form-label" for="purchase_tax_id">Purchase Tax</label>
                                     <select id="purchase_tax_id" name="purchase_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                                 </div>
                             </div>
@@ -273,24 +257,25 @@
                                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="required form-label">SKU</label>
+                                            <label class="required form-label" for="sku">SKU</label>
                                                 <input type="text" id="sku" name="sku" class="form-control mb-2" maxlength="200" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="required form-label">Barcode</label>
+                                                <label class="required form-label" for="barcode">Barcode</label>
                                                 <input type="text" id="barcode" name="barcode" class="form-control mb-2"  maxlength="200" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="fv-row">
                                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">  
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="required form-label">Product Type</label>
+                                                <label class="required form-label" for="product_type">Product Type</label>
                                                 <div class="d-flex gap-3">
                                                     <select id="product_type" name="product_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
                                                         <option value="">--</option>
@@ -304,10 +289,21 @@
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="required form-label">Quantity On Hand</label>
+                                            <label class="required form-label" for="quantity_on_hand">Quantity On Hand</label>
                                                 <div class="d-flex gap-3">
-                                                    <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="1" <?php echo $disabled; ?>>
+                                                    <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="0.0001" <?php echo $disabled; ?>>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="fv-row">
+                                    <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
+                                        <div class="col">
+                                            <div class="fv-row mb-7">
+                                            <label class="required form-label" for="unit_id">Unit of Measurement</label>
+                                                <select id="unit_id" name="unit_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -390,27 +386,28 @@
                                 <?= $security->csrfInput('product_shipping_form'); ?>
                                 <div class="mb-10 fv-row">
                                     <label class="form-label">Weight</label>
-                                    <input type="number" id="weight" name="weight" class="form-control mb-2" min="0" step="0.01" <?php echo $disabled; ?>>
-                                    <div class="text-muted fs-7">Set a product weight in kilograms (kg).</div>
+                                    <div class="input-group">
+                                        <input type="number" id="weight" name="weight" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>>
+                                        <span class="input-group-text">kg</span>
+                                    </div>
                                 </div>
                                 <div class="fv-row">
                                     <label class="form-label">Dimension</label>
                                     <div class="d-flex flex-wrap flex-sm-nowrap gap-3">
                                         <div class="input-group">
-                                            <input type="number" id="width" name="width" class="form-control" min="0" step="0.01" <?php echo $disabled; ?>>
-                                            <span class="input-group-text">w</span>
+                                            <input type="number" id="width" name="width" class="form-control" min="0" step="0.0001" placeholder="Width" <?php echo $disabled; ?>>
+                                            <span class="input-group-text">cm</span>
                                         </div>
                                         <div class="input-group">
-                                            <input type="number" id="height" name="height" class="form-control" min="0" step="0.01" <?php echo $disabled; ?>>
-                                            <span class="input-group-text">h</span>
+                                            <input type="number" id="height" name="height" class="form-control" min="0" step="0.0001" placeholder="Height" <?php echo $disabled; ?>>
+                                            <span class="input-group-text">cm</span>
                                         </div>
                                             
                                         <div class="input-group">
-                                            <input type="number" id="length" name="length" class="form-control" min="0" step="0.01" <?php echo $disabled; ?>>
-                                            <span class="input-group-text">l</span>
+                                            <input type="number" id="length" name="length" class="form-control" min="0" step="0.0001" placeholder="Length" <?php echo $disabled; ?>>
+                                            <span class="input-group-text">cm</span>
                                         </div>                                        
                                     </div>
-                                    <div class="text-muted fs-7 mt-2">Enter the product dimensions in centimeters (cm).</div>
                                 </div>
                             </form>
                         </div>

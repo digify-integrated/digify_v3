@@ -1,25 +1,14 @@
 import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
-import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    generateDropdownOptions({
-        url: './app/Controllers/ProductCategoryController.php',
-        dropdownSelector: '#parent_category_id',
-        data: { transaction: 'generate product category options' }
-    });
-
-    $('#product_category_form').validate({
+document.addEventListener('DOMContentLoaded', () => {    
+    $('#unit_type_form').validate({
         rules: {
-            product_category_name: { required: true },
-            costing_method: { required: true },
-            display_order: { required: true }
+            unit_type_name: { required: true }
         },
         messages: {
-            product_category_name: { required: 'Enter the display name' },
-            costing_method: { required: 'Choose the costing method' },
-            display_order: { required: 'Enter the display order' }
+            unit_type_name: { required: 'Enter the display name' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -41,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save product category';
+            const transaction   = 'save unit type';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
@@ -50,20 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/ProductCategoryController.php', {
+                const response = await fetch('./app/Controllers/UnitTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save product category failed with status: ${response.status}`);
+                    throw new Error(`Save unit type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.product_category_id}`;
+                    window.location = `${page_link}&id=${data.unit_type_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
