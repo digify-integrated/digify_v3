@@ -9003,6 +9003,22 @@ BEGIN
     ORDER BY attribute_name ASC, attribute_value_name ASC;
 END //
 
+DROP PROCEDURE IF EXISTS generateProductAttributeValueOptions//
+
+CREATE PROCEDURE generateProductAttributeValueOptions(
+    IN p_product_id INT
+)
+BEGIN
+	SELECT attribute_value_id, attribute_value_name, attribute_id, attribute_name
+    FROM attribute_value
+    WHERE attribute_value_id NOT IN (
+        SELECT attribute_value_id 
+        FROM product_attribute 
+        WHERE product_id = p_product_id
+    )
+    ORDER BY attribute_name ASC, attribute_value_name ASC;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -10621,6 +10637,47 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS insertProductAttribute//
+
+CREATE PROCEDURE insertProductAttribute(
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(100), 
+    IN p_attribute_id INT, 
+    IN p_attribute_name VARCHAR(100), 
+    IN p_attribute_value_id INT, 
+    IN p_attribute_value_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_attribute (
+        product_id,
+        product_name,
+        attribute_id,
+        attribute_name,
+        attribute_value_id,
+        attribute_value_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_attribute_id,
+        p_attribute_name,
+        p_attribute_value_id,
+        p_attribute_value_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -10923,6 +10980,25 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteProductAttribute//
+
+CREATE PROCEDURE deleteProductAttribute(
+    IN p_product_attribute_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_attribute 
+    WHERE product_attribute_id = p_product_attribute_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
@@ -11092,6 +11168,17 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductAttributeTable//
+
+CREATE PROCEDURE generateProductAttributeTable(
+    IN p_product_id INT
+)
+BEGIN
+    SELECT product_attribute_id, attribute_name, attribute_value_name
+    FROM product_attribute
+    WHERE product_id = p_product_id;
 END //
 
 /* =============================================================================================

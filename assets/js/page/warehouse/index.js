@@ -4,6 +4,8 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initializeExportFeature('warehouse');
+    
     const datatableConfig = () => ({
         selector: '#warehouse-table',
         ajaxUrl: './app/Controllers/WarehouseController.php',
@@ -43,9 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    initializeDatatableControls('#warehouse-table');
-    initializeExportFeature('warehouse');
     initializeDatatable(datatableConfig());
+    initializeDatatableControls('#warehouse-table');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

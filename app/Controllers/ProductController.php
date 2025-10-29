@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Tax;
 use App\Models\Unit;
+use App\Models\Attribute;
 use App\Models\Authentication;
 use App\Models\UploadSetting;
 use App\Core\Security;
@@ -21,6 +22,7 @@ class ProductController
     protected ProductCategory $productCategory;
     protected Tax $tax;
     protected Unit $unit;
+    protected Attribute $attribute;
     protected Authentication $authentication;
     protected UploadSetting $uploadSetting;
     protected Security $security;
@@ -31,6 +33,7 @@ class ProductController
         ProductCategory $productCategory,
         Tax $tax,
         Unit $unit,
+        Attribute $attribute,
         Authentication $authentication,
         UploadSetting $uploadSetting,
         Security $security,
@@ -40,6 +43,7 @@ class ProductController
         $this->productCategory  = $productCategory;
         $this->tax              = $tax;
         $this->unit             = $unit;
+        $this->attribute        = $attribute;
         $this->authentication   = $authentication;
         $this->uploadSetting    = $uploadSetting;
         $this->security         = $security;
@@ -56,6 +60,7 @@ class ProductController
         }
 
         $transaction    = $_POST['transaction'] ?? null;
+        $pageId         = $_POST['page_id'] ?? null;
         $lastLogBy      = $_SESSION['user_account_id'];
 
         if (!$transaction) {
@@ -87,6 +92,7 @@ class ProductController
 
         match ($transaction) {
             'save product category'             => $this->saveProductCategory($lastLogBy),
+            'save product attribute'            => $this->saveProductAttribute($lastLogBy),
             'insert product'                    => $this->insertProduct($lastLogBy),
             'update product general'            => $this->updateProductGeneral($lastLogBy),
             'update product inventory'          => $this->updateProductInventory($lastLogBy),
@@ -100,11 +106,13 @@ class ProductController
             'update product image'              => $this->updateProductImage($lastLogBy),
             'delete product'                    => $this->deleteProduct(),
             'delete multiple product'           => $this->deleteMultipleProduct(),
+            'delete product attribute'          => $this->deleteProductAttribute(),
             'fetch product details'             => $this->fetchProductDetails(),
             'fetch product categories details'  => $this->fetchProductCategoryMapDetails(),
             'fetch product tax details'         => $this->fetchProductTaxDetails(),
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
+            'generate product attribute table'  => $this->generateProductAttributeTable($lastLogBy, $pageId),
             default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -147,6 +155,44 @@ class ProductController
         $this->systemHelper->sendSuccessResponse(
             'Save Product Category Success',
             'The product categories have been added successfully.'
+        );
+    }
+
+    public function saveProductAttribute($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId          = $_POST['product_id'] ?? null;
+        $attributeValueIds  = $_POST['attribute_value_id'] ?? [];
+
+        if(empty($attributeValueIds)){
+            $this->systemHelper::sendErrorResponse(
+                'Save Product Attribute Error',
+                'Please select the product attribute.'
+            );
+        }
+
+        $productDetails     = $this->product->fetchProduct($productId);
+        $productName        = $productDetails['product_name'] ?? '';
+
+        foreach ($attributeValueIds as $attributeValueId) {
+            $attributeValueDetails  = $this->attribute->fetchAttributeValue($attributeValueId);
+            $attributeId            = $attributeValueDetails['attribute_id'] ?? null;
+            $attributeName          = $attributeValueDetails['attribute_name'] ?? null;
+            $attributeValueName     = $attributeValueDetails['attribute_value_name'] ?? null;
+
+            $this->product->insertProductAttribute($productId, $productName, $attributeId, $attributeName, $attributeValueId, $attributeValueName, $lastLogBy);
+        }
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Product Attribute Success',
+            'The product attributes have been added successfully.'
         );
     }
 
@@ -496,6 +542,17 @@ class ProductController
         );
     }
 
+    public function deleteProductAttribute(){
+        $productAttributeId = $_POST['product_attribute_id'] ?? null;
+
+        $this->product->deleteProductAttribute($productAttributeId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Delete Product Attribute Success',
+            'The product attribute has been deleted successfully.'
+        );
+    }
+
     public function fetchProductDetails(){
         $productId          = $_POST['product_id'] ?? null;
         $checkProductExist  = $this->product->checkProductExist($productId);
@@ -719,6 +776,48 @@ class ProductController
 
         echo json_encode($response);
     }
+
+    public function generateProductAttributeTable($userId, $pageId)
+    {
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        $deleteButton       = '';
+        $logNotes           = '';
+
+        $productAttributes = $this->product->generateProductAttributeTable($productId);
+
+        foreach ($productAttributes as $row) {
+            $productAttributeId     = $row['product_attribute_id'];
+            $attributeName          = $row['attribute_name'];
+            $attributeValueName     = $row['attribute_value_name'];
+
+            if($writeAccess > 0){
+                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-product-attribute" data-product-attribute-id="' . $productAttributeId . '" title="Delete Attribute">
+                                        <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                    </a>';
+            }
+
+            if($logNotesAccess > 0){
+                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-product-attribute-log-notes" data-product-attribute-id="' . $productAttributeId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </a>';
+            }
+
+            $response[] = [
+                'ATTRIBUTE_NAME'    => $attributeName,
+                'VALUE'             => $attributeValueName,
+                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
+                                            '. $logNotes .'
+                                            '. $deleteButton .'
+                                        </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
     
     public function generateProductOptions()
     {
@@ -751,6 +850,7 @@ $controller = new ProductController(
     new ProductCategory(),
     new Tax(),
     new Unit(),
+    new Attribute(),
     new Authentication(),
     new UploadSetting(),
     new Security(),

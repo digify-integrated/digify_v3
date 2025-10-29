@@ -199,6 +199,18 @@ class Attribute extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateProductAttributeValueOptions(
+        $p_product_id
+    ) {
+        $sql = 'CALL generateProductAttributeValueOptions(
+            :p_product_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

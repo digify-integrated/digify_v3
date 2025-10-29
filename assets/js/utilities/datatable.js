@@ -108,20 +108,38 @@ export const initializeDatatable = ({
 };
 
 export const initializeDatatableControls = (selector) => {
-    const $lengthDropdown   = $('#datatable-length');
-    const $searchInput      = $('#datatable-search');
+    const tableEl = $(selector);
+    if (!tableEl.length || !$.fn.DataTable.isDataTable(selector)) {
+        console.warn(`DataTable not initialized for selector: ${selector}`);
+        return;
+    }
+
+    const table = tableEl.DataTable();
+    const $lengthDropdown = $('#datatable-length');
+    const $searchInput = $('#datatable-search');
 
     if ($lengthDropdown.length) {
         $lengthDropdown.off('change').on('change', function () {
-            const table = $(selector).DataTable();
-            table.page.len($(this).val()).draw();
+            const newLength = parseInt($(this).val(), 10) || 10;
+            table.page.len(newLength).draw();
         });
     }
 
     if ($searchInput.length) {
-        $searchInput.off('keyup').on('keyup', function () {
-            const table = $(selector).DataTable();
-            table.search(this.value).draw();
+        const debounce = (fn, delay = 50) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        const handleSearch = debounce(value => {
+            table.search(value).draw();
+        }, 50);
+
+        $searchInput.off('input').on('input', function () {
+            handleSearch(this.value);
         });
     }
 
@@ -135,20 +153,37 @@ export const initializeDatatableControls = (selector) => {
         });
 };
 
-export const initializeSubDatatableControls = (search, length, selector) => {
-    const table = $(selector).DataTable();
+export const initializeSubDatatableControls = (searchSelector, lengthSelector, tableSelector) => {
+    const table = $(tableSelector).DataTable();
 
-    document.addEventListener('click', e => {
+    document.addEventListener('change', e => {
         const target = e.target;
 
-        if (target.matches(length)) {
+        if (target.matches(lengthSelector)) {
             const newLength = parseInt(target.value, 10) || 10;
             table.page.len(newLength).draw();
         }
+    });
 
-        if (target.matches(search)) {
-            table.search(target.value).draw();
+    const debounce = (fn, delay = 50) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn(...args), delay);
+        };
+    };
+
+    const handleSearch = debounce(value => {
+        table.search(value).draw();
+    }, 50);
+
+    document.addEventListener('input', e => {
+        const target = e.target;
+
+        if (target.matches(searchSelector)) {
+            handleSearch(target.value);
         }
     });
 };
+
 

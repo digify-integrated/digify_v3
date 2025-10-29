@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#attribute-table');
     initializeExportFeature('attribute');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

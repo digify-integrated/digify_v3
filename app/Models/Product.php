@@ -84,6 +84,36 @@ class Product extends Model {
         ]);
     }
 
+    public function insertProductAttribute(
+        $p_product_id,
+        $p_product_name,
+        $p_attribute_id,
+        $p_attribute_name,
+        $p_attribute_value_id,
+        $p_attribute_value_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertProductAttribute(
+            :p_product_id,
+            :p_product_name,
+            :p_attribute_id,
+            :p_attribute_name,
+            :p_attribute_value_id,
+            :p_attribute_value_name,
+            :p_last_log_by
+        )';
+
+        $row = $this->query($sql, [
+            'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
+            'p_attribute_id'            => $p_attribute_id,
+            'p_attribute_name'          => $p_attribute_name,
+            'p_attribute_value_id'      => $p_attribute_value_id,
+            'p_attribute_value_name'    => $p_attribute_value_name,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
@@ -345,6 +375,18 @@ class Product extends Model {
         ]);
     }
 
+    public function deleteProductAttribute(
+        $p_product_attribute_id
+    ) {
+        $sql = 'CALL deleteProductAttribute(
+            :p_product_attribute_id
+        )';
+        
+        return $this->query($sql, [
+            'p_product_attribute_id' => $p_product_attribute_id
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 6: CHECK METHODS
     ============================================================================================= */
@@ -458,6 +500,17 @@ class Product extends Model {
         ]);
     }
 
+    public function generateProductAttributeTable(
+        $p_product_id
+    ) {
+        $sql = 'CALL generateProductAttributeTable(
+            :p_product_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
 
     public function generateProductOptions() {
         $sql = 'CALL generateProductOptions()';

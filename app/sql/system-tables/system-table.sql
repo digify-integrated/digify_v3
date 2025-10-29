@@ -7240,39 +7240,6 @@ CREATE INDEX idx_product_category_map_category_id ON product_category_map(produc
 
 
 /* =============================================================================================
-  TABLE: PRODUCT VARIATION
-============================================================================================= */
-
-DROP TABLE IF EXISTS product_variation;
-
-CREATE TABLE product_variation (
-  product_variation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  product_category_id INT UNSIGNED NOT NULL,
-  product_category_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: PRODUCT CATEGORY MAP
-============================================================================================= */
-
-CREATE INDEX idx_product_category_map_product_id ON product_category_map(product_id);
-CREATE INDEX idx_product_category_map_category_id ON product_category_map(product_category_id);
-
-/* =============================================================================================
-  INITIAL VALUES: PRODUCT CATEGORY MAP
-============================================================================================= */
-
-
-
-/* =============================================================================================
   TABLE: PRODUCT ATTIBUTE
 ============================================================================================= */
 
@@ -7281,12 +7248,17 @@ DROP TABLE IF EXISTS product_attribute;
 CREATE TABLE product_attribute (
   product_attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
   attribute_id INT UNSIGNED NOT NULL,
+  attribute_name VARCHAR(100) NOT NULL,
+  attribute_value_id INT UNSIGNED NOT NULL,
+  attribute_value_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
+  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -7296,6 +7268,7 @@ CREATE TABLE product_attribute (
 
 CREATE INDEX idx_product_attribute_product_id ON product_attribute(product_id);
 CREATE INDEX idx_product_attribute_attribute_id ON product_attribute(attribute_id);
+CREATE INDEX idx_product_attribute_attribute_value_id ON product_attribute(attribute_value_id);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT ATTIBUTE
@@ -7308,19 +7281,25 @@ CREATE INDEX idx_product_attribute_attribute_id ON product_attribute(attribute_i
 
 
 /* =============================================================================================
-  TABLE: PRODUCT ATTIBUTE VALUE
+  TABLE: PRODUCT VARIANT
 ============================================================================================= */
 
-DROP TABLE IF EXISTS product_attribute_value;
+DROP TABLE IF EXISTS product_variant;
 
-CREATE TABLE product_attribute_value (
-  product_attribute_value_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+CREATE TABLE product_variant (
+  product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  parent_product_id INT UNSIGNED NOT NULL,
+  parent_product_name VARCHAR(100) NOT NULL,
   product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
   attribute_id INT UNSIGNED NOT NULL,
+  attribute_name VARCHAR(100) NOT NULL,
   attribute_value_id INT UNSIGNED NOT NULL,
+  attribute_value_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
   FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
@@ -7328,54 +7307,16 @@ CREATE TABLE product_attribute_value (
 );
 
 /* =============================================================================================
-  INDEX: PRODUCT ATTIBUTE VALUE
+  INDEX: PRODUCT VARIANT
 ============================================================================================= */
 
-CREATE INDEX idx_product_attribute_value_product_id ON product_attribute(product_id);
-CREATE INDEX idx_product_attribute_value_attribute_id ON product_attribute(attribute_id);
-CREATE INDEX idx_product_attribute_value_attribute_value_id ON product_attribute(attribute_value_id);
+CREATE INDEX idx_product_variant_parent_product_id ON product_variant(parent_product_id);
+CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
+CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
+CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute_value_id);
 
 /* =============================================================================================
-  INITIAL VALUES: PRODUCT ATTIBUTE VALUE
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
-  TABLE: PRODUCT ADDON
-============================================================================================= */
-
-DROP TABLE IF EXISTS product_addon;
-
-CREATE TABLE product_addon (
-  product_addon_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  product_id INT UNSIGNED NOT NULL,
-  attribute_id INT UNSIGNED NOT NULL,
-  attribute_value_id INT UNSIGNED NOT NULL,
-  price_adjustment DECIMAL(10,2) DEFAULT 0.00,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
-  FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: PRODUCT ADDON
-============================================================================================= */
-
-CREATE INDEX idx_product_addon_product_id ON product_attribute(product_id);
-CREATE INDEX idx_product_addon_attribute_id ON product_attribute(attribute_id);
-CREATE INDEX idx_product_addon_attribute_value_id ON product_attribute(attribute_value_id);
-
-/* =============================================================================================
-  INITIAL VALUES: PRODUCT ADDON
+  INITIAL VALUES: PRODUCT VARIANT
 ============================================================================================= */
 
 /* =============================================================================================

@@ -83,6 +83,8 @@ export const generateDropdownOptions = async ({
       $dropdown.select2('destroy');
     }
 
+    $dropdown.empty();
+
     const $modalParent      = $dropdown.closest('.modal');
     const $offcanvasParent  = $dropdown.closest('.offcanvas');
     const $menuParent       = $dropdown.closest('[data-kt-menu="true"]');
@@ -109,15 +111,17 @@ export const generateDropdownOptions = async ({
       setTimeout(() => $this.select2('close'), 0);
     });
 
-    $(document).off('mousedown.select2-remove-close').on('mousedown.select2-remove-close', '.select2-selection__choice__remove', function (e) {
-      const $container  = $(this).closest('.select2');
-      const $select     = $container.prevAll('select').first();
+    $(document)
+      .off('mousedown.select2-remove-close')
+      .on('mousedown.select2-remove-close', '.select2-selection__choice__remove', function (e) {
+        const $container  = $(this).closest('.select2');
+        const $select     = $container.prevAll('select').first();
 
-      if ($select.length && $select.data('select2')) {
-        e.stopPropagation();
-        setTimeout(() => $select.select2('close'), 0);
-      }
-    });
+        if ($select.length && $select.data('select2')) {
+          e.stopPropagation();
+          setTimeout(() => $select.select2('close'), 0);
+        }
+      });
 
     if (validateOnChange) {
       $dropdown.on('change', function () {

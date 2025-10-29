@@ -4,7 +4,6 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#work-location-table');
     initializeExportFeature('work_location');
 
     const datatableConfig = () => ({
@@ -44,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     initializeDatatable(datatableConfig());
+    initializeDatatableControls('#work-location-table');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

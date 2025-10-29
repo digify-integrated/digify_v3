@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 28, 2025 at 10:31 AM
+-- Generation Time: Oct 29, 2025 at 10:24 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1023,6 +1023,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteNotificationSetting` (IN `p_n
     DELETE FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id; 
    
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteProductAttribute`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductAttribute` (IN `p_product_attribute_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_attribute 
+    WHERE product_attribute_id = p_product_attribute_id;
+
     COMMIT;
 END$$
 
@@ -2755,6 +2770,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateParentDepartmentOptions` (I
     ORDER BY department_name;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateProductAttributeTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductAttributeTable` (IN `p_product_id` INT)   BEGIN
+    SELECT product_attribute_id, attribute_name, attribute_value_name
+    FROM product_attribute
+    WHERE product_id = p_product_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateProductAttributeValueOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductAttributeValueOptions` (IN `p_product_id` INT)   BEGIN
+	SELECT attribute_value_id, attribute_value_name, attribute_id, attribute_name
+    FROM attribute_value
+    WHERE attribute_value_id NOT IN (
+        SELECT attribute_value_id 
+        FROM product_attribute 
+        WHERE product_id = p_product_id
+    )
+    ORDER BY attribute_name ASC, attribute_value_name ASC;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateProductCard`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductCard` (IN `p_search_value` TEXT, IN `p_filter_by_product_type` TEXT, IN `p_filter_by_product_category` TEXT, IN `p_filter_by_is_sellable` TEXT, IN `p_filter_by_is_purchasable` TEXT, IN `p_filter_by_show_on_pos` TEXT, IN `p_filter_by_product_status` TEXT, IN `p_limit` INT, IN `p_offset` INT)   BEGIN
     DECLARE query TEXT;
@@ -3537,6 +3571,37 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProduct` (IN `p_product_name`
     COMMIT;
 
     SELECT v_new_product_id AS new_product_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertProductAttribute`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductAttribute` (IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_attribute_id` INT, IN `p_attribute_name` VARCHAR(100), IN `p_attribute_value_id` INT, IN `p_attribute_value_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_attribute (
+        product_id,
+        product_name,
+        attribute_id,
+        attribute_name,
+        attribute_value_id,
+        attribute_value_name,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_attribute_id,
+        p_attribute_name,
+        p_attribute_value_id,
+        p_attribute_value_name,
+        p_last_log_by
+    );
+
+    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `insertProductCategories`$$
@@ -7448,7 +7513,10 @@ CREATE TABLE `attribute` (
 --
 
 INSERT INTO `attribute` (`attribute_id`, `attribute_name`, `attribute_description`, `variant_creation`, `display_type`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'test', 'test', 'Never', 'Radio', '2025-10-27 22:29:27', '2025-10-27 22:29:27', 2);
+(1, 'Brand', 'Brand', 'Instantly', 'Radio', '2025-10-27 22:29:27', '2025-10-29 11:10:37', 2),
+(2, 'Color', 'Color', 'Instantly', 'Radio', '2025-10-29 11:11:28', '2025-10-29 11:11:28', 2),
+(3, 'Bag Add-On', 'Bag Add-On', 'Never', 'Checkbox', '2025-10-29 11:12:07', '2025-10-29 11:12:07', 2),
+(4, 'test', 'test', 'Instantly', 'Checkbox', '2025-10-29 17:03:28', '2025-10-29 17:03:28', 2);
 
 --
 -- Triggers `attribute`
@@ -7514,7 +7582,15 @@ CREATE TABLE `attribute_value` (
 --
 
 INSERT INTO `attribute_value` (`attribute_value_id`, `attribute_value_name`, `attribute_id`, `attribute_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'test', 1, 'test', '2025-10-27 22:29:34', '2025-10-27 22:29:34', 2);
+(1, 'Nike', 1, 'Brand', '2025-10-27 22:29:34', '2025-10-29 11:10:43', 2),
+(2, 'Adidas', 1, 'Brand', '2025-10-29 11:10:48', '2025-10-29 11:10:48', 2),
+(3, 'Herschel', 1, 'Brand', '2025-10-29 11:11:08', '2025-10-29 11:11:08', 2),
+(4, 'Red', 2, 'Color', '2025-10-29 11:11:32', '2025-10-29 11:11:32', 2),
+(5, 'Green', 2, 'Color', '2025-10-29 11:11:35', '2025-10-29 11:11:35', 2),
+(6, 'Blue', 2, 'Color', '2025-10-29 11:11:38', '2025-10-29 11:11:38', 2),
+(7, 'Key Chain', 3, 'Bag Add-On', '2025-10-29 11:12:13', '2025-10-29 11:12:13', 2),
+(8, 'Wallet', 3, 'Bag Add-On', '2025-10-29 11:12:17', '2025-10-29 11:12:17', 2),
+(9, 'Ring', 3, 'Bag Add-On', '2025-10-29 11:12:33', '2025-10-29 11:12:33', 2);
 
 --
 -- Triggers `attribute_value`
@@ -13702,7 +13778,9 @@ CREATE TABLE `login_attempts` (
 
 INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `ip_address`, `attempt_time`, `success`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-27 21:53:11', 1, '2025-10-27 21:53:11', '2025-10-27 21:53:11', 1),
-(2, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-28 08:52:14', 1, '2025-10-28 08:52:14', '2025-10-28 08:52:14', 1);
+(2, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-28 08:52:14', 1, '2025-10-28 08:52:14', '2025-10-28 08:52:14', 1),
+(3, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2025-10-29 09:52:47', 0, '2025-10-29 09:52:47', '2025-10-29 09:52:47', 1),
+(4, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-29 09:53:00', 1, '2025-10-29 09:53:00', '2025-10-29 09:53:00', 1);
 
 -- --------------------------------------------------------
 
@@ -14494,6 +14572,35 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `product_attribute`
+--
+
+DROP TABLE IF EXISTS `product_attribute`;
+CREATE TABLE `product_attribute` (
+  `product_attribute_id` int(10) UNSIGNED NOT NULL,
+  `product_id` int(10) UNSIGNED NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `attribute_id` int(10) UNSIGNED NOT NULL,
+  `attribute_name` varchar(100) NOT NULL,
+  `attribute_value_id` int(10) UNSIGNED NOT NULL,
+  `attribute_value_name` varchar(100) NOT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_attribute`
+--
+
+INSERT INTO `product_attribute` (`product_attribute_id`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(23, 1, 'testt', 3, 'Bag Add-On', 7, 'Key Chain', '2025-10-29 17:20:16', '2025-10-29 17:20:16', 2),
+(24, 1, 'testt', 3, 'Bag Add-On', 9, 'Ring', '2025-10-29 17:20:16', '2025-10-29 17:20:16', 2),
+(25, 1, 'testt', 3, 'Bag Add-On', 8, 'Wallet', '2025-10-29 17:20:16', '2025-10-29 17:20:16', 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `product_category`
 --
 
@@ -14676,6 +14783,28 @@ CREATE TRIGGER `trg_product_tax_update` AFTER UPDATE ON `product_tax` FOR EACH R
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_variant`
+--
+
+DROP TABLE IF EXISTS `product_variant`;
+CREATE TABLE `product_variant` (
+  `product_variant_id` int(10) UNSIGNED NOT NULL,
+  `parent_product_id` int(10) UNSIGNED NOT NULL,
+  `parent_product_name` varchar(100) NOT NULL,
+  `product_id` int(10) UNSIGNED NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `attribute_id` int(10) UNSIGNED NOT NULL,
+  `attribute_name` varchar(100) NOT NULL,
+  `attribute_value_id` int(10) UNSIGNED NOT NULL,
+  `attribute_value_name` varchar(100) NOT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -15223,7 +15352,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$m4olmSKoxERnIWJQ6h/6x.sLalYyLIwgPYigbBKvFbXuDfcyalnKW', '2025-10-27 21:53:11', '2025-10-28 08:52:14', 1);
+(1, 2, '$2y$10$NIqNqPa0LBAjMD5PFaoQyuIN7qm/ay0zLdGxWG99DLLQPvlmCPdRi', '2025-10-27 21:53:11', '2025-10-29 09:53:00', 1);
 
 -- --------------------------------------------------------
 
@@ -15934,7 +16063,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-27 21:50:47', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-28 08:52:14', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-28 08:52:14', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-29 09:53:00', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-29 09:53:00', 1);
 
 --
 -- Triggers `user_account`
@@ -16583,6 +16712,16 @@ ALTER TABLE `product`
   ADD KEY `idx_product_show_on_pos` (`show_on_pos`);
 
 --
+-- Indexes for table `product_attribute`
+--
+ALTER TABLE `product_attribute`
+  ADD PRIMARY KEY (`product_attribute_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_product_attribute_product_id` (`product_id`),
+  ADD KEY `idx_product_attribute_attribute_id` (`attribute_id`),
+  ADD KEY `idx_product_attribute_attribute_value_id` (`attribute_value_id`);
+
+--
 -- Indexes for table `product_category`
 --
 ALTER TABLE `product_category`
@@ -16609,6 +16748,17 @@ ALTER TABLE `product_tax`
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_product_tax_product_id` (`product_id`),
   ADD KEY `idx_product_tax_tax_type` (`tax_type`);
+
+--
+-- Indexes for table `product_variant`
+--
+ALTER TABLE `product_variant`
+  ADD PRIMARY KEY (`product_variant_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_product_variant_parent_product_id` (`parent_product_id`),
+  ADD KEY `idx_product_variant_product_id` (`product_id`),
+  ADD KEY `idx_product_variant_attribute_id` (`attribute_id`),
+  ADD KEY `idx_product_variant_attribute_value_id` (`attribute_value_id`);
 
 --
 -- Indexes for table `relationship`
@@ -16803,13 +16953,13 @@ ALTER TABLE `app_module`
 -- AUTO_INCREMENT for table `attribute`
 --
 ALTER TABLE `attribute`
-  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `attribute_value`
 --
 ALTER TABLE `attribute_value`
-  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `audit_log`
@@ -16995,7 +17145,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -17046,6 +17196,12 @@ ALTER TABLE `product`
   MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `product_attribute`
+--
+ALTER TABLE `product_attribute`
+  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
@@ -17062,6 +17218,12 @@ ALTER TABLE `product_category_map`
 --
 ALTER TABLE `product_tax`
   MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `product_variant`
+--
+ALTER TABLE `product_variant`
+  MODIFY `product_variant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `relationship`
@@ -17468,6 +17630,15 @@ ALTER TABLE `product`
   ADD CONSTRAINT `product_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
+-- Constraints for table `product_attribute`
+--
+ALTER TABLE `product_attribute`
+  ADD CONSTRAINT `product_attribute_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `product_attribute_ibfk_2` FOREIGN KEY (`attribute_id`) REFERENCES `attribute` (`attribute_id`),
+  ADD CONSTRAINT `product_attribute_ibfk_3` FOREIGN KEY (`attribute_value_id`) REFERENCES `attribute_value` (`attribute_value_id`),
+  ADD CONSTRAINT `product_attribute_ibfk_4` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
 -- Constraints for table `product_category`
 --
 ALTER TABLE `product_category`
@@ -17488,6 +17659,16 @@ ALTER TABLE `product_tax`
   ADD CONSTRAINT `product_tax_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
   ADD CONSTRAINT `product_tax_ibfk_2` FOREIGN KEY (`tax_id`) REFERENCES `tax` (`tax_id`),
   ADD CONSTRAINT `product_tax_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `product_variant`
+--
+ALTER TABLE `product_variant`
+  ADD CONSTRAINT `product_variant_ibfk_1` FOREIGN KEY (`parent_product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `product_variant_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `product_variant_ibfk_3` FOREIGN KEY (`attribute_id`) REFERENCES `attribute` (`attribute_id`),
+  ADD CONSTRAINT `product_variant_ibfk_4` FOREIGN KEY (`attribute_value_id`) REFERENCES `attribute_value` (`attribute_value_id`),
+  ADD CONSTRAINT `product_variant_ibfk_5` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `relationship`

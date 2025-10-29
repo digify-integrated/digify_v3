@@ -71,21 +71,22 @@ class AttributeController
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save attribute'                    => $this->saveAttribute($lastLogBy),
-            'save attribute value'              => $this->saveAttributeValue($lastLogBy),
-            'delete attribute'                  => $this->deleteAttribute(),
-            'delete multiple attribute'         => $this->deleteMultipleAttribute(),
-            'delete attribute value'            => $this->deleteAttributeValue(),
-            'fetch attribute details'           => $this->fetchAttributeDetails(),
-            'fetch attribute value details'     => $this->fetchAttributeValueDetails(),
-            'generate attribute table'          => $this->generateAttributeTable(),
-            'generate attribute value table'    => $this->generateAttributeValueTable($lastLogBy, $pageId),
-            'generate attribute options'        => $this->generateAttributeOptions(),
-            'generate attribute value options'  => $this->generateAttributeValueOptions(),
-            default                             => $this->systemHelper::sendErrorResponse(
-                                                    'Transaction Failed',
-                                                    'We encountered an issue while processing your request.'
-                                                )
+            'save attribute'                            => $this->saveAttribute($lastLogBy),
+            'save attribute value'                      => $this->saveAttributeValue($lastLogBy),
+            'delete attribute'                          => $this->deleteAttribute(),
+            'delete multiple attribute'                 => $this->deleteMultipleAttribute(),
+            'delete attribute value'                    => $this->deleteAttributeValue(),
+            'fetch attribute details'                   => $this->fetchAttributeDetails(),
+            'fetch attribute value details'             => $this->fetchAttributeValueDetails(),
+            'generate attribute table'                  => $this->generateAttributeTable(),
+            'generate attribute value table'            => $this->generateAttributeValueTable($lastLogBy, $pageId),
+            'generate attribute options'                => $this->generateAttributeOptions(),
+            'generate attribute value options'          => $this->generateAttributeValueOptions(),
+            'generate product attribute value options'  => $this->generateProductAttributeValueOptions(),
+            default                                     => $this->systemHelper::sendErrorResponse(
+                                                            'Transaction Failed',
+                                                            'We encountered an issue while processing your request.'
+                                                        )
         };
     }
 
@@ -340,6 +341,39 @@ class AttributeController
         }
 
         $attributeValues = $this->attribute->generateAttributeValueOptions();
+
+        $grouped = [];
+        foreach ($attributeValues as $row) {
+            $grouped[$row['attribute_name']][] = [
+                'id'   => $row['attribute_value_id'],
+                'text' => $row['attribute_value_name']
+            ];
+        }
+
+        foreach ($grouped as $attributeName => $children) {
+            $response[] = [
+                'text'     => $attributeName,
+                'children' => $children
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateProductAttributeValueOptions()
+    {
+        $multiple   = $_POST['multiple'] ?? false;
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $attributeValues = $this->attribute->generateProductAttributeValueOptions($productId);
 
         $grouped = [];
         foreach ($attributeValues as $row) {

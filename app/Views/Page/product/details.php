@@ -180,13 +180,13 @@
                         <form id="product_general_form" class="form" method="post" action="#">
                             <?= $security->csrfInput('product_general_form'); ?>
                             <div class="mb-10 fv-row">
-                                <label class="required form-label">Product Name</label>
+                                <label class="required form-label" for="product_name">Product Name</label>
                                 <input type="text" id="product_name" name="product_name" class="form-control mb-2" maxlength="100" autocomplete="off" <?php echo $disabled; ?>/>
                                 <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
                             </div>
                             
                             <div>
-                                <label class="form-label">Description</label>
+                                <label class="form-label" for="product_description">Description</label>
                                 <textarea class="form-control" id="product_description" name="product_description" maxlength="1000" rows="3" <?php echo $disabled; ?>></textarea>
                             </div>
                         </form>
@@ -320,24 +320,35 @@
                     <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
-                                <h2>Variations</h2>
+                                <h2 class="me-4">Attributes</h2>
                             </div>
                             <div class="card-toolbar">
+                                <div class="d-flex align-items-center position-relative my-1 me-3">
+                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-attribute-datatable-search" placeholder="Search..." autocomplete="off" />
+                                </div>
+                                <select id="product-attribute-datatable-length" class="form-select w-auto me-4">
+                                    <option value="-1">All</option>
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
                                 <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                     <?php
-                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-variations-modal" id="product-variation">Add Variation</button>' : '';
+                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-attributes-modal" id="add-product-attribute">Add Attribute</button>' : '';
                                     ?> 
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card-body pt-0">
-                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="role-permission-table">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-attribute-table">
                                 <thead>
                                     <tr class="fw-semibold fs-6 text-gray-800">
-                                        <th>Variation</th>
                                         <th>Attribute</th>
-                                        <th>Extra Price</th>
+                                        <th>Value</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -345,6 +356,28 @@
                             </table>
                         </div>
                     </div>
+
+                    <div class="card card-flush py-4">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>Variations</h2>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body pt-0">
+                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="product-attribute-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800">
+                                        <th>Attribute</th>
+                                        <th>Attribute Value</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
@@ -360,7 +393,7 @@
                         </div>
                         
                         <div class="card-body pt-0">
-                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="role-permission-table">
+                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="product-pricelist-table">
                                 <thead>
                                     <tr class="fw-semibold fs-6 text-gray-800">
                                         <th>Variation</th>
@@ -423,36 +456,26 @@
     </div>
 </div>
 
-<div id="product-variations-modal" class="modal fade" tabindex="-1" aria-labelledby="product-variations-modal" aria-hidden="true">
+<div id="product-attributes-modal" class="modal fade" tabindex="-1" aria-labelledby="product-attributes-modal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Add Variation</h3>
+                <h3 class="modal-title">Add Attribute</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
 
             <div class="modal-body">
-                <form id="personal_details_form" method="post" action="#">
-                    <?= $security->csrfInput('personal_details_form'); ?>
+                <form id="product_attribute_form" method="post" action="#">
+                    <?= $security->csrfInput('product_attribute_form'); ?>
 
                     <div class="row mb-6">
-                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="blood_type_id">Variation</label>
-                        <div class="col-lg-9">
+                        <label class="col-lg-2 required col-form-label fw-semibold fs-6" for="attribute_value_id">Attribute</label>
+                        <div class="col-lg-10">
                             <div class="row">
                                 <div class="col-lg-12 fv-row">
-                                    <select id="attribute_value_id" name="attribute_value_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="extra_price">Extra Price</label>
-                        <div class="col-lg-9">
-                            <div class="row">
-                                <div class="col-lg-12 fv-row">
-                                    <input type="number" class="form-control" id="extra_price" name="extra_price" min="0" step="0.01">
+                                    <select id="attribute_value_id" name="attribute_value_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             </div>
                         </div>
@@ -462,7 +485,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="role_permission_assignment_form" class="btn btn-primary" id="submit-assignment">Assign</button>
+                <button type="submit" form="product_attribute_form" class="btn btn-primary" id="submit-product-attribute">Assign</button>
             </div>
         </div>
     </div>
