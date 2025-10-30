@@ -10678,6 +10678,147 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS insertSubProduct //
+
+CREATE PROCEDURE insertSubProduct(
+    IN p_parent_product_id INT,
+    IN p_variant_name VARCHAR(200),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_product_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product (
+        product_name,
+        product_description,
+        product_type,
+        unit_id,
+        unit_name,
+        unit_abbreviation,
+        quantity_on_hand,
+        cost,
+        sales_price,
+        is_variant,
+        is_sellable,
+        is_purchasable,
+        show_on_pos,
+        weight,
+        width,
+        height,
+        length,
+        last_log_by
+    )
+    SELECT 
+        p_variant_name,
+        p.product_description,
+        p.product_type,
+        p.unit_id,
+        p.unit_name,
+        p.unit_abbreviation,
+        p.quantity_on_hand,
+        p.cost,
+        p.sales_price,
+        'Yes',
+        p.is_sellable,
+        p.is_purchasable,
+        p.show_on_pos,
+        p.weight,
+        p.width,
+        p.height,
+        p.length,
+        p_last_log_by
+    FROM product p
+    WHERE p.product_id = p_parent_product_id;
+
+    SET v_new_product_id = LAST_INSERT_ID();
+
+    INSERT INTO product_tax (
+        product_id,
+        product_name,
+        tax_type,
+        tax_id,
+        tax_name,
+        last_log_by
+    )
+    SELECT 
+        v_new_product_id,
+        p_variant_name,
+        pt.tax_type,
+        pt.tax_id,
+        pt.tax_name,
+        p_last_log_by
+    FROM product_tax pt
+    WHERE pt.product_id = p_parent_product_id;
+
+    INSERT INTO product_category_map (
+        product_id,
+        product_name,
+        product_category_id,
+        product_category_name,
+        last_log_by
+    )
+    SELECT 
+        v_new_product_id,
+        p_variant_name,
+        pcm.product_category_id,
+        pcm.product_category_name,
+        p_last_log_by
+    FROM product_category_map pcm
+    WHERE pcm.product_id = p_parent_product_id;
+
+    COMMIT;
+
+    SELECT v_new_product_id AS new_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS insertProductVariant //
+
+CREATE PROCEDURE insertProductVariant(
+    IN p_parent_product_id INT,
+    IN p_product_id INT,
+    IN p_attribute_id INT,
+    IN p_attribute_name VARCHAR(100),
+    IN p_attribute_value_id INT,
+    IN p_attribute_value_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO product_variant (
+        parent_product_id,
+        product_id,
+        attribute_id,
+        attribute_name,
+        attribute_value_id,
+        attribute_value_name,
+        last_log_by
+    )
+    VALUES (
+        p_parent_product_id,
+        p_product_id,
+        p_attribute_id,
+        p_attribute_name,
+        p_attribute_value_id,
+        p_attribute_value_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -10699,10 +10840,10 @@ BEGIN
     START TRANSACTION;
 
     UPDATE product
-    SET product_name  = p_product_name,
-        product_description  = p_product_description,
-        last_log_by     = p_last_log_by
-    WHERE product_id   = p_product_id;
+    SET product_name            = p_product_name,
+        product_description     = p_product_description,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
 
     COMMIT;
 END //
@@ -10856,9 +10997,9 @@ BEGIN
     START TRANSACTION;
 
     UPDATE product
-    SET product_image  = p_product_image,
+    SET product_image   = p_product_image,
         last_log_by     = p_last_log_by
-    WHERE product_id   = p_product_id;
+    WHERE product_id    = p_product_id;
 
     COMMIT;
 END //
@@ -10936,6 +11077,25 @@ CREATE PROCEDURE fetchProductTax(
 BEGIN
 	SELECT * FROM product_tax
 	WHERE product_id = p_product_id AND tax_type = p_tax_type;
+END //
+
+DROP PROCEDURE IF EXISTS fetchAllProductAttributes//
+
+CREATE PROCEDURE fetchAllProductAttributes(
+	IN p_product_id INT,
+    IN p_creation_type ENUM('Instantly','Never')
+)
+BEGIN
+	SELECT 
+        pa.attribute_id AS attribute_id,
+        pa.attribute_name AS attribute_name,
+        pa.attribute_value_id AS attribute_value_id,
+        pa.attribute_value_name AS attribute_value_name
+    FROM product_attribute pa
+    JOIN attribute a ON pa.attribute_id = a.attribute_id
+    WHERE pa.product_id = p_product_id
+    AND a.variant_creation = p_creation_type
+    ORDER BY pa.attribute_id;
 END //
 
 /* =============================================================================================
@@ -11063,7 +11223,7 @@ BEGIN
     -- Base query
     SET query = 'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
                 FROM product
-                WHERE 1=1';
+                WHERE is_variant = "No"';
 
     -- Search filter
     IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
@@ -11137,7 +11297,7 @@ CREATE PROCEDURE generateProductTable(
 BEGIN
     DECLARE query TEXT DEFAULT 
         'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
-        FROM product WHERE 1=1';
+        FROM product WHERE is_variant = "No"';
 
      IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
         SET query = CONCAT(query, ' AND product_type IN (', p_filter_by_product_type, ')');
@@ -11179,6 +11339,18 @@ BEGIN
     SELECT product_attribute_id, attribute_name, attribute_value_name
     FROM product_attribute
     WHERE product_id = p_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductVariationTable//
+
+CREATE PROCEDURE generateProductVariationTable(
+    IN p_product_id INT
+)
+BEGIN
+    SELECT product_id, product_name
+    FROM product 
+    WHERE is_variant = "Yes"
+    AND product_id IN (SELECT product_id FROM product_variant WHERE parent_product_id = p_product_id);
 END //
 
 /* =============================================================================================

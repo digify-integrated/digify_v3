@@ -33,6 +33,56 @@ class Product extends Model {
         return $row['new_product_id'] ?? null;
     }
 
+    public function insertSubProduct(
+        $p_parent_product_id,
+        $p_variant_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertSubProduct(
+            :p_parent_product_id,
+            :p_variant_name,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_parent_product_id'   => $p_parent_product_id,
+            'p_variant_name'        => $p_variant_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+
+        return $row['new_product_id'] ?? null;
+    }
+
+    public function insertProductVariant(
+        $p_parent_product_id,
+        $p_product_id,
+        $p_attribute_id,
+        $p_attribute_name,
+        $p_attribute_value_id,
+        $p_attribute_value_name,
+        $p_last_log_by
+    )    {
+        $sql = 'CALL insertProductVariant(
+            :p_parent_product_id,
+            :p_product_id,
+            :p_attribute_id,
+            :p_attribute_name,
+            :p_attribute_value_id,
+            :p_attribute_value_name,
+            :p_last_log_by
+        )';
+
+        $row = $this->query($sql, [
+            'p_parent_product_id'      => $p_parent_product_id,
+            'p_product_id'              => $p_product_id,
+            'p_attribute_id'            => $p_attribute_id,
+            'p_attribute_name'          => $p_attribute_name,
+            'p_attribute_value_id'      => $p_attribute_value_id,
+            'p_attribute_value_name'    => $p_attribute_value_name,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
     public function insertProductCategoryMap(
         $p_product_id,
         $p_product_name,
@@ -334,6 +384,21 @@ class Product extends Model {
             'p_tax_type'    => $p_tax_type
         ]);
     }
+
+    public function fetchAllProductAttributes(
+        $p_product_id,
+        $p_tax_type
+    ) {
+        $sql = 'CALL fetchAllProductAttributes(
+            :p_product_id,
+            :p_tax_type
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_product_id'  => $p_product_id,
+            'p_tax_type'    => $p_tax_type
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -504,6 +569,18 @@ class Product extends Model {
         $p_product_id
     ) {
         $sql = 'CALL generateProductAttributeTable(
+            :p_product_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function generateProductVariationTable(
+        $p_product_id
+    ) {
+        $sql = 'CALL generateProductVariationTable(
             :p_product_id
         )';
 

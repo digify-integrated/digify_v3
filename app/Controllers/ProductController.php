@@ -113,6 +113,7 @@ class ProductController
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
             'generate product attribute table'  => $this->generateProductAttributeTable($lastLogBy, $pageId),
+            'generate product variation table'  => $this->generateProductVariationTable($lastLogBy, $pageId),
             default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -190,10 +191,66 @@ class ProductController
             $this->product->insertProductAttribute($productId, $productName, $attributeId, $attributeName, $attributeValueId, $attributeValueName, $lastLogBy);
         }
 
+        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
+
+        $groupedAttributes = [];
+
+        foreach ($productAttributesInstantly as $row) {
+            $attributeName = $row['attribute_name'];
+            $attributeId = $row['attribute_id'];
+
+            $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
+            $groupedAttributes[$attributeName]['values'][] = [
+                'attribute_value_id' => $row['attribute_value_id'],
+                'attribute_value_name' => $row['attribute_value_name']
+            ];
+        }
+
+        $combinations = $this->generateCombinations($groupedAttributes);
+
+        foreach ($combinations as $combination) {
+            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
+            
+            $subproductId = $this->product->insertSubProduct($productId, $variantName, $lastLogBy);
+
+            foreach ($combination as $attr) {
+                $this->product->insertProductVariant(
+                    $productId,
+                    $subproductId,
+                    $attr['attribute_id'],
+                    $attr['attribute_name'],
+                    $attr['attribute_value_id'],
+                    $attr['attribute_value_name'],
+                    $lastLogBy
+                );
+            }
+        }
+        
         $this->systemHelper->sendSuccessResponse(
             'Save Product Attribute Success',
             'The product attributes have been added successfully.'
         );
+    }
+
+    private function generateCombinations($groups) {
+        $result = [[]];
+        foreach ($groups as $attributeName => $attributeData) {
+            $temp = [];
+            foreach ($result as $combo) {
+                foreach ($attributeData['values'] as $value) {
+                    $temp[] = array_merge($combo, [
+                        [
+                            'attribute_id' => $attributeData['attribute_id'],
+                            'attribute_name' => $attributeName,
+                            'attribute_value_id' => $value['attribute_value_id'],
+                            'attribute_value_name' => $value['attribute_value_name']
+                        ]
+                    ]);
+                }
+            }
+            $result = $temp;
+        }
+        return $result;
     }
 
     public function insertProduct($lastLogBy){
@@ -813,6 +870,32 @@ class ProductController
                                             '. $logNotes .'
                                             '. $deleteButton .'
                                         </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateProductVariationTable($userId, $pageId)
+    {        
+        $pageLink   = $_POST['page_link'] ?? null;
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        $productVariations = $this->product->generateProductVariationTable($productId);
+
+        foreach ($productVariations as $row) {
+            $productId      = $row['product_id'];
+            $productName    = $row['product_name'];
+
+            $productIdEncrypted = $this->security->encryptData($productId);
+            $response[] = [
+                'PRODUCT_NAME'  => $productName,
+                'ACTION'        => '<div class="d-flex justify-content-end gap-3">
+                                        <a href="'. $pageLink .'&id='. $productIdEncrypted .'" class="btn btn-icon btn-light btn-active-light-primary" target="_blank" title="View Product">
+                                            <i class="ki-outline ki-eye fs-3 m-0 fs-5"></i>
+                                        </a>
+                                    </div>'
             ];
         }
 

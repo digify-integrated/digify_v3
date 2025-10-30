@@ -7306,6 +7306,14 @@ CREATE TABLE product_variant (
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
+ALTER TABLE product_variant
+ADD UNIQUE KEY uniq_product_variant_combo (
+  parent_product_id,
+  attribute_id,
+  attribute_value_id,
+  product_id
+);
+
 /* =============================================================================================
   INDEX: PRODUCT VARIANT
 ============================================================================================= */

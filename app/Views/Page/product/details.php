@@ -360,16 +360,29 @@
                     <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
-                                <h2>Variations</h2>
+                                <h2 class="me-4">Variation</h2>
+                            </div>
+                            <div class="card-toolbar">
+                                <div class="d-flex align-items-center position-relative my-1 me-3">
+                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-variation-datatable-search" placeholder="Search..." autocomplete="off" />
+                                </div>
+                                <select id="product-variation-datatable-length" class="form-select w-auto me-4">
+                                    <option value="-1">All</option>
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
                             </div>
                         </div>
                         
                         <div class="card-body pt-0">
-                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="product-attribute-table">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-variation-table">
                                 <thead>
                                     <tr class="fw-semibold fs-6 text-gray-800">
-                                        <th>Attribute</th>
-                                        <th>Attribute Value</th>
+                                        <th>Product</th>
                                         <th></th>
                                     </tr>
                                 </thead>

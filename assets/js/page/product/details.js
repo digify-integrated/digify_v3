@@ -189,7 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
 
+    initializeDatatable({
+        selector: '#product-variation-table',
+        ajaxUrl: './app/Controllers/ProductController.php',
+        transaction: 'generate product variation table',
+        ajaxData: {
+            product_id: product_id,
+            page_link: page_link,
+            page_id: page_id
+        },
+        columns: [
+            { data: 'PRODUCT_NAME' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: '5%', bSortable: false, targets: 1, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
     initializeSubDatatableControls('#product-attribute-datatable-search', '#product-attribute-datatable-length', '#product-attribute-table');
+    initializeSubDatatableControls('#product-variation-datatable-search', '#product-variation-datatable-length', '#product-variation-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'product');
 
     $('#product_category_form').validate({
