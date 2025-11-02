@@ -162,7 +162,6 @@ class ProductController
     public function saveProductAttribute($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        // --- Security validation ---
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
             $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
         }

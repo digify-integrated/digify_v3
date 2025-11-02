@@ -10525,6 +10525,70 @@ END //
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
 
+CREATE PROCEDURE saveSubProductAndVariants (
+    IN p_parent_product_id INT, 
+    IN p_variant_name VARCHAR(200),
+    IN p_variant_signature VARCHAR(200),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE existing_id INT;
+    DECLARE archived_status VARCHAR(20);
+    DECLARE v_new_subproduct_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT product_id, product_status
+    INTO existing_id, archived_status
+    FROM product
+    WHERE parent_product_id = p_parent_product_id
+    AND variant_signature = p_variant_signature
+    LIMIT 1;
+
+    IF existing_id IS NULL THEN
+        INSERT INTO product (
+            parent_product_id,
+            product_name,
+            variant_signature,
+            product_status,
+            last_log_by
+        ) VALUES (
+            p_parent_product_id,
+            p_variant_name,
+            p_variant_signature,
+            'Active',
+            p_last_log_by
+        );
+
+        SET v_new_subproduct_id = LAST_INSERT_ID();
+
+    ELSE
+        IF archived_status = 'Archived' THEN
+            UPDATE product
+            SET product_status  = 'Active',
+                product_name    = p_variant_name,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = existing_id;
+        ELSE
+            UPDATE product
+            SET product_name    = p_variant_name,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = existing_id;
+        END IF;
+
+        SET v_new_subproduct_id = existing_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_subproduct_id AS new_subproduct_id;
+END //
+
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
 ============================================================================================= */
