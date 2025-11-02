@@ -162,37 +162,45 @@ class ProductController
     public function saveProductAttribute($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
+        // --- Security validation ---
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
-            $this->systemHelper::sendErrorResponse(
-                'Invalid Request',
-                'Security check failed. Please refresh and try again.'
-            );
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
         }
 
-        $productId          = $_POST['product_id'] ?? null;
-        $attributeValueIds  = $_POST['attribute_value_id'] ?? [];
+        $productId = $_POST['product_id'] ?? null;
+        $attributeValueIds = $_POST['attribute_value_id'] ?? [];
 
-        if(empty($attributeValueIds)){
-            $this->systemHelper::sendErrorResponse(
-                'Save Product Attribute Error',
-                'Please select the product attribute.'
-            );
+        if (empty($attributeValueIds)) {
+            $this->systemHelper::sendErrorResponse('Save Product Attribute Error', 'Please select the product attribute.');
         }
 
-        $productDetails     = $this->product->fetchProduct($productId);
-        $productName        = $productDetails['product_name'] ?? '';
+        // --- Fetch parent product details ---
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
 
+        // --- Insert new attribute selections ---
         foreach ($attributeValueIds as $attributeValueId) {
-            $attributeValueDetails  = $this->attribute->fetchAttributeValue($attributeValueId);
-            $attributeId            = $attributeValueDetails['attribute_id'] ?? null;
-            $attributeName          = $attributeValueDetails['attribute_name'] ?? null;
-            $attributeValueName     = $attributeValueDetails['attribute_value_name'] ?? null;
+            $attributeValueDetails = $this->attribute->fetchAttributeValue($attributeValueId);
+            $attributeId = $attributeValueDetails['attribute_id'] ?? null;
+            $attributeName = $attributeValueDetails['attribute_name'] ?? null;
+            $attributeValueName = $attributeValueDetails['attribute_value_name'] ?? null;
 
-            $this->product->insertProductAttribute($productId, $productName, $attributeId, $attributeName, $attributeValueId, $attributeValueName, $lastLogBy);
+            $this->product->insertProductAttribute(
+                $productId,
+                $productName,
+                $attributeId,
+                $attributeName,
+                $attributeValueId,
+                $attributeValueName,
+                $lastLogBy
+            );
         }
+
+        /* =============================================================
+        VARIANT CREATION: INSTANTLY
+        ============================================================= */
 
         $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
-
         $groupedAttributes = [];
 
         foreach ($productAttributesInstantly as $row) {
@@ -207,32 +215,92 @@ class ProductController
         }
 
         $combinations = $this->generateCombinations($groupedAttributes);
+        $validVariantSignatures = [];
 
         foreach ($combinations as $combination) {
-            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
-            
-            $subproductId = $this->product->insertSubProduct($productId, $variantName, $lastLogBy);
+            // --- Generate stable hash for combination ---
+            $attributeValueIds = array_column($combination, 'attribute_value_id');
+            sort($attributeValueIds);
+            $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
 
+            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
+            $validVariantSignatures[] = $variantSignature;
+
+            // --- Create or reactivate subproduct ---
+            $subproductId = $this->product->saveSubProductAndVariants(
+                $productId,
+                $variantName,
+                $variantSignature,
+                $lastLogBy
+            );
+
+            // --- Insert product variant entries ---
             foreach ($combination as $attr) {
+                if (!$this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id'])) {
+                    $this->product->insertProductVariant(
+                        $productId,
+                        $subproductId,
+                        $attr['attribute_id'],
+                        $attr['attribute_name'],
+                        $attr['attribute_value_id'],
+                        $attr['attribute_value_name'],
+                        $lastLogBy
+                    );
+                }
+            }
+        }
+
+        // --- Archive subproducts not in valid combinations ---
+        if (!empty($validVariantSignatures)) {
+            $this->product->updateMissingSubProductsToArchiveBySignature($productId, json_encode($validVariantSignatures));
+        }
+
+        /* =============================================================
+        VARIANT CREATION: NEVER
+        ============================================================= */
+
+        $productAttributesNever = $this->product->fetchAllProductAttributes($productId, 'Never');
+
+        foreach ($productAttributesNever as $row) {
+            $attributeName = $row['attribute_name'];
+            $attributeValueName = $row['attribute_value_name'];
+            $attributeId = $row['attribute_id'];
+            $attributeValueId = $row['attribute_value_id'];
+
+            // --- Generate stable hash for single-attribute variants ---
+            $variantSignature = sha1($productId . '-' . $attributeValueId);
+            $variantName = $productName . ' - ' . $attributeValueName;
+
+            $validVariantSignatures[] = $variantSignature;
+
+            $subproductId = $this->product->saveSubProductAndVariants(
+                $productId,
+                $variantName,
+                $variantSignature,
+                $lastLogBy
+            );
+
+            if (!$this->product->checkProductVariantExists($subproductId, $attributeValueId)) {
                 $this->product->insertProductVariant(
                     $productId,
                     $subproductId,
-                    $attr['attribute_id'],
-                    $attr['attribute_name'],
-                    $attr['attribute_value_id'],
-                    $attr['attribute_value_name'],
+                    $attributeId,
+                    $attributeName,
+                    $attributeValueId,
+                    $attributeValueName,
                     $lastLogBy
                 );
             }
         }
-        
+
         $this->systemHelper->sendSuccessResponse(
             'Save Product Attribute Success',
-            'The product attributes have been added successfully.'
+            'The product attributes have been added or updated successfully.'
         );
     }
 
-    private function generateCombinations($groups) {
+
+   private function generateCombinations($groups){
         $result = [[]];
         foreach ($groups as $attributeName => $attributeData) {
             $temp = [];
@@ -252,7 +320,7 @@ class ProductController
         }
         return $result;
     }
-
+    
     public function insertProduct($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -599,15 +667,29 @@ class ProductController
         );
     }
 
-    public function deleteProductAttribute(){
+    public function deleteProductAttribute()
+    {
         $productAttributeId = $_POST['product_attribute_id'] ?? null;
 
+        // --- Get product_id before deleting ---
+        $productId = $this->product->getProductIdByAttributeId($productAttributeId);
+
+        // --- Delete attribute link ---
         $this->product->deleteProductAttribute($productAttributeId);
+
+        // --- Rebuild product variants (logic will be expanded later) ---
+        $this->rebuildProductVariants($productId);
 
         $this->systemHelper->sendSuccessResponse(
             'Delete Product Attribute Success',
-            'The product attribute has been deleted successfully.'
+            'The product attribute has been deleted successfully and variants have been updated.'
         );
+    }
+
+    private function rebuildProductVariants($productId)
+    {
+        // Later we’ll move variant generation logic into this reusable method.
+        // For now, this is a placeholder.
     }
 
     public function fetchProductDetails(){

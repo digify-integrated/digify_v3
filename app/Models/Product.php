@@ -8,6 +8,29 @@ class Product extends Model {
     /* =============================================================================================
         SECTION 1: SAVE METHODS
     ============================================================================================= */
+
+    public function saveSubProductAndVariants(
+        $p_parent_product_id,
+        $p_variant_name,
+        $p_variant_signature,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveSubProductAndVariants(
+            :p_parent_product_id,
+            :p_variant_name,
+            :p_variant_signature,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_parent_product_id' => $p_parent_product_id,
+            'p_variant_name'      => $p_variant_name,
+            'p_variant_signature' => $p_variant_signature,
+            'p_last_log_by'       => $p_last_log_by
+        ]);
+
+        return $row['subproduct_id'] ?? null;
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -28,26 +51,6 @@ class Product extends Model {
             'p_product_name'            => $p_product_name,
             'p_product_description'     => $p_product_description,
             'p_last_log_by'             => $p_last_log_by
-        ]);
-
-        return $row['new_product_id'] ?? null;
-    }
-
-    public function insertSubProduct(
-        $p_parent_product_id,
-        $p_variant_name,
-        $p_last_log_by
-    )    {
-        $sql = 'CALL insertSubProduct(
-            :p_parent_product_id,
-            :p_variant_name,
-            :p_last_log_by
-        )';
-
-        $row = $this->fetch($sql, [
-            'p_parent_product_id'   => $p_parent_product_id,
-            'p_variant_name'        => $p_variant_name,
-            'p_last_log_by'         => $p_last_log_by
         ]);
 
         return $row['new_product_id'] ?? null;
@@ -342,6 +345,21 @@ class Product extends Model {
         ]);
     }
 
+    public function updateMissingSubProductsToArchive($p_parent_product_id, $p_valid_variant_names_json, $p_last_log_by)
+    {
+        $sql = 'CALL updateMissingSubProductsToArchive(
+            :p_parent_product_id,
+            :p_valid_variant_names_json,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_parent_product_id'           => $p_parent_product_id,
+            'p_valid_variant_names_json'    => $p_valid_variant_names_json,
+            'p_last_log_by'                 => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 4: FETCH METHODS
     ============================================================================================= */
@@ -495,6 +513,19 @@ class Product extends Model {
         return $this->fetch($sql, [
             'p_product_id'  => $p_product_id,
             'p_barcode'     => $p_barcode
+        ]);
+    }
+
+    public function checkProductVariantExists($p_product_id, $p_attribute_value_id)
+    {
+        $sql = 'CALL checkProductVariantExists(
+            :p_product_id, 
+            :p_attribute_value_id
+        )';
+
+        return $this->fetch($sql, [
+            'p_product_id'          => $p_product_id,
+            'p_attribute_value_id'  => $p_attribute_value_id
         ]);
     }
 

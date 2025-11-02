@@ -7115,6 +7115,8 @@ CREATE TABLE product (
   product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_name VARCHAR(200) NOT NULL,
   product_description VARCHAR(1000),
+  parent_product_id INT UNSIGNED NULL,
+  parent_product_name VARCHAR(200),
   product_image VARCHAR(500),
   product_type ENUM('Goods','Services','Combo') DEFAULT 'Goods',
   sku VARCHAR(200) UNIQUE,
@@ -7125,7 +7127,7 @@ CREATE TABLE product (
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   cost DECIMAL(15,4) DEFAULT 0,
   sales_price DECIMAL(15,4) DEFAULT 0,
-  is_variant ENUM('Yes','No') DEFAULT 'No',   
+  is_variant ENUM('Yes','No') DEFAULT 'No',
   is_sellable ENUM('Yes','No') DEFAULT 'Yes',
   is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
   show_on_pos ENUM('Yes','No') DEFAULT 'Yes',
@@ -7133,19 +7135,24 @@ CREATE TABLE product (
   width DECIMAL(10,4) DEFAULT 0,
   height DECIMAL(10,4) DEFAULT 0,
   length DECIMAL(10,4) DEFAULT 0,
+  variant_signature VARCHAR(500) NULL,
   product_status ENUM('Active','Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
   FOREIGN KEY (unit_id) REFERENCES unit(unit_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id),
+  UNIQUE KEY uq_parent_signature (parent_product_id, variant_signature)
 );
 
 /* =============================================================================================
   INDEX: PRODUCT
 ============================================================================================= */
 
-CREATE INDEX idx_product_product_type ON product(product_type);
+CREATE INDEX idx_product_parent ON product(parent_product_id);
+CREATE INDEX idx_product_signature ON product(variant_signature);
+CREATE INDEX idx_product_type ON product(product_type);
 CREATE INDEX idx_product_barcode ON product(barcode);
 CREATE INDEX idx_product_sku ON product(sku);
 CREATE INDEX idx_product_unit_id ON product(unit_id);
@@ -7191,6 +7198,7 @@ CREATE TABLE product_tax (
 
 CREATE INDEX idx_product_tax_product_id ON product_tax(product_id);
 CREATE INDEX idx_product_tax_tax_type ON product_tax(tax_type);
+CREATE INDEX idx_product_tax_tax_id ON product_tax(tax_id);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT TAX
@@ -7303,15 +7311,8 @@ CREATE TABLE product_variant (
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
   FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-ALTER TABLE product_variant
-ADD UNIQUE KEY uniq_product_variant_combo (
-  parent_product_id,
-  attribute_id,
-  attribute_value_id,
-  product_id
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id),
+  UNIQUE KEY uq_variant_value (product_id, attribute_value_id)
 );
 
 /* =============================================================================================

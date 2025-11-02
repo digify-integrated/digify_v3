@@ -96,7 +96,11 @@ class AddressTypeController
         $addressTypeId      = $_POST['address_type_id'] ?? null;
         $addressTypeName    = $_POST['address_type_name'] ?? null;
 
-        $addressTypeId              = $this->addressType->saveAddressType($addressTypeId, $addressTypeName, $lastLogBy);
+        $addressTypeId              = $this->addressType->saveAddressType(
+                                            $addressTypeId, 
+                                            $addressTypeName, 
+                                            $lastLogBy
+                                        );
         $encryptedAddressTypeId     = $this->security->encryptData($addressTypeId);
 
         $this->systemHelper->sendSuccessResponse(

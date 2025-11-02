@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 30, 2025 at 10:31 AM
+-- Generation Time: Nov 02, 2025 at 07:51 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -13930,7 +13930,12 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (4, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-29 09:53:00', 1, '2025-10-29 09:53:00', '2025-10-29 09:53:00', 1),
 (5, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-30 08:20:10', 1, '2025-10-30 08:20:10', '2025-10-30 08:20:10', 1),
 (6, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-30 10:48:56', 1, '2025-10-30 10:48:56', '2025-10-30 10:48:56', 1),
-(7, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-30 11:57:03', 1, '2025-10-30 11:57:03', '2025-10-30 11:57:03', 1);
+(7, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-30 11:57:03', 1, '2025-10-30 11:57:03', '2025-10-30 11:57:03', 1),
+(8, NULL, 'lawrenceagulto.317@gmail.com', '::1', '2025-10-31 17:23:10', 0, '2025-10-31 17:23:10', '2025-10-31 17:23:10', 1),
+(9, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-31 17:23:19', 1, '2025-10-31 17:23:19', '2025-10-31 17:23:19', 1),
+(10, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-01 07:55:16', 1, '2025-11-01 07:55:16', '2025-11-01 07:55:16', 1),
+(11, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 12:08:54', 1, '2025-11-02 12:08:54', '2025-11-02 12:08:54', 1),
+(12, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 14:48:43', 1, '2025-11-02 14:48:43', '2025-11-02 14:48:43', 1);
 
 -- --------------------------------------------------------
 
@@ -14586,6 +14591,8 @@ CREATE TABLE `product` (
   `product_id` int(10) UNSIGNED NOT NULL,
   `product_name` varchar(200) NOT NULL,
   `product_description` varchar(1000) DEFAULT NULL,
+  `parent_product_id` int(10) UNSIGNED DEFAULT NULL,
+  `parent_product_name` varchar(200) DEFAULT NULL,
   `product_image` varchar(500) DEFAULT NULL,
   `product_type` enum('Goods','Services','Combo') DEFAULT 'Goods',
   `sku` varchar(200) DEFAULT NULL,
@@ -14604,6 +14611,7 @@ CREATE TABLE `product` (
   `width` decimal(10,4) DEFAULT 0.0000,
   `height` decimal(10,4) DEFAULT 0.0000,
   `length` decimal(10,4) DEFAULT 0.0000,
+  `variant_signature` varchar(500) DEFAULT NULL,
   `product_status` enum('Active','Archived') DEFAULT 'Active',
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -14614,119 +14622,8 @@ CREATE TABLE `product` (
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `product_image`, `product_type`, `sku`, `barcode`, `unit_id`, `unit_name`, `unit_abbreviation`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'testt', 'testt', NULL, 'Combo', '2', '2', 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'No', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-28 15:47:12', '2025-10-28 16:12:34', 2),
-(2, 'testt - Adidas - Green', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(3, 'testt - Adidas - Red', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(4, 'testt - Adidas - Blue', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(5, 'testt - Herschel - Green', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(6, 'testt - Herschel - Red', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(7, 'testt - Herschel - Blue', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(8, 'testt - Nike - Green', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(9, 'testt - Nike - Red', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(10, 'testt - Nike - Blue', 'testt', NULL, 'Combo', NULL, NULL, 44, 'Case', 'case', 12.0000, 2.0000, 1.0000, 'Yes', 'Yes', 'Yes', 'Yes', 1.0000, 2.0000, 3.0000, 4.0000, 'Active', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2);
-
---
--- Triggers `product`
---
-DROP TRIGGER IF EXISTS `trg_product_insert`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_insert` AFTER INSERT ON `product` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product created.';
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
-END
-$$
-DELIMITER ;
-DROP TRIGGER IF EXISTS `trg_product_update`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product changed.<br/><br/>';
-
-    IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Name: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
-    END IF;
-
-    IF NEW.product_description <> OLD.product_description THEN
-        SET audit_log = CONCAT(audit_log, "Product Description: ", OLD.product_description, " -> ", NEW.product_description, "<br/>");
-    END IF;
-
-    IF NEW.product_type <> OLD.product_type THEN
-        SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type, " -> ", NEW.product_type, "<br/>");
-    END IF;
-
-    IF NEW.sku <> OLD.sku THEN
-        SET audit_log = CONCAT(audit_log, "SKU: ", OLD.sku, " -> ", NEW.sku, "<br/>");
-    END IF;
-
-    IF NEW.barcode <> OLD.barcode THEN
-        SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
-    END IF;
-
-    IF NEW.unit_name <> OLD.unit_name THEN
-        SET audit_log = CONCAT(audit_log, "Unit: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
-    END IF;
-
-    IF NEW.unit_abbreviation <> OLD.unit_abbreviation THEN
-        SET audit_log = CONCAT(audit_log, "Unit Abbreviation: ", OLD.unit_abbreviation, " -> ", NEW.unit_abbreviation, "<br/>");
-    END IF;
-
-    IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
-        SET audit_log = CONCAT(audit_log, "Quantity On Hand: ", OLD.quantity_on_hand, " -> ", NEW.quantity_on_hand, "<br/>");
-    END IF;
-
-    IF NEW.cost <> OLD.cost THEN
-        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
-    END IF;
-
-    IF NEW.sales_price <> OLD.sales_price THEN
-        SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
-    END IF;
-
-    IF NEW.is_variant <> OLD.is_variant THEN
-        SET audit_log = CONCAT(audit_log, "Is Variant: ", OLD.is_variant, " -> ", NEW.is_variant, "<br/>");
-    END IF;
-
-    IF NEW.is_sellable <> OLD.is_sellable THEN
-        SET audit_log = CONCAT(audit_log, "Is Sellable: ", OLD.is_sellable, " -> ", NEW.is_sellable, "<br/>");
-    END IF;
-
-    IF NEW.is_purchasable <> OLD.is_purchasable THEN
-        SET audit_log = CONCAT(audit_log, "Is Purchasable: ", OLD.is_purchasable, " -> ", NEW.is_purchasable, "<br/>");
-    END IF;
-
-    IF NEW.show_on_pos <> OLD.show_on_pos THEN
-        SET audit_log = CONCAT(audit_log, "Show on POS: ", OLD.show_on_pos, " -> ", NEW.show_on_pos, "<br/>");
-    END IF;
-    
-    IF NEW.weight <> OLD.weight THEN
-        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " -> ", NEW.weight, " kg<br/>");
-    END IF;
-
-    IF NEW.width <> OLD.width THEN
-        SET audit_log = CONCAT(audit_log, "Width: ", OLD.width, " -> ", NEW.width, " cm<br/>");
-    END IF;
-
-    IF NEW.height <> OLD.height THEN
-        SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " -> ", NEW.height, " cm<br/>");
-    END IF;
-
-    IF NEW.length <> OLD.length THEN
-        SET audit_log = CONCAT(audit_log, "Length: ", OLD.length, " -> ", NEW.length, " cm<br/>");
-    END IF;
-
-    IF NEW.product_status <> OLD.product_status THEN
-        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
-    END IF;
-    
-    IF audit_log <> 'Product changed.<br/><br/>' THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END
-$$
-DELIMITER ;
+INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `unit_id`, `unit_name`, `unit_abbreviation`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Bag', 'Bag', NULL, NULL, NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2025-11-02 14:26:59', '2025-11-02 14:26:59', 2);
 
 -- --------------------------------------------------------
 
@@ -14747,18 +14644,6 @@ CREATE TABLE `product_attribute` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `product_attribute`
---
-
-INSERT INTO `product_attribute` (`product_attribute_id`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, 'testt', 1, 'Brand', 2, 'Adidas', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(2, 1, 'testt', 1, 'Brand', 3, 'Herschel', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(3, 1, 'testt', 1, 'Brand', 1, 'Nike', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(4, 1, 'testt', 2, 'Color', 6, 'Blue', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(5, 1, 'testt', 2, 'Color', 5, 'Green', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(6, 1, 'testt', 2, 'Color', 4, 'Red', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2);
 
 -- --------------------------------------------------------
 
@@ -14847,66 +14732,6 @@ CREATE TABLE `product_category_map` (
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `product_category_map`
---
-
-INSERT INTO `product_category_map` (`product_category_map_id`, `product_id`, `product_name`, `product_category_id`, `product_category_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 1, 'Test', 1, 'test', '2025-10-28 14:14:02', '2025-10-28 14:14:02', 2),
-(3, 1, 'Test', 2, 'test2', '2025-10-28 14:14:02', '2025-10-28 14:14:02', 2),
-(4, 2, 'testt - Adidas - Green', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(5, 2, 'testt - Adidas - Green', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(7, 3, 'testt - Adidas - Red', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(8, 3, 'testt - Adidas - Red', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(10, 4, 'testt - Adidas - Blue', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(11, 4, 'testt - Adidas - Blue', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(13, 5, 'testt - Herschel - Green', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(14, 5, 'testt - Herschel - Green', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(16, 6, 'testt - Herschel - Red', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(17, 6, 'testt - Herschel - Red', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(19, 7, 'testt - Herschel - Blue', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(20, 7, 'testt - Herschel - Blue', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(22, 8, 'testt - Nike - Green', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(23, 8, 'testt - Nike - Green', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(25, 9, 'testt - Nike - Red', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(26, 9, 'testt - Nike - Red', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(28, 10, 'testt - Nike - Blue', 1, 'test', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(29, 10, 'testt - Nike - Blue', 2, 'test2', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2);
-
---
--- Triggers `product_category_map`
---
-DROP TRIGGER IF EXISTS `trg_product_category_map_insert`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_category_map_insert` AFTER INSERT ON `product_category_map` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product category map created.';
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('product_category_map', NEW.product_category_map_id, audit_log, NEW.last_log_by, NOW());
-END
-$$
-DELIMITER ;
-DROP TRIGGER IF EXISTS `trg_product_category_map_update`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_category_map_update` AFTER UPDATE ON `product_category_map` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product category map changed.<br/><br/>';
-
-    IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
-    END IF;
-
-    IF NEW.product_category_name <> OLD.product_category_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Category: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
-    END IF;
-    
-    IF audit_log <> 'Product category map changed.<br/><br/>' THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('product_category_map', NEW.product_category_map_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -14925,44 +14750,6 @@ CREATE TABLE `product_tax` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Triggers `product_tax`
---
-DROP TRIGGER IF EXISTS `trg_product_tax_insert`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_tax_insert` AFTER INSERT ON `product_tax` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product tax created.';
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('product_tax', NEW.product_tax_id, audit_log, NEW.last_log_by, NOW());
-END
-$$
-DELIMITER ;
-DROP TRIGGER IF EXISTS `trg_product_tax_update`;
-DELIMITER $$
-CREATE TRIGGER `trg_product_tax_update` AFTER UPDATE ON `product_tax` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product tax changed.<br/><br/>';
-
-    IF NEW.product_name <> OLD.product_name THEN
-        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
-    END IF;
-
-    IF NEW.tax_type <> OLD.tax_type THEN
-        SET audit_log = CONCAT(audit_log, "Tax Type: ", OLD.tax_type, " -> ", NEW.tax_type, "<br/>");
-    END IF;
-
-    IF NEW.tax_name <> OLD.tax_name THEN
-        SET audit_log = CONCAT(audit_log, "Tax: ", OLD.tax_name, " -> ", NEW.tax_name, "<br/>");
-    END IF;
-    
-    IF audit_log <> 'Product tax changed.<br/><br/>' THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('product_tax', NEW.product_tax_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -14985,30 +14772,6 @@ CREATE TABLE `product_variant` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `product_variant`
---
-
-INSERT INTO `product_variant` (`product_variant_id`, `parent_product_id`, `parent_product_name`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, '', 2, '', 1, 'Brand', 2, 'Adidas', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(2, 1, '', 2, '', 2, 'Color', 5, 'Green', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(3, 1, '', 3, '', 1, 'Brand', 2, 'Adidas', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(4, 1, '', 3, '', 2, 'Color', 4, 'Red', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(5, 1, '', 4, '', 1, 'Brand', 2, 'Adidas', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(6, 1, '', 4, '', 2, 'Color', 6, 'Blue', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(7, 1, '', 5, '', 1, 'Brand', 3, 'Herschel', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(8, 1, '', 5, '', 2, 'Color', 5, 'Green', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(9, 1, '', 6, '', 1, 'Brand', 3, 'Herschel', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(10, 1, '', 6, '', 2, 'Color', 4, 'Red', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(11, 1, '', 7, '', 1, 'Brand', 3, 'Herschel', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(12, 1, '', 7, '', 2, 'Color', 6, 'Blue', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(13, 1, '', 8, '', 1, 'Brand', 1, 'Nike', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(14, 1, '', 8, '', 2, 'Color', 5, 'Green', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(15, 1, '', 9, '', 1, 'Brand', 1, 'Nike', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(16, 1, '', 9, '', 2, 'Color', 4, 'Red', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(17, 1, '', 10, '', 1, 'Brand', 1, 'Nike', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2),
-(18, 1, '', 10, '', 2, 'Color', 6, 'Blue', '2025-10-30 15:59:50', '2025-10-30 15:59:50', 2);
 
 -- --------------------------------------------------------
 
@@ -15556,7 +15319,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$xHcOAiROcL7DZrMM3yKTAu20.VThGSle8nvgZgIsUauIFYw0zFiPe', '2025-10-27 21:53:11', '2025-10-30 11:57:03', 1);
+(1, 2, '$2y$10$LpQastn8mENludtkx0uJ4.ld4.7Nji9BClHjdLAJT9KFI734SAL6S', '2025-10-27 21:53:11', '2025-11-02 14:48:43', 1);
 
 -- --------------------------------------------------------
 
@@ -16267,7 +16030,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-27 21:50:47', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-10-30 11:57:03', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-30 11:57:03', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-11-02 14:48:43', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-11-02 14:48:43', 1);
 
 --
 -- Triggers `user_account`
@@ -16905,8 +16668,11 @@ ALTER TABLE `product`
   ADD PRIMARY KEY (`product_id`),
   ADD UNIQUE KEY `sku` (`sku`),
   ADD UNIQUE KEY `barcode` (`barcode`),
+  ADD UNIQUE KEY `uq_parent_signature` (`parent_product_id`,`variant_signature`),
   ADD KEY `last_log_by` (`last_log_by`),
-  ADD KEY `idx_product_product_type` (`product_type`),
+  ADD KEY `idx_product_parent` (`parent_product_id`),
+  ADD KEY `idx_product_signature` (`variant_signature`),
+  ADD KEY `idx_product_type` (`product_type`),
   ADD KEY `idx_product_barcode` (`barcode`),
   ADD KEY `idx_product_sku` (`sku`),
   ADD KEY `idx_product_unit_id` (`unit_id`),
@@ -16948,17 +16714,17 @@ ALTER TABLE `product_category_map`
 --
 ALTER TABLE `product_tax`
   ADD PRIMARY KEY (`product_tax_id`),
-  ADD KEY `tax_id` (`tax_id`),
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_product_tax_product_id` (`product_id`),
-  ADD KEY `idx_product_tax_tax_type` (`tax_type`);
+  ADD KEY `idx_product_tax_tax_type` (`tax_type`),
+  ADD KEY `idx_product_tax_tax_id` (`tax_id`);
 
 --
 -- Indexes for table `product_variant`
 --
 ALTER TABLE `product_variant`
   ADD PRIMARY KEY (`product_variant_id`),
-  ADD UNIQUE KEY `uniq_product_variant_combo` (`parent_product_id`,`attribute_id`,`attribute_value_id`,`product_id`),
+  ADD UNIQUE KEY `uq_variant_value` (`product_id`,`attribute_value_id`),
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_product_variant_parent_product_id` (`parent_product_id`),
   ADD KEY `idx_product_variant_product_id` (`product_id`),
@@ -17350,7 +17116,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -17398,13 +17164,13 @@ ALTER TABLE `otp`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_attribute`
 --
 ALTER TABLE `product_attribute`
-  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `product_category`
@@ -17416,7 +17182,7 @@ ALTER TABLE `product_category`
 -- AUTO_INCREMENT for table `product_category_map`
 --
 ALTER TABLE `product_category_map`
-  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `product_tax`
@@ -17428,7 +17194,7 @@ ALTER TABLE `product_tax`
 -- AUTO_INCREMENT for table `product_variant`
 --
 ALTER TABLE `product_variant`
-  MODIFY `product_variant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `product_variant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `relationship`
@@ -17831,8 +17597,9 @@ ALTER TABLE `otp`
 -- Constraints for table `product`
 --
 ALTER TABLE `product`
-  ADD CONSTRAINT `product_ibfk_1` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
-  ADD CONSTRAINT `product_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+  ADD CONSTRAINT `product_ibfk_1` FOREIGN KEY (`parent_product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `product_ibfk_2` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`unit_id`),
+  ADD CONSTRAINT `product_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `product_attribute`
