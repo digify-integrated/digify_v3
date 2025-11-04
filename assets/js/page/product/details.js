@@ -211,6 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeSubDatatableControls('#product-attribute-datatable-search', '#product-attribute-datatable-length', '#product-attribute-table');
     initializeSubDatatableControls('#product-variation-datatable-search', '#product-variation-datatable-length', '#product-variation-table');
+    initializeDatePicker('#validity_start_date');
+    initializeDatePicker('#validity_end_date');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'product');
 
     $('#product_category_form').validate({
@@ -588,6 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                     enableButton('submit-product-attribute');
                     reloadDatatable('#product-attribute-table');
+                    reloadDatatable('#product-variation-table');
                     $('#product-attributes-modal').modal('hide');
                     resetForm('product_attribute_form');
                 }
@@ -601,6 +604,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 enableButton('submit-product-attribute');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#product_pricelist_form').validate({
+        rules: {
+            discount_type: { required: true },
+            fixed_price: { required: true },
+            min_quantity: { required: true },
+            validity_start_date: { required: true }
+        },
+        messages: {
+            discount_type: { required: 'Choose the discount type' },
+            fixed_price: { required: 'Enter the fixed price' },
+            min_quantity: { required: 'Enter the minimum quantity' },
+            validity_start_date: { required: 'Choose the validity start date' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save product pricelist';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+
+            disableButton('submit-product-pricelist');
+
+            try {
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save pricelist failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-product-pricelist');
+                    reloadDatatable('#product-pricelist-table');
+                    $('#product-pricelist-modal').modal('hide');
+                    resetForm('product_pricelist_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-product-pricelist');
+                }
+            } catch (error) {
+                enableButton('submit-product-pricelist');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -699,6 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         reloadDatatable('#product-attribute-table');
+                        reloadDatatable('#product-variation-table');
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

@@ -8,6 +8,7 @@
 
     $productDetails     = $product->fetchProduct($detailID);
     $productStatus      = $productDetails['product_status'] ?? 'Active';
+    $isVariant          = $productDetails['is_variant'] ?? 'No';
 ?>
 <div class="d-flex flex-column flex-lg-row">
     <div class="flex-column flex-lg-row-auto w-lg-250px w-xl-350px mb-10">
@@ -279,7 +280,6 @@
                                                 <div class="d-flex gap-3">
                                                     <select id="product_type" name="product_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
                                                         <option value="">--</option>
-                                                        <option value="Combo">Combo</option>
                                                         <option value="Goods">Goods</option>
                                                         <option value="Services">Services</option>
                                                     </select>
@@ -317,7 +317,7 @@
                         ?>
                     </div>
 
-                    <div class="card card-flush py-4">
+                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Attributes</h2>
@@ -357,7 +357,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4">
+                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Variation</h2>
@@ -394,12 +394,24 @@
                     <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
-                                <h2>Pricelist</h2>
+                                <h2 class="me-4">Pricelist</h2>
                             </div>
                             <div class="card-toolbar">
+                                <div class="d-flex align-items-center position-relative my-1 me-3">
+                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-pricelist-datatable-search" placeholder="Search..." autocomplete="off" />
+                                </div>
+                                <select id="product-pricelist-datatable-length" class="form-select w-auto me-4">
+                                    <option value="-1">All</option>
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
                                 <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                     <?php
-                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" id="product-pricelist">Add Pricelist</button>' : '';
+                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" id="add-pricelist-attribute">Add Pricelist</button>' : '';
                                     ?> 
                                 </div>
                             </div>
@@ -409,9 +421,11 @@
                             <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="product-pricelist-table">
                                 <thead>
                                     <tr class="fw-semibold fs-6 text-gray-800">
-                                        <th>Variation</th>
-                                        <th>Attribute</th>
-                                        <th>Extra Price</th>
+                                        <th>Discount Type</th>
+                                        <th>Discount</th>
+                                        <th>Min. Quantity</th>
+                                        <th>Validity Period</th>
+                                        <th>Remarks</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -499,6 +513,91 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="product_attribute_form" class="btn btn-primary" id="submit-product-attribute">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="product-pricelist-modal" class="modal fade" tabindex="-1" aria-labelledby="product-pricelist-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Pricelist</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="product_pricelist_form" method="post" action="#">
+                    <?= $security->csrfInput('product_pricelist_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="discount_type">Discount Type</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="discount_type" name="discount_type" class="form-select" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <option value="Percentage">Percentage</option>
+                                        <option value="Fixed Amount">Fixed Amount</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="fixed_price">Fixed Price</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input type="number" id="fixed_price" name="fixed_price" class="form-control" min="0" step="0.01" />
+                                </div>
+                            </div>
+                        </div>
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="min_quantity">Minimum Qty.</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input type="number" id="min_quantity" name="min_quantity" class="form-control" min="0" step="1" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="validity_start_date">Validity Start Date</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                   <input class="form-control mb-3 mb-lg-0" id="validity_start_date" name="validity_start_date" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                        <label class="col-lg-3 col-form-label fw-semibold fs-6" for="validity_end_date">Validity End Date</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input class="form-control mb-3 mb-lg-0" id="validity_end_date" name="validity_end_date" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-3 col-form-label fw-semibold fs-6" for="pricelist_id">Remarks</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="product_pricelist_form" class="btn btn-primary" id="submit-product-pricelist">Assign</button>
             </div>
         </div>
     </div>

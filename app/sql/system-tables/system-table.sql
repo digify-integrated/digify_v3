@@ -7297,9 +7297,9 @@ DROP TABLE IF EXISTS product_variant;
 CREATE TABLE product_variant (
   product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   parent_product_id INT UNSIGNED NOT NULL,
-  parent_product_name VARCHAR(100) NOT NULL,
+  parent_product_name VARCHAR(200) NOT NULL,
   product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
   attribute_id INT UNSIGNED NOT NULL,
   attribute_name VARCHAR(100) NOT NULL,
   attribute_value_id INT UNSIGNED NOT NULL,
@@ -7326,6 +7326,45 @@ CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT VARIANT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PRODUCT PRICELIST
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_pricelist;
+
+CREATE TABLE product_pricelist (
+  product_pricelist_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  discount_type ENUM('Percentage','Fixed Amount') DEFAULT 'Percentage',
+  fixed_price DECIMAL(10,2) DEFAULT 0,
+  min_quantity INT DEFAULT 0,
+  validity_start_date DATE NOT NULL,
+  validity_end_date DATE,
+  remarks VARCHAR(1000),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT PRICELIST
+============================================================================================= */
+
+CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT PRICELIST
 ============================================================================================= */
 
 /* =============================================================================================

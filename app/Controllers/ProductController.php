@@ -93,6 +93,7 @@ class ProductController
         match ($transaction) {
             'save product category'             => $this->saveProductCategory($lastLogBy),
             'save product attribute'            => $this->saveProductAttribute($lastLogBy),
+            'save product pricelist'            => $this->saveProductPricelist($lastLogBy),
             'insert product'                    => $this->insertProduct($lastLogBy),
             'update product general'            => $this->updateProductGeneral($lastLogBy),
             'update product inventory'          => $this->updateProductInventory($lastLogBy),
@@ -173,11 +174,9 @@ class ProductController
             $this->systemHelper::sendErrorResponse('Save Product Attribute Error', 'Please select the product attribute.');
         }
 
-        // --- Fetch parent product details ---
         $productDetails = $this->product->fetchProduct($productId);
         $productName = $productDetails['product_name'] ?? '';
 
-        // --- Insert new attribute selections ---
         foreach ($attributeValueIds as $attributeValueId) {
             $attributeValueDetails = $this->attribute->fetchAttributeValue($attributeValueId);
             $attributeId = $attributeValueDetails['attribute_id'] ?? null;
@@ -195,50 +194,55 @@ class ProductController
             );
         }
 
-        /* =============================================================
-        VARIANT CREATION: INSTANTLY
-        ============================================================= */
+        $this->product->updateAllSubProductsDeactivate(
+            $productId,
+            $lastLogBy
+        );
+        
+        $productAttributesInstantly = $this->product->fetchAllProductAttributes(
+            $productId,
+            'Instantly'
+        );
 
-        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
         $groupedAttributes = [];
 
         foreach ($productAttributesInstantly as $row) {
-            $attributeName = $row['attribute_name'];
-            $attributeId = $row['attribute_id'];
+            $attributeName  = $row['attribute_name'];
+            $attributeId    = $row['attribute_id'];
 
             $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
             $groupedAttributes[$attributeName]['values'][] = [
-                'attribute_value_id' => $row['attribute_value_id'],
-                'attribute_value_name' => $row['attribute_value_name']
+                'attribute_value_id'    => $row['attribute_value_id'],
+                'attribute_value_name'  => $row['attribute_value_name']
             ];
         }
 
         $combinations = $this->generateCombinations($groupedAttributes);
-        $validVariantSignatures = [];
 
         foreach ($combinations as $combination) {
-            // --- Generate stable hash for combination ---
             $attributeValueIds = array_column($combination, 'attribute_value_id');
             sort($attributeValueIds);
             $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
 
             $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
-            $validVariantSignatures[] = $variantSignature;
 
-            // --- Create or reactivate subproduct ---
             $subproductId = $this->product->saveSubProductAndVariants(
                 $productId,
+                $productName,
                 $variantName,
                 $variantSignature,
                 $lastLogBy
             );
 
-            // --- Insert product variant entries ---
             foreach ($combination as $attr) {
-                if (!$this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id'])) {
+                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
+
+                if ($checkProductVariantExists['total'] == 0) {
                     $this->product->insertProductVariant(
                         $productId,
+                        $productName,
                         $subproductId,
+                        $variantName,
                         $attr['attribute_id'],
                         $attr['attribute_name'],
                         $attr['attribute_value_id'],
@@ -249,40 +253,36 @@ class ProductController
             }
         }
 
-        // --- Archive subproducts not in valid combinations ---
-        if (!empty($validVariantSignatures)) {
-            $this->product->updateMissingSubProductsToArchiveBySignature($productId, json_encode($validVariantSignatures));
-        }
-
-        /* =============================================================
-        VARIANT CREATION: NEVER
-        ============================================================= */
-
-        $productAttributesNever = $this->product->fetchAllProductAttributes($productId, 'Never');
+        $productAttributesNever = $this->product->fetchAllProductAttributes(
+            $productId,
+            'Never'
+        );
 
         foreach ($productAttributesNever as $row) {
-            $attributeName = $row['attribute_name'];
-            $attributeValueName = $row['attribute_value_name'];
             $attributeId = $row['attribute_id'];
+            $attributeName = $row['attribute_name'];
             $attributeValueId = $row['attribute_value_id'];
+            $attributeValueName = $row['attribute_value_name'];
 
-            // --- Generate stable hash for single-attribute variants ---
             $variantSignature = sha1($productId . '-' . $attributeValueId);
             $variantName = $productName . ' - ' . $attributeValueName;
 
-            $validVariantSignatures[] = $variantSignature;
-
             $subproductId = $this->product->saveSubProductAndVariants(
                 $productId,
+                $productName,
                 $variantName,
                 $variantSignature,
                 $lastLogBy
             );
 
-            if (!$this->product->checkProductVariantExists($subproductId, $attributeValueId)) {
+            $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attributeValueId);   
+
+            if ($checkProductVariantExists['total'] == 0) {
                 $this->product->insertProductVariant(
                     $productId,
+                    $productName,
                     $subproductId,
+                    $variantName,
                     $attributeId,
                     $attributeName,
                     $attributeValueId,
@@ -294,32 +294,54 @@ class ProductController
 
         $this->systemHelper->sendSuccessResponse(
             'Save Product Attribute Success',
-            'The product attributes have been added or updated successfully.'
+            'The product attributes have been saved successfully.'
         );
     }
 
+    public function saveProductPricelist($lastLogBy){
+        $csrfToken = $_POST['csrf_token'] ?? null;
 
-   private function generateCombinations($groups){
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $productId = $_POST['product_id'] ?? null;
+        $attributeValueIds = $_POST['attribute_value_id'];
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
+
+        $this->product->saveProductPricelist(
+            $productId,
+            $productName,
+            $lastLogBy
+        );
+
+        $this->systemHelper->sendSuccessResponse(
+            'Save Product Pricelist Success',
+            'The product pricelist has been saved successfully.'
+        );
+    }
+
+    private function generateCombinations($groups) {
         $result = [[]];
         foreach ($groups as $attributeName => $attributeData) {
             $temp = [];
             foreach ($result as $combo) {
                 foreach ($attributeData['values'] as $value) {
-                    $temp[] = array_merge($combo, [
-                        [
-                            'attribute_id' => $attributeData['attribute_id'],
-                            'attribute_name' => $attributeName,
-                            'attribute_value_id' => $value['attribute_value_id'],
-                            'attribute_value_name' => $value['attribute_value_name']
-                        ]
-                    ]);
+                    $temp[] = array_merge($combo, [[
+                        'attribute_id' => $attributeData['attribute_id'],
+                        'attribute_name' => $attributeName,
+                        'attribute_value_id' => $value['attribute_value_id'],
+                        'attribute_value_name' => $value['attribute_value_name']
+                    ]]);
                 }
             }
             $result = $temp;
         }
         return $result;
     }
-    
+
     public function insertProduct($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -513,8 +535,8 @@ class ProductController
     public function updateProductShowOnPos($lastLogBy){
         $productId          = $_POST['product_id'] ?? null;
         $productDetails     = $this->product->fetchProduct($productId);
-        $showOnPos      = $productDetails['show_on_pos'] ?? 'Yes';
-        $showOnPos      = ($showOnPos === 'Yes') ? 'No' : 'Yes';
+        $showOnPos          = $productDetails['show_on_pos'] ?? 'Yes';
+        $showOnPos          = ($showOnPos === 'Yes') ? 'No' : 'Yes';
 
         $this->product->updateProductSettings($productId, $showOnPos, 'show on pos', $lastLogBy);
 
@@ -666,29 +688,81 @@ class ProductController
         );
     }
 
-    public function deleteProductAttribute()
-    {
+    public function deleteProductAttribute() {
         $productAttributeId = $_POST['product_attribute_id'] ?? null;
 
-        // --- Get product_id before deleting ---
-        $productId = $this->product->getProductIdByAttributeId($productAttributeId);
+        $productAttributeDetails = $this->product->fetchProductAttribute($productAttributeId);
+        $productId = $productAttributeDetails['product_id'] ?? null;
 
-        // --- Delete attribute link ---
         $this->product->deleteProductAttribute($productAttributeId);
 
-        // --- Rebuild product variants (logic will be expanded later) ---
         $this->rebuildProductVariants($productId);
 
         $this->systemHelper->sendSuccessResponse(
             'Delete Product Attribute Success',
-            'The product attribute has been deleted successfully and variants have been updated.'
+            'The product attribute was deleted and the variants have been regenerated.'
         );
     }
 
-    private function rebuildProductVariants($productId)
-    {
-        // Later we’ll move variant generation logic into this reusable method.
-        // For now, this is a placeholder.
+    private function rebuildProductVariants($productId) {
+        $lastLogBy = $_SESSION['user_account_id'] ?? 1;
+
+        $this->product->updateAllSubProductsDeactivate(
+            $productId,
+            $lastLogBy
+        );
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
+
+        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
+        $groupedAttributes = [];
+
+        foreach ($productAttributesInstantly as $row) {
+            $attributeName = $row['attribute_name'];
+            $attributeId = $row['attribute_id'];
+            $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
+            $groupedAttributes[$attributeName]['values'][] = [
+                'attribute_value_id' => $row['attribute_value_id'],
+                'attribute_value_name' => $row['attribute_value_name']
+            ];
+        }
+
+        $combinations = $this->generateCombinations($groupedAttributes);
+
+        foreach ($combinations as $combination) {
+            $attributeValueIds = array_column($combination, 'attribute_value_id');
+            sort($attributeValueIds);
+            $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
+
+            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
+
+            $subproductId = $this->product->saveSubProductAndVariants(
+                $productId,
+                $productName,
+                $variantName,
+                $variantSignature,
+                $lastLogBy
+            );
+
+            foreach ($combination as $attr) {
+                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
+
+                if ($checkProductVariantExists['total'] == 0) {
+                    $this->product->insertProductVariant(
+                        $productId,
+                        $productName,
+                        $subproductId,
+                        $variantName,
+                        $attr['attribute_id'],
+                        $attr['attribute_name'],
+                        $attr['attribute_value_id'],
+                        $attr['attribute_value_name'],
+                        $lastLogBy
+                    );
+                }
+            }
+        }
     }
 
     public function fetchProductDetails(){
@@ -797,8 +871,7 @@ class ProductController
         exit;
     }
 
-    public function generateProductCard()
-    {
+    public function generateProductCard(){
         $pageLink               = $_POST['page_link'] ?? null;
         $searchValue            = $_POST['search_value'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
@@ -850,8 +923,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductTable()
-    {
+    public function generateProductTable(){
         $pageLink               = $_POST['page_link'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
         $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
@@ -915,8 +987,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductAttributeTable($userId, $pageId)
-    {
+    public function generateProductAttributeTable($userId, $pageId){
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
 
@@ -957,8 +1028,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductVariationTable($userId, $pageId)
-    {        
+    public function generateProductVariationTable($userId, $pageId){        
         $pageLink   = $_POST['page_link'] ?? null;
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
@@ -983,8 +1053,7 @@ class ProductController
         echo json_encode($response);
     }
     
-    public function generateProductOptions()
-    {
+    public function generateProductOptions(){
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 

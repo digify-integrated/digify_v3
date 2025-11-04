@@ -10525,15 +10525,16 @@ END //
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
 
-CREATE PROCEDURE saveSubProductAndVariants (
-    IN p_parent_product_id INT, 
-    IN p_variant_name VARCHAR(200),
-    IN p_variant_signature VARCHAR(200),
+DROP PROCEDURE IF EXISTS saveSubProductAndVariants//
+CREATE PROCEDURE saveSubProductAndVariants(
+    IN p_parent_product_id INT,
+    IN p_parent_product_name VARCHAR(200),
+    IN p_variant_name VARCHAR(255),
+    IN p_variant_signature CHAR(40),
     IN p_last_log_by INT
 )
 BEGIN
     DECLARE existing_id INT;
-    DECLARE archived_status VARCHAR(20);
     DECLARE v_new_subproduct_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -10543,43 +10544,111 @@ BEGIN
 
     START TRANSACTION;
 
-    SELECT product_id, product_status
-    INTO existing_id, archived_status
+    SELECT product_id
+    INTO existing_id
     FROM product
     WHERE parent_product_id = p_parent_product_id
-    AND variant_signature = p_variant_signature
+      AND variant_signature = p_variant_signature
     LIMIT 1;
 
     IF existing_id IS NULL THEN
         INSERT INTO product (
             parent_product_id,
+            parent_product_name,
             product_name,
+            product_description,
+            product_image,
+            product_type,
+            sku,
+            barcode,
+            unit_id,
+            unit_name,
+            unit_abbreviation,
+            cost,
+            sales_price,
+            is_variant,
+            is_sellable,
+            is_purchasable,
+            show_on_pos,
+            weight,
+            width,
+            height,
+            length,
             variant_signature,
             product_status,
             last_log_by
-        ) VALUES (
+        )
+        SELECT
             p_parent_product_id,
+            p_parent_product_name,
             p_variant_name,
+            p.product_description,
+            p.product_image,
+            p.product_type,
+            NULL,
+            NULL,
+            p.unit_id,
+            p.unit_name,
+            p.unit_abbreviation,
+            p.cost,
+            p.sales_price,
+            'Yes',
+            p.is_sellable,
+            p.is_purchasable,
+            p.show_on_pos,
+            p.weight,
+            p.width,
+            p.height,
+            p.length,
             p_variant_signature,
             'Active',
             p_last_log_by
-        );
+        FROM product p
+        WHERE p.product_id = p_parent_product_id;
 
         SET v_new_subproduct_id = LAST_INSERT_ID();
 
+        INSERT INTO product_category_map (
+            product_id,
+            product_name,
+            product_category_id,
+            product_category_name,
+            last_log_by
+        )
+        SELECT
+            v_new_subproduct_id,
+            p_variant_name,
+            pcm.product_category_id,
+            pcm.product_category_name,
+            p_last_log_by
+        FROM product_category_map pcm
+        WHERE pcm.product_id = p_parent_product_id;
+
+        INSERT INTO product_tax (
+            product_id,
+            product_name,
+            tax_type,
+            tax_id,
+            tax_name,
+            last_log_by
+        )
+        SELECT
+            v_new_subproduct_id,
+            p_variant_name,
+            pt.tax_type,
+            pt.tax_id,
+            pt.tax_name,
+            p_last_log_by
+        FROM product_tax pt
+        WHERE pt.product_id = p_parent_product_id;
+
     ELSE
-        IF archived_status = 'Archived' THEN
-            UPDATE product
-            SET product_status  = 'Active',
-                product_name    = p_variant_name,
-                last_log_by     = p_last_log_by
-            WHERE product_id    = existing_id;
-        ELSE
-            UPDATE product
-            SET product_name    = p_variant_name,
-                last_log_by     = p_last_log_by
-            WHERE product_id    = existing_id;
-        END IF;
+        -- Reactivate existing variant
+        UPDATE product
+        SET product_status = 'Active',
+            product_name = p_variant_name,
+            last_log_by = p_last_log_by
+        WHERE product_id = existing_id;
 
         SET v_new_subproduct_id = existing_id;
     END IF;
@@ -10746,7 +10815,9 @@ DROP PROCEDURE IF EXISTS insertProductVariant //
 
 CREATE PROCEDURE insertProductVariant(
     IN p_parent_product_id INT,
+    IN p_parent_product_name VARCHAR(200),
     IN p_product_id INT,
+    IN p_product_name VARCHAR(200),
     IN p_attribute_id INT,
     IN p_attribute_name VARCHAR(100),
     IN p_attribute_value_id INT,
@@ -10763,7 +10834,9 @@ BEGIN
 
     INSERT INTO product_variant (
         parent_product_id,
+        parent_product_name,
         product_id,
+        product_name,
         attribute_id,
         attribute_name,
         attribute_value_id,
@@ -10772,7 +10845,9 @@ BEGIN
     )
     VALUES (
         p_parent_product_id,
+        p_parent_product_name,
         p_product_id,
+        p_product_name,
         p_attribute_id,
         p_attribute_name,
         p_attribute_value_id,
@@ -10945,6 +11020,30 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateAllSubProductsDeactivate//
+
+CREATE PROCEDURE updateAllSubProductsDeactivate(
+	IN p_parent_product_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status = 'Archived'
+    WHERE parent_product_id = p_parent_product_id
+    AND is_variant = 'Yes'
+    AND variant_signature IS NOT NULL
+    AND product_status = 'Active';
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS updateProductImage//
 
 CREATE PROCEDURE updateProductImage(
@@ -11041,6 +11140,17 @@ CREATE PROCEDURE fetchProductTax(
 BEGIN
 	SELECT * FROM product_tax
 	WHERE product_id = p_product_id AND tax_type = p_tax_type;
+END //
+
+DROP PROCEDURE IF EXISTS fetchProductAttribute//
+
+CREATE PROCEDURE fetchProductAttribute(
+	IN p_product_attribute INT
+)
+BEGIN
+	SELECT * FROM product_attribute
+    WHERE product_attribute_id = p_product_attribute
+    LIMIT 1;
 END //
 
 DROP PROCEDURE IF EXISTS fetchAllProductAttributes//
@@ -11162,6 +11272,19 @@ BEGIN
     FROM product
     WHERE product_id != p_product_id 
     AND barcode = p_barcode;
+END //
+
+DROP PROCEDURE IF EXISTS checkProductVariantExists //
+
+CREATE PROCEDURE checkProductVariantExists (
+	IN p_subproduct_id INT,
+    IN p_attribute_value_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_variant
+    WHERE product_id = p_subproduct_id
+    AND attribute_value_id = p_attribute_value_id;
 END //
 
 /* =============================================================================================
@@ -11314,7 +11437,8 @@ BEGIN
     SELECT product_id, product_name
     FROM product 
     WHERE is_variant = "Yes"
-    AND product_id IN (SELECT product_id FROM product_variant WHERE parent_product_id = p_product_id);
+    AND product_status = "Active"
+    AND parent_product_id = p_product_id;
 END //
 
 /* =============================================================================================

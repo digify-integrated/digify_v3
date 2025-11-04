@@ -11,25 +11,28 @@ class Product extends Model {
 
     public function saveSubProductAndVariants(
         $p_parent_product_id,
+        $p_parent_product_name,
         $p_variant_name,
         $p_variant_signature,
         $p_last_log_by
     ) {
         $sql = 'CALL saveSubProductAndVariants(
             :p_parent_product_id,
+            :p_parent_product_name,
             :p_variant_name,
             :p_variant_signature,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
-            'p_parent_product_id' => $p_parent_product_id,
-            'p_variant_name'      => $p_variant_name,
-            'p_variant_signature' => $p_variant_signature,
-            'p_last_log_by'       => $p_last_log_by
+            'p_parent_product_id'       => $p_parent_product_id,
+            'p_parent_product_name'     => $p_parent_product_name,
+            'p_variant_name'            => $p_variant_name,
+            'p_variant_signature'       => $p_variant_signature,
+            'p_last_log_by'             => $p_last_log_by
         ]);
 
-        return $row['subproduct_id'] ?? null;
+        return $row['new_subproduct_id'] ?? null;
     }
     
     /* =============================================================================================
@@ -58,7 +61,9 @@ class Product extends Model {
 
     public function insertProductVariant(
         $p_parent_product_id,
+        $p_parent_product_name,
         $p_product_id,
+        $p_product_name,
         $p_attribute_id,
         $p_attribute_name,
         $p_attribute_value_id,
@@ -67,7 +72,9 @@ class Product extends Model {
     )    {
         $sql = 'CALL insertProductVariant(
             :p_parent_product_id,
+            :p_parent_product_name,
             :p_product_id,
+            :p_product_name,
             :p_attribute_id,
             :p_attribute_name,
             :p_attribute_value_id,
@@ -76,8 +83,10 @@ class Product extends Model {
         )';
 
         $row = $this->query($sql, [
-            'p_parent_product_id'      => $p_parent_product_id,
+            'p_parent_product_id'       => $p_parent_product_id,
+            'p_parent_product_name'     => $p_parent_product_name,
             'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
             'p_attribute_id'            => $p_attribute_id,
             'p_attribute_name'          => $p_attribute_name,
             'p_attribute_value_id'      => $p_attribute_value_id,
@@ -306,6 +315,21 @@ class Product extends Model {
         ]);
     }
 
+    public function updateAllSubProductsDeactivate(
+        $p_parent_product_id,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL updateAllSubProductsDeactivate(
+            :p_parent_product_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_parent_product_id'   => $p_parent_product_id,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
     public function updateProductSettings(
         $p_product_id,
         $p_value,
@@ -342,21 +366,6 @@ class Product extends Model {
             'p_product_id'      => $p_product_id,
             'p_product_image'   => $p_product_image,
             'p_last_log_by'     => $p_last_log_by
-        ]);
-    }
-
-    public function updateMissingSubProductsToArchive($p_parent_product_id, $p_valid_variant_names_json, $p_last_log_by)
-    {
-        $sql = 'CALL updateMissingSubProductsToArchive(
-            :p_parent_product_id,
-            :p_valid_variant_names_json,
-            :p_last_log_by
-        )';
-
-        return $this->query($sql, [
-            'p_parent_product_id'           => $p_parent_product_id,
-            'p_valid_variant_names_json'    => $p_valid_variant_names_json,
-            'p_last_log_by'                 => $p_last_log_by
         ]);
     }
 
@@ -403,18 +412,30 @@ class Product extends Model {
         ]);
     }
 
+    public function fetchProductAttribute(
+        $p_product_attribute_id
+    ) {
+        $sql = 'CALL fetchProductAttribute(
+            :p_product_attribute_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_attribute_id' => $p_product_attribute_id
+        ]);
+    }
+
     public function fetchAllProductAttributes(
         $p_product_id,
-        $p_tax_type
+        $p_creation_type
     ) {
         $sql = 'CALL fetchAllProductAttributes(
             :p_product_id,
-            :p_tax_type
+            :p_creation_type
         )';
         
         return $this->fetchAll($sql, [
-            'p_product_id'  => $p_product_id,
-            'p_tax_type'    => $p_tax_type
+            'p_product_id'      => $p_product_id,
+            'p_creation_type'   => $p_creation_type
         ]);
     }
     

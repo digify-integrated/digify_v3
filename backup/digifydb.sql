@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 02, 2025 at 07:51 AM
+-- Generation Time: Nov 04, 2025 at 10:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -272,6 +272,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductSKUExist` (IN `p_produc
     FROM product
     WHERE product_id != p_product_id 
     AND sku = p_sku;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkProductVariantExists`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductVariantExists` (IN `p_subproduct_id` INT, IN `p_attribute_value_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_variant
+    WHERE product_id = p_subproduct_id
+    AND attribute_value_id = p_attribute_value_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkRateLimited`$$
@@ -1794,6 +1802,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProduct` (IN `p_product_id` IN
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchProductAttribute`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductAttribute` (IN `p_product_attribute` INT)   BEGIN
+	SELECT * FROM product_attribute
+    WHERE product_attribute_id = p_product_attribute
+    LIMIT 1;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchProductCategories`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductCategories` (IN `p_product_id` INT)   BEGIN
 	SELECT * FROM product_categories
@@ -2951,7 +2966,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductVariationTable` (IN 
     SELECT product_id, product_name
     FROM product 
     WHERE is_variant = "Yes"
-    AND product_id IN (SELECT product_id FROM product_variant WHERE parent_product_id = p_product_id);
+    AND product_status = "Active"
+    AND parent_product_id = p_product_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `generatePurchaseTaxOptions`$$
@@ -3710,17 +3726,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductTax` (IN `p_product_id
 END$$
 
 DROP PROCEDURE IF EXISTS `insertProductVariant`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductVariant` (IN `p_parent_product_id` INT, IN `p_product_id` INT, IN `p_attribute_id` INT, IN `p_attribute_name` VARCHAR(100), IN `p_attribute_value_id` INT, IN `p_attribute_value_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductVariant` (IN `p_parent_product_id` INT, IN `p_parent_product_name` VARCHAR(200), IN `p_product_id` INT, IN `p_product_name` VARCHAR(200), IN `p_attribute_id` INT, IN `p_attribute_name` VARCHAR(100), IN `p_attribute_value_id` INT, IN `p_attribute_value_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
     INSERT INTO product_variant (
         parent_product_id,
+        parent_product_name,
         product_id,
+        product_name,
         attribute_id,
         attribute_name,
         attribute_value_id,
@@ -3729,15 +3740,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertProductVariant` (IN `p_parent
     )
     VALUES (
         p_parent_product_id,
+        p_parent_product_name,
         p_product_id,
+        p_product_name,
         p_attribute_id,
         p_attribute_name,
         p_attribute_value_id,
         p_attribute_value_name,
         p_last_log_by
     );
-
-    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `insertRolePermission`$$
@@ -5998,6 +6009,132 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveState` (IN `p_state_id` INT, IN
     SELECT v_new_state_id AS new_state_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `saveSubProductAndVariants`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveSubProductAndVariants` (IN `p_parent_product_id` INT, IN `p_parent_product_name` VARCHAR(200), IN `p_variant_name` VARCHAR(255), IN `p_variant_signature` CHAR(40), IN `p_last_log_by` INT)   BEGIN
+    DECLARE existing_id INT;
+    DECLARE v_new_subproduct_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT product_id
+    INTO existing_id
+    FROM product
+    WHERE parent_product_id = p_parent_product_id
+      AND variant_signature = p_variant_signature
+    LIMIT 1;
+
+    IF existing_id IS NULL THEN
+        INSERT INTO product (
+            parent_product_id,
+            parent_product_name,
+            product_name,
+            product_description,
+            product_image,
+            product_type,
+            sku,
+            barcode,
+            unit_id,
+            unit_name,
+            unit_abbreviation,
+            cost,
+            sales_price,
+            is_variant,
+            is_sellable,
+            is_purchasable,
+            show_on_pos,
+            weight,
+            width,
+            height,
+            length,
+            variant_signature,
+            product_status,
+            last_log_by
+        )
+        SELECT
+            p_parent_product_id,
+            p_parent_product_name,
+            p_variant_name,
+            p.product_description,
+            p.product_image,
+            p.product_type,
+            NULL,
+            NULL,
+            p.unit_id,
+            p.unit_name,
+            p.unit_abbreviation,
+            p.cost,
+            p.sales_price,
+            'Yes',
+            p.is_sellable,
+            p.is_purchasable,
+            p.show_on_pos,
+            p.weight,
+            p.width,
+            p.height,
+            p.length,
+            p_variant_signature,
+            'Active',
+            p_last_log_by
+        FROM product p
+        WHERE p.product_id = p_parent_product_id;
+
+        SET v_new_subproduct_id = LAST_INSERT_ID();
+
+        INSERT INTO product_category_map (
+            product_id,
+            product_name,
+            product_category_id,
+            product_category_name,
+            last_log_by
+        )
+        SELECT
+            v_new_subproduct_id,
+            p_variant_name,
+            pcm.product_category_id,
+            pcm.product_category_name,
+            p_last_log_by
+        FROM product_category_map pcm
+        WHERE pcm.product_id = p_parent_product_id;
+
+        INSERT INTO product_tax (
+            product_id,
+            product_name,
+            tax_type,
+            tax_id,
+            tax_name,
+            last_log_by
+        )
+        SELECT
+            v_new_subproduct_id,
+            p_variant_name,
+            pt.tax_type,
+            pt.tax_id,
+            pt.tax_name,
+            p_last_log_by
+        FROM product_tax pt
+        WHERE pt.product_id = p_parent_product_id;
+
+    ELSE
+        -- Reactivate existing variant
+        UPDATE product
+        SET product_status = 'Active',
+            product_name = p_variant_name,
+            last_log_by = p_last_log_by
+        WHERE product_id = existing_id;
+
+        SET v_new_subproduct_id = existing_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_subproduct_id AS new_subproduct_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `saveSupplier`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `saveSupplier` (IN `p_supplier_id` INT, IN `p_supplier_name` VARCHAR(200), IN `p_contact_person` VARCHAR(500), IN `p_phone` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(255), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_city_name` VARCHAR(100), IN `p_state_id` INT, IN `p_state_name` VARCHAR(100), IN `p_country_id` INT, IN `p_country_name` VARCHAR(100), IN `p_tax_id_number` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_supplier_id INT;
@@ -6526,6 +6663,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveWorkLocation` (IN `p_work_locat
     COMMIT;
 
     SELECT v_new_work_location_id AS new_work_location_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateAllSubProductsDeactivate`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateAllSubProductsDeactivate` (IN `p_parent_product_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product
+    SET product_status = 'Archived'
+    WHERE parent_product_id = p_parent_product_id
+    AND is_variant = 'Yes'
+    AND variant_signature IS NOT NULL
+    AND product_status = 'Active';
+
+    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `updateAppLogo`$$
@@ -13935,7 +14091,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (9, 2, 'l.agulto@christianmotors.ph', '::1', '2025-10-31 17:23:19', 1, '2025-10-31 17:23:19', '2025-10-31 17:23:19', 1),
 (10, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-01 07:55:16', 1, '2025-11-01 07:55:16', '2025-11-01 07:55:16', 1),
 (11, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 12:08:54', 1, '2025-11-02 12:08:54', '2025-11-02 12:08:54', 1),
-(12, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 14:48:43', 1, '2025-11-02 14:48:43', '2025-11-02 14:48:43', 1);
+(12, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 14:48:43', 1, '2025-11-02 14:48:43', '2025-11-02 14:48:43', 1),
+(13, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-04 08:50:24', 1, '2025-11-04 08:50:24', '2025-11-04 08:50:24', 1);
 
 -- --------------------------------------------------------
 
@@ -14623,7 +14780,20 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `unit_id`, `unit_name`, `unit_abbreviation`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Bag', 'Bag', NULL, NULL, NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2025-11-02 14:26:59', '2025-11-02 14:26:59', 2);
+(1, 'Bag', 'Bag', NULL, NULL, NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2025-11-02 14:26:59', '2025-11-02 14:26:59', 2),
+(22, 'Bag - Adidas', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'b8a2645298053fb62ea03e27feea6c483d3fd27e', 'Archived', '2025-11-04 15:22:26', '2025-11-04 15:26:12', 2),
+(23, 'Bag - Adidas - Blue', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '144c429eae983d67254d87eab4120d278af7c9b7', 'Archived', '2025-11-04 15:26:12', '2025-11-04 15:50:55', 2),
+(24, 'Bag - Adidas - Green', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'b964dfcce074e97d40b156ed8022a6f117f3563f', 'Archived', '2025-11-04 15:26:54', '2025-11-04 15:51:02', 2),
+(25, 'Bag - Herschel - Blue', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '9996eedc04341cef76c574b0c225a5e9fd242b08', 'Archived', '2025-11-04 15:26:54', '2025-11-04 15:50:55', 2),
+(26, 'Bag - Herschel - Green', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '3d89d58af4802e661a2d18148ccce9809ee9fe9e', 'Archived', '2025-11-04 15:26:54', '2025-11-04 15:51:08', 2),
+(27, 'Bag - Ring', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '71fc4ca26c1cd81e2d82496b0d428c221c88fd47', 'Active', '2025-11-04 15:39:34', '2025-11-04 15:51:46', 2),
+(28, 'Bag - Adidas - Red', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'c92ba72a6c3d34ad876bd308668a4cd720c53b54', 'Archived', '2025-11-04 15:40:04', '2025-11-04 15:51:02', 2),
+(29, 'Bag - Herschel - Red', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'b2b5b935de73b9c392e86bab8857c7aa73bca520', 'Active', '2025-11-04 15:40:04', '2025-11-04 15:51:46', 2),
+(30, 'Bag - Nike - Red', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'a2fbc5a8b699f74caa116739fff5205137e59a11', 'Active', '2025-11-04 15:40:04', '2025-11-04 15:51:46', 2),
+(31, 'Bag - Nike - Blue', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '7623aecae6d70ec84c475e4609555b7386ec7c99', 'Archived', '2025-11-04 15:40:04', '2025-11-04 15:41:49', 2),
+(32, 'Bag - Nike - Green', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, 'ef2022ec473b5e18eb586b82aa620e792b68d429', 'Archived', '2025-11-04 15:40:04', '2025-11-04 15:41:49', 2),
+(33, 'Bag - Key Chain', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '10c8d1aa67104f2092b6e297fc5d80ecb553116c', 'Active', '2025-11-04 15:40:04', '2025-11-04 15:51:46', 2),
+(34, 'Bag - Wallet', 'Bag', 1, 'Bag', NULL, 'Goods', NULL, NULL, NULL, '', NULL, 0.0000, 0.0000, 0.0000, 'Yes', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, '29ab814e5d5bb5c73cfb4fc9b58c66b6058d98dc', 'Active', '2025-11-04 15:40:04', '2025-11-04 15:51:46', 2);
 
 -- --------------------------------------------------------
 
@@ -14644,6 +14814,18 @@ CREATE TABLE `product_attribute` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_attribute`
+--
+
+INSERT INTO `product_attribute` (`product_attribute_id`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(6, 1, 'Bag', 3, 'Bag Add-On', 7, 'Key Chain', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(7, 1, 'Bag', 3, 'Bag Add-On', 9, 'Ring', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(8, 1, 'Bag', 3, 'Bag Add-On', 8, 'Wallet', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(9, 1, 'Bag', 1, 'Brand', 3, 'Herschel', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(12, 1, 'Bag', 2, 'Color', 4, 'Red', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(13, 1, 'Bag', 1, 'Brand', 1, 'Nike', '2025-11-04 15:51:46', '2025-11-04 15:51:46', 2);
 
 -- --------------------------------------------------------
 
@@ -14772,6 +14954,34 @@ CREATE TABLE `product_variant` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_variant`
+--
+
+INSERT INTO `product_variant` (`product_variant_id`, `parent_product_id`, `parent_product_name`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 1, 'Bag', 22, 'Bag - Adidas', 1, 'Brand', 2, 'Adidas', '2025-11-04 15:22:26', '2025-11-04 15:22:26', 2),
+(2, 1, 'Bag', 23, 'Bag - Adidas - Blue', 1, 'Brand', 2, 'Adidas', '2025-11-04 15:26:12', '2025-11-04 15:26:12', 2),
+(3, 1, 'Bag', 23, 'Bag - Adidas - Blue', 2, 'Color', 6, 'Blue', '2025-11-04 15:26:12', '2025-11-04 15:26:12', 2),
+(4, 1, 'Bag', 24, 'Bag - Adidas - Green', 1, 'Brand', 2, 'Adidas', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(5, 1, 'Bag', 24, 'Bag - Adidas - Green', 2, 'Color', 5, 'Green', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(6, 1, 'Bag', 25, 'Bag - Herschel - Blue', 1, 'Brand', 3, 'Herschel', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(7, 1, 'Bag', 25, 'Bag - Herschel - Blue', 2, 'Color', 6, 'Blue', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(8, 1, 'Bag', 26, 'Bag - Herschel - Green', 1, 'Brand', 3, 'Herschel', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(9, 1, 'Bag', 26, 'Bag - Herschel - Green', 2, 'Color', 5, 'Green', '2025-11-04 15:26:54', '2025-11-04 15:26:54', 2),
+(10, 1, 'Bag', 27, 'Bag - Ring', 3, 'Bag Add-On', 9, 'Ring', '2025-11-04 15:39:34', '2025-11-04 15:39:34', 2),
+(11, 1, 'Bag', 28, 'Bag - Adidas - Red', 1, 'Brand', 2, 'Adidas', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(12, 1, 'Bag', 28, 'Bag - Adidas - Red', 2, 'Color', 4, 'Red', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(13, 1, 'Bag', 29, 'Bag - Herschel - Red', 1, 'Brand', 3, 'Herschel', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(14, 1, 'Bag', 29, 'Bag - Herschel - Red', 2, 'Color', 4, 'Red', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(15, 1, 'Bag', 30, 'Bag - Nike - Red', 1, 'Brand', 1, 'Nike', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(16, 1, 'Bag', 30, 'Bag - Nike - Red', 2, 'Color', 4, 'Red', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(17, 1, 'Bag', 31, 'Bag - Nike - Blue', 1, 'Brand', 1, 'Nike', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(18, 1, 'Bag', 31, 'Bag - Nike - Blue', 2, 'Color', 6, 'Blue', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(19, 1, 'Bag', 32, 'Bag - Nike - Green', 1, 'Brand', 1, 'Nike', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(20, 1, 'Bag', 32, 'Bag - Nike - Green', 2, 'Color', 5, 'Green', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(21, 1, 'Bag', 33, 'Bag - Key Chain', 3, 'Bag Add-On', 7, 'Key Chain', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2),
+(22, 1, 'Bag', 34, 'Bag - Wallet', 3, 'Bag Add-On', 8, 'Wallet', '2025-11-04 15:40:04', '2025-11-04 15:40:04', 2);
 
 -- --------------------------------------------------------
 
@@ -15319,7 +15529,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$LpQastn8mENludtkx0uJ4.ld4.7Nji9BClHjdLAJT9KFI734SAL6S', '2025-10-27 21:53:11', '2025-11-02 14:48:43', 1);
+(1, 2, '$2y$10$PgwaHGSbhGBq.N/Za6fqY.3T50RxL8NrIx/PTEwvxu56NajxtjCHi', '2025-10-27 21:53:11', '2025-11-04 08:50:24', 1);
 
 -- --------------------------------------------------------
 
@@ -16030,7 +16240,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-27 21:50:47', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-11-02 14:48:43', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-11-02 14:48:43', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-11-04 08:50:24', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-11-04 08:50:24', 1);
 
 --
 -- Triggers `user_account`
@@ -16296,6 +16506,7 @@ CREATE TRIGGER `trg_work_location_update` AFTER UPDATE ON `work_location` FOR EA
     IF NEW.country_name <> OLD.country_name THEN
         SET audit_log = CONCAT(audit_log, "Country: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
     END IF;
+
 
     IF NEW.phone <> OLD.phone THEN
         SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
@@ -17116,7 +17327,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -17164,13 +17375,13 @@ ALTER TABLE `otp`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `product_attribute`
 --
 ALTER TABLE `product_attribute`
-  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `product_category`
@@ -17194,7 +17405,7 @@ ALTER TABLE `product_tax`
 -- AUTO_INCREMENT for table `product_variant`
 --
 ALTER TABLE `product_variant`
-  MODIFY `product_variant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_variant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `relationship`
