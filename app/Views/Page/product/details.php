@@ -418,7 +418,7 @@
                         </div>
                         
                         <div class="card-body pt-0">
-                            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 gs-7" id="product-pricelist-table">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-pricelist-table">
                                 <thead>
                                     <tr class="fw-semibold fs-6 text-gray-800">
                                         <th>Discount Type</th>
@@ -531,7 +531,7 @@
             <div class="modal-body">
                 <form id="product_pricelist_form" method="post" action="#">
                     <?= $security->csrfInput('product_pricelist_form'); ?>
-
+                    <input type="hidden" id="product_pricelist_id" name="product_pricelist_id">
                     <div class="row mb-6">
                         <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="discount_type">Discount Type</label>
                         <div class="col-lg-9">
@@ -583,7 +583,7 @@
                         </div>
                     </div>
                     <div class="row mb-6">
-                        <label class="col-lg-3 col-form-label fw-semibold fs-6" for="pricelist_id">Remarks</label>
+                        <label class="col-lg-3 col-form-label fw-semibold fs-6" for="remarks">Remarks</label>
                         <div class="col-lg-9">
                             <div class="row">
                                 <div class="col-lg-12 fv-row">

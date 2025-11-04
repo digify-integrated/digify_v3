@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 04, 2025 at 10:23 AM
+-- Generation Time: Nov 04, 2025 at 02:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -264,6 +264,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductExist` (IN `p_product_i
 	SELECT COUNT(*) AS total
     FROM product
     WHERE product_id = p_product_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkProductPricelistExists`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkProductPricelistExists` (IN `p_product_pricelist_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_pricelist
+    WHERE product_pricelist_id = p_product_pricelist_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkProductSKUExist`$$
@@ -1093,6 +1100,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteproductCategoryMap` (IN `p_pr
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `deleteProductPricelist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductPricelist` (IN `p_product_pricelist_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_pricelist 
+    WHERE product_pricelist_id = p_product_pricelist_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `deleteProductTax`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteProductTax` (IN `p_product_id` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -1826,6 +1848,13 @@ DROP PROCEDURE IF EXISTS `fetchproductCategoryMap`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchproductCategoryMap` (IN `p_product_id` INT)   BEGIN
 	SELECT * FROM product_category_map
 	WHERE product_id = p_product_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchProductPricelist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProductPricelist` (IN `p_product_pricelist_id` INT)   BEGIN
+	SELECT * FROM product_pricelist
+    WHERE product_pricelist_id = p_product_pricelist_id
+    LIMIT 1;
 END$$
 
 DROP PROCEDURE IF EXISTS `fetchProductTax`$$
@@ -2922,6 +2951,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductCategoryTable` (IN `
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateProductPricelistTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateProductPricelistTable` (IN `p_product_id` INT)   BEGIN
+    SELECT product_pricelist_id, discount_type, fixed_price, min_quantity, validity_start_date, validity_end_date, remarks
+    FROM product_pricelist
+    WHERE product_id = p_product_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateProductTable`$$
@@ -5709,6 +5745,55 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveProductCategory` (IN `p_product
     COMMIT;
 
     SELECT v_new_product_category_id AS new_product_category_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `saveProductPricelist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveProductPricelist` (IN `p_product_pricelist_id` INT, IN `p_product_id` INT, IN `p_product_name` VARCHAR(200), IN `p_discount_type` ENUM('Percentage','Fixed Amount'), IN `p_fixed_price` DECIMAL(10,2), IN `p_min_quantity` INT, IN `p_validity_start_date` DATE, IN `p_validity_end_date` DATE, IN `p_remarks` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_pricelist_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_pricelist WHERE product_pricelist_id = p_product_pricelist_id) THEN
+        INSERT INTO product_pricelist (
+            product_id,
+            product_name,
+            discount_type,
+            fixed_price,
+            min_quantity,
+            validity_start_date,
+            validity_end_date,
+            remarks,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_id,
+            p_product_name,
+            p_discount_type,
+            p_fixed_price,
+            p_min_quantity,
+            p_validity_start_date,
+            p_validity_end_date,
+            p_remarks,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE product_pricelist
+        SET product_id              = p_product_id,
+            product_name            = p_product_name,
+            discount_type           = p_discount_type,
+            fixed_price             = p_fixed_price,
+            min_quantity            = p_min_quantity,
+            validity_start_date     = p_validity_start_date,
+            validity_end_date       = p_validity_end_date,
+            remarks                 = p_remarks,
+            last_log_by             = p_last_log_by
+        WHERE product_pricelist_id  = p_product_pricelist_id;
+    END IF;
+
+    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `saveRelationship`$$
@@ -12035,6 +12120,7 @@ CREATE TRIGGER `trg_civil_status_update` AFTER UPDATE ON `civil_status` FOR EACH
     END IF;
     
     IF audit_log <> 'Civil status changed.<br/><br/>' THEN
+
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
     END IF;
@@ -14092,7 +14178,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (10, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-01 07:55:16', 1, '2025-11-01 07:55:16', '2025-11-01 07:55:16', 1),
 (11, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 12:08:54', 1, '2025-11-02 12:08:54', '2025-11-02 12:08:54', 1),
 (12, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-02 14:48:43', 1, '2025-11-02 14:48:43', '2025-11-02 14:48:43', 1),
-(13, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-04 08:50:24', 1, '2025-11-04 08:50:24', '2025-11-04 08:50:24', 1);
+(13, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-04 08:50:24', 1, '2025-11-04 08:50:24', '2025-11-04 08:50:24', 1),
+(14, 2, 'l.agulto@christianmotors.ph', '::1', '2025-11-04 20:36:46', 1, '2025-11-04 20:36:46', '2025-11-04 20:36:46', 1);
 
 -- --------------------------------------------------------
 
@@ -14917,6 +15004,28 @@ CREATE TABLE `product_category_map` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `product_pricelist`
+--
+
+DROP TABLE IF EXISTS `product_pricelist`;
+CREATE TABLE `product_pricelist` (
+  `product_pricelist_id` int(10) UNSIGNED NOT NULL,
+  `product_id` int(10) UNSIGNED NOT NULL,
+  `product_name` varchar(200) NOT NULL,
+  `discount_type` enum('Percentage','Fixed Amount') DEFAULT 'Percentage',
+  `fixed_price` decimal(10,2) DEFAULT 0.00,
+  `min_quantity` int(11) DEFAULT 0,
+  `validity_start_date` date NOT NULL,
+  `validity_end_date` date DEFAULT NULL,
+  `remarks` varchar(1000) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `product_tax`
 --
 
@@ -15529,7 +15638,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$PgwaHGSbhGBq.N/Za6fqY.3T50RxL8NrIx/PTEwvxu56NajxtjCHi', '2025-10-27 21:53:11', '2025-11-04 08:50:24', 1);
+(1, 2, '$2y$10$UlPF.oFGqh8nPqydwCQGI.EwIAPqRjYDNn7OxdguTq2PfoO9p.0nS', '2025-10-27 21:53:11', '2025-11-04 20:36:46', 1);
 
 -- --------------------------------------------------------
 
@@ -16240,7 +16349,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-10-27 21:50:47', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-11-04 08:50:24', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-11-04 08:50:24', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2025-11-04 20:36:46', NULL, NULL, NULL, '2025-10-27 21:50:47', '2025-11-04 20:36:46', 1);
 
 --
 -- Triggers `user_account`
@@ -16921,6 +17030,17 @@ ALTER TABLE `product_category_map`
   ADD KEY `idx_product_category_map_category_id` (`product_category_id`);
 
 --
+-- Indexes for table `product_pricelist`
+--
+ALTER TABLE `product_pricelist`
+  ADD PRIMARY KEY (`product_pricelist_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_product_pricelist_product_id` (`product_id`),
+  ADD KEY `idx_product_pricelist_discount_type` (`discount_type`),
+  ADD KEY `idx_product_pricelist_validity_start_date` (`validity_start_date`),
+  ADD KEY `idx_product_pricelist_validity_end_date` (`validity_end_date`);
+
+--
 -- Indexes for table `product_tax`
 --
 ALTER TABLE `product_tax`
@@ -17327,7 +17447,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -17394,6 +17514,12 @@ ALTER TABLE `product_category`
 --
 ALTER TABLE `product_category_map`
   MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `product_pricelist`
+--
+ALTER TABLE `product_pricelist`
+  MODIFY `product_pricelist_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_tax`
@@ -17834,6 +17960,13 @@ ALTER TABLE `product_category_map`
   ADD CONSTRAINT `product_category_map_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
   ADD CONSTRAINT `product_category_map_ibfk_2` FOREIGN KEY (`product_category_id`) REFERENCES `product_category` (`product_category_id`),
   ADD CONSTRAINT `product_category_map_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `product_pricelist`
+--
+ALTER TABLE `product_pricelist`
+  ADD CONSTRAINT `product_pricelist_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `product_pricelist_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `product_tax`

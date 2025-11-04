@@ -34,6 +34,45 @@ class Product extends Model {
 
         return $row['new_subproduct_id'] ?? null;
     }
+
+    public function saveProductPricelist(
+        $p_product_pricelist_id,
+        $p_product_id,
+        $p_product_name,
+        $p_discount_type,
+        $p_fixed_price,
+        $p_min_quantity,
+        $p_validity_start_date,
+        $p_validity_end_date,
+        $p_remarks,
+        $p_last_log_by
+    ) {
+        $sql = 'CALL saveProductPricelist(
+            :p_product_pricelist_id,
+            :p_product_id,
+            :p_product_name,
+            :p_discount_type,
+            :p_fixed_price,
+            :p_min_quantity,
+            :p_validity_start_date,
+            :p_validity_end_date,
+            :p_remarks,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_product_pricelist_id'    => $p_product_pricelist_id,
+            'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
+            'p_discount_type'           => $p_discount_type,
+            'p_fixed_price'             => $p_fixed_price,
+            'p_min_quantity'            => $p_min_quantity,
+            'p_validity_start_date'     => $p_validity_start_date,
+            'p_validity_end_date'       => $p_validity_end_date,
+            'p_remarks'                 => $p_remarks,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -438,6 +477,18 @@ class Product extends Model {
             'p_creation_type'   => $p_creation_type
         ]);
     }
+
+    public function fetchProductPricelist(
+        $p_product_pricelist_id
+    ) {
+        $sql = 'CALL fetchProductPricelist(
+            :p_product_pricelist_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_pricelist_id' => $p_product_pricelist_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -488,6 +539,18 @@ class Product extends Model {
         
         return $this->query($sql, [
             'p_product_attribute_id' => $p_product_attribute_id
+        ]);
+    }
+
+    public function deleteProductPricelist(
+        $p_product_pricelist_id
+    ) {
+        $sql = 'CALL deleteProductPricelist(
+            :p_product_pricelist_id
+        )';
+        
+        return $this->query($sql, [
+            'p_product_pricelist_id' => $p_product_pricelist_id
         ]);
     }
 
@@ -547,6 +610,17 @@ class Product extends Model {
         return $this->fetch($sql, [
             'p_product_id'          => $p_product_id,
             'p_attribute_value_id'  => $p_attribute_value_id
+        ]);
+    }
+
+    public function checkProductPricelistExists($p_product_pricelist_id)
+    {
+        $sql = 'CALL checkProductPricelistExists(
+            :p_product_pricelist_id
+        )';
+
+        return $this->fetch($sql, [
+            'p_product_pricelist_id' => $p_product_pricelist_id
         ]);
     }
 
@@ -633,6 +707,18 @@ class Product extends Model {
         $p_product_id
     ) {
         $sql = 'CALL generateProductVariationTable(
+            :p_product_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function generateProductPricelistTable(
+        $p_product_id
+    ) {
+        $sql = 'CALL generateProductPricelistTable(
             :p_product_id
         )';
 

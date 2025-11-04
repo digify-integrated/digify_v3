@@ -7362,6 +7362,9 @@ CREATE TABLE product_pricelist (
 ============================================================================================= */
 
 CREATE INDEX idx_product_pricelist_product_id ON product_pricelist(product_id);
+CREATE INDEX idx_product_pricelist_discount_type ON product_pricelist(discount_type);
+CREATE INDEX idx_product_pricelist_validity_start_date ON product_pricelist(validity_start_date);
+CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validity_end_date);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT PRICELIST

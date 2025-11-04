@@ -49,7 +49,7 @@
                         <?= Security::csrfInput('password_reset_form'); ?>
                         <img src="./assets/images/logos/logo-dark.svg" class="mb-5 system-logo" alt="Logo-Dark" />
                         <h2 class="mb-2 mt-4 fs-1 fw-bolder">Password Reset</h2>
-                        <p class="mb-10 fs-5">Enter your new password</p>                        
+                        <p class="mb-10 fs-5">Enter your new password</p>
                         <input type="hidden" id="user_account_id" name="user_account_id" value="<?php echo $userAccountId; ?>">
                         <div class="mb-3">
                             <label for="new_password" class="form-label">New Password</label>

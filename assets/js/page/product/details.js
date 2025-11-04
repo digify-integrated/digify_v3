@@ -60,6 +60,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const displayPricelistDetails = async (product_pricelist_id) => {
+            const transaction = 'fetch product pricelist details';
+    
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('product_id', product_id);
+                formData.append('product_pricelist_id', product_pricelist_id);
+    
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    $('#product_pricelist_id').val(product_pricelist_id);
+                    $('#fixed_price').val(data.fixedPrice || 0);
+                    $('#min_quantity').val(data.minQuantity || 0);
+                    $('#validity_start_date').val(data.validityStartDate || '');
+                    $('#validity_end_date').val(data.validityEndDate || '');
+                    $('#remarks').val(data.remarks || '');
+
+                    $('#discount_type').val(data.discountType || 'Percentage').trigger('change');
+                } 
+                else if (data.notExist) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location = page_link;
+                } 
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Failed to fetch product details: ${error.message}`);
+            }
+        }
+
     const displayProductCategoriesDetails = async () => {
         const transaction = 'fetch product categories details';
 
@@ -205,6 +245,34 @@ document.addEventListener('DOMContentLoaded', () => {
         columnDefs: [
             { width: 'auto', targets: 0, responsivePriority: 1 },
             { width: '5%', bSortable: false, targets: 1, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    initializeDatatable({
+        selector: '#product-pricelist-table',
+        ajaxUrl: './app/Controllers/ProductController.php',
+        transaction: 'generate product pricelist table',
+        ajaxData: {
+            product_id: product_id,
+            page_link: page_link,
+            page_id: page_id
+        },
+        columns: [
+            { data: 'DISCOUNT_TYPE' },
+            { data: 'FIXED_PRICE' },
+            { data: 'MIN_QUANTITY' },
+            { data: 'VALIDITY' },
+            { data: 'REMARKS' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: '5%', bSortable: false, targets: 5, responsivePriority: 1 }
         ],
         order : [[0, 'asc']]
     });
@@ -738,68 +806,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        if (event.target.closest('#add-product-attribute')){
-            await attributeDropdown();
-        }
-
-        if (event.target.closest('.delete-product-attribute')){
-            const transaction           = 'delete product attribute';
-            const button                = event.target.closest('.delete-product-attribute');
-            const product_attribute_id  = button.dataset.productAttributeId;
-
-            Swal.fire({
-                title: 'Confirm Product Attribute Deletion',
-                text: 'Are you sure you want to delete this product attribute?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    confirmButton: 'btn btn-danger mt-2',
-                    cancelButton: 'btn btn-secondary ms-2 mt-2'
-                },
-                buttonsStyling: false
-            }).then(async (result) => {
-                if (!result.value) return;
-        
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('transaction', transaction);
-                    formData.append('product_attribute_id', product_attribute_id);
-
-                    const response = await fetch('./app/Controllers/ProductController.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-        
-                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-        
-                    const data = await response.json();
-        
-                    if (data.success) {
-                        showNotification(data.title, data.message, data.message_type);
-                        reloadDatatable('#product-attribute-table');
-                        reloadDatatable('#product-variation-table');
-                    }
-                    else if (data.invalid_session) {
-                        setNotification(data.title, data.message, data.message_type);
-                        window.location.href = data.redirect_link;
-                    }
-                    else {
-                        showNotification(data.title, data.message, data.message_type);
-                    }
-                } catch (error) {
-                    handleSystemError(error, 'fetch_failed', `Delete product attribute permission failed: ${error.message}`);
-                }
-            });
-        }
-        
-        if (event.target.closest('.view-product-attribute-log-notes')){
-            const button                = event.target.closest('.view-product-attribute-log-notes');
-            const product_attribute_id  = button.dataset.productAttributeId;
-            attachLogNotesClassHandler('product_attribute', product_attribute_id);
-        }
-
         if (event.target.closest('#unarchive-product')){
             const transaction = 'update product unarchive';
 
@@ -940,6 +946,137 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
+        }
+
+        if (event.target.closest('#add-product-attribute')){
+            await attributeDropdown();
+        }
+
+        if (event.target.closest('.delete-product-attribute')){
+            const transaction           = 'delete product attribute';
+            const button                = event.target.closest('.delete-product-attribute');
+            const product_attribute_id  = button.dataset.productAttributeId;
+
+            Swal.fire({
+                title: 'Confirm Product Attribute Deletion',
+                text: 'Are you sure you want to delete this product attribute?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('transaction', transaction);
+                    formData.append('product_attribute_id', product_attribute_id);
+
+                    const response = await fetch('./app/Controllers/ProductController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#product-attribute-table');
+                        reloadDatatable('#product-variation-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Delete product attribute permission failed: ${error.message}`);
+                }
+            });
+        }
+        
+        if (event.target.closest('.view-product-attribute-log-notes')){
+            const button                = event.target.closest('.view-product-attribute-log-notes');
+            const product_attribute_id  = button.dataset.productAttributeId;
+            attachLogNotesClassHandler('product_attribute', product_attribute_id);
+        }
+
+        if (event.target.closest('#add-product-pricelist')){
+            resetForm('product_pricelist_form');
+        }
+        
+        if (event.target.closest('.update-product-pricelist')){
+            const button                = event.target.closest('.update-product-pricelist');
+            const product_pricelist_id  = button.dataset.productPricelistId;
+        
+            displayPricelistDetails(product_pricelist_id);
+        }
+        
+        if (event.target.closest('.view-product-pricelist-log-notes')){
+            const button                = event.target.closest('.view-product-pricelist-log-notes');
+            const product_pricelist_id  = button.dataset.productPricelistId;
+        
+            attachLogNotesClassHandler('product_pricelist', product_pricelist_id);
+        }
+        
+        if (event.target.closest('.delete-product-pricelist')){
+            const transaction           = 'delete product pricelist';
+            const button                = event.target.closest('.delete-product-pricelist');
+            const product_pricelist_id  = button.dataset.productPricelistId;
+        
+            Swal.fire({
+                title: 'Confirm Product Pricelist Deletion',
+                text: 'Are you sure you want to delete this product pricelist?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('product_pricelist_id', product_pricelist_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ProductController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#product-pricelist-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
         }
     });
 

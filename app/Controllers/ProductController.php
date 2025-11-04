@@ -108,13 +108,16 @@ class ProductController
             'delete product'                    => $this->deleteProduct(),
             'delete multiple product'           => $this->deleteMultipleProduct(),
             'delete product attribute'          => $this->deleteProductAttribute(),
+            'delete product pricelist'          => $this->deleteProductPricelist(),
             'fetch product details'             => $this->fetchProductDetails(),
             'fetch product categories details'  => $this->fetchProductCategoryMapDetails(),
             'fetch product tax details'         => $this->fetchProductTaxDetails(),
+            'fetch product pricelist details'   => $this->fetchProductPricelistDetails(),
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
             'generate product attribute table'  => $this->generateProductAttributeTable($lastLogBy, $pageId),
-            'generate product variation table'  => $this->generateProductVariationTable($lastLogBy, $pageId),
+            'generate product variation table'  => $this->generateProductVariationTable(),
+            'generate product pricelist table'  => $this->generateProductPricelistTable($lastLogBy, $pageId),
             default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -301,19 +304,32 @@ class ProductController
     public function saveProductPricelist($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_pricelist_form')) {
             $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
         }
 
-        $productId = $_POST['product_id'] ?? null;
-        $attributeValueIds = $_POST['attribute_value_id'];
+        $productPricelistId     = $_POST['product_pricelist_id'] ?? null;
+        $productId              = $_POST['product_id'] ?? null;
+        $discountType           = $_POST['discount_type'] ?? 'Percentage';
+        $fixedPrice             = $_POST['fixed_price'] ?? 0;
+        $minQuantity            = $_POST['min_quantity'] ?? 0;
+        $validityStartDate      = $this->systemHelper->checkDate('empty', $_POST['validity_start_date'], '', 'Y-m-d', '');
+        $validityEndDate        = $this->systemHelper->checkDate('empty', $_POST['validity_end_date'], '', 'Y-m-d', '');
+        $remarks                = $_POST['remarks'] ?? '';
 
         $productDetails = $this->product->fetchProduct($productId);
         $productName = $productDetails['product_name'] ?? '';
 
         $this->product->saveProductPricelist(
+            $productPricelistId,
             $productId,
             $productName,
+            $discountType,
+            $fixedPrice,
+            $minQuantity,
+            $validityStartDate,
+            $validityEndDate,
+            $remarks,
             $lastLogBy
         );
 
@@ -323,24 +339,7 @@ class ProductController
         );
     }
 
-    private function generateCombinations($groups) {
-        $result = [[]];
-        foreach ($groups as $attributeName => $attributeData) {
-            $temp = [];
-            foreach ($result as $combo) {
-                foreach ($attributeData['values'] as $value) {
-                    $temp[] = array_merge($combo, [[
-                        'attribute_id' => $attributeData['attribute_id'],
-                        'attribute_name' => $attributeName,
-                        'attribute_value_id' => $value['attribute_value_id'],
-                        'attribute_value_name' => $value['attribute_value_name']
-                    ]]);
-                }
-            }
-            $result = $temp;
-        }
-        return $result;
-    }
+    
 
     public function insertProduct($lastLogBy){
         $csrfToken = $_POST['csrf_token'] ?? null;
@@ -704,65 +703,15 @@ class ProductController
         );
     }
 
-    private function rebuildProductVariants($productId) {
-        $lastLogBy = $_SESSION['user_account_id'] ?? 1;
+    public function deleteProductPricelist() {
+        $productPricelistId = $_POST['product_pricelist_id'] ?? null;
 
-        $this->product->updateAllSubProductsDeactivate(
-            $productId,
-            $lastLogBy
+        $this->product->deleteProductPricelist($productPricelistId);
+
+        $this->systemHelper->sendSuccessResponse(
+            'Product Pricelist Success',
+            'The product pricelist has been deleted successfully.'
         );
-
-        $productDetails = $this->product->fetchProduct($productId);
-        $productName = $productDetails['product_name'] ?? '';
-
-        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
-        $groupedAttributes = [];
-
-        foreach ($productAttributesInstantly as $row) {
-            $attributeName = $row['attribute_name'];
-            $attributeId = $row['attribute_id'];
-            $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
-            $groupedAttributes[$attributeName]['values'][] = [
-                'attribute_value_id' => $row['attribute_value_id'],
-                'attribute_value_name' => $row['attribute_value_name']
-            ];
-        }
-
-        $combinations = $this->generateCombinations($groupedAttributes);
-
-        foreach ($combinations as $combination) {
-            $attributeValueIds = array_column($combination, 'attribute_value_id');
-            sort($attributeValueIds);
-            $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
-
-            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
-
-            $subproductId = $this->product->saveSubProductAndVariants(
-                $productId,
-                $productName,
-                $variantName,
-                $variantSignature,
-                $lastLogBy
-            );
-
-            foreach ($combination as $attr) {
-                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
-
-                if ($checkProductVariantExists['total'] == 0) {
-                    $this->product->insertProductVariant(
-                        $productId,
-                        $productName,
-                        $subproductId,
-                        $variantName,
-                        $attr['attribute_id'],
-                        $attr['attribute_name'],
-                        $attr['attribute_value_id'],
-                        $attr['attribute_value_name'],
-                        $lastLogBy
-                    );
-                }
-            }
-        }
     }
 
     public function fetchProductDetails(){
@@ -865,6 +814,25 @@ class ProductController
         $response = [
             'success'               => true,
             'productCategories'     => $productCategories
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchProductPricelistDetails(){
+        $productPricelistId = $_POST['product_pricelist_id'] ?? null;
+
+        $productPricelistDetails = $this->product->fetchProductPricelist($productPricelistId);
+
+        $response = [
+            'success'               => true,
+            'discountType'          => $productPricelistDetails['discount_type'] ?? 'Percentage',
+            'fixedPrice'            => $productPricelistDetails['fixed_price'] ?? 0,
+            'minQuantity'           => $productPricelistDetails['min_quantity'] ?? 0,
+            'validityStartDate'     => $this->systemHelper->checkDate('empty', $productPricelistDetails['validity_start_date'] ?? null, '', 'M d, Y', ''),
+            'validityEndDate'       => $this->systemHelper->checkDate('empty', $productPricelistDetails['validity_end_date'] ?? null, '', 'M d, Y', ''),
+            'remarks'               => $productPricelistDetails['remarks'] ?? ''
         ];
 
         echo json_encode($response);
@@ -1028,7 +996,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductVariationTable($userId, $pageId){        
+    public function generateProductVariationTable(){        
         $pageLink   = $_POST['page_link'] ?? null;
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
@@ -1047,6 +1015,61 @@ class ProductController
                                             <i class="ki-outline ki-eye fs-3 m-0 fs-5"></i>
                                         </a>
                                     </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateProductPricelistTable($userId, $pageId){
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        $deleteButton       = '';
+        $logNotes           = '';
+
+        $productPricelists = $this->product->generateProductPricelistTable($productId);
+
+        foreach ($productPricelists as $row) {
+            $productPricelistId     = $row['product_pricelist_id'];
+            $discountType           = $row['discount_type'];
+            $fixedPrice             = $row['fixed_price'];
+            $minQuantity            = $row['min_quantity'];
+            $validityStartDate      = $this->systemHelper->checkDate('empty', $row['validity_start_date'] ?? null, '', 'd M Y', '');
+            $validityEndDate        = $this->systemHelper->checkDate('empty', $row['validity_end_date'] ?? null, '', 'd M Y', '');
+            $remarks                = $row['remarks'];
+
+            $validity = empty($validityEndDate)
+            ? 'Effective from ' . $validityStartDate
+            : $validityStartDate . ' - ' . $validityEndDate;
+
+            if($writeAccess > 0){
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-product-pricelist" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" data-product-pricelist-id="' . $productPricelistId . '">
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-product-pricelist" data-product-pricelist-id="' . $productPricelistId . '">
+                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            if($logNotesAccess > 0){
+                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-product-pricelist-log-notes" data-product-pricelist-id="' . $productPricelistId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </a>';
+            }
+
+            $response[] = [
+                'DISCOUNT_TYPE'     => $discountType,
+                'FIXED_PRICE'       => number_format($fixedPrice, 2),
+                'MIN_QUANTITY'      => number_format($minQuantity, 0),
+                'VALIDITY'          => $validity,
+                'REMARKS'           => $remarks,
+                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
+                                            '. $logNotes .'
+                                            '. $deleteButton .'
+                                        </div>'
             ];
         }
 
@@ -1074,6 +1097,86 @@ class ProductController
         }
 
         echo json_encode($response);
+    }
+
+    private function generateCombinations($groups) {
+        $result = [[]];
+        foreach ($groups as $attributeName => $attributeData) {
+            $temp = [];
+            foreach ($result as $combo) {
+                foreach ($attributeData['values'] as $value) {
+                    $temp[] = array_merge($combo, [[
+                        'attribute_id' => $attributeData['attribute_id'],
+                        'attribute_name' => $attributeName,
+                        'attribute_value_id' => $value['attribute_value_id'],
+                        'attribute_value_name' => $value['attribute_value_name']
+                    ]]);
+                }
+            }
+            $result = $temp;
+        }
+        return $result;
+    }
+
+    private function rebuildProductVariants($productId) {
+        $lastLogBy = $_SESSION['user_account_id'] ?? 1;
+
+        $this->product->updateAllSubProductsDeactivate(
+            $productId,
+            $lastLogBy
+        );
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
+
+        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
+        $groupedAttributes = [];
+
+        foreach ($productAttributesInstantly as $row) {
+            $attributeName = $row['attribute_name'];
+            $attributeId = $row['attribute_id'];
+            $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
+            $groupedAttributes[$attributeName]['values'][] = [
+                'attribute_value_id' => $row['attribute_value_id'],
+                'attribute_value_name' => $row['attribute_value_name']
+            ];
+        }
+
+        $combinations = $this->generateCombinations($groupedAttributes);
+
+        foreach ($combinations as $combination) {
+            $attributeValueIds = array_column($combination, 'attribute_value_id');
+            sort($attributeValueIds);
+            $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
+
+            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
+
+            $subproductId = $this->product->saveSubProductAndVariants(
+                $productId,
+                $productName,
+                $variantName,
+                $variantSignature,
+                $lastLogBy
+            );
+
+            foreach ($combination as $attr) {
+                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
+
+                if ($checkProductVariantExists['total'] == 0) {
+                    $this->product->insertProductVariant(
+                        $productId,
+                        $productName,
+                        $subproductId,
+                        $variantName,
+                        $attr['attribute_id'],
+                        $attr['attribute_name'],
+                        $attr['attribute_value_id'],
+                        $attr['attribute_value_name'],
+                        $lastLogBy
+                    );
+                }
+            }
+        }
     }
 }
 

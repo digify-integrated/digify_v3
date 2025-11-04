@@ -10526,6 +10526,7 @@ END //
 ============================================================================================= */
 
 DROP PROCEDURE IF EXISTS saveSubProductAndVariants//
+
 CREATE PROCEDURE saveSubProductAndVariants(
     IN p_parent_product_id INT,
     IN p_parent_product_name VARCHAR(200),
@@ -10656,6 +10657,68 @@ BEGIN
     COMMIT;
 
     SELECT v_new_subproduct_id AS new_subproduct_id;
+END //
+
+DROP PROCEDURE IF EXISTS saveProductPricelist//
+
+CREATE PROCEDURE saveProductPricelist(
+    IN p_product_pricelist_id INT, 
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(200), 
+    IN p_discount_type ENUM('Percentage','Fixed Amount'), 
+    IN p_fixed_price DECIMAL(10,2), 
+    IN p_min_quantity INT,
+    IN p_validity_start_date DATE,
+    IN p_validity_end_date DATE,
+    IN p_remarks VARCHAR(1000),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_pricelist_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_pricelist WHERE product_pricelist_id = p_product_pricelist_id) THEN
+        INSERT INTO product_pricelist (
+            product_id,
+            product_name,
+            discount_type,
+            fixed_price,
+            min_quantity,
+            validity_start_date,
+            validity_end_date,
+            remarks,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_id,
+            p_product_name,
+            p_discount_type,
+            p_fixed_price,
+            p_min_quantity,
+            p_validity_start_date,
+            p_validity_end_date,
+            p_remarks,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE product_pricelist
+        SET product_id              = p_product_id,
+            product_name            = p_product_name,
+            discount_type           = p_discount_type,
+            fixed_price             = p_fixed_price,
+            min_quantity            = p_min_quantity,
+            validity_start_date     = p_validity_start_date,
+            validity_end_date       = p_validity_end_date,
+            remarks                 = p_remarks,
+            last_log_by             = p_last_log_by
+        WHERE product_pricelist_id  = p_product_pricelist_id;
+    END IF;
+
+    COMMIT;
 END //
 
 /* =============================================================================================
@@ -11172,6 +11235,17 @@ BEGIN
     ORDER BY pa.attribute_id;
 END //
 
+DROP PROCEDURE IF EXISTS fetchProductPricelist//
+
+CREATE PROCEDURE fetchProductPricelist(
+	IN p_product_pricelist_id INT
+)
+BEGIN
+	SELECT * FROM product_pricelist
+    WHERE product_pricelist_id = p_product_pricelist_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -11233,6 +11307,25 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteProductPricelist//
+
+CREATE PROCEDURE deleteProductPricelist(
+    IN p_product_pricelist_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_pricelist 
+    WHERE product_pricelist_id = p_product_pricelist_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
@@ -11285,6 +11378,17 @@ BEGIN
     FROM product_variant
     WHERE product_id = p_subproduct_id
     AND attribute_value_id = p_attribute_value_id;
+END //
+
+DROP PROCEDURE IF EXISTS checkProductPricelistExists //
+
+CREATE PROCEDURE checkProductPricelistExists (
+	IN p_product_pricelist_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_pricelist
+    WHERE product_pricelist_id = p_product_pricelist_id;
 END //
 
 /* =============================================================================================
@@ -11439,6 +11543,17 @@ BEGIN
     WHERE is_variant = "Yes"
     AND product_status = "Active"
     AND parent_product_id = p_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductPricelistTable//
+
+CREATE PROCEDURE generateProductPricelistTable(
+    IN p_product_id INT
+)
+BEGIN
+    SELECT product_pricelist_id, discount_type, fixed_price, min_quantity, validity_start_date, validity_end_date, remarks
+    FROM product_pricelist
+    WHERE product_id = p_product_id;
 END //
 
 /* =============================================================================================

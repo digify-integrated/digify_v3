@@ -1,145 +1,16 @@
-Can you now help me?
+To update:
 
-I want to add a way to create the subproduct as well as add data to product_variant. So here are the conditions like we talked about.
-1. If the attribute's variant_creation added is set to instantly it will create a subproduct with other attribute already added that their attribute's variant_creation is also set to instantly.
+1. Change the <a href="javascript:void(0);" class="btn btn-icon btn- to a button on all table generation
+2. make the functions like this:
 
-Variant Creation = Instantly
-For example:
-Product: Bag
-
-Attribute:
-Brand - Nike, Adidas, Puma
-Color - Red, Black, Blue
-
-It should create a sub product:
-Bag - Nike - Red
-Bag - Nike - Black
-Bag - Nike - Blue
-Bag - Adidas - Red
-Bag - Adidas - Black
-Bag - Adidas - Blue
-Bag - Puma - Red
-Bag - Puma - Black
-Bag - Puma - Blue
-
-Variant Creation = Never
-Product: Bag
-
-Attribute:
-Add On - Key Chain, Mirror, Pouch
-Accessories - Hair Clip, Bracelet, Ring
-
-It should create a sub product:
-Bag - Key Chain
-Bag - Mirror
-Bag - Pouch
-Bag - Hair Clip
-Bag - Bracelet
-Bag - Ring
-
-2. When creating the subproduct, the is_variant = 'Yes' and duplicate the details of the parent product for product_tax and product_category. Duplicate also the details of the parent product for the product table except the product_image, created_date, last_updated, last_log_by.
-3. Fill out the product_variant table after the subproduct has been created for you to get the id of the subproduct.
-
-
-Here are my product related tables:
-
-CREATE TABLE product (
-  product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_name VARCHAR(200) NOT NULL,
-  product_description VARCHAR(1000),
-  product_image VARCHAR(500),
-  product_type ENUM('Goods','Services','Combo') DEFAULT 'Goods',
-  sku VARCHAR(200) UNIQUE,
-  barcode VARCHAR(200) UNIQUE,
-  unit_id INT UNSIGNED,
-  unit_name VARCHAR(100) NOT NULL,
-  unit_abbreviation VARCHAR(20),
-  quantity_on_hand DECIMAL(15,4) DEFAULT 0,
-  cost DECIMAL(15,4) DEFAULT 0,
-  sales_price DECIMAL(15,4) DEFAULT 0,
-  is_variant ENUM('Yes','No') DEFAULT 'No',   
-  is_sellable ENUM('Yes','No') DEFAULT 'Yes',
-  is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
-  show_on_pos ENUM('Yes','No') DEFAULT 'Yes',
-  weight DECIMAL(10,4) DEFAULT 0,
-  width DECIMAL(10,4) DEFAULT 0,
-  height DECIMAL(10,4) DEFAULT 0,
-  length DECIMAL(10,4) DEFAULT 0,
-  product_status ENUM('Active','Archived') DEFAULT 'Active',
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (unit_id) REFERENCES unit(unit_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-CREATE TABLE product_tax (
-  product_tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  tax_type ENUM('Purchases','Sales'), 
-  tax_id INT UNSIGNED NOT NULL,
-  tax_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (tax_id) REFERENCES tax(tax_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-CREATE TABLE product_category_map (
-  product_category_map_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL,
-  product_name VARCHAR(100) NOT NULL,
-  product_category_id INT UNSIGNED NOT NULL,
-  product_category_name VARCHAR(100) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-
-
-Here is my function to saveProductAttribute:
-
-public function saveProductAttribute($lastLogBy){
-        $csrfToken = $_POST['csrf_token'] ?? null;
-
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
-            $this->systemHelper::sendErrorResponse(
-                'Invalid Request',
-                'Security check failed. Please refresh and try again.'
-            );
-        }
-
-        $productId          = $_POST['product_id'] ?? null;
-        $attributeValueIds  = $_POST['attribute_value_id'] ?? [];
-
-        if(empty($attributeValueIds)){
-            $this->systemHelper::sendErrorResponse(
-                'Save Product Attribute Error',
-                'Please select the product attribute.'
-            );
-        }
-
-        $productDetails     = $this->product->fetchProduct($productId);
-        $productName        = $productDetails['product_name'] ?? '';
-
-        foreach ($attributeValueIds as $attributeValueId) {
-            $attributeValueDetails  = $this->attribute->fetchAttributeValue($attributeValueId);
-            $attributeId            = $attributeValueDetails['attribute_id'] ?? null;
-            $attributeName          = $attributeValueDetails['attribute_name'] ?? null;
-            $attributeValueName     = $attributeValueDetails['attribute_value_name'] ?? null;
-
-            $this->product->insertProductAttribute($productId, $productName, $attributeId, $attributeName, $attributeValueId, $attributeValueName, $lastLogBy);
-        }
-
-        $this->systemHelper->sendSuccessResponse(
-            'Save Product Attribute Success',
-            'The product attributes have been added successfully.'
-        );
-    }
+$this->product->insertProductVariant(
+                    $productId,
+                    $productName,
+                    $subproductId,
+                    $variantName,
+                    $attributeId,
+                    $attributeName,
+                    $attributeValueId,
+                    $attributeValueName,
+                    $lastLogBy
+                );
