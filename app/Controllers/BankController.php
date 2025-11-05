@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Bank;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BankController
-{
+class BankController {
     protected Bank $bank;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class BankController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -83,7 +80,9 @@ class BankController
         };
     }
 
-    public function saveBank($lastLogBy){
+    public function saveBank(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'bank_form')) {
@@ -97,8 +96,14 @@ class BankController
         $bankName               = $_POST['bank_name'] ?? null;
         $bankIdentifierCode     = $_POST['bank_identifier_code'] ?? null;
 
-        $bankId             = $this->bank->saveBank($bankId, $bankName, $bankIdentifierCode, $lastLogBy);
-        $encryptedBankId    = $this->security->encryptData($bankId);
+        $bankId = $this->bank->saveBank(
+            $bankId,
+            $bankName,
+            $bankIdentifierCode,
+            $lastLogBy
+        );
+
+        $encryptedBankId = $this->security->encryptData($bankId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Bank Success',
@@ -107,7 +112,7 @@ class BankController
         );
     }
 
-    public function deleteBank(){
+    public function deleteBank() {
         $bankId = $_POST['bank_id'] ?? null;
 
         $this->bank->deleteBank($bankId);
@@ -118,7 +123,7 @@ class BankController
         );
     }
 
-    public function deleteMultipleBank(){
+    public function deleteMultipleBank() {
         $bankIds = $_POST['bank_id'] ?? null;
 
         foreach($bankIds as $bankId){
@@ -131,7 +136,7 @@ class BankController
         );
     }
 
-    public function fetchBankDetails(){
+    public function fetchBankDetails() {
         $bankId             = $_POST['bank_id'] ?? null;
         $checkBankyExist    = $this->bank->checkBankExist($bankId);
         $total              = $checkBankyExist['total'] ?? 0;
@@ -156,8 +161,7 @@ class BankController
         exit;
     }
 
-    public function generateBankTable()
-    {
+    public function generateBankTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -183,8 +187,7 @@ class BankController
         echo json_encode($response);
     }
     
-    public function generateBankOptions()
-    {
+    public function generateBankOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -208,7 +211,6 @@ class BankController
     }
 }
 
-# Bootstrap the controller
 $controller = new BankController(
     new Bank(),
     new Authentication(),

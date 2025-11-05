@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\BloodType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BloodTypeController
-{
+class BloodTypeController {
     protected BloodType $bloodType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class BloodTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -83,7 +80,9 @@ class BloodTypeController
         };
     }
 
-    public function saveBloodType($lastLogBy){
+    public function saveBloodType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'blood_type_form')) {
@@ -96,8 +95,13 @@ class BloodTypeController
         $bloodTypeId    = $_POST['blood_type_id'] ?? null;
         $bloodTypeName  = $_POST['blood_type_name'] ?? null;
 
-        $bloodTypeId            = $this->bloodType->saveBloodType($bloodTypeId, $bloodTypeName, $lastLogBy);
-        $encryptedBloodTypeId   = $this->security->encryptData($bloodTypeId);
+        $bloodTypeId = $this->bloodType->saveBloodType(
+            $bloodTypeId,
+            $bloodTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedBloodTypeId = $this->security->encryptData($bloodTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Blood Type Success',
@@ -106,7 +110,7 @@ class BloodTypeController
         );
     }
 
-    public function deleteBloodType(){
+    public function deleteBloodType() {
         $bloodTypeId = $_POST['blood_type_id'] ?? null;
 
         $this->bloodType->deleteBloodType($bloodTypeId);
@@ -117,7 +121,7 @@ class BloodTypeController
         );
     }
 
-    public function deleteMultipleBloodType(){
+    public function deleteMultipleBloodType() {
         $bloodTypeIds = $_POST['blood_type_id'] ?? null;
 
         foreach($bloodTypeIds as $bloodTypeId){
@@ -130,7 +134,7 @@ class BloodTypeController
         );
     }
 
-    public function fetchBloodTypeDetails(){
+    public function fetchBloodTypeDetails() {
         $bloodTypeId            = $_POST['blood_type_id'] ?? null;
         $checkBloodTypeExist    = $this->bloodType->checkBloodTypeExist($bloodTypeId);
         $total                  = $checkBloodTypeExist['total'] ?? 0;
@@ -154,8 +158,7 @@ class BloodTypeController
         exit;
     }
 
-    public function generateBloodTypeTable()
-    {
+    public function generateBloodTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +182,7 @@ class BloodTypeController
         echo json_encode($response);
     }
     
-    public function generateBloodTypeOptions()
-    {
+    public function generateBloodTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +206,6 @@ class BloodTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new BloodTypeController(
     new BloodType(),
     new Authentication(),

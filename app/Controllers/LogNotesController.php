@@ -29,7 +29,7 @@ class LogNotesController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
+    public function handleRequest() 
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(

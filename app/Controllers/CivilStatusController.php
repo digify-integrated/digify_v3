@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\CivilStatus;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CivilStatusController
-{
+class CivilStatusController {
     protected CivilStatus $civilStatus;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class CivilStatusController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -83,7 +80,9 @@ class CivilStatusController
         };
     }
 
-    public function saveCivilStatus($lastLogBy){
+    public function saveCivilStatus(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'civil_status_form')) {
@@ -96,8 +95,13 @@ class CivilStatusController
         $civilStatusId      = $_POST['civil_status_id'] ?? null;
         $civilStatusName    = $_POST['civil_status_name'] ?? null;
 
-        $civilStatusId              = $this->civilStatus->saveCivilStatus($civilStatusId, $civilStatusName, $lastLogBy);
-        $encryptedCivilStatusId     = $this->security->encryptData($civilStatusId);
+        $civilStatusId = $this->civilStatus->saveCivilStatus(
+            $civilStatusId,
+            $civilStatusName,
+            $lastLogBy
+        );
+        
+        $encryptedCivilStatusId = $this->security->encryptData($civilStatusId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Civil Status Success',
@@ -106,7 +110,7 @@ class CivilStatusController
         );
     }
 
-    public function deleteCivilStatus(){
+    public function deleteCivilStatus() {
         $civilStatusId = $_POST['civil_status_id'] ?? null;
 
         $this->civilStatus->deleteCivilStatus($civilStatusId);
@@ -117,7 +121,7 @@ class CivilStatusController
         );
     }
 
-    public function deleteMultipleCivilStatus(){
+    public function deleteMultipleCivilStatus() {
         $civilStatusIds = $_POST['civil_status_id'] ?? null;
 
         foreach($civilStatusIds as $civilStatusId){
@@ -130,7 +134,7 @@ class CivilStatusController
         );
     }
 
-    public function fetchCivilStatusDetails(){
+    public function fetchCivilStatusDetails() {
         $civilStatusId          = $_POST['civil_status_id'] ?? null;
         $checkCivilStatusExist  = $this->civilStatus->checkCivilStatusExist($civilStatusId);
         $total                  = $checkCivilStatusExist['total'] ?? 0;
@@ -154,8 +158,7 @@ class CivilStatusController
         exit;
     }
 
-    public function generateCivilStatusTable()
-    {
+    public function generateCivilStatusTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +182,7 @@ class CivilStatusController
         echo json_encode($response);
     }
     
-    public function generateCivilStatusOptions()
-    {
+    public function generateCivilStatusOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +206,6 @@ class CivilStatusController
     }
 }
 
-# Bootstrap the controller
 $controller = new CivilStatusController(
     new CivilStatus(),
     new Authentication(),

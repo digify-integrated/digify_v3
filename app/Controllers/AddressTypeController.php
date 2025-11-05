@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\AddressType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class AddressTypeController
-{
+class AddressTypeController {
     protected AddressType $addressType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class AddressTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -83,7 +80,9 @@ class AddressTypeController
         };
     }
 
-    public function saveAddressType($lastLogBy){
+    public function saveAddressType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'address_type_form')) {
@@ -96,12 +95,13 @@ class AddressTypeController
         $addressTypeId      = $_POST['address_type_id'] ?? null;
         $addressTypeName    = $_POST['address_type_name'] ?? null;
 
-        $addressTypeId              = $this->addressType->saveAddressType(
-                                            $addressTypeId, 
-                                            $addressTypeName, 
-                                            $lastLogBy
-                                        );
-        $encryptedAddressTypeId     = $this->security->encryptData($addressTypeId);
+        $addressTypeId = $this->addressType->saveAddressType(
+            $addressTypeId, 
+            $addressTypeName, 
+            $lastLogBy
+        );
+
+        $encryptedAddressTypeId = $this->security->encryptData($addressTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Address Type Success',
@@ -158,8 +158,7 @@ class AddressTypeController
         exit;
     }
 
-    public function generateAddressTypeTable()
-    {
+    public function generateAddressTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -183,8 +182,7 @@ class AddressTypeController
         echo json_encode($response);
     }
     
-    public function generateAddressTypeOptions()
-    {
+    public function generateAddressTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -208,7 +206,6 @@ class AddressTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new AddressTypeController(
     new AddressType(),
     new Authentication(),

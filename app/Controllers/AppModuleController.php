@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\AppModule;
@@ -13,8 +12,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class AppModuleController
-{
+class AppModuleController {
     protected AppModule $appModule;
     protected MenuItem $menuItem;
     protected Authentication $authentication;
@@ -38,8 +36,7 @@ class AppModuleController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -92,7 +89,9 @@ class AppModuleController
         };
     }
 
-    public function saveAppModule($lastLogBy){
+    public function saveAppModule(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'app_module_form')) {
@@ -121,9 +120,10 @@ class AppModuleController
         );
     }
 
-    public function updateAppModuleLogo($lastLogBy){
-        $appModuleId   = $_POST['app_module_id'] ?? null;
-       
+    public function updateAppModuleLogo(
+        int $lastLogBy
+    ) {
+        $appModuleId                    = $_POST['app_module_id'] ?? null;
         $appLogoFileName                = $_FILES['app_logo']['name'];
         $appLogoFileSize                = $_FILES['app_logo']['size'];
         $appLogoFileError               = $_FILES['app_logo']['error'];
@@ -134,8 +134,8 @@ class AppModuleController
         $uploadSetting  = $this->uploadSetting->fetchUploadSetting(1);
         $maxFileSize    = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSetting->fetchUploadSettingFileExtension(1);
-        $allowedFileExtensions = [];
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(1);
+        $allowedFileExtensions          = [];
 
         foreach ($uploadSettingFileExtension as $row) {
             $allowedFileExtensions[] = $row['file_extension'];
@@ -200,7 +200,11 @@ class AppModuleController
             );
         }
 
-        $this->appModule->updateAppLogo($appModuleId, $filePath, $lastLogBy);
+        $this->appModule->updateAppLogo(
+            $appModuleId,
+            $filePath,
+            $lastLogBy
+        );
 
         $this->systemHelper->sendSuccessResponse(
             'Update App Module Logo Success',
@@ -208,7 +212,7 @@ class AppModuleController
         );
     }
 
-    public function deleteAppModule(){
+    public function deleteAppModule() {
         $appModuleId        = $_POST['app_module_id'] ?? null;
         $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
         $appLogo            = $appModuleDetails['app_logo'] ?? null;
@@ -223,8 +227,8 @@ class AppModuleController
         );
     }
 
-    public function deleteMultipleAppModule(){
-        $appModuleIds  = $_POST['app_module_id'] ?? null;
+    public function deleteMultipleAppModule() {
+        $appModuleIds = $_POST['app_module_id'] ?? null;
 
         foreach($appModuleIds as $appModuleId){
             $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
@@ -241,7 +245,7 @@ class AppModuleController
         );
     }
 
-    public function fetchAppModuleDetails(){
+    public function fetchAppModuleDetails() {
         $appModuleId            = $_POST['app_module_id'] ?? null;
         $checkAppModuleExist    = $this->appModule->checkAppModuleExist($appModuleId);
         $total                  = $checkAppModuleExist['total'] ?? 0;
@@ -271,8 +275,7 @@ class AppModuleController
         exit;
     }
 
-    public function generateAppModuleTable()
-    {
+    public function generateAppModuleTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -305,8 +308,7 @@ class AppModuleController
         echo json_encode($response);
     }
     
-    public function generateAppModuleOptions()
-    {
+    public function generateAppModuleOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -330,7 +332,6 @@ class AppModuleController
     }
 }
 
-# Bootstrap the controller
 $controller = new AppModuleController(
     new AppModule(),
     new MenuItem(),

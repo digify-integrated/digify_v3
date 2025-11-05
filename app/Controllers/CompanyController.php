@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Company;
@@ -14,8 +13,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CompanyController
-{
+class CompanyController {
     protected Company $company;
     protected City $city;
     protected Currency $currency;
@@ -42,8 +40,7 @@ class CompanyController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -96,7 +93,9 @@ class CompanyController
         };
     }
 
-    public function saveCompany($lastLogBy){
+    public function saveCompany(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'company_form')) {
@@ -127,7 +126,25 @@ class CompanyController
         $currencyDetails    = $this->currency->fetchCurrency($currencyId);
         $currencyName       = $currencyDetails['currency_name'] ?? null;
 
-        $companyId = $this->company->saveCompany($companyId, $companyName, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $taxId, $currencyId, $currencyName, $phone, $telephone, $email, $website, $lastLogBy);
+        $companyId = $this->company->saveCompany(
+            $companyId,
+            $companyName,
+            $address,
+            $cityId,
+            $cityName,
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $taxId,
+            $currencyId,
+            $currencyName,
+            $phone,
+            $telephone,
+            $email,
+            $website,
+            $lastLogBy
+        );
 
         $encryptedcompanyId = $this->security->encryptData($companyId);
 
@@ -138,10 +155,10 @@ class CompanyController
         );
     }
 
-    public function updateCompanyLogo($lastLogBy){
-
-        $companyId   = $_POST['company_id'] ?? null;
-       
+    public function updateCompanyLogo(
+        int $lastLogBy
+    ) {
+        $companyId                          = $_POST['company_id'] ?? null;       
         $companyLogoFileName                = $_FILES['company_logo']['name'];
         $companyLogoFileSize                = $_FILES['company_logo']['size'];
         $companyLogoFileError               = $_FILES['company_logo']['error'];
@@ -218,7 +235,11 @@ class CompanyController
             );
         }
 
-        $this->company->updateCompanyLogo($companyId, $filePath, $lastLogBy);
+        $this->company->updateCompanyLogo(
+            $companyId,
+            $filePath,
+            $lastLogBy
+        );
 
         $this->systemHelper->sendSuccessResponse(
             'Update Company Logo Success',
@@ -226,7 +247,7 @@ class CompanyController
         );
     }
 
-    public function deleteCompany(){
+    public function deleteCompany() {
         $companyId          = $_POST['company_id'] ?? null;
         $companyDetails     = $this->company->fetchCompany($companyId);
         $companyLogo        = $companyDetails['company_logo'] ?? null;
@@ -241,7 +262,7 @@ class CompanyController
         );
     }
 
-    public function deleteMultipleCompany(){
+    public function deleteMultipleCompany() {
         $companyIds = $_POST['company_id'] ?? null;
 
         foreach($companyIds as $companyId){
@@ -259,7 +280,7 @@ class CompanyController
         );
     }
 
-    public function fetchCompanyDetails(){
+    public function fetchCompanyDetails() {
         $companyId          = $_POST['company_id'] ?? null;
         $checkCompanyExist  = $this->company->checkCompanyExist($companyId);
         $total              = $checkCompanyExist['total'] ?? 0;
@@ -293,8 +314,7 @@ class CompanyController
         exit;
     }
 
-    public function generateCompanyTable()
-    {
+    public function generateCompanyTable() {
         $pageLink           = $_POST['page_link'] ?? null;
         $cityFilter         = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
         $stateFilter        = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
@@ -302,7 +322,12 @@ class CompanyController
         $currencyFilter     = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
         $response           = [];
 
-        $companys = $this->company->generateCompanyTable($cityFilter, $stateFilter, $countryFilter, $currencyFilter);
+        $companys = $this->company->generateCompanyTable(
+            $cityFilter,
+            $stateFilter,
+            $countryFilter,
+            $currencyFilter
+        );
 
         foreach ($companys as $row) {
             $companyId              = $row['company_id'];
@@ -337,8 +362,7 @@ class CompanyController
         echo json_encode($response);
     }
     
-    public function generateCompanyOptions()
-    {
+    public function generateCompanyOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -362,7 +386,6 @@ class CompanyController
     }
 }
 
-# Bootstrap the controller
 $controller = new CompanyController(
     new Company(),
     new City(),

@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\BankAccountType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class BankAccountTypeController
-{
+class BankAccountTypeController {
     protected BankAccountType $bankAccountType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class BankAccountTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -83,7 +80,9 @@ class BankAccountTypeController
         };
     }
 
-    public function saveBankAccountType($lastLogBy){
+    public function saveBankAccountType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'bank_account_type_form')) {
@@ -96,8 +95,13 @@ class BankAccountTypeController
         $bankAccountTypeId      = $_POST['bank_account_type_id'] ?? null;
         $bankAccountTypeName    = $_POST['bank_account_type_name'] ?? null;
 
-        $bankAccountTypeId              = $this->bankAccountType->saveBankAccountType($bankAccountTypeId, $bankAccountTypeName, $lastLogBy);
-        $encryptedBankAccountTypeId     = $this->security->encryptData($bankAccountTypeId);
+        $bankAccountTypeId = $this->bankAccountType->saveBankAccountType(
+            $bankAccountTypeId,
+            $bankAccountTypeName,
+            $lastLogBy
+        );
+
+        $encryptedBankAccountTypeId = $this->security->encryptData($bankAccountTypeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Bank Account Type Success',
@@ -106,7 +110,7 @@ class BankAccountTypeController
         );
     }
 
-    public function deleteBankAccountType(){
+    public function deleteBankAccountType() {
         $bankAccountTypeId = $_POST['bank_account_type_id'] ?? null;
 
         $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
@@ -117,7 +121,7 @@ class BankAccountTypeController
         );
     }
 
-    public function deleteMultipleBankAccountType(){
+    public function deleteMultipleBankAccountType() {
         $bankAccountTypeIds = $_POST['bank_account_type_id'] ?? null;
 
         foreach($bankAccountTypeIds as $bankAccountTypeId){
@@ -130,7 +134,7 @@ class BankAccountTypeController
         );
     }
 
-    public function fetchBankAccountTypeDetails(){
+    public function fetchBankAccountTypeDetails() {
         $bankAccountTypeId          = $_POST['bank_account_type_id'] ?? null;
         $checkBankAccountTypeExist  = $this->bankAccountType->checkBankAccountTypeExist($bankAccountTypeId);
         $total                      = $checkBankAccountTypeExist['total'] ?? 0;
@@ -154,8 +158,7 @@ class BankAccountTypeController
         exit;
     }
 
-    public function generateBankAccountTypeTable()
-    {
+    public function generateBankAccountTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +182,7 @@ class BankAccountTypeController
         echo json_encode($response);
     }
     
-    public function generateBankAccountTypeOptions()
-    {
+    public function generateBankAccountTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +206,6 @@ class BankAccountTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new BankAccountTypeController(
     new BankAccountType(),
     new Authentication(),

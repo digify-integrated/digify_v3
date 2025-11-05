@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\City;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CityController
-{
+class CityController {
     protected City $city;
     protected State $state;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class CityController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -88,7 +85,9 @@ class CityController
         };
     }
 
-    public function saveCity($lastLogBy){
+    public function saveCity(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'city_form')) {
@@ -107,8 +106,17 @@ class CityController
         $countryId      = $stateDetails['country_id'] ?? '';
         $countryName    = $stateDetails['country_name'] ?? '';
 
-        $cityId             = $this->city->saveCity($cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $lastLogBy);
-        $encryptedCityId    = $this->security->encryptData($cityId);
+        $cityId = $this->city->saveCity(
+            $cityId,
+            $cityName,
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $lastLogBy
+        );
+        
+        $encryptedCityId = $this->security->encryptData($cityId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save City Success',
@@ -117,7 +125,7 @@ class CityController
         );
     }
 
-    public function deleteCity(){
+    public function deleteCity() {
         $cityId = $_POST['city_id'] ?? null;
 
         $this->city->deleteCity($cityId);
@@ -128,7 +136,7 @@ class CityController
         );
     }
 
-    public function deleteMultipleCity(){
+    public function deleteMultipleCity() {
         $cityIds = $_POST['city_id'] ?? null;
 
         foreach($cityIds as $cityId){
@@ -141,7 +149,7 @@ class CityController
         );
     }
 
-    public function fetchCityDetails(){
+    public function fetchCityDetails() {
         $cityId             = $_POST['city_id'] ?? null;
         $checkCityExist     = $this->city->checkCityExist($cityId);
         $total              = $checkCityExist['total'] ?? 0;
@@ -166,14 +174,16 @@ class CityController
         exit;
     }
 
-    public function generateCityTable()
-    {
+    public function generateCityTable() {
         $pageLink       = $_POST['page_link'] ?? null;
         $stateFilter    = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
         $countryFilter  = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
         $response       = [];
 
-        $citys = $this->city->generateCityTable($stateFilter, $countryFilter);
+        $citys = $this->city->generateCityTable(
+            $stateFilter,
+            $countryFilter
+        );
 
         foreach ($citys as $row) {
             $cityId         = $row['city_id'];
@@ -197,8 +207,9 @@ class CityController
         echo json_encode($response);
     }
     
-    public function generateCityOptions($isFilter = false)
-    {
+    public function generateCityOptions(
+        bool $isFilter = false
+    ) {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -224,7 +235,6 @@ class CityController
     }
 }
 
-# Bootstrap the controller
 $controller = new CityController(
     new City(),
     new State(),

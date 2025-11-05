@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Attribute;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class AttributeController
-{
+class AttributeController {
     protected Attribute $attribute;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class AttributeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -90,7 +87,9 @@ class AttributeController
         };
     }
 
-    public function saveAttribute($lastLogBy){
+    public function saveAttribute(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'attribute_form')) {
@@ -106,8 +105,16 @@ class AttributeController
         $variantCreation        = $_POST['variant_creation'] ?? null;
         $displayType            = $_POST['display_type'] ?? null;
 
-        $attributeId           = $this->attribute->saveAttribute($attributeId, $attributeName, $attributeDescription, $variantCreation, $displayType, $lastLogBy);
-        $encryptedAttributeId  = $this->security->encryptData($attributeId);
+        $attributeId = $this->attribute->saveAttribute(
+            $attributeId,
+            $attributeName,
+            $attributeDescription,
+            $variantCreation,
+            $displayType,
+            $lastLogBy
+        );
+
+        $encryptedAttributeId = $this->security->encryptData($attributeId);
 
         $this->systemHelper->sendSuccessResponse(
             'Save Attribute Success',
@@ -116,7 +123,9 @@ class AttributeController
         );
     }
 
-    public function saveAttributeValue($lastLogBy){
+    public function saveAttributeValue(
+        $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'attribute_value_form')) {
@@ -133,7 +142,13 @@ class AttributeController
         $attributeDetails   = $this->attribute->fetchAttribute($attributeId);
         $attributeName      = $attributeDetails['attribute_name'] ?? '';
 
-        $this->attribute->saveAttributeValue($attributeValueId, $attributeValueName, $attributeId, $attributeName, $lastLogBy);
+        $this->attribute->saveAttributeValue(
+            $attributeValueId,
+            $attributeValueName,
+            $attributeId,
+            $attributeName,
+            $lastLogBy
+        );
 
         $this->systemHelper->sendSuccessResponse(
             'Save Attribute Value Success',
@@ -141,7 +156,7 @@ class AttributeController
         );
     }
 
-    public function deleteAttribute(){
+    public function deleteAttribute() {
         $attributeId = $_POST['attribute_id'] ?? null;
 
         $this->attribute->deleteAttribute($attributeId);
@@ -152,7 +167,7 @@ class AttributeController
         );
     }
 
-    public function deleteMultipleAttribute(){
+    public function deleteMultipleAttribute() {
         $attributeIds = $_POST['attribute_id'] ?? null;
 
         foreach($attributeIds as $attributeId){
@@ -165,7 +180,7 @@ class AttributeController
         );
     }
 
-    public function deleteAttributeValue(){
+    public function deleteAttributeValue() {
         $attributeValueId = $_POST['attribute_value_id'] ?? null;
 
         $this->attribute->deleteAttributeValue($attributeValueId);
@@ -176,7 +191,7 @@ class AttributeController
         );
     }
 
-    public function fetchAttributeDetails(){
+    public function fetchAttributeDetails() {
         $attributeId            = $_POST['attribute_id'] ?? null;
         $checkAttributeExist    = $this->attribute->checkAttributeExist($attributeId);
         $total                  = $checkAttributeExist['total'] ?? 0;
@@ -227,14 +242,16 @@ class AttributeController
         exit;
     }
 
-    public function generateAttributeTable()
-    {
+    public function generateAttributeTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $variantCreationFilter  = $this->systemHelper->checkFilter($_POST['variant_creation_filter'] ?? null);
         $displayTypeFilter      = $this->systemHelper->checkFilter($_POST['display_type_filter'] ?? null);
         $response               = [];
 
-        $attributes = $this->attribute->generateAttributeTable($variantCreationFilter, $displayTypeFilter);
+        $attributes = $this->attribute->generateAttributeTable(
+            $variantCreationFilter,
+            $displayTypeFilter
+        );
 
         foreach ($attributes as $row) {
             $attributeId            = $row['attribute_id'];
@@ -261,8 +278,10 @@ class AttributeController
         echo json_encode($response);
     }
 
-    public function generateAttributeValueTable($lastLogBy, $pageId)
-    {
+    public function generateAttributeValueTable(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $attributeId    = $_POST['attribute_id'] ?? null;
         $response       = [];
 
@@ -278,18 +297,18 @@ class AttributeController
             $button = '';
             if($writeAccess > 0){
                 $button = '<button class="btn btn-icon btn-light btn-active-light-primary update-attribute-value" data-attribute-value-id="' . $attributeValueId . '" data-bs-toggle="modal" data-bs-target="#attribute_value_modal" title="View Log Notes">
-                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
-                                </button>
-                <button class="btn btn-icon btn-light btn-active-light-danger delete-attribute-value" data-attribute-value-id="' . $attributeValueId . '">
-                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                            </button>
+                            <button class="btn btn-icon btn-light btn-active-light-danger delete-attribute-value" data-attribute-value-id="' . $attributeValueId . '">
+                                <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                             </button>';
             }
 
             $logNotes = '';
             if($logNotesAccess > 0){
                 $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-attribute-value-log-notes" data-attribute-value-id="' . $attributeValueId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
-                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                                </button>';
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                            </button>';
             }
 
             $response[] = [
@@ -304,8 +323,7 @@ class AttributeController
         echo json_encode($response);
     }
     
-    public function generateAttributeOptions()
-    {
+    public function generateAttributeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -328,8 +346,7 @@ class AttributeController
         echo json_encode($response);
     }
     
-    public function generateAttributeValueOptions()
-    {
+    public function generateAttributeValueOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -345,23 +362,22 @@ class AttributeController
         $grouped = [];
         foreach ($attributeValues as $row) {
             $grouped[$row['attribute_name']][] = [
-                'id'   => $row['attribute_value_id'],
-                'text' => $row['attribute_value_name']
+                'id'    => $row['attribute_value_id'],
+                'text'  => $row['attribute_value_name']
             ];
         }
 
         foreach ($grouped as $attributeName => $children) {
             $response[] = [
-                'text'     => $attributeName,
-                'children' => $children
+                'text'      => $attributeName,
+                'children'  => $children
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateProductAttributeValueOptions()
-    {
+    public function generateProductAttributeValueOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
@@ -378,15 +394,15 @@ class AttributeController
         $grouped = [];
         foreach ($attributeValues as $row) {
             $grouped[$row['attribute_name']][] = [
-                'id'   => $row['attribute_value_id'],
-                'text' => $row['attribute_value_name']
+                'id'    => $row['attribute_value_id'],
+                'text'  => $row['attribute_value_name']
             ];
         }
 
         foreach ($grouped as $attributeName => $children) {
             $response[] = [
-                'text'     => $attributeName,
-                'children' => $children
+                'text'      => $attributeName,
+                'children'  => $children
             ];
         }
 
@@ -394,7 +410,6 @@ class AttributeController
     }
 }
 
-# Bootstrap the controller
 $controller = new AttributeController(
     new Attribute(),
     new Authentication(),
