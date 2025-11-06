@@ -10,17 +10,17 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function saveMenuItem(
-        $p_menu_item_id,
-        $p_menu_item_name,
-        $p_menu_item_url,
-        $p_menu_item_icon,
-        $p_app_module_id,
-        $p_app_module_name,
-        $p_parent_id,
-        $p_parent_name,
-        $p_table_name,
-        $p_order_sequence,
-        $p_last_log_by
+        int $p_menu_item_id,
+        string $p_menu_item_name,
+        string $p_menu_item_url,
+        string $p_menu_item_icon,
+        int $p_app_module_id,
+        string $p_app_module_name,
+        int $p_parent_id,
+        string $p_parent_name,
+        string $p_table_name,
+        int $p_order_sequence,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveMenuItem(
             :p_menu_item_id,
@@ -66,7 +66,7 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function fetchMenuItem(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL fetchMenuItem(
             :p_menu_item_id
@@ -78,7 +78,7 @@ class MenuItem extends Model {
     }
 
     public function fetchBreadcrumb(
-        $p_page_id
+        int $p_page_id
     ) {
         $sql = 'CALL fetchBreadcrumb(
             :p_page_id
@@ -90,8 +90,8 @@ class MenuItem extends Model {
     }
 
     public function fetchNavBar(
-        $p_user_account_id,
-        $p_app_module_id
+        int $p_user_account_id,
+        int $p_app_module_id
     ) {
         $sql = 'CALL fetchNavBar(
             :p_user_account_id,
@@ -109,7 +109,7 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function deleteMenuItem(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL deleteMenuItem(
             :p_menu_item_id
@@ -125,7 +125,7 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function checkMenuItemExist(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL checkMenuItemExist(
             :p_menu_item_id
@@ -141,8 +141,8 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function generateMenuItemTable(
-        $p_filter_by_app_module,
-        $p_filter_by_parent_id
+        string $p_filter_by_app_module,
+        string $p_filter_by_parent_id
     ) {
         $sql = 'CALL generateMenuItemTable(
             :p_filter_by_app_module,
@@ -156,7 +156,7 @@ class MenuItem extends Model {
     }
 
     public function generateMenuItemOptions(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL generateMenuItemOptions(
             :p_menu_item_id
@@ -168,7 +168,7 @@ class MenuItem extends Model {
     }
 
     public function generateMenuItemAssignedRoleTable(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL generateMenuItemAssignedRoleTable(
             :p_menu_item_id
@@ -182,7 +182,7 @@ class MenuItem extends Model {
     
 
     public function generateMenuItemRoleDualListBoxOptions(
-        $p_menu_item_id
+        int $p_menu_item_id
     ) {
         $sql = 'CALL generateMenuItemRoleDualListBoxOptions(
             :p_menu_item_id

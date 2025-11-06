@@ -10,9 +10,9 @@ class WarehouseType extends Model {
     ============================================================================================= */
 
     public function saveWarehouseType(
-        $p_warehouse_type_id,
-        $p_warehouse_type_name,
-        $p_last_log_by
+        int $p_warehouse_type_id,
+        string $p_warehouse_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveWarehouseType(
             :p_warehouse_type_id,
@@ -42,7 +42,7 @@ class WarehouseType extends Model {
     ============================================================================================= */
 
     public function fetchWarehouseType(
-        $p_warehouse_type_id
+        int $p_warehouse_type_id
     ) {
         $sql = 'CALL fetchWarehouseType(
             :p_warehouse_type_id
@@ -58,7 +58,7 @@ class WarehouseType extends Model {
     ============================================================================================= */
 
     public function deleteWarehouseType(
-        $p_warehouse_type_id
+        int $p_warehouse_type_id
     ) {
         $sql = 'CALL deleteWarehouseType(
             :p_warehouse_type_id
@@ -74,7 +74,7 @@ class WarehouseType extends Model {
     ============================================================================================= */
 
     public function checkWarehouseTypeExist(
-        $p_warehouse_type_id
+        int $p_warehouse_type_id
     ) {
         $sql = 'CALL checkWarehouseTypeExist(
             :p_warehouse_type_id

@@ -22,8 +22,8 @@ class LogNotes extends Model {
     ============================================================================================= */
 
     public function fetchLogNotes(
-        $p_table_name,
-        $p_reference_id
+        string $p_table_name,
+        int $p_reference_id
     ) {
         $sql = 'CALL fetchLogNotes(
             :p_table_name,

@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\State;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class StateController
-{
+class StateController {
     protected State $state;
     protected Country $country;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class StateController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +62,8 @@ class StateController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -87,7 +84,41 @@ class StateController
         };
     }
 
-    public function saveState($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveState(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'state_form')) {
@@ -104,47 +135,54 @@ class StateController
         $countryDetails     = $this->country->fetchCountry($countryId);
         $countryName        = $countryDetails['country_name'] ?? '';
 
-        $stateId            = $this->state->saveState($stateId, $stateName, $countryId, $countryName, $lastLogBy);
-        $encryptedstateId   = $this->security->encryptData($stateId);
+        $stateId = $this->state->saveState(
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $lastLogBy
+        );
+        
+        $encryptedstateId = $this->security->encryptData($stateId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save State Success',
             'The state has been saved successfully.',
             ['state_id' => $encryptedstateId]
         );
     }
 
-    public function deleteState(){
+    public function deleteState() {
         $stateId = $_POST['state_id'] ?? null;
 
         $this->state->deleteState($stateId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete State Success',
             'The state has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleState(){
+    public function deleteMultipleState() {
         $stateIds  = $_POST['state_id'] ?? null;
 
         foreach($stateIds as $stateId){
             $this->state->deleteState($stateId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple States Success',
             'The selected states have been deleted successfully.'
         );
     }
 
-    public function fetchStateDetails(){
+    public function fetchStateDetails() {
         $stateId            = $_POST['state_id'] ?? null;
         $checkStateExist    = $this->state->checkStateExist($stateId);
         $total              = $checkStateExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get State Details',
                 'The state does not exist',
                 ['notExist' => true]
@@ -163,8 +201,7 @@ class StateController
         exit;
     }
 
-    public function generateStateTable()
-    {
+    public function generateStateTable() {
         $pageLink       = $_POST['page_link'] ?? null;
         $countryFilter  = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
         $response       = [];
@@ -191,8 +228,7 @@ class StateController
         echo json_encode($response);
     }
     
-    public function generateStateOptions()
-    {
+    public function generateStateOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -216,7 +252,6 @@ class StateController
     }
 }
 
-# Bootstrap the controller
 $controller = new StateController(
     new State(),
     new Country(),

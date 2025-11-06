@@ -10,9 +10,9 @@ class CivilStatus extends Model {
     ============================================================================================= */
 
     public function saveCivilStatus(
-        $p_civil_status_id,
-        $p_civil_status_name,
-        $p_last_log_by
+        int $p_civil_status_id,
+        string $p_civil_status_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCivilStatus(
             :p_civil_status_id,
@@ -42,7 +42,7 @@ class CivilStatus extends Model {
     ============================================================================================= */
 
     public function fetchCivilStatus(
-        $p_civil_status_id
+        int $p_civil_status_id
     ) {
         $sql = 'CALL fetchCivilStatus(
             :p_civil_status_id
@@ -58,7 +58,7 @@ class CivilStatus extends Model {
     ============================================================================================= */
 
     public function deleteCivilStatus(
-        $p_civil_status_id
+        int $p_civil_status_id
     ) {
         $sql = 'CALL deleteCivilStatus(
             :p_civil_status_id
@@ -74,7 +74,7 @@ class CivilStatus extends Model {
     ============================================================================================= */
 
     public function checkCivilStatusExist(
-        $p_civil_status_id
+        int $p_civil_status_id
     ) {
         $sql = 'CALL checkCivilStatusExist(
             :p_civil_status_id

@@ -10,8 +10,7 @@ namespace App\Core;
  *
  * @package App\Core
  */
-class Security
-{
+class Security {
     /**
      * A secret key known only to the server, kept outside the database.
      * Store this in an environment variable or config file, not in code.
@@ -24,8 +23,7 @@ class Security
      * @param string $token  The raw token (e.g. a 6-digit OTP or random session token).
      * @return string        The hashed and peppered representation safe for DB storage.
      */
-    public static function hashToken(string $token): string
-    {
+    public static function hashToken(string $token) {
         // Mix in the server-side pepper before hashing.
         $peppered = hash_hmac('sha256', $token, self::PEPPER);
 
@@ -40,8 +38,7 @@ class Security
      * @param string $storedHash  The hashed token retrieved from the database.
      * @return bool               True if valid, false otherwise.
      */
-    public static function verifyToken(string $token, string $storedHash): bool
-    {
+    public static function verifyToken(string $token, string $storedHash) {
         $peppered = hash_hmac('sha256', $token, self::PEPPER);
         return password_verify($peppered, $storedHash);
     }
@@ -52,8 +49,7 @@ class Security
      * @param int $lengthBytes  Number of random bytes to generate (default 32 → 64 hex chars).
      * @return string           The raw token string (to send/store temporarily).
      */
-    public static function generateToken(int $lengthBytes = 32): string
-    {
+    public static function generateToken(int $lengthBytes = 32) {
         return bin2hex(random_bytes($lengthBytes));
     }
 
@@ -63,8 +59,7 @@ class Security
      * @param int $digits  Number of digits (default 6).
      * @return string      The zero-padded numeric OTP (e.g. "042381").
      */
-    public static function generateOtp(int $digits = 6): string
-    {
+    public static function generateOtp(int $digits = 6) {
         $max = (10 ** $digits) - 1;
         return str_pad((string) random_int(0, $max), $digits, '0', STR_PAD_LEFT);
     }   
@@ -75,8 +70,7 @@ class Security
      * @param string $plainText Text to encrypt
      * @return string|false Encrypted string (base64 + URL encoded) or false on failure
      */
-    public static function encryptData(string $plainText): string|false
-    {
+    public static function encryptData(string $plainText) {
         $plainText = trim($plainText);
         if ($plainText === '') {
             return false;
@@ -104,8 +98,7 @@ class Security
      * @param string $ciphertext Encrypted string (base64 + URL encoded)
      * @return string|false Decrypted string or false on failure
      */
-    public static function decryptData(string $ciphertext): string|false
-    {
+    public static function decryptData(string $ciphertext) {
         $decodedData = base64_decode(rawurldecode($ciphertext), true);
         if ($decodedData === false) {
             return false;
@@ -139,8 +132,7 @@ class Security
      * @param string $email Email address
      * @return string Masked email
      */
-    public static function obscureEmail(string $email): string
-    {
+    public static function obscureEmail(string $email) {
         // Validate email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return '[invalid email]';
@@ -177,8 +169,7 @@ class Security
      * @param string $cardNumber Credit/debit card number
      * @return string Masked card number
      */
-    public static function obscureCardNumber(string $cardNumber): string
-    {
+    public static function obscureCardNumber(string $cardNumber) {
         $last4Digits    = substr($cardNumber, -4);
         $masked         = str_repeat('*', max(0, strlen($cardNumber) - 4));
         $maskedGrouped  = implode(' ', str_split($masked, 4));
@@ -193,8 +184,7 @@ class Security
      * @param int $maxLength Maximum length
      * @return string Random filename
      */
-    public static function generateFileName(int $minLength = 4, int $maxLength = 8): string
-    {
+    public static function generateFileName(int $minLength = 4, int $maxLength = 8) {
         $characters     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $length         = random_int($minLength, $maxLength);
 
@@ -212,8 +202,7 @@ class Security
      * @param string $directory Directory path
      * @return true|string Returns true if OK, or error message string
      */
-    public static function directoryChecker(string $directory): true|string
-    {
+    public static function directoryChecker(string $directory) {
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0755, true)) {
                 return 'Error creating directory: ' . (error_get_last()['message'] ?? 'Unknown error');
@@ -231,8 +220,7 @@ class Security
      * @param string $formKey Unique form identifier
      * @return string CSRF token
      */
-    public static function generateCSRFToken(string $formKey = 'default'): string
-    {
+    public static function generateCSRFToken(string $formKey = 'default') {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
@@ -250,8 +238,7 @@ class Security
      * @param string $formKey Unique form identifier
      * @return string HTML hidden input field
      */
-    public static function csrfInput(string $formKey = 'default'): string
-    {
+    public static function csrfInput(string $formKey = 'default') {
         $token = self::generateCSRFToken($formKey);
         return '<input type="hidden" name="csrf_token" value="' . 
             htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
@@ -264,8 +251,7 @@ class Security
      * @param string $formKey Form identifier
      * @return bool True if valid, false otherwise
      */
-    public static function validateCSRFToken(string $token, string $formKey = 'default'): bool
-    {
+    public static function validateCSRFToken(string $token, string $formKey = 'default') {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }

@@ -352,48 +352,6 @@ CREATE INDEX idx_notification_sms_setting_id ON notification_setting_sms_templat
 
 
 /* =============================================================================================
-  TABLE: APP MODULE
-============================================================================================= */
-
-DROP TABLE IF EXISTS app_module;
-
-CREATE TABLE app_module (
-  app_module_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  app_module_name VARCHAR(100) NOT NULL,
-  app_module_description VARCHAR(500) NOT NULL,
-  app_logo VARCHAR(500),
-  menu_item_id INT UNSIGNED NOT NULL,
-  menu_item_name VARCHAR(100) NOT NULL,
-  order_sequence TINYINT(10) NOT NULL,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
-);
-
-/* =============================================================================================
-  INDEX: APP MODULE
-============================================================================================= */
-
-CREATE INDEX idx_app_module_menu_item_id ON app_module(menu_item_id);
-
-/* =============================================================================================
-  INITIAL VALUES: APP MODULE
-============================================================================================= */
-
-INSERT INTO app_module (app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) VALUES
-('Settings', 'Centralized management hub for comprehensive organizational oversight and control.', './storage/uploads/app_module/1/settings.png', 1, 'App Module', 100),
-('Employee', 'Centralize employee information.', './storage/uploads/app_module/2/employees.png', 40, 'Employee', 5),
-('Point of Sale', 'Handle checkouts and payments for shops and restaurants.', './storage/uploads/app_module/4/pos.png', 1, 'App Module', 10),
-('Inventory', 'Manage your stocks and logistics activities.', './storage/uploads/app_module/3/inventory.png', 1, 'App Module', 15);
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
   TABLE: MENU ITEM
 ============================================================================================= */
 
@@ -476,7 +434,32 @@ VALUES
 ('Employment Type', 'employment-type.php', 'ki-outline ki-briefcase', 2, 'Employee', 41, 'HR Configurations', 'employment_type', 5),
 ('Job Position', 'job-position.php', 'ki-outline ki-questionnaire-tablet', 2, 'Employee', 41, 'HR Configurations', 'job_position', 10),
 ('Work Location', 'work-location.php', 'ki-outline ki-geolocation', 2, 'Employee', 41, 'HR Configurations', 'work_location', 23),
-('Employee Document Type', 'employee-document-type.php', 'ki-outline ki-folder', 2, 'Employee', 41, 'HR Configurations', 'employee_document_type', 5);
+('Employee Document Type', 'employee-document-type.php', 'ki-outline ki-folder', 2, 'Employee', 41, 'HR Configurations', 'employee_document_type', 5),
+('Inventory Configuration', '', '', 4, 'Inventory', 0, '', '', 99),
+('Attribute', 'attribute.php', 'ki-outline ki-more-2', 4, 'Inventory', 49, 'Inventory Configuration', 'attribute', 1),
+('Product Category', 'product-category.php', 'ki-outline ki-data', 4, 'Inventory', 49, 'Inventory Configuration', 'product_category', 16),
+('Supplier', 'supplier.php', 'ki-outline ki-logistic', 4, 'Inventory', 49, 'Inventory Configuration', 'supplier', 19),
+('Taxes', '', 'ki-outline ki-percentage', 1, 'Settings', 11, 'Configurations', '', 20),
+('Tax', 'tax.php', '', 1, 'Settings', 53, 'Taxes', 'tax', 1),
+('Product Measurement', '', 'ki-outline ki-graph', 4, 'Inventory', 49, 'Inventory Configuration', '', 16),
+('Unit', 'unit.php', '', 4, 'Inventory', 55, 'Product Measurement', 'unit', 1),
+('Unit Type', 'unit-type.php', '', 4, 'Inventory', 55, 'Product Measurement', 'unit_type', 2),
+('Warehouse Management', '', 'ki-outline ki-home-3', 4, 'Inventory', 49, 'Inventory Configuration', '', 23),
+('Warehouse', 'warehouse.php', '', 4, 'Inventory', 58, 'Warehouse Management', 'warehouse', 1),
+('Warehouse Type', 'warehouse-type.php', '', 4, 'Inventory', 58, 'Warehouse Management', 'warehouse_type', 2),
+('Products', '', '', 4, 'Inventory', 0, '', '', 1),
+('Product', 'product.php', 'ki-outline ki-parcel', 4, 'Inventory', 61, 'Products', 'product', 1),
+('Product Variant', 'product-variant.php', 'ki-outline ki-lots-shopping', 4, 'Inventory', 61, 'Products', 'product', 2),
+('Pricelist', 'pricelist.php', 'ki-outline ki-tablet-text-down', 4, 'Inventory', 61, 'Products', '', 3),
+('Inventory Operations', '', '', 4, 'Inventory', 0, '', '', 2),
+('Inventory Transfer', '', 'ki-outline ki-courier', 4, 'Inventory', 65, 'Inventory Operations', '', 1),
+('Receipts', 'receipts.php', '', 4, 'Inventory', 66, 'Inventory Transfer', '', 18),
+('Delivery', 'delivery.php', '', 4, 'Inventory', 66, 'Inventory Transfer', '', 4),
+('Inventory Adjustments', '', 'ki-outline ki-setting-4', 4, 'Inventory', 65, 'Inventory Operations', '', 2),
+('Physical Inventory', 'physical-inventory.php', '', 4, 'Inventory', 69, 'Inventory Adjustments', '', 16),
+('Scrap', 'scrap.php', '', 4, 'Inventory', 69, 'Inventory Adjustments', '', 19),
+('Inventory Procurement', '', 'ki-outline ki-cheque', 4, 'Inventory', 65, 'Inventory Operations', '', 3),
+('Replenishment', 'replenishment.php', '', 4, 'Inventory', 72, 'Inventory Procurement', '', 18);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -528,6 +511,48 @@ INSERT INTO system_action (system_action_name, system_action_description) VALUES
 ('Unarchive Warehouse', 'Access to unarchive a warehouse.'),
 ('Archive Product', 'Access to archive a product.'),
 ('Unarchive Product', 'Access to unarchive a product.');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: APP MODULE
+============================================================================================= */
+
+DROP TABLE IF EXISTS app_module;
+
+CREATE TABLE app_module (
+  app_module_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  app_module_name VARCHAR(100) NOT NULL,
+  app_module_description VARCHAR(500) NOT NULL,
+  app_logo VARCHAR(500),
+  menu_item_id INT UNSIGNED NOT NULL,
+  menu_item_name VARCHAR(100) NOT NULL,
+  order_sequence TINYINT(10) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: APP MODULE
+============================================================================================= */
+
+CREATE INDEX idx_app_module_menu_item_id ON app_module(menu_item_id);
+
+/* =============================================================================================
+  INITIAL VALUES: APP MODULE
+============================================================================================= */
+
+INSERT INTO app_module (app_module_name, app_module_description, app_logo, menu_item_id, menu_item_name, order_sequence) VALUES
+('Settings', 'Centralized management hub for comprehensive organizational oversight and control.', './storage/uploads/app_module/1/settings.png', 1, 'App Module', 100),
+('Employee', 'Centralize employee information.', './storage/uploads/app_module/2/employees.png', 40, 'Employee', 5),
+('Point of Sale', 'Handle checkouts and payments for shops and restaurants.', './storage/uploads/app_module/4/pos.png', 1, 'App Module', 10),
+('Inventory', 'Manage your stocks and logistics activities.', './storage/uploads/app_module/3/inventory.png', 62, 'Product', 15);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -651,7 +676,32 @@ VALUES
 (1, 'Super Admin', 45, 'Employment Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 46, 'Job Position', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 47, 'Work Location', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 48, 'Employee Document Type', 1, 1, 1, 1, 1, 1, 1);
+(1, 'Super Admin', 48, 'Employee Document Type', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 49, 'Inventory Configuration', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 50, 'Attribute', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 51, 'Product Category', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 52, 'Supplier', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 53, 'Taxes', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 54, 'Tax', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 55, 'Product Measurement', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 56, 'Unit', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 57, 'Unit Type', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 58, 'Warehouse Management', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 59, 'Warehouse', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 60, 'Warehouse Type', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 61, 'Products', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 62, 'Product', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 63, 'Product Variant', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 64, 'Pricelist', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 65, 'Inventory Operations', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 66, 'Inventory Transfer', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 67, 'Receipts', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 68, 'Delivery', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 69, 'Inventory Adjustments', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 70, 'Physical Inventory', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 71, 'Scrap', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 72, 'Inventory Procurement', 1, 0, 0, 0, 0, 0, 0),
+(1, 'Super Admin', 73, 'Replenishment', 1, 1, 1, 1, 1, 1, 1);
 
 /* =============================================================================================
   TABLE: ROLE SYSTEM ACTION PERMISSION
@@ -995,7 +1045,8 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 ('User Account Profile Picture', 'Sets the upload setting when uploading user account profile picture.', 800),
 ('Company Logo', 'Sets the upload setting when uploading company logo.', 800),
 ('Employee Image', 'Sets the upload setting when uploading employee image.', 800),
-('Employee Document', 'Sets the upload setting when uploading employee document.', 800);
+('Employee Document', 'Sets the upload setting when uploading employee document.', 800),
+('Product Image', 'Sets the upload setting when uploading product image.', 500);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -1071,7 +1122,10 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, upload_setting_nam
 (7, 'Employee Document', 92, 'XLS', 'xls'),
 (7, 'Employee Document', 94, 'XLSX', 'xlsx'),
 (7, 'Employee Document', 89, 'PPT', 'ppt'),
-(7, 'Employee Document', 90, 'PPTX', 'pptx');
+(7, 'Employee Document', 90, 'PPTX', 'pptx'),
+(8, 'Product Image', 62, 'JPEG', 'jpeg'),
+(8, 'Product Image', 61, 'JPG', 'jpg'),
+(8, 'Product Image', 63, 'PNG', 'png');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS

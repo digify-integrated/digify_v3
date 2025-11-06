@@ -21,8 +21,7 @@ class SystemNotificationService extends Model
      * @param string $p_title Notification title
      * @param string $p_message Notification message
      */
-    public function insertSystemNotification($p_user_account_id, $p_title, $p_message)
-    {
+    public function insertSystemNotification($p_user_account_id, $p_title, $p_message) {
         $sql = 'CALL insertSystemNotification(:p_user_account_id, :p_title, :p_message)';
 
         return $this->query($sql, [
@@ -42,8 +41,7 @@ class SystemNotificationService extends Model
      * @param int $p_user_account_id User account ID
      * @return array List of notifications
      */
-    public function fetchUserNotifications($p_user_account_id): array
-    {
+    public function fetchUserNotifications($p_user_account_id) {
         $sql = 'CALL fetchUserNotifications(:p_user_account_id)';
 
         return $this->fetchAll($sql, [

@@ -20,8 +20,7 @@ use PDOException;
  *
  * @package App\Core
  */
-abstract class Model
-{
+abstract class Model {
     /**
      * @var PDO Active PDO database connection
      */
@@ -46,8 +45,7 @@ abstract class Model
      *
      * @return PDOStatement|false Returns PDOStatement on success, false on failure
      */
-    public function query(string $query, array $params = []): PDOStatement|false
-    {
+    public function query(string $query, array $params = []) {
         try {
             $stmt = $this->db->prepare($query);
 
@@ -70,8 +68,7 @@ abstract class Model
      *
      * @return array Returns an array of results, or empty array if none
      */
-    public function fetchAll(string $query, array $params = []): array
-    {
+    public function fetchAll(string $query, array $params = []) {
         $stmt = $this->query($query, $params);
         return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
     }
@@ -84,8 +81,7 @@ abstract class Model
      *
      * @return array|null Returns associative array of row, or null if none
      */
-    public function fetch(string $query, array $params = []): ?array
-    {
+    public function fetch(string $query, array $params = []) {
         $stmt       = $this->query($query, $params);
         $result     = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : null;
 
@@ -101,8 +97,7 @@ abstract class Model
      *
      * @return string Query with masked parameters
      */
-    private function maskQuery(string $query, array $params): string
-    {
+    private function maskQuery(string $query, array $params) {
         foreach ($params as $key => $value) {
             $valuePlaceholder   = is_numeric($value) ? '[NUMERIC_PARAM]' : '[STRING_PARAM]';
             $placeholder        = is_int($key) ? '?' : ":$key";

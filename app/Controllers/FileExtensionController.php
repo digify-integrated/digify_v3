@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\FileExtension;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class FileExtensionController
-{
+class FileExtensionController {
     protected FileExtension $fileExtension;
     protected FileType $fileType;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class FileExtensionController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +62,8 @@ class FileExtensionController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -87,7 +84,41 @@ class FileExtensionController
         };
     }
 
-    public function saveFileExtension($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveFileExtension(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'file_extension_form')) {
@@ -105,47 +136,55 @@ class FileExtensionController
         $fileTypeDetails    = $this->fileType->fetchFileType($fileTypeId);
         $fileTypeName       = $fileTypeDetails['file_type_name'] ?? '';
 
-        $fileExtensionId            = $this->fileExtension->saveFileExtension($fileExtensionId, $fileExtensionName, $fileExtension, $fileTypeId, $fileTypeName, $lastLogBy);
-        $encryptedfileExtensionId   = $this->security->encryptData($fileExtensionId);
+        $fileExtensionId = $this->fileExtension->saveFileExtension(
+            $fileExtensionId,
+            $fileExtensionName,
+            $fileExtension,
+            $fileTypeId,
+            $fileTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedfileExtensionId = $this->security->encryptData($fileExtensionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save File Extension Success',
             'The file extension has been saved successfully.',
             ['file_extension_id' => $encryptedfileExtensionId]
         );
     }
 
-    public function deleteFileExtension(){
+    public function deleteFileExtension() {
         $fileExtensionId = $_POST['file_extension_id'] ?? null;
 
         $this->fileExtension->deleteFileExtension($fileExtensionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete File Extension Success',
             'The file extension has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleFileExtension(){
+    public function deleteMultipleFileExtension() {
         $fileExtensionIds = $_POST['file_extension_id'] ?? null;
 
         foreach($fileExtensionIds as $fileExtensionId){
             $this->fileExtension->deleteFileExtension($fileExtensionId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple File Extensions Success',
             'The selected file extensions have been deleted successfully.'
         );
     }
 
-    public function fetchFileExtensionDetails(){
+    public function fetchFileExtensionDetails() {
         $fileExtensionId            = $_POST['file_extension_id'] ?? null;
         $checkFileExtensionExist    = $this->fileExtension->checkFileExtensionExist($fileExtensionId);
         $total                      = $checkFileExtensionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get File Extension Details',
                 'The file extension does not exist',
                 ['notExist' => true]
@@ -165,8 +204,7 @@ class FileExtensionController
         exit;
     }
 
-    public function generateFileExtensionTable()
-    {
+    public function generateFileExtensionTable() {
         $pageLink           = $_POST['page_link'] ?? null;
         $fileTypeFilter     = $this->systemHelper->checkFilter($_POST['file_type_filter'] ?? null);
         $response           = [];
@@ -194,8 +232,7 @@ class FileExtensionController
         echo json_encode($response);
     }
     
-    public function generateFileExtensionOptions()
-    {
+    public function generateFileExtensionOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -219,7 +256,6 @@ class FileExtensionController
     }
 }
 
-# Bootstrap the controller
 $controller = new FileExtensionController(
     new FileExtension(),
     new FileType(),

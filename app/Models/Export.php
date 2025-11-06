@@ -22,9 +22,9 @@ class Export extends Model {
     ============================================================================================= */
     
     public function fetchExportData(
-        $p_table_name,
-        $p_columns,
-        $p_ids
+        string $p_table_name,
+        string $p_columns,
+        string $p_ids
     ) {
         $sql = 'CALL fetchExportData(
             :p_table_name,
@@ -52,8 +52,8 @@ class Export extends Model {
     ============================================================================================= */
 
     public function generateExportOptions(
-        $p_database_name,
-        $p_table_name
+        string $p_database_name,
+        string $p_table_name
     ) {
         $sql = 'CALL generateExportOptions(
             :p_database_name,
@@ -67,7 +67,7 @@ class Export extends Model {
     }
 
     public function generateTableOptions(
-        $p_database_name
+        string $p_database_name
     ) {
         $sql = 'CALL generateTableOptions(
             :p_database_name

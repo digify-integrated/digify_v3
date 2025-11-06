@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\UnitType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class UnitTypeController
-{
+class UnitTypeController {
     protected UnitType $unitType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class UnitTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class UnitTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class UnitTypeController
         };
     }
 
-    public function saveUnitType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveUnitType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'unit_type_form')) {
@@ -96,47 +127,52 @@ class UnitTypeController
         $unitTypeId      = $_POST['unit_type_id'] ?? null;
         $unitTypeName    = $_POST['unit_type_name'] ?? null;
 
-        $unitTypeId              = $this->unitType->saveUnitType($unitTypeId, $unitTypeName, $lastLogBy);
-        $encryptedUnitTypeId     = $this->security->encryptData($unitTypeId);
+        $unitTypeId = $this->unitType->saveUnitType(
+            $unitTypeId,
+            $unitTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedUnitTypeId = $this->security->encryptData($unitTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Unit Type Success',
             'The unit type has been saved successfully.',
             ['unit_type_id' => $encryptedUnitTypeId]
         );
     }
 
-    public function deleteUnitType(){
+    public function deleteUnitType() {
         $unitTypeId = $_POST['unit_type_id'] ?? null;
 
         $this->unitType->deleteUnitType($unitTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Unit Type Success',
             'The unit type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleUnitType(){
+    public function deleteMultipleUnitType() {
         $unitTypeIds = $_POST['unit_type_id'] ?? null;
 
         foreach($unitTypeIds as $unitTypeId){
             $this->unitType->deleteUnitType($unitTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Unit Types Success',
             'The selected unit types have been deleted successfully.'
         );
     }
 
-    public function fetchUnitTypeDetails(){
-        $unitTypeId          = $_POST['unit_type_id'] ?? null;
-        $checkUnitTypeExist  = $this->unitType->checkUnitTypeExist($unitTypeId);
+    public function fetchUnitTypeDetails() {
+        $unitTypeId             = $_POST['unit_type_id'] ?? null;
+        $checkUnitTypeExist     = $this->unitType->checkUnitTypeExist($unitTypeId);
         $total                  = $checkUnitTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Unit Type Details',
                 'The unit type does not exist',
                 ['notExist' => true]
@@ -146,16 +182,15 @@ class UnitTypeController
         $unitTypeDetails = $this->unitType->fetchUnitType($unitTypeId);
 
         $response = [
-            'success'           => true,
-            'unitTypeName'   => $unitTypeDetails['unit_type_name'] ?? null
+            'success'       => true,
+            'unitTypeName'  => $unitTypeDetails['unit_type_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateUnitTypeTable()
-    {
+    public function generateUnitTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -163,7 +198,7 @@ class UnitTypeController
 
         foreach ($unitTypes as $row) {
             $unitTypeId      = $row['unit_type_id'];
-            $unitTypeName    = $row['unit_type_name'];
+            $unitTypeName   = $row['unit_type_name'];
 
             $unitTypeIdEncrypted = $this->security->encryptData($unitTypeId);
 
@@ -179,8 +214,7 @@ class UnitTypeController
         echo json_encode($response);
     }
     
-    public function generateUnitTypeOptions()
-    {
+    public function generateUnitTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class UnitTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new UnitTypeController(
     new UnitType(),
     new Authentication(),

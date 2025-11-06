@@ -10,10 +10,10 @@ class Bank extends Model {
     ============================================================================================= */
 
     public function saveBank(
-        $p_bank_id,
-        $p_bank_name,
-        $p_bank_identifier_code,
-        $p_last_log_by
+        int $p_bank_id,
+        string $p_bank_name,
+        string $p_bank_identifier_code,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveBank(
             :p_bank_id,
@@ -45,7 +45,7 @@ class Bank extends Model {
     ============================================================================================= */
 
     public function fetchBank(
-        $p_bank_id
+        int $p_bank_id
     ) {
         $sql = 'CALL fetchBank(
             :p_bank_id
@@ -61,7 +61,7 @@ class Bank extends Model {
     ============================================================================================= */
 
     public function deleteBank(
-        $p_bank_id
+        int $p_bank_id
     ) {
         $sql = 'CALL deleteBank(
             :p_bank_id
@@ -77,7 +77,7 @@ class Bank extends Model {
     ============================================================================================= */
 
     public function checkBankExist(
-        $p_bank_id
+        int $p_bank_id
     ) {
         $sql = 'CALL checkBankExist(
             :p_bank_id

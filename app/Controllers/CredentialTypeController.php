@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\CredentialType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CredentialTypeController
-{
+class CredentialTypeController {
     protected CredentialType $credentialType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class CredentialTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class CredentialTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class CredentialTypeController
         };
     }
 
-    public function saveCredentialType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveCredentialType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'credential_type_form')) {
@@ -96,47 +127,52 @@ class CredentialTypeController
         $credentialTypeId       = $_POST['credential_type_id'] ?? null;
         $credentialTypeName     = $_POST['credential_type_name'] ?? null;
 
-        $credentialTypeId           = $this->credentialType->saveCredentialType($credentialTypeId, $credentialTypeName, $lastLogBy);
-        $encryptedCredentialTypeId  = $this->security->encryptData($credentialTypeId);
+        $credentialTypeId = $this->credentialType->saveCredentialType(
+            $credentialTypeId,
+            $credentialTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedCredentialTypeId = $this->security->encryptData($credentialTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Credential Type Success',
             'The credential type has been saved successfully.',
             ['credential_type_id' => $encryptedCredentialTypeId]
         );
     }
 
-    public function deleteCredentialType(){
+    public function deleteCredentialType() {
         $credentialTypeId = $_POST['credential_type_id'] ?? null;
 
         $this->credentialType->deleteCredentialType($credentialTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Credential Type Success',
             'The credential type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleCredentialType(){
+    public function deleteMultipleCredentialType() {
         $credentialTypeIds = $_POST['credential_type_id'] ?? null;
 
         foreach($credentialTypeIds as $credentialTypeId){
             $this->credentialType->deleteCredentialType($credentialTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Credential Types Success',
             'The selected credential types have been deleted successfully.'
         );
     }
 
-    public function fetchCredentialTypeDetails(){
+    public function fetchCredentialTypeDetails() {
         $credentialTypeId           = $_POST['credential_type_id'] ?? null;
         $checkCredentialTypeExist   = $this->credentialType->checkCredentialTypeExist($credentialTypeId);
         $total                      = $checkCredentialTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Credential Type Details',
                 'The credential type does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class CredentialTypeController
         exit;
     }
 
-    public function generateCredentialTypeTable()
-    {
+    public function generateCredentialTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class CredentialTypeController
         echo json_encode($response);
     }
     
-    public function generateCredentialTypeOptions()
-    {
+    public function generateCredentialTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class CredentialTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new CredentialTypeController(
     new CredentialType(),
     new Authentication(),

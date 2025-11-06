@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\LanguageProficiency;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class LanguageProficiencyController
-{
+class LanguageProficiencyController {
     protected LanguageProficiency $languageProficiency;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class LanguageProficiencyController
         $this->systemHelper         = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class LanguageProficiencyController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class LanguageProficiencyController
         };
     }
 
-    public function saveLanguageProficiency($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveLanguageProficiency(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'language_proficiency_form')) {
@@ -97,47 +128,53 @@ class LanguageProficiencyController
         $languageProficiencyName            = $_POST['language_proficiency_name'] ?? null;
         $languageProficiencyDescription     = $_POST['language_proficiency_description'] ?? null;
 
-        $languageProficiencyId              = $this->languageProficiency->saveLanguageProficiency($languageProficiencyId, $languageProficiencyName, $languageProficiencyDescription, $lastLogBy);
-        $encryptedLanguageProficiencyId     = $this->security->encryptData($languageProficiencyId);
+        $languageProficiencyId = $this->languageProficiency->saveLanguageProficiency(
+            $languageProficiencyId,
+            $languageProficiencyName,
+            $languageProficiencyDescription,
+            $lastLogBy
+        );
+        
+        $encryptedLanguageProficiencyId = $this->security->encryptData($languageProficiencyId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Language Proficiency Success',
             'The language proficiency has been saved successfully.',
             ['language_proficiency_id' => $encryptedLanguageProficiencyId]
         );
     }
 
-    public function deleteLanguageProficiency(){
+    public function deleteLanguageProficiency() {
         $languageProficiencyId = $_POST['language_proficiency_id'] ?? null;
 
         $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Language Proficiency Success',
             'The language proficiency has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleLanguageProficiency(){
+    public function deleteMultipleLanguageProficiency() {
         $languageProficiencyIds = $_POST['language_proficiency_id'] ?? null;
 
         foreach($languageProficiencyIds as $languageProficiencyId){
             $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Language Proficiencys Success',
-            'The selected language proficiencys have been deleted successfully.'
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Language Proficiencies Success',
+            'The selected language proficiencies have been deleted successfully.'
         );
     }
 
-    public function fetchLanguageProficiencyDetails(){
+    public function fetchLanguageProficiencyDetails() {
         $languageProficiencyId          = $_POST['language_proficiency_id'] ?? null;
         $checkLanguageProficiencyExist  = $this->languageProficiency->checkLanguageProficiencyExist($languageProficiencyId);
         $total                          = $checkLanguageProficiencyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Language Proficiency Details',
                 'The language proficiency does not exist',
                 ['notExist' => true]
@@ -156,8 +193,7 @@ class LanguageProficiencyController
         exit;
     }
 
-    public function generateLanguageProficiencyTable()
-    {
+    public function generateLanguageProficiencyTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -175,7 +211,7 @@ class LanguageProficiencyController
                                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $languageProficiencyId .'">
                                                     </div>',
                 'LANGUAGE_PROFICIENCY_NAME'     => '<div class="d-flex flex-column">
-                                                        <a href="#" class="fs-5 text-gray-900 fw-bold">'. $languageProficiencyName .'</a>
+                                                        <div class="fs-5 text-gray-900 fw-bold">'. $languageProficiencyName .'</div>
                                                         <div class="fs-7 text-gray-500">'. $languageProficiencyDescription .'</div>
                                                     </div>',
                 'LINK'                          => $pageLink .'&id='. $languageProficiencyIdEncrypted
@@ -185,8 +221,7 @@ class LanguageProficiencyController
         echo json_encode($response);
     }
     
-    public function generateLanguageProficiencyOptions()
-    {
+    public function generateLanguageProficiencyOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -210,7 +245,6 @@ class LanguageProficiencyController
     }
 }
 
-# Bootstrap the controller
 $controller = new LanguageProficiencyController(
     new LanguageProficiency(),
     new Authentication(),

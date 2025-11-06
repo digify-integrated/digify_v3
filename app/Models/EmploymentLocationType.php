@@ -10,9 +10,9 @@ class EmploymentLocationType extends Model {
     ============================================================================================= */
 
     public function saveEmploymentLocationType(
-        $p_employment_location_type_id,
-        $p_employment_location_type_name,
-        $p_last_log_by
+        int $p_employment_location_type_id,
+        string $p_employment_location_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveEmploymentLocationType(
             :p_employment_location_type_id,
@@ -42,7 +42,7 @@ class EmploymentLocationType extends Model {
     ============================================================================================= */
 
     public function fetchEmploymentLocationType(
-        $p_employment_location_type_id
+        int $p_employment_location_type_id
     ) {
         $sql = 'CALL fetchEmploymentLocationType(
             :p_employment_location_type_id
@@ -58,7 +58,7 @@ class EmploymentLocationType extends Model {
     ============================================================================================= */
 
     public function deleteEmploymentLocationType(
-        $p_employment_location_type_id
+        int $p_employment_location_type_id
     ) {
         $sql = 'CALL deleteEmploymentLocationType(
             :p_employment_location_type_id
@@ -74,7 +74,7 @@ class EmploymentLocationType extends Model {
     ============================================================================================= */
 
     public function checkEmploymentLocationTypeExist(
-        $p_employment_location_type_id
+        int $p_employment_location_type_id
     ) {
         $sql = 'CALL checkEmploymentLocationTypeExist(
             :p_employment_location_type_id

@@ -58,8 +58,8 @@ class BankController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -79,6 +79,38 @@ class BankController {
                                             )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveBank(
         int $lastLogBy
@@ -105,7 +137,7 @@ class BankController {
 
         $encryptedBankId = $this->security->encryptData($bankId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Bank Success',
             'The bank has been saved successfully.',
             ['bank_id' => $encryptedBankId]
@@ -117,7 +149,7 @@ class BankController {
 
         $this->bank->deleteBank($bankId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Bank Success',
             'The bank has been deleted successfully.'
         );
@@ -130,7 +162,7 @@ class BankController {
             $this->bank->deleteBank($bankId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Banks Success',
             'The selected banks have been deleted successfully.'
         );
@@ -142,14 +174,14 @@ class BankController {
         $total              = $checkBankyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Bank Details',
                 'The bank does not exist',
                 ['notExist' => true]
             );
         }
 
-        $bankDetails   = $this->bank->fetchBank($bankId);
+        $bankDetails = $this->bank->fetchBank($bankId);
 
         $response = [
             'success'               => true,

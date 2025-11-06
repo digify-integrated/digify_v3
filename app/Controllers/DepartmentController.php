@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Department;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class DepartmentController
-{
+class DepartmentController {
     protected Department $department;
     protected Employee $employee;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class DepartmentController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +62,8 @@ class DepartmentController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -88,7 +85,41 @@ class DepartmentController
         };
     }
 
-    public function saveDepartment($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveDepartment(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'department_form')) {
@@ -109,47 +140,56 @@ class DepartmentController
         $managerDetails     = $this->employee->fetchEmployee(p_employee_id: $managerId);
         $managerName        = $managerDetails['full_name'] ?? '';
 
-        $departmentId           = $this->department->saveDepartment($departmentId, $departmentName, $parentDepartmentId, $parentDepartmentName, $managerId, $managerName, $lastLogBy);
-        $encryptedDepartmentId  = $this->security->encryptData($departmentId);
+        $departmentId = $this->department->saveDepartment(
+            $departmentId,
+            $departmentName,
+            $parentDepartmentId,
+            $parentDepartmentName,
+            $managerId,
+            $managerName,
+            $lastLogBy
+        );
+        
+        $encryptedDepartmentId = $this->security->encryptData($departmentId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Department Success',
             'The department has been saved successfully.',
             ['department_id' => $encryptedDepartmentId]
         );
     }
 
-    public function deleteDepartment(){
+    public function deleteDepartment() {
         $departmentId = $_POST['department_id'] ?? null;
 
         $this->department->deleteDepartment($departmentId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Department Success',
             'The department has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleDepartment(){
+    public function deleteMultipleDepartment() {
         $departmentIds = $_POST['department_id'] ?? null;
 
         foreach($departmentIds as $departmentId){
             $this->department->deleteDepartment($departmentId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Departments Success',
             'The selected departments have been deleted successfully.'
         );
     }
 
-    public function fetchDepartmentDetails(){
+    public function fetchDepartmentDetails() {
         $departmentId           = $_POST['department_id'] ?? null;
         $checkDepartmentExist   = $this->department->checkDepartmentExist($departmentId);
         $total                  = $checkDepartmentExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Department Details',
                 'The department does not exist',
                 ['notExist' => true]
@@ -169,8 +209,7 @@ class DepartmentController
         exit;
     }
 
-    public function generateDepartmentTable()
-    {
+    public function generateDepartmentTable() {
         $filterParentDepartment     = $this->systemHelper->checkFilter($_POST['parent_department_filter'] ?? null);
         $filterManager              = $this->systemHelper->checkFilter($_POST['manager_filter'] ?? null);
         $pageLink                   = $_POST['page_link'] ?? null;
@@ -200,8 +239,7 @@ class DepartmentController
         echo json_encode($response);
     }
     
-    public function generateDepartmentOptions()
-    {
+    public function generateDepartmentOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -225,8 +263,7 @@ class DepartmentController
     }
 
     
-    public function generateParentDepartmentOptions()
-    {
+    public function generateParentDepartmentOptions() {
         $departmentID   = $_POST['department_id'] ?? null;
         $multiple       = $_POST['multiple'] ?? false;
         $response       = [];
@@ -251,7 +288,6 @@ class DepartmentController
     }
 }
 
-# Bootstrap the controller
 $controller = new DepartmentController(
     new Department(),
     new Employee(),

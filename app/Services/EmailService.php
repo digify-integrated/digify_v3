@@ -27,7 +27,7 @@ class EmailService
         string $body,
         array $cc   = [],
         array $bcc  = []
-    ): bool|string {
+    ) {
         $mailer = new PHPMailer(true);
 
         try {
@@ -63,8 +63,7 @@ class EmailService
     /**
      * Configure PHPMailer SMTP settings from constants (or DB).
      */
-    private function configureSMTP(PHPMailer $mailer, bool $isHTML = true): void
-    {
+    private function configureSMTP(PHPMailer $mailer, bool $isHTML = true) {
         $mailer->isSMTP();
         $mailer->isHTML($isHTML);
         $mailer->Host           = MAIL_SMTP_SERVER;
@@ -78,8 +77,7 @@ class EmailService
     /**
      * Apply email template if available, otherwise return raw body.
      */
-    private function applyTemplate(string $subject, string $body): string
-    {
+    private function applyTemplate(string $subject, string $body) {
         $defaultTemplatePath = __DIR__ . '/template/email-template.html';
 
         if (file_exists($defaultTemplatePath)) {

@@ -10,12 +10,12 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function saveFileExtension(
-        $p_file_extension_id,
-        $p_file_extension_name,
-        $p_file_extension,
-        $p_file_type_id,
-        $p_file_type_name,
-        $p_last_log_by
+        int $p_file_extension_id,
+        string $p_file_extension_name,
+        string $p_file_extension,
+        int $p_file_type_id,
+        string $p_file_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveFileExtension(
             :p_file_extension_id,
@@ -51,7 +51,7 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function fetchFileExtension(
-        $p_file_extension_id
+        int $p_file_extension_id
     ) {
         $sql = 'CALL fetchFileExtension(
             :p_file_extension_id
@@ -67,7 +67,7 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function deleteFileExtension(
-        $p_file_extension_id
+        int $p_file_extension_id
     ) {
         $sql = 'CALL deleteFileExtension(
             :p_file_extension_id
@@ -83,7 +83,7 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function checkFileExtensionExist(
-        $p_file_extension_id
+        int $p_file_extension_id
     ) {
         $sql = 'CALL checkFileExtensionExist(
             :p_file_extension_id
@@ -98,8 +98,8 @@ class FileExtension extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-     public function generateFileExtensionTable(
-        $p_filter_by_file_type
+    public function generateFileExtensionTable(
+        string $p_filter_by_file_type
     ) {
         $sql = 'CALL generateFileExtensionTable(
             :p_filter_by_file_type

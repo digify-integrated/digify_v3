@@ -10,9 +10,9 @@ class JobPosition extends Model {
     ============================================================================================= */
 
     public function saveJobPosition(
-        $p_job_position_id,
-        $p_job_position_name,
-        $p_last_log_by
+        int $p_job_position_id,
+        string $p_job_position_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveJobPosition(
             :p_job_position_id,
@@ -42,7 +42,7 @@ class JobPosition extends Model {
     ============================================================================================= */
 
     public function fetchJobPosition(
-        $p_job_position_id
+        int $p_job_position_id
     ) {
         $sql = 'CALL fetchJobPosition(
             :p_job_position_id
@@ -58,7 +58,7 @@ class JobPosition extends Model {
     ============================================================================================= */
 
     public function deleteJobPosition(
-        $p_job_position_id
+        int $p_job_position_id
     ) {
         $sql = 'CALL deleteJobPosition(
             :p_job_position_id
@@ -74,7 +74,7 @@ class JobPosition extends Model {
     ============================================================================================= */
 
     public function checkJobPositionExist(
-        $p_job_position_id
+        int $p_job_position_id
     ) {
         $sql = 'CALL checkJobPositionExist(
             :p_job_position_id

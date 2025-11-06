@@ -15,8 +15,7 @@ use RuntimeException;
  *
  * @package App\Core
  */
-class Database
-{
+class Database {
     /**
      * @var Database|null Singleton instance of the Database class
      */
@@ -60,7 +59,8 @@ class Database
                 $password,
                 $options
             );
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e) {
             error_log('Database connection failed: ' . $e->getMessage());
             throw new RuntimeException('Database connection error.');
         }

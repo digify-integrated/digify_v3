@@ -10,9 +10,9 @@ class Nationality extends Model {
     ============================================================================================= */
 
     public function saveNationality(
-        $p_nationality_id,
-        $p_nationality_name,
-        $p_last_log_by
+        int $p_nationality_id,
+        string $p_nationality_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveNationality(
             :p_nationality_id,
@@ -42,7 +42,7 @@ class Nationality extends Model {
     ============================================================================================= */
 
     public function fetchNationality(
-        $p_nationality_id
+        int $p_nationality_id
     ) {
         $sql = 'CALL fetchNationality(
             :p_nationality_id
@@ -58,7 +58,7 @@ class Nationality extends Model {
     ============================================================================================= */
 
     public function deleteNationality(
-        $p_nationality_id
+        int $p_nationality_id
     ) {
         $sql = 'CALL deleteNationality(
             :p_nationality_id
@@ -74,7 +74,7 @@ class Nationality extends Model {
     ============================================================================================= */
 
     public function checkNationalityExist(
-        $p_nationality_id
+        int $p_nationality_id
     ) {
         $sql = 'CALL checkNationalityExist(
             :p_nationality_id

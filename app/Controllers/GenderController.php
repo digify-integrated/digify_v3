@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Gender;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class GenderController
-{
+class GenderController {
     protected Gender $gender;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class GenderController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class GenderController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class GenderController
         };
     }
 
-    public function saveGender($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveGender(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'gender_form')) {
@@ -96,47 +127,52 @@ class GenderController
         $genderId       = $_POST['gender_id'] ?? null;
         $genderName     = $_POST['gender_name'] ?? null;
 
-        $genderId           = $this->gender->saveGender($genderId, $genderName, $lastLogBy);
-        $encryptedGenderId  = $this->security->encryptData($genderId);
+        $genderId = $this->gender->saveGender(
+            $genderId,
+            $genderName,
+            $lastLogBy
+        );
+        
+        $encryptedGenderId = $this->security->encryptData($genderId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Gender Success',
             'The gender has been saved successfully.',
             ['gender_id' => $encryptedGenderId]
         );
     }
 
-    public function deleteGender(){
+    public function deleteGender() {
         $genderId = $_POST['gender_id'] ?? null;
 
         $this->gender->deleteGender($genderId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Gender Success',
             'The gender has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleGender(){
+    public function deleteMultipleGender() {
         $genderIds = $_POST['gender_id'] ?? null;
 
         foreach($genderIds as $genderId){
             $this->gender->deleteGender($genderId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Genders Success',
             'The selected genders have been deleted successfully.'
         );
     }
 
-    public function fetchGenderDetails(){
+    public function fetchGenderDetails() {
         $genderId           = $_POST['gender_id'] ?? null;
         $checkGenderyExist  = $this->gender->checkGenderExist($genderId);
         $total              = $checkGenderyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Gender Details',
                 'The gender does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class GenderController
         exit;
     }
 
-    public function generateGenderTable()
-    {
+    public function generateGenderTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class GenderController
         echo json_encode($response);
     }
     
-    public function generateGenderOptions()
-    {
+    public function generateGenderOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class GenderController
     }
 }
 
-# Bootstrap the controller
 $controller = new GenderController(
     new Gender(),
     new Authentication(),

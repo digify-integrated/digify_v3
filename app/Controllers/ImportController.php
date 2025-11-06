@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Import;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class ImportController
-{
+class ImportController {
     protected Import $import;
     protected UploadSetting $uploadSetting;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class ImportController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,9 +62,9 @@ class ImportController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
-                    ]
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
+                ]
             );
         }
 
@@ -83,8 +80,39 @@ class ImportController
         };
     }
 
-    public function generateImportDataPreview()
-    {
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function generateImportDataPreview() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_form')) {
@@ -153,7 +181,7 @@ class ImportController
     
             $html .= '</tbody>';
 
-            $this->systemHelper->sendSuccessResponse(
+            $this->systemHelper::sendSuccessResponse(
                 '',
                 '',
                 ['preview' => $html]
@@ -168,8 +196,7 @@ class ImportController
         }
     }
 
-    public function saveImportData()
-    {
+    public function saveImportData() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_form')) {
@@ -234,12 +261,11 @@ class ImportController
         }
         fclose($file);
 
-        // ✅ Build VALUES string manually here
         $allValues = [];
         foreach ($data as $row) {
             $escapedRow = array_map(function($value) {
                 if ($value === null || $value === '') {
-                    return 'NULL'; // Insert as NULL, not ''
+                    return 'NULL';
                 }
                 return "'" . str_replace("'", "''", $value) . "'";
             }, $row);
@@ -247,30 +273,34 @@ class ImportController
         }
         $valuesString = implode(',', $allValues);
 
-        // Build other SQL parts
-        $placeholders       = implode(',', array_fill(0, count($headers), '?')); 
-        $columns            = implode(',', array_map(function($header) {
+        $placeholders   = implode(',', array_fill(0, count($headers), '?')); 
+        $columns        = implode(',', array_map(function($header) {
                                 return "`" . addslashes($header) . "`";
                             }, $headers));
-        $updateFields       = implode(',', array_map(function($header) {
+        $updateFields   = implode(',', array_map(function($header) {
                                 return "`" . addslashes($header) . "` = VALUES(`" . addslashes($header) . "`)"; 
                             }, $headers));
-        $saveImportData     = $this->import->saveImport($importTableName, $columns, $placeholders, $updateFields, $valuesString);
 
-        // Normalize fetch() result
+        $saveImportData = $this->import->saveImport(
+            $importTableName,
+            $columns,
+            $placeholders,
+            $updateFields,
+            $valuesString
+        );
+
         if ($saveImportData === false) {
-            $saveImportData = null; // success, no error
+            $saveImportData = null;
         }
 
         if ($saveImportData !== null && isset($saveImportData['error_message'])) {
-            // Error returned by stored procedure
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Import Data',
                 'Import failed: ' . $saveImportData['error_message'] . '. Please check your file and try again.'
             );
-        } else {
-            // Success
-            $this->systemHelper->sendSuccessResponse(
+        }
+        else {
+            $this->systemHelper::sendSuccessResponse(
                 'Import Data',
                 'The data has been imported successfully.'
             );
@@ -278,7 +308,6 @@ class ImportController
     }
 }
 
-# Bootstrap the controller
 $controller = new ImportController(
     new Import(),
     new UploadSetting(),

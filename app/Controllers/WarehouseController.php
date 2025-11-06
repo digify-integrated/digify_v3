@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Warehouse;
@@ -13,8 +12,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class WarehouseController
-{
+class WarehouseController {
     protected Warehouse $warehouse;
     protected WarehouseType $warehouseType;
     protected City $city;
@@ -38,8 +36,7 @@ class WarehouseController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -69,8 +66,8 @@ class WarehouseController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -93,7 +90,41 @@ class WarehouseController
         };
     }
 
-    public function saveWarehouse($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveWarehouse(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'warehouse_form')) {
@@ -124,77 +155,105 @@ class WarehouseController
         $countryId      = $cityDetails['country_id'] ?? null;
         $countryName    = $cityDetails['country_name'] ?? null;
 
-        $warehouseId = $this->warehouse->saveWarehouse($warehouseId, $warehouseName, $shortName, $contactPerson, $phone, $telephone, $email, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $warehouseTypeId, $warehouseTypeName, $lastLogBy);
+        $warehouseId = $this->warehouse->saveWarehouse(
+            $warehouseId,
+            $warehouseName,
+            $shortName,
+            $contactPerson,
+            $phone,
+            $telephone,
+            $email,
+            $address,
+            $cityId,
+            $cityName,
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $warehouseTypeId,
+            $warehouseTypeName,
+            $lastLogBy
+        );
 
         $encryptedwarehouseId = $this->security->encryptData($warehouseId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Warehouse Success',
             'The warehouse has been saved successfully.',
             ['warehouse_id' => $encryptedwarehouseId]
         );
     }
 
-    public function updateWarehouseArchive($lastLogBy){
+    public function updateWarehouseArchive(
+        int $lastLogBy
+    ) {
         $warehouseId = $_POST['warehouse_id'] ?? null;
 
-        $this->warehouse->updateWarehouseArchive($warehouseId, $lastLogBy);
+        $this->warehouse->updateWarehouseArchive(
+            $warehouseId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Warehouse Archive Success',
             'The warehouse has been archived successfully.'
         );
     }
 
-    public function updateWarehouseUnarchive($lastLogBy){
+    public function updateWarehouseUnarchive(
+        int $lastLogBy
+    ) {
         $warehouseId = $_POST['warehouse_id'] ?? null;
 
-        $this->warehouse->updateWarehouseUnarchive($warehouseId, $lastLogBy);
+        $this->warehouse->updateWarehouseUnarchive(
+            $warehouseId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Warehouse Unarchive Success',
             'The warehouse has been unarchived successfully.'
         );
     }
 
-    public function deleteWarehouse(){
+    public function deleteWarehouse() {
         $warehouseId = $_POST['warehouse_id'] ?? null;
 
         $this->warehouse->deleteWarehouse($warehouseId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Warehouse Success',
             'The warehouse has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleWarehouse(){
+    public function deleteMultipleWarehouse() {
         $warehouseIds = $_POST['warehouse_id'] ?? null;
 
         foreach($warehouseIds as $warehouseId){
             $this->warehouse->deleteWarehouse($warehouseId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Warehouses Success',
             'The selected warehouses have been deleted successfully.'
         );
     }
 
-    public function fetchWarehouseDetails(){
+    public function fetchWarehouseDetails() {
         $warehouseId            = $_POST['warehouse_id'] ?? null;
         $checkWarehouseExist    = $this->warehouse->checkWarehouseExist($warehouseId);
         $total                  = $checkWarehouseExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Warehouse Details',
                 'The warehouse does not exist',
                 ['notExist' => true]
             );
         }
 
-        $warehouseDetails     = $this->warehouse->fetchWarehouse($warehouseId);
+        $warehouseDetails = $this->warehouse->fetchWarehouse($warehouseId);
 
         $response = [
             'success'           => true,
@@ -213,8 +272,7 @@ class WarehouseController
         exit;
     }
 
-    public function generateWarehouseTable()
-    {
+    public function generateWarehouseTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
         $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
@@ -223,7 +281,13 @@ class WarehouseController
         $warehouseStatusFilter  = $this->systemHelper->checkFilter($_POST['warehouse_status_filter'] ?? null);
         $response               = [];
 
-        $warehouses = $this->warehouse->generateWarehouseTable($warehouseTypeFilter, $cityFilter, $stateFilter, $countryFilter, $warehouseStatusFilter);
+        $warehouses = $this->warehouse->generateWarehouseTable(
+            $warehouseTypeFilter,
+            $cityFilter,
+            $stateFilter,
+            $countryFilter,
+            $warehouseStatusFilter
+        );
 
         foreach ($warehouses as $row) {
             $warehouseId            = $row['warehouse_id'];
@@ -236,22 +300,21 @@ class WarehouseController
             $warehouseIdEncrypted   = $this->security->encryptData($warehouseId);
 
             $response[] = [
-                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $warehouseId .'">
-                                    </div>',
-                'WAREHOUSE_NAME'  => '<div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-bold mb-1">'. $warehouseName .'</span>
-                                        <small class="text-gray-600">'. $warehouseAddress .'</small>
-                                    </div>',
-                'LINK'          => $pageLink .'&id='. $warehouseIdEncrypted
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $warehouseId .'">
+                                        </div>',
+                'WAREHOUSE_NAME'    => '<div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-bold mb-1">'. $warehouseName .'</span>
+                                            <small class="text-gray-600">'. $warehouseAddress .'</small>
+                                        </div>',
+                'LINK'              => $pageLink .'&id='. $warehouseIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateWarehouseOptions()
-    {
+    public function generateWarehouseOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -275,7 +338,6 @@ class WarehouseController
     }
 }
 
-# Bootstrap the controller
 $controller = new WarehouseController(
     new Warehouse(),
     new WarehouseType(),

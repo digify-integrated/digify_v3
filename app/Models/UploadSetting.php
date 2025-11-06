@@ -10,11 +10,11 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function saveUploadSetting(
-        $p_upload_setting_id,
-        $p_upload_setting_name,
-        $p_upload_setting_description,
-        $p_max_file_size,
-        $p_last_log_by
+        int $p_upload_setting_id,
+        string $p_upload_setting_name,
+        string $p_upload_setting_description,
+        string $p_max_file_size,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveUploadSetting(
             :p_upload_setting_id,
@@ -40,12 +40,12 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function insertUploadSettingFileExtension(
-        $p_upload_setting_id,
-        $p_upload_setting_name,
-        $p_file_extension_id,
-        $p_file_extension_name,
-        $p_file_extension,
-        $p_last_log_by
+        int $p_upload_setting_id,
+        string $p_upload_setting_name,
+        int $p_file_extension_id,
+        string $p_file_extension_name,
+        string $p_file_extension,
+        int $p_last_log_by
     ) {
         $sql = 'CALL insertUploadSettingFileExtension(
             :p_upload_setting_id,
@@ -75,7 +75,7 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function fetchUploadSetting(
-        $p_upload_setting_id
+        int $p_upload_setting_id
     ) {
         $sql = 'CALL fetchUploadSetting(
             :p_upload_setting_id
@@ -87,7 +87,7 @@ class UploadSetting extends Model {
     }
 
     public function fetchUploadSettingFileExtension(
-        $p_upload_setting_id
+        int $p_upload_setting_id
     ) {
         $sql = 'CALL fetchUploadSettingFileExtension(
             :p_upload_setting_id
@@ -103,7 +103,7 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function deleteUploadSetting(
-        $p_upload_setting_id
+        int $p_upload_setting_id
     ) {
         $sql = 'CALL deleteUploadSetting(
             :p_upload_setting_id
@@ -115,7 +115,7 @@ class UploadSetting extends Model {
     }
 
     public function deleteUploadSettingFileExtension(
-        $p_upload_setting_id
+       int  $p_upload_setting_id
     ) {
         $sql = 'CALL deleteUploadSettingFileExtension(
             :p_upload_setting_id
@@ -131,7 +131,7 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function checkUploadSettingExist(
-        $p_upload_setting_id
+        int $p_upload_setting_id
     ) {
         $sql = 'CALL checkUploadSettingExist(
             :p_upload_setting_id

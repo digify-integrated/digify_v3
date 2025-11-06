@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\DepartureReason;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class DepartureReasonController
-{
+class DepartureReasonController {
     protected DepartureReason $departureReason;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class DepartureReasonController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class DepartureReasonController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class DepartureReasonController
         };
     }
 
-    public function saveDepartureReason($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveDepartureReason(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'departure_reason_form')) {
@@ -96,47 +127,52 @@ class DepartureReasonController
         $departureReasonId      = $_POST['departure_reason_id'] ?? null;
         $departureReasonName    = $_POST['departure_reason_name'] ?? null;
 
-        $departureReasonId              = $this->departureReason->saveDepartureReason($departureReasonId, $departureReasonName, $lastLogBy);
-        $encryptedDepartureReasonId     = $this->security->encryptData($departureReasonId);
+        $departureReasonId = $this->departureReason->saveDepartureReason(
+            $departureReasonId,
+            $departureReasonName,
+            $lastLogBy
+        );
+        
+        $encryptedDepartureReasonId = $this->security->encryptData($departureReasonId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Departure Reason Success',
             'The departure reason has been saved successfully.',
             ['departure_reason_id' => $encryptedDepartureReasonId]
         );
     }
 
-    public function deleteDepartureReason(){
+    public function deleteDepartureReason() {
         $departureReasonId = $_POST['departure_reason_id'] ?? null;
 
         $this->departureReason->deleteDepartureReason($departureReasonId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Departure Reason Success',
             'The departure reason has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleDepartureReason(){
+    public function deleteMultipleDepartureReason() {
         $departureReasonIds = $_POST['departure_reason_id'] ?? null;
 
         foreach($departureReasonIds as $departureReasonId){
             $this->departureReason->deleteDepartureReason($departureReasonId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Departure Reasons Success',
             'The selected departure reasons have been deleted successfully.'
         );
     }
 
-    public function fetchDepartureReasonDetails(){
+    public function fetchDepartureReasonDetails() {
         $departureReasonId          = $_POST['departure_reason_id'] ?? null;
         $checkDepartureReasonExist  = $this->departureReason->checkDepartureReasonExist($departureReasonId);
         $total                      = $checkDepartureReasonExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Departure Reason Details',
                 'The departure reason does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class DepartureReasonController
         exit;
     }
 
-    public function generateDepartureReasonTable()
-    {
+    public function generateDepartureReasonTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class DepartureReasonController
         echo json_encode($response);
     }
     
-    public function generateDepartureReasonOptions()
-    {
+    public function generateDepartureReasonOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class DepartureReasonController
     }
 }
 
-# Bootstrap the controller
 $controller = new DepartureReasonController(
     new DepartureReason(),
     new Authentication(),

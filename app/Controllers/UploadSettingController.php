@@ -11,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class UploadSettingController
-{
+class UploadSettingController {
     protected UploadSetting $uploadSetting;
     protected FileExtension $fileExtension;
     protected Authentication $authentication;
@@ -33,8 +32,7 @@ class UploadSettingController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -64,8 +62,8 @@ class UploadSettingController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -87,7 +85,41 @@ class UploadSettingController
         };
     }
 
-    public function saveUploadSetting($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveUploadSetting(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_setting_form')) {
@@ -102,17 +134,26 @@ class UploadSettingController
         $uploadSettingDescription   = $_POST['upload_setting_description'] ?? null;
         $maxFileSize                = $_POST['max_file_size'] ?? null;
 
-        $uploadSettingId            = $this->uploadSetting->saveUploadSetting($uploadSettingId, $uploadSettingName, $uploadSettingDescription, $maxFileSize, $lastLogBy);
-        $encryptedUploadSettingId   = $this->security->encryptData($uploadSettingId);
+        $uploadSettingId = $this->uploadSetting->saveUploadSetting(
+            $uploadSettingId,
+            $uploadSettingName,
+            $uploadSettingDescription,
+            $maxFileSize,
+            $lastLogBy
+        );
+        
+        $encryptedUploadSettingId = $this->security->encryptData($uploadSettingId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Upload Setting Success',
             'The upload setting has been saved successfully.',
             ['upload_setting_id' => $encryptedUploadSettingId]
         );
     }
 
-    public function saveUploadSettingFileExtension($lastLogBy){
+    public function saveUploadSettingFileExtension(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_setting_file_extension_form')) {
@@ -142,46 +183,53 @@ class UploadSettingController
             $fileExtensionName      = $fileExtensionDetails['file_extension_name'] ?? null;
             $fileExtension          = $fileExtensionDetails['file_extension'] ?? null;
 
-            $this->uploadSetting->insertUploadSettingFileExtension($uploadSettingId, $uploadSettingName, $fileExtensionId, $fileExtensionName, $fileExtension, $lastLogBy);
+            $this->uploadSetting->insertUploadSettingFileExtension(
+                $uploadSettingId,
+                $uploadSettingName,
+                $fileExtensionId,
+                $fileExtensionName,
+                $fileExtension,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign File Extension Success',
             'The file extension has been assigned successfully.'
         );
     }
 
-    public function deleteUploadSetting(){
+    public function deleteUploadSetting() {
         $uploadSettingId = $_POST['upload_setting_id'] ?? null;
 
         $this->uploadSetting->deleteUploadSetting($uploadSettingId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Upload Setting Success',
             'The upload setting has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleUploadSetting(){
+    public function deleteMultipleUploadSetting() {
         $uploadSettingIds = $_POST['upload_setting_id'] ?? null;
 
         foreach($uploadSettingIds as $uploadSettingId){
             $this->uploadSetting->deleteUploadSetting($uploadSettingId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Upload Settings Success',
             'The selected upload settings have been deleted successfully.'
         );
     }
 
-    public function fetchUploadSettingDetails(){
+    public function fetchUploadSettingDetails() {
         $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
         $checkUploadSettingExist    = $this->uploadSetting->checkUploadSettingExist($uploadSettingId);
         $total                      = $checkUploadSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Upload Setting Details',
                 'The upload setting does not exist',
                 ['notExist' => true]
@@ -201,13 +249,13 @@ class UploadSettingController
         exit;
     }
 
-    public function fetchUploadSettingFileExtensionDetails(){
+    public function fetchUploadSettingFileExtensionDetails() {
         $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
         $checkUploadSettingExist    = $this->uploadSetting->checkUploadSettingExist($uploadSettingId);
         $total                      = $checkUploadSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Upload Setting Details',
                 'The upload setting does not exist',
                 ['notExist' => true]
@@ -230,8 +278,7 @@ class UploadSettingController
         exit;
     }
 
-    public function generateUploadSettingTable()
-    {
+    public function generateUploadSettingTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -250,7 +297,7 @@ class UploadSettingController
                                                 <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $uploadSettingId .'">
                                             </div>',
                 'UPLOAD_SETTING_NAME'   => '<div class="d-flex flex-column">
-                                                <a href="#" class="fs-5 text-gray-900 fw-bold">'. $uploadSettingName .'</a>
+                                                <div class="fs-5 text-gray-900 fw-bold">'. $uploadSettingName .'</div>
                                                 <div class="fs-7 text-gray-500">'. $uploadSettingDescription .'</div>
                                             </div>',
                 'MAX_FILE_SIZE'         => $maxFileSize . ' kb',
@@ -262,7 +309,6 @@ class UploadSettingController
     }
 }
 
-# Bootstrap the controller
 $controller = new UploadSettingController(
     new UploadSetting(),
     new FileExtension(),

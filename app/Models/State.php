@@ -10,11 +10,11 @@ class State extends Model {
     ============================================================================================= */
 
     public function saveState(
-        $p_state_id,
-        $p_state_name,
-        $p_country_id,
-        $p_country_name,
-        $p_last_log_by
+        int $p_state_id,
+        string $p_state_name,
+        int $p_country_id,
+        string $p_country_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveState(
             :p_state_id,
@@ -48,7 +48,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function fetchState(
-        $p_state_id
+        int $p_state_id
     ) {
         $sql = 'CALL fetchState(
             :p_state_id
@@ -64,7 +64,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function deleteState(
-        $p_state_id
+        int $p_state_id
     ) {
         $sql = 'CALL deleteState(
             :p_state_id
@@ -80,7 +80,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function checkStateExist(
-        $p_state_id
+        int $p_state_id
     ) {
         $sql = 'CALL checkStateExist(
             :p_state_id
@@ -96,7 +96,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function generateStateTable(
-        $p_filter_by_country
+        string $p_filter_by_country
     ) {
         $sql = 'CALL generateStateTable(
             :p_filter_by_country

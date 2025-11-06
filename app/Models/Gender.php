@@ -10,9 +10,9 @@ class Gender extends Model {
     ============================================================================================= */
 
     public function saveGender(
-        $p_gender_id,
-        $p_gender_name,
-        $p_last_log_by
+        int $p_gender_id,
+        string $p_gender_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveGender(
             :p_gender_id,
@@ -42,7 +42,7 @@ class Gender extends Model {
     ============================================================================================= */
 
     public function fetchGender(
-        $p_gender_id
+        int $p_gender_id
     ) {
         $sql = 'CALL fetchGender(
             :p_gender_id
@@ -58,7 +58,7 @@ class Gender extends Model {
     ============================================================================================= */
 
     public function deleteGender(
-        $p_gender_id
+        int $p_gender_id
     ) {
         $sql = 'CALL deleteGender(
             :p_gender_id
@@ -74,7 +74,7 @@ class Gender extends Model {
     ============================================================================================= */
 
     public function checkGenderExist(
-        $p_gender_id
+        int $p_gender_id
     ) {
         $sql = 'CALL checkGenderExist(
             :p_gender_id

@@ -10,9 +10,9 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function saveBloodType(
-        $p_blood_type_id,
-        $p_blood_type_name,
-        $p_last_log_by
+        int $p_blood_type_id,
+        string $p_blood_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveBloodType(
             :p_blood_type_id,
@@ -42,7 +42,7 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function fetchBloodType(
-        $p_blood_type_id
+        int $p_blood_type_id
     ) {
         $sql = 'CALL fetchBloodType(
             :p_blood_type_id
@@ -58,7 +58,7 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function deleteBloodType(
-        $p_blood_type_id
+        int $p_blood_type_id
     ) {
         $sql = 'CALL deleteBloodType(
             :p_blood_type_id
@@ -74,7 +74,7 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function checkBloodTypeExist(
-        $p_blood_type_id
+        int $p_blood_type_id
     ) {
         $sql = 'CALL checkBloodTypeExist(
             :p_blood_type_id

@@ -10,23 +10,23 @@ class Company extends Model {
     ============================================================================================= */
 
     public function saveCompany(
-        $p_company_id,
-        $p_company_name,
-        $p_address,
-        $p_city_id,
-        $p_city_name,
-        $p_state_id,
-        $p_state_name,
-        $p_country_id,
-        $p_country_name,
-        $p_tax_id,
-        $p_currency_id,
-        $p_currency_name,
-        $p_phone,
-        $p_telephone,
-        $p_email,
-        $p_website,
-        $p_last_log_by
+        int $p_company_id,
+        string $p_company_name,
+        string $p_address,
+        int $p_city_id,
+        string $p_city_name,
+        int $p_state_id,
+        string $p_state_name,
+        int $p_country_id,
+        string $p_country_name,
+        string $p_tax_id,
+        int $p_currency_id,
+        string $p_currency_name,
+        int $p_phone,
+        string $p_telephone,
+        string $p_email,
+        string $p_website,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCompany(
             :p_company_id,
@@ -80,9 +80,9 @@ class Company extends Model {
     =============================================================================================  */
 
     public function updateCompanyLogo(
-        $p_company_id,
-        $p_company_logo,
-        $p_last_log_by
+        int $p_company_id,
+        string $p_company_logo,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateCompanyLogo(
             :p_company_id,
@@ -102,7 +102,7 @@ class Company extends Model {
     ============================================================================================= */
 
     public function fetchCompany(
-        $p_company_id
+        int $p_company_id
     ) {
         $sql = 'CALL fetchCompany(
             :p_company_id
@@ -118,7 +118,7 @@ class Company extends Model {
     ============================================================================================= */
 
     public function deleteCompany(
-        $p_company_id
+        int $p_company_id
     ) {
         $sql = 'CALL deleteCompany(
             :p_company_id
@@ -134,7 +134,7 @@ class Company extends Model {
     ============================================================================================= */
 
     public function checkCompanyExist(
-        $p_company_id
+        int $p_company_id
     ) {
         $sql = 'CALL checkCompanyExist(
             :p_company_id
@@ -150,10 +150,10 @@ class Company extends Model {
     ============================================================================================= */
 
     public function generateCompanyTable(
-        $p_filter_by_city,
-        $p_filter_by_state,
-        $p_filter_by_country,
-        $p_filter_by_currency
+        string $p_filter_by_city,
+        string $p_filter_by_state,
+        string $p_filter_by_country,
+        string $p_filter_by_currency
     ) {
         $sql = 'CALL generateCompanyTable(
             :p_filter_by_city,

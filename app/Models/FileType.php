@@ -10,9 +10,9 @@ class FileType extends Model {
     ============================================================================================= */
 
     public function saveFileType(
-        $p_file_type_id,
-        $p_file_type_name,
-        $p_last_log_by
+        int $p_file_type_id,
+        string $p_file_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveFileType(
             :p_file_type_id,
@@ -42,7 +42,7 @@ class FileType extends Model {
     ============================================================================================= */
 
     public function fetchFileType(
-        $p_file_type_id
+        int $p_file_type_id
     ) {
         $sql = 'CALL fetchFileType(
             :p_file_type_id
@@ -58,7 +58,7 @@ class FileType extends Model {
     ============================================================================================= */
 
     public function deleteFileType(
-        $p_file_type_id
+        int $p_file_type_id
     ) {
         $sql = 'CALL deleteFileType(
             :p_file_type_id
@@ -74,7 +74,7 @@ class FileType extends Model {
     ============================================================================================= */
 
     public function checkFileTypeExist(
-        $p_file_type_id
+        int $p_file_type_id
     ) {
         $sql = 'CALL checkFileTypeExist(
             :p_file_type_id

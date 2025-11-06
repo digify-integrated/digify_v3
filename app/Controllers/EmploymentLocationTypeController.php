@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\EmploymentLocationType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class EmploymentLocationTypeController
-{
+class EmploymentLocationTypeController {
     protected EmploymentLocationType $employmentLocationType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class EmploymentLocationTypeController
         $this->systemHelper             = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class EmploymentLocationTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class EmploymentLocationTypeController
         };
     }
 
-    public function saveEmploymentLocationType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveEmploymentLocationType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employment_location_type_form')) {
@@ -99,44 +130,44 @@ class EmploymentLocationTypeController
         $employmentLocationTypeId           = $this->employmentLocationType->saveEmploymentLocationType($employmentLocationTypeId, $employmentLocationTypeName, $lastLogBy);
         $encryptedEmploymentLocationTypeId  = $this->security->encryptData($employmentLocationTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employment Location Type Success',
             'The employment location type has been saved successfully.',
             ['employment_location_type_id' => $encryptedEmploymentLocationTypeId]
         );
     }
 
-    public function deleteEmploymentLocationType(){
+    public function deleteEmploymentLocationType() {
         $employmentLocationTypeId = $_POST['employment_location_type_id'] ?? null;
 
         $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employment Location Type Success',
             'The employment location type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleEmploymentLocationType(){
+    public function deleteMultipleEmploymentLocationType() {
         $employmentLocationTypeIds = $_POST['employment_location_type_id'] ?? null;
 
         foreach($employmentLocationTypeIds as $employmentLocationTypeId){
             $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Employment Location Types Success',
             'The selected employment location types have been deleted successfully.'
         );
     }
 
-    public function fetchEmploymentLocationTypeDetails(){
+    public function fetchEmploymentLocationTypeDetails() {
         $employmentLocationTypeId           = $_POST['employment_location_type_id'] ?? null;
         $checkEmploymentLocationTypeExist   = $this->employmentLocationType->checkEmploymentLocationTypeExist($employmentLocationTypeId);
         $total                              = $checkEmploymentLocationTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Employment Location Type Details',
                 'The employment location type does not exist',
                 ['notExist' => true]
@@ -154,8 +185,7 @@ class EmploymentLocationTypeController
         exit;
     }
 
-    public function generateEmploymentLocationTypeTable()
-    {
+    public function generateEmploymentLocationTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +209,7 @@ class EmploymentLocationTypeController
         echo json_encode($response);
     }
     
-    public function generateEmploymentLocationTypeOptions()
-    {
+    public function generateEmploymentLocationTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +233,6 @@ class EmploymentLocationTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new EmploymentLocationTypeController(
     new EmploymentLocationType(),
     new Authentication(),

@@ -12,8 +12,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class UserAccountController
-{
+class UserAccountController {
     protected UserAccount $userAccount;
     protected Role $role;
     protected Authentication $authentication;
@@ -37,8 +36,7 @@ class UserAccountController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -70,7 +68,7 @@ class UserAccountController
                 [
                     'invalid_session' => true,
                     'redirect_link' => 'logout.php?logout'
-                    ]
+                ]
             );
         }
 
@@ -110,7 +108,41 @@ class UserAccountController
         };
     }
 
-    public function saveUserAccount($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveUserAccount(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'user_account_form')) {
@@ -136,17 +168,26 @@ class UserAccountController
             );  
         }
 
-        $userAccountId              = $this->userAccount->insertUserAccount($fileAs, $email, $hashedPassword, $phone, $lastLogBy);
-        $encryptedUserAccountId     = $this->security->encryptData($userAccountId);
+        $userAccountId = $this->userAccount->insertUserAccount(
+            $fileAs,
+            $email,
+            $hashedPassword,
+            $phone,
+            $lastLogBy
+        );
+        
+        $encryptedUserAccountId = $this->security->encryptData($userAccountId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Success',
             'The user account has been saved successfully.',
             ['user_account_id' => $encryptedUserAccountId]
         );
     }
 
-    public function saveUserAccountRole($lastLogBy){
+    public function saveUserAccountRole(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'role_assignment_form')) {
@@ -173,16 +214,24 @@ class UserAccountController
         $roleDetails    = $this->role->fetchRole($roleId);
         $roleName       = $roleDetails['role_name'] ?? null;
 
-            $this->role->insertRoleUserAccount($roleId, $roleName, $userAccountId, $fileAs, $lastLogBy);
+            $this->role->insertRoleUserAccount(
+                $roleId,
+                $roleName,
+                $userAccountId,
+                $fileAs,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign Role Success',
             'The role has been assigned successfully.'
         );
     }
 
-    public function updateUserAccountFullName($lastLogBy){
+    public function updateUserAccountFullName(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_full_name_form')) {
@@ -195,15 +244,22 @@ class UserAccountController
         $userAccountId  = $_POST['user_account_id'] ?? null;
         $fullName       = $_POST['full_name'] ?? null;
 
-        $this->userAccount->updateUserAccount($userAccountId, $fullName, 'full name', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $fullName,
+            'full name',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Full Name Success',
             'The full name has been saved successfully.'
         );
     }
 
-    public function updateUserAccountEmail($lastLogBy){
+    public function updateUserAccountEmail(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_email_form')) {
@@ -226,15 +282,22 @@ class UserAccountController
             );  
         }
 
-        $this->userAccount->updateUserAccount($userAccountId, $email, 'email', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $email,
+            'email',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Email Success',
             'The email has been saved successfully.'
         );
     }
 
-    public function updateUserAccountPhone($lastLogBy){
+    public function updateUserAccountPhone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_phone_form')) {
@@ -247,8 +310,12 @@ class UserAccountController
         $userAccountId  = $_POST['user_account_id'] ?? null;
         $phone          = $_POST['phone'] ?? null;
 
-        $checkUserAccountPhoneExist     = $this->userAccount->checkUserAccountPhoneExist($userAccountId, $phone);
-        $total                          = $checkUserAccountPhoneExist['total'] ?? 0;
+        $checkUserAccountPhoneExist = $this->userAccount->checkUserAccountPhoneExist(
+            $userAccountId,
+            $phone
+        );
+
+        $total = $checkUserAccountPhoneExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -257,15 +324,22 @@ class UserAccountController
             );
         }
 
-        $this->userAccount->updateUserAccount($userAccountId, $phone, 'phone', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $phone,
+            'phone',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Phone Success',
             'The phone has been saved successfully.'
         );
     }
 
-    public function updateUserAccountPassword($lastLogBy){
+    public function updateUserAccountPassword(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_password_form')) {
@@ -279,15 +353,22 @@ class UserAccountController
         $newPassword        = $_POST['new_password'] ?? null;
         $hashedPassword     = password_hash($newPassword, PASSWORD_BCRYPT);
 
-        $this->userAccount->updateUserAccount($userAccountId, $hashedPassword, 'password', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $hashedPassword,
+            'password',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Password Success',
             'The password has been saved successfully.'
         );
     }
 
-    public function updateAccountSettingsFullName($lastLogBy){
+    public function updateAccountSettingsFullName(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_full_name_form')) {
@@ -299,15 +380,22 @@ class UserAccountController
 
         $fullName = $_POST['full_name'] ?? null;
 
-        $this->userAccount->updateUserAccount($lastLogBy, $fullName, 'full name', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $lastLogBy,
+            $fullName,
+            'full name',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Account Settings Full Name Success',
             'The full name has been saved successfully.'
         );
     }
 
-    public function updateAccountSettingsEmail($lastLogBy){
+    public function updateAccountSettingsEmail(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_email_form')) {
@@ -319,25 +407,35 @@ class UserAccountController
 
         $email = $_POST['email'] ?? null;
 
-        $checkUserAccountEmailExist     = $this->userAccount->checkUserAccountEmailExist($lastLogBy, $email);
-        $total                          = $checkUserAccountEmailExist['total'] ?? 0;
+        $checkUserAccountEmailExist = $this->userAccount->checkUserAccountEmailExist(
+            $lastLogBy,
+            $email
+        );
+        $total = $checkUserAccountEmailExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
-                'Save Account Setting Email Error',
+                'Save Account Settings Email Error',
                 'The new email address already exists.'
             );  
         }
 
-        $this->userAccount->updateUserAccount($lastLogBy, $email, 'email', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $lastLogBy,
+            $email,
+            'email',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
-            'Save User Account Email Success',
+        $this->systemHelper::sendSuccessResponse(
+            'Save Account Settings Email Success',
             'The email has been saved successfully.'
         );
     }
 
-    public function updateAccountSettingsPhone($lastLogBy){
+    public function updateAccountSettingsPhone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_phone_form')) {
@@ -349,8 +447,12 @@ class UserAccountController
 
         $phone = $_POST['phone'] ?? null;
 
-        $checkUserAccountPhoneExist     = $this->userAccount->checkUserAccountPhoneExist($lastLogBy, $phone);
-        $total                          = $checkUserAccountPhoneExist['total'] ?? 0;
+        $checkUserAccountPhoneExist = $this->userAccount->checkUserAccountPhoneExist(
+            $lastLogBy,
+            $phone
+        );
+
+        $total = $checkUserAccountPhoneExist['total'] ?? 0;
 
         if($total > 0){
             $this->systemHelper::sendErrorResponse(
@@ -359,15 +461,22 @@ class UserAccountController
             );
         }
 
-        $this->userAccount->updateUserAccount($lastLogBy, $phone, 'phone', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $lastLogBy,
+            $phone,
+            'phone',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save User Account Phone Success',
             'The phone has been saved successfully.'
         );
     }
 
-    public function updateAccountSettingsPassword($lastLogBy){
+    public function updateAccountSettingsPassword(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_password_form')) {
@@ -380,43 +489,64 @@ class UserAccountController
         $newPassword        = $_POST['new_password'] ?? null;
         $hashedPassword     = password_hash($newPassword, PASSWORD_BCRYPT);
 
-        $this->userAccount->updateUserAccount($lastLogBy, $hashedPassword, 'password', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $lastLogBy,
+            $hashedPassword,
+            'password',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Account Settings Password Success',
             'The password has been saved successfully.'
         );
     }
 
-    public function updateUserAccountTwoFactorAuthentication($lastLogBy){
+    public function updateUserAccountTwoFactorAuthentication(
+        int $lastLogBy
+    ) {
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
         $twoFactorAuth          = $userAccountDetails['two_factor_auth'] ?? 'Yes';
         $twoFactorAuth          = ($twoFactorAuth === 'Yes') ? 'No' : 'Yes';
 
-        $this->userAccount->updateUserAccount($userAccountId, $twoFactorAuth, 'two factor auth', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $twoFactorAuth,
+            'two factor auth',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Two-factor Authentication Success',
             'The two-factor authentication has been updated successfully.'
         );
     }
 
-    public function updateUserAccountMultipleLoginSession($lastLogBy){
+    public function updateUserAccountMultipleLoginSession(
+        int $lastLogBy
+    ) {
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
         $multipleSession        = $userAccountDetails['multiple_session'] ?? 'Yes';
         $multipleSession        = ($multipleSession === 'Yes') ? 'No' : 'Yes';
 
-        $this->userAccount->updateUserAccount($userAccountId, $multipleSession, 'multiple session', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $multipleSession,
+            'multiple session',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Multiple Login Session Success',
             'The multiple login session has been updated successfully.'
         );
     }
 
-    public function updateUserAccountProfilePicture($lastLogBy){
+    public function updateUserAccountProfilePicture(
+        int $lastLogBy
+    ) {
         $userAccountId = $_POST['user_account_id'] ?? null;
        
         $profilePictureFileName             = $_FILES['profile_picture']['name'];
@@ -495,15 +625,22 @@ class UserAccountController
             );
         }
 
-        $this->userAccount->updateUserAccount($userAccountId, $filePath, 'profile picture', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            $filePath,
+            'profile picture',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update User Account Profile Picture Success',
             'The user account profile picture has been updated successfully.'
         );
     }
 
-     public function updateAccountSettingsProfilePicture($lastLogBy){       
+    public function updateAccountSettingsProfilePicture(
+        int $lastLogBy
+    ) {       
         $profilePictureFileName             = $_FILES['profile_picture']['name'];
         $profilePictureFileSize             = $_FILES['profile_picture']['size'];
         $profilePictureFileError            = $_FILES['profile_picture']['error'];
@@ -523,28 +660,28 @@ class UserAccountController
 
         if (!in_array($profilePictureActualFileExtension, $allowedFileExtensions)) {              
             $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
+                'Update Account Settings Profile Picture Error', 
                 'The file uploaded is not supported.'
             );
         }
             
         if(empty($profilePictureTempName)){
             $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
+                'Update Account Settings Profile Picture Error', 
                 'Please choose the profile picture.'
             );
         }
             
         if($profilePictureFileError){                
             $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
+                'Update Account Settings Profile Picture Error', 
                 'An error occurred while uploading the file.'
             );
         }
             
         if($profilePictureFileSize > ($maxFileSize * 1024)){
             $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error', 
+                'Update Account Settings Profile Picture Error', 
                 'The user account profile image exceeds the maximum allowed size of ' . $maxFileSize . ' mb.'
             );
         }
@@ -563,7 +700,7 @@ class UserAccountController
 
         if ($directoryChecker !== true) {
             $this->systemHelper::sendErrorResponse(
-                'Update User Account Profile Picture Error',
+                'Update Account Settings Profile Picture Error',
                 $directoryChecker
             );
         }
@@ -580,39 +717,60 @@ class UserAccountController
             );
         }
 
-        $this->userAccount->updateUserAccount($lastLogBy, $filePath, 'profile picture', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $lastLogBy,
+            $filePath,
+            'profile picture',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Account Settings Profile Picture Success',
             'The user account profile picture has been updated successfully.'
         );
     }
 
-    public function activateUserAccount($lastLogBy){
+    public function activateUserAccount(
+        int $lastLogBy
+    ) {
         $userAccountId = $_POST['user_account_id'] ?? null;
 
-        $this->userAccount->updateUserAccount($userAccountId, 'Yes', 'status', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            'Yes',
+            'status',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Activate User Account Success',
             'The user account has been activated successfully.'
         );
     }
     
-    public function activateMultipleUserAccount($lastLogBy){
+    public function activateMultipleUserAccount(
+        int $lastLogBy
+    ) {
         $userAccountIds = $_POST['user_account_id'] ?? null;
 
         foreach($userAccountIds as $userAccountId){
-            $this->userAccount->updateUserAccount($userAccountId, 'Yes', 'status', $lastLogBy);
+            $this->userAccount->updateUserAccount(
+                $userAccountId,
+                'Yes',
+                'status',
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Activate Multiple User Accounts Success',
             'The selected user accounts have been activated successfully.'
         );
     }
 
-    public function deactivateUserAccount($lastLogBy){
+    public function deactivateUserAccount(
+        int $lastLogBy
+    ) {
         $userAccountId = $_POST['user_account_id'] ?? null;
 
         if($userAccountId == $lastLogBy){
@@ -622,30 +780,42 @@ class UserAccountController
             );
         }
 
-        $this->userAccount->updateUserAccount($userAccountId, 'No', 'status', $lastLogBy);
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            'No',
+            'status',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Deactivate User Account Success',
             'The user account has been deactivated successfully.'
         );
     }
     
-    public function deactivateMultipleUserAccount($lastLogBy){
-        $userAccountIds  = $_POST['user_account_id'] ?? null;
+    public function deactivateMultipleUserAccount(
+        int $lastLogBy
+    ) {
+        $userAccountIds = $_POST['user_account_id'] ?? null;
 
         foreach($userAccountIds as $userAccountId){
             if($userAccountId != $lastLogBy){
-                $this->userAccount->updateUserAccount($userAccountId, 'No', 'status', $lastLogBy);
+                $this->userAccount->updateUserAccount(
+                    $userAccountId,
+                    'No',
+                    'status',
+                    $lastLogBy
+                );
             }
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Deactivate Multiple User Accounts Success',
             'The selected user accounts have been deactivated successfully.'
         );
     }
 
-    public function deleteUserAccount(){
+    public function deleteUserAccount() {
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
         $profilePicture         = $userAccountDetails['profile_picture'] ?? null;
@@ -654,43 +824,43 @@ class UserAccountController
 
         $this->userAccount->deleteUserAccount($userAccountId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete User Account Success',
             'The user account has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleUserAccount(){
-        $userAccountIds  = $_POST['user_account_id'] ?? null;
+    public function deleteMultipleUserAccount() {
+        $userAccountIds = $_POST['user_account_id'] ?? null;
 
         foreach($userAccountIds as $userAccountId){
             $this->userAccount->deleteUserAccount($userAccountId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple User Accounts Success',
             'The selected user accounts have been deleted successfully.'
         );
     }
 
-    public function deleteUserAccountRole(){
+    public function deleteUserAccountRole() {
         $roleUserAccountId = $_POST['role_user_account_id'] ?? null;
 
         $this->role->deleteRoleUserAccount($roleUserAccountId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Success',
             'The role has been deleted successfully.'
         );
     }
 
-    public function fetchUserAccountDetails(){
+    public function fetchUserAccountDetails() {
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $checkUserAccountExist  = $this->userAccount->checkUserAccountExist($userAccountId);
         $total                  = $checkUserAccountExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get User Account Details',
                 'The user account does not exist',
                 ['notExist' => true]
@@ -725,17 +895,19 @@ class UserAccountController
         exit;
     }
 
-    public function fetchAccountSettingsDetails($lastLogBy){
+    public function fetchAccountSettingsDetails(
+        int $lastLogBy
+    ) {
         $checkUserAccountExist  = $this->userAccount->checkUserAccountExist($lastLogBy);
         $total                  = $checkUserAccountExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Account Settings Details',
                 'The account settings does not exist',
                 [
-                    'notExist' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -766,8 +938,7 @@ class UserAccountController
         exit;
     }
 
-    public function generateUserAccountTable()
-    {
+    public function generateUserAccountTable() {
         $filterStatus   = $_POST['user_account_status_filter'] ?? null;
         $pageLink       = $_POST['page_link'] ?? null;
         $response       = [];
@@ -809,8 +980,9 @@ class UserAccountController
         echo json_encode($response);
     }
 
-    public function generateAssignedUserAccountRoleList($lastLogBy)
-    {
+    public function generateAssignedUserAccountRoleList(
+        int $lastLogBy
+    ) {
         $userAccountId          = $_POST['user_account_id'] ?? null;
         $deleteRoleUserAccount  = $this->authentication->checkUserSystemActionPermission($lastLogBy, 4);
         $list                   = '';
@@ -859,8 +1031,7 @@ class UserAccountController
         echo json_encode($response);
     }
 
-    public function generateUserAccountRoleDualListBoxOptions()
-    {
+    public function generateUserAccountRoleDualListBoxOptions() {
         $userAccountId  = $_POST['user_account_id'] ?? null;
         $response       = [];
         $roles          = $this->role->generateUserAccountRoleDualListBoxOptions($userAccountId);
@@ -876,7 +1047,6 @@ class UserAccountController
     }
 }
 
-# Bootstrap the controller
 $controller = new UserAccountController(
     new UserAccount(),
     new Role(),

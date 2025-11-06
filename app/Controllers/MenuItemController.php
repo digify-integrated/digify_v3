@@ -11,9 +11,7 @@ use App\Core\Security;
 use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
-
-class MenuItemController
-{
+class MenuItemController {
     protected MenuItem $menuItem;
     protected AppModule $appModule;
     protected Role $role;
@@ -37,8 +35,7 @@ class MenuItemController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -69,8 +66,8 @@ class MenuItemController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -96,7 +93,41 @@ class MenuItemController
         };
     }
 
-    public function saveMenuItem($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveMenuItem(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'menu_item_form')) {
@@ -121,17 +152,32 @@ class MenuItemController
         $parentDetails  = $this->menuItem->fetchMenuItem($parentId);
         $parentName     = $parentDetails['menu_item_name'] ?? '';
 
-        $menuItemId             = $this->menuItem->saveMenuItem($menuItemId, $menuItemName, $menuItemUrl, $menuItemIcon, $appModuleId, $appModuleName, $parentId, $parentName, $tableName, $orderSequence, $lastLogBy);
-        $encryptedmenuItemId    = $this->security->encryptData($menuItemId);
+        $menuItemId = $this->menuItem->saveMenuItem(
+            $menuItemId,
+            $menuItemName,
+            $menuItemUrl,
+            $menuItemIcon,
+            $appModuleId,
+            $appModuleName,
+            $parentId,
+            $parentName,
+            $tableName,
+            $orderSequence,
+            $lastLogBy
+        );
+        
+        $encryptedmenuItemId = $this->security->encryptData($menuItemId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Menu Item Success',
             'The menu item has been saved successfully.',
             ['menu_item_id' => $encryptedmenuItemId]
         );
     }
 
-    public function saveMenuItemRolePermission($lastLogBy){
+    public function saveMenuItemRolePermission(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'role_permission_assignment_form')) {
@@ -158,16 +204,24 @@ class MenuItemController
             $roleDetails    = $this->role->fetchRole($roleId);
             $roleName       = $roleDetails['role_name'] ?? null;
 
-            $this->role->insertRolePermission($roleId, $roleName, $menuItemId, $menuItemName, $lastLogBy);
+            $this->role->insertRolePermission(
+                $roleId,
+                $roleName,
+                $menuItemId,
+                $menuItemName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign Role Success',
             'The role has been assigned successfully.'
         );
     }
 
-    public function updateMenuItemRolePermission($lastLogBy){
+    public function updateMenuItemRolePermission(
+        int $lastLogBy
+    ) {
         $rolePermissionId   = $_POST['role_permission_id'] ?? null;
         $accessType         = $_POST['access_type'] ?? null;
         $access             = $_POST['access'] ?? null;
@@ -176,62 +230,67 @@ class MenuItemController
         $total                              = $checkMenuItemRolePermissionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Update Role Permission Error',
                 'The role permission does not exist.'
             );
         }
 
-        $this->role->updateRolePermission($rolePermissionId, $accessType, $access, $lastLogBy);
+        $this->role->updateRolePermission(
+            $rolePermissionId,
+            $accessType,
+            $access, 
+            $lastLogBy
+        );
         
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Role Permission Success',
             'The role permission has been updated successfully.'
         );
     }
 
-    public function deleteMenuItem(){
+    public function deleteMenuItem() {
         $menuItemId = $_POST['menu_item_id'] ?? null;
 
         $this->menuItem->deleteMenuItem($menuItemId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Menu Item Success',
             'The menu item has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleMenuItem(){
+    public function deleteMultipleMenuItem() {
         $menuItemIds = $_POST['menu_item_id'] ?? null;
 
         foreach($menuItemIds as $menuItemId){
             $this->menuItem->deleteMenuItem($menuItemId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Menu Items Success',
             'The selected menu items have been deleted successfully.'
         );
     }
 
-    public function deleteMenuItemRolePermission(){
+    public function deleteMenuItemRolePermission() {
         $rolePermissionId = $_POST['role_permission_id'] ?? null;
 
         $this->role->deleteRolePermission($rolePermissionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Permission Success',
             'The role permission has been deleted successfully.'
         );
     }
 
-    public function fetchMenuItemDetails(){
+    public function fetchMenuItemDetails() {
         $menuItemId             = $_POST['menu_item_id'] ?? null;
         $checkMenuItemExist     = $this->menuItem->checkMenuItemExist($menuItemId);
         $total                  = $checkMenuItemExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Menu Item Details',
                 'The menu item does not exist'
             );
@@ -255,14 +314,16 @@ class MenuItemController
         exit;
     }
 
-    public function generateMenuItemTable()
-    {
+    public function generateMenuItemTable() {
         $filterAppModule    = $this->systemHelper->checkFilter($_POST['app_module_filter'] ?? null);
         $filterParentId     = $this->systemHelper->checkFilter($_POST['parent_id_filter'] ?? null);
         $pageLink           = $_POST['page_link'] ?? null;
         $response           = [];
 
-        $menuItems = $this->menuItem->generateMenuItemTable($filterAppModule, $filterParentId);
+        $menuItems = $this->menuItem->generateMenuItemTable(
+            $filterAppModule,
+            $filterParentId
+        );
 
         foreach ($menuItems as $row) {
             $menuItemId     = $row['menu_item_id'];
@@ -288,8 +349,10 @@ class MenuItemController
         echo json_encode($response);
     }
 
-    public function generateMenuItemAssignedRoleTable($userId, $pageId)
-    {
+    public function generateMenuItemAssignedRoleTable(
+        int $userId,
+        int $pageId
+    ) {
         $menuItemId     = $_POST['menu_item_id'] ?? null;
         $response       = [];
 
@@ -297,9 +360,7 @@ class MenuItemController
         $deleteRoleAccess   = $this->authentication->checkUserSystemActionPermission($userId, 7)['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
         $disabled           = ($updateRoleAccess == 0) ? 'disabled' : '';
-        $deleteButton       = '';
-        $logNotes           = '';
-
+        
         $menuItems = $this->menuItem->generateMenuItemAssignedRoleTable($menuItemId);
 
         foreach ($menuItems as $row) {
@@ -321,16 +382,18 @@ class MenuItemController
             $exportAccessChecked    = $exportAccessRights ? 'checked' : '';
             $logNotesAccessChecked  = $logNotesAccessRights ? 'checked' : '';
 
+            $deleteButton = '';
             if($deleteRoleAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-role-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-role-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
                                     <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
+            $logNotes = '';
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-role-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-role-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                 <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                            </a>';
+                            </button>';
             }
 
             $readAccessButton = '<div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
@@ -380,8 +443,7 @@ class MenuItemController
         echo json_encode($response);
     }
 
-    public function generateMenuItemOptions()
-    {
+    public function generateMenuItemOptions() {
         $multiple       = $_POST['multiple'] ?? false;
         $menuItemId     = $_POST['menu_item_id'] ?? null;
         $response       = [];
@@ -405,8 +467,7 @@ class MenuItemController
         echo json_encode($response);
     }
 
-    public function generateMenuItemRoleDualListBoxOptions()
-    {
+    public function generateMenuItemRoleDualListBoxOptions() {
         $menuItemId     = $_POST['menu_item_id'] ?? null;
         $response       = [];
         $menuItems      = $this->menuItem->generateMenuItemRoleDualListBoxOptions($menuItemId);
@@ -422,7 +483,6 @@ class MenuItemController
     }
 }
 
-# Bootstrap the controller
 $controller = new MenuItemController(
     new MenuItem(),
     new AppModule(),

@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Tax;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class TaxController
-{
+class TaxController {
     protected Tax $tax;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class TaxController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class TaxController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -87,7 +84,41 @@ class TaxController
         };
     }
 
-    public function saveTax($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveTax(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'tax_form')) {
@@ -104,77 +135,95 @@ class TaxController
         $taxType            = $_POST['tax_type'] ?? 'Sales';
         $taxCcope           = $_POST['tax_scope'] ?? null;
 
-        $taxId = $this->tax->saveTax($taxId, $taxName, $taxRate, $taxType, $taxComputation, $taxCcope, $lastLogBy);
+        $taxId = $this->tax->saveTax(
+            $taxId,
+            $taxName,
+            $taxRate,
+            $taxType,
+            $taxComputation,
+            $taxCcope,
+            $lastLogBy
+        );
 
         $encryptedtaxId = $this->security->encryptData($taxId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Tax Success',
             'The tax has been saved successfully.',
             ['tax_id' => $encryptedtaxId]
         );
     }
 
-    public function updateTaxArchive($lastLogBy){
+    public function updateTaxArchive(
+        int $lastLogBy
+    ) {
         $taxId = $_POST['tax_id'] ?? null;
 
-        $this->tax->updateTaxArchive($taxId, $lastLogBy);
+        $this->tax->updateTaxArchive(
+            $taxId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Tax Archive Success',
             'The tax has been archived successfully.'
         );
     }
 
-    public function updateTaxUnarchive($lastLogBy){
+    public function updateTaxUnarchive(
+        int $lastLogBy
+    ) {
         $taxId = $_POST['tax_id'] ?? null;
 
-        $this->tax->updateTaxUnarchive($taxId, $lastLogBy);
+        $this->tax->updateTaxUnarchive(
+            $taxId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Tax Unarchive Success',
             'The tax has been unarchived successfully.'
         );
     }
 
-    public function deleteTax(){
+    public function deleteTax() {
         $taxId = $_POST['tax_id'] ?? null;
 
         $this->tax->deleteTax($taxId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Tax Success',
             'The tax has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleTax(){
+    public function deleteMultipleTax() {
         $taxIds = $_POST['tax_id'] ?? null;
 
         foreach($taxIds as $taxId){
             $this->tax->deleteTax($taxId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple Taxs Success',
-            'The selected taxs have been deleted successfully.'
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Taxes Success',
+            'The selected taxes have been deleted successfully.'
         );
     }
 
-    public function fetchTaxDetails(){
+    public function fetchTaxDetails() {
         $taxId          = $_POST['tax_id'] ?? null;
         $checkTaxExist  = $this->tax->checkTaxExist($taxId);
         $total          = $checkTaxExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Tax Details',
                 'The tax does not exist',
                 ['notExist' => true]
             );
         }
 
-        $taxDetails     = $this->tax->fetchTax($taxId);
+        $taxDetails = $this->tax->fetchTax($taxId);
 
         $response = [
             'success'           => true,
@@ -189,8 +238,7 @@ class TaxController
         exit;
     }
 
-    public function generateTaxTable()
-    {
+    public function generateTaxTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $taxTypeFilter          = $this->systemHelper->checkFilter($_POST['tax_type_filter'] ?? null);
         $taxComputationFilter   = $this->systemHelper->checkFilter($_POST['tax_computation_filter'] ?? null);
@@ -198,7 +246,12 @@ class TaxController
         $taxStatusFilter        = $this->systemHelper->checkFilter($_POST['tax_status_filter'] ?? null);
         $response               = [];
 
-        $taxs = $this->tax->generateTaxTable($taxTypeFilter, $taxComputationFilter, $taxScopeFilter, $taxStatusFilter);
+        $taxs = $this->tax->generateTaxTable(
+            $taxTypeFilter,
+            $taxComputationFilter,
+            $taxScopeFilter,
+            $taxStatusFilter
+        );
 
         foreach ($taxs as $row) {
             $taxId              = $row['tax_id'];
@@ -223,8 +276,7 @@ class TaxController
         echo json_encode($response);
     }
     
-    public function generateTaxOptions()
-    {
+    public function generateTaxOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -235,9 +287,9 @@ class TaxController
             ];
         }
 
-        $taxs = $this->tax->generateTaxOptions();
+        $taxes = $this->tax->generateTaxOptions();
 
-        foreach ($taxs as $row) {
+        foreach ($taxes as $row) {
             $response[] = [
                 'id'    => $row['tax_id'],
                 'text'  => $row['tax_name']
@@ -247,8 +299,7 @@ class TaxController
         echo json_encode($response);
     }
     
-    public function generateSalesTaxOptions()
-    {
+    public function generateSalesTaxOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -259,9 +310,9 @@ class TaxController
             ];
         }
 
-        $taxs = $this->tax->generateSalesTaxOptions();
+        $taxes = $this->tax->generateSalesTaxOptions();
 
-        foreach ($taxs as $row) {
+        foreach ($taxes as $row) {
             $response[] = [
                 'id'    => $row['tax_id'],
                 'text'  => $row['tax_name']
@@ -271,8 +322,7 @@ class TaxController
         echo json_encode($response);
     }
     
-    public function generatePurchaseTaxOptions()
-    {
+    public function generatePurchaseTaxOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -283,9 +333,9 @@ class TaxController
             ];
         }
 
-        $taxs = $this->tax->generatePurchaseTaxOptions();
+        $taxes = $this->tax->generatePurchaseTaxOptions();
 
-        foreach ($taxs as $row) {
+        foreach ($taxes as $row) {
             $response[] = [
                 'id'    => $row['tax_id'],
                 'text'  => $row['tax_name']
@@ -296,7 +346,6 @@ class TaxController
     }
 }
 
-# Bootstrap the controller
 $controller = new TaxController(
     new Tax(),
     new Authentication(),

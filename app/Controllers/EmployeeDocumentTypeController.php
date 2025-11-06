@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\EmployeeDocumentType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class EmployeeDocumentTypeController
-{
+class EmployeeDocumentTypeController {
     protected EmployeeDocumentType $employeeDocumentType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class EmployeeDocumentTypeController
         $this->systemHelper             = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class EmployeeDocumentTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class EmployeeDocumentTypeController
         };
     }
 
-    public function saveEmployeeDocumentType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveEmployeeDocumentType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_document_type_form')) {
@@ -96,47 +127,52 @@ class EmployeeDocumentTypeController
         $employeeDocumentTypeId     = $_POST['employee_document_type_id'] ?? null;
         $employeeDocumentTypeName   = $_POST['employee_document_type_name'] ?? null;
 
-        $employeeDocumentTypeId             = $this->employeeDocumentType->saveEmployeeDocumentType($employeeDocumentTypeId, $employeeDocumentTypeName, $lastLogBy);
-        $encryptedEmployeeDocumentTypeId    = $this->security->encryptData($employeeDocumentTypeId);
+        $employeeDocumentTypeId = $this->employeeDocumentType->saveEmployeeDocumentType(
+            $employeeDocumentTypeId,
+            $employeeDocumentTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedEmployeeDocumentTypeId = $this->security->encryptData($employeeDocumentTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Document Type Success',
             'The employee document type has been saved successfully.',
             ['employee_document_type_id' => $encryptedEmployeeDocumentTypeId]
         );
     }
 
-    public function deleteEmployeeDocumentType(){
+    public function deleteEmployeeDocumentType() {
         $employeeDocumentTypeId = $_POST['employee_document_type_id'] ?? null;
 
         $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Document Type Success',
             'The employee document type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleEmployeeDocumentType(){
+    public function deleteMultipleEmployeeDocumentType() {
         $employeeDocumentTypeIds = $_POST['employee_document_type_id'] ?? null;
 
         foreach($employeeDocumentTypeIds as $employeeDocumentTypeId){
             $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Employee Document Types Success',
             'The selected employee document types have been deleted successfully.'
         );
     }
 
-    public function fetchEmployeeDocumentTypeDetails(){
+    public function fetchEmployeeDocumentTypeDetails() {
         $employeeDocumentTypeId             = $_POST['employee_document_type_id'] ?? null;
         $checkEmployeeDocumentTypeExist     = $this->employeeDocumentType->checkEmployeeDocumentTypeExist($employeeDocumentTypeId);
         $total                              = $checkEmployeeDocumentTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Employee Document Type Details',
                 'The employee document type does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class EmployeeDocumentTypeController
         exit;
     }
 
-    public function generateEmployeeDocumentTypeTable()
-    {
+    public function generateEmployeeDocumentTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class EmployeeDocumentTypeController
         echo json_encode($response);
     }
     
-    public function generateEmployeeDocumentTypeOptions()
-    {
+    public function generateEmployeeDocumentTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class EmployeeDocumentTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new EmployeeDocumentTypeController(
     new EmployeeDocumentType(),
     new Authentication(),

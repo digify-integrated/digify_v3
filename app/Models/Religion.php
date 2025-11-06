@@ -10,9 +10,9 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function saveReligion(
-        $p_religion_id,
-        $p_religion_name,
-        $p_last_log_by
+        int $p_religion_id,
+        string $p_religion_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveReligion(
             :p_religion_id,
@@ -42,7 +42,7 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function fetchReligion(
-        $p_religion_id
+        int $p_religion_id
     ) {
         $sql = 'CALL fetchReligion(
             :p_religion_id
@@ -58,7 +58,7 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function deleteReligion(
-        $p_religion_id
+        int $p_religion_id
     ) {
         $sql = 'CALL deleteReligion(
             :p_religion_id
@@ -74,7 +74,7 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function checkReligionExist(
-        $p_religion_id
+        int $p_religion_id
     ) {
         $sql = 'CALL checkReligionExist(
             :p_religion_id

@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Language;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class LanguageController
-{
+class LanguageController {
     protected Language $language;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class LanguageController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class LanguageController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class LanguageController
         };
     }
 
-    public function saveLanguage($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveLanguage(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'language_form')) {
@@ -96,47 +127,52 @@ class LanguageController
         $languageId     = $_POST['language_id'] ?? null;
         $languageName   = $_POST['language_name'] ?? null;
 
-        $languageId             = $this->language->saveLanguage($languageId, $languageName, $lastLogBy);
-        $encryptedLanguageId    = $this->security->encryptData($languageId);
+        $languageId = $this->language->saveLanguage(
+            $languageId,
+            $languageName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $encryptedLanguageId = $this->security->encryptData($languageId);
+
+        $this->systemHelper::sendSuccessResponse(
             'Save Language Success',
             'The language has been saved successfully.',
             ['language_id' => $encryptedLanguageId]
         );
     }
 
-    public function deleteLanguage(){
+    public function deleteLanguage() {
         $languageId = $_POST['language_id'] ?? null;
 
         $this->language->deleteLanguage($languageId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Language Success',
             'The language has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleLanguage(){
+    public function deleteMultipleLanguage() {
         $languageIds = $_POST['language_id'] ?? null;
 
         foreach($languageIds as $languageId){
             $this->language->deleteLanguage($languageId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Languages Success',
             'The selected languages have been deleted successfully.'
         );
     }
 
-    public function fetchLanguageDetails(){
+    public function fetchLanguageDetails() {
         $languageId             = $_POST['language_id'] ?? null;
         $checkLanguageyExist    = $this->language->checkLanguageExist($languageId);
         $total                  = $checkLanguageyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Language Details',
                 'The language does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class LanguageController
         exit;
     }
 
-    public function generateLanguageTable()
-    {
+    public function generateLanguageTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class LanguageController
         echo json_encode($response);
     }
     
-    public function generateLanguageOptions()
-    {
+    public function generateLanguageOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class LanguageController
     }
 }
 
-# Bootstrap the controller
 $controller = new LanguageController(
     new Language(),
     new Authentication(),

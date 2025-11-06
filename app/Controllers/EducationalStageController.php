@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\EducationalStage;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class EducationalStageController
-{
+class EducationalStageController {
     protected EducationalStage $educationalStage;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class EducationalStageController
         $this->systemHelper         = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class EducationalStageController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class EducationalStageController
         };
     }
 
-    public function saveEducationalStage($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveEducationalStage(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'educational_stage_form')) {
@@ -96,47 +127,52 @@ class EducationalStageController
         $educationalStageId     = $_POST['educational_stage_id'] ?? null;
         $educationalStageName   = $_POST['educational_stage_name'] ?? null;
 
-        $educationalStageId             = $this->educationalStage->saveEducationalStage($educationalStageId, $educationalStageName, $lastLogBy);
-        $encryptedEducationalStageId    = $this->security->encryptData($educationalStageId);
+        $educationalStageId = $this->educationalStage->saveEducationalStage(
+            $educationalStageId,
+            $educationalStageName,
+            $lastLogBy
+        );
+        
+        $encryptedEducationalStageId = $this->security->encryptData($educationalStageId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Educational Stage Success',
             'The educational stage has been saved successfully.',
             ['educational_stage_id' => $encryptedEducationalStageId]
         );
     }
 
-    public function deleteEducationalStage(){
+    public function deleteEducationalStage() {
         $educationalStageId = $_POST['educational_stage_id'] ?? null;
 
         $this->educationalStage->deleteEducationalStage($educationalStageId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Educational Stage Success',
             'The educational stage has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleEducationalStage(){
+    public function deleteMultipleEducationalStage() {
         $educationalStageIds = $_POST['educational_stage_id'] ?? null;
 
         foreach($educationalStageIds as $educationalStageId){
             $this->educationalStage->deleteEducationalStage($educationalStageId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Educational Stages Success',
             'The selected educational stages have been deleted successfully.'
         );
     }
 
-    public function fetchEducationalStageDetails(){
+    public function fetchEducationalStageDetails() {
         $educationalStageId             = $_POST['educational_stage_id'] ?? null;
         $checkEducationalStageExist     = $this->educationalStage->checkEducationalStageExist($educationalStageId);
         $total                          = $checkEducationalStageExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Educational Stage Details',
                 'The educational stage does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class EducationalStageController
         exit;
     }
 
-    public function generateEducationalStageTable()
-    {
+    public function generateEducationalStageTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class EducationalStageController
         echo json_encode($response);
     }
     
-    public function generateEducationalStageOptions()
-    {
+    public function generateEducationalStageOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class EducationalStageController
     }
 }
 
-# Bootstrap the controller
 $controller = new EducationalStageController(
     new EducationalStage(),
     new Authentication(),

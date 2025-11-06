@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\FileType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class FileTypeController
-{
+class FileTypeController {
     protected FileType $fileType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class FileTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class FileTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class FileTypeController
         };
     }
 
-    public function saveFileType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveFileType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'file_type_form')) {
@@ -96,47 +127,52 @@ class FileTypeController
         $fileTypeId     = $_POST['file_type_id'] ?? null;
         $fileTypeName   = $_POST['file_type_name'] ?? null;
 
-        $fileTypeId             = $this->fileType->saveFileType($fileTypeId, $fileTypeName, $lastLogBy);
-        $encryptedFileTypeId    = $this->security->encryptData($fileTypeId);
+        $fileTypeId = $this->fileType->saveFileType(
+            $fileTypeId,
+            $fileTypeName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $encryptedFileTypeId = $this->security->encryptData($fileTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
             'Save File Type Success',
             'The file type has been saved successfully.',
             ['file_type_id' => $encryptedFileTypeId]
         );
     }
 
-    public function deleteFileType(){
+    public function deleteFileType() {
         $fileTypeId = $_POST['file_type_id'] ?? null;
 
         $this->fileType->deleteFileType($fileTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete File Type Success',
             'The file type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleFileType(){
+    public function deleteMultipleFileType() {
         $fileTypeIds = $_POST['file_type_id'] ?? null;
 
         foreach($fileTypeIds as $fileTypeId){
             $this->fileType->deleteFileType($fileTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple File Types Success',
             'The selected file types have been deleted successfully.'
         );
     }
 
-    public function fetchFileTypeDetails(){
+    public function fetchFileTypeDetails() {
         $fileTypeId             = $_POST['file_type_id'] ?? null;
         $checkFileTypeExist     = $this->fileType->checkFileTypeExist($fileTypeId);
         $total                  = $checkFileTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get File Type Details',
                 'The file type does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class FileTypeController
         exit;
     }
 
-    public function generateFileTypeTable()
-    {
+    public function generateFileTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class FileTypeController
         echo json_encode($response);
     }
     
-    public function generateFileTypeOptions()
-    {
+    public function generateFileTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class FileTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new FileTypeController(
     new FileType(),
     new Authentication(),

@@ -10,13 +10,13 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function saveTax(
-        $p_tax_id,
-        $p_tax_name,
-        $p_tax_rate,
-        $p_tax_type,
-        $p_tax_computation,
-        $p_tax_scope,
-        $p_last_log_by
+        int $p_tax_id,
+        string $p_tax_name,
+        float $p_tax_rate,
+        string $p_tax_type,
+        string $p_tax_computation,
+        string $p_tax_scope,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveTax(
             :p_tax_id,
@@ -50,8 +50,8 @@ class Tax extends Model {
     =============================================================================================  */
 
     public function updateTaxArchive(
-        $p_tax_id,
-        $p_last_log_by
+        int $p_tax_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateTaxArchive(
             :p_tax_id,
@@ -65,8 +65,8 @@ class Tax extends Model {
     }
 
     public function updateTaxUnarchive(
-        $p_tax_id,
-        $p_last_log_by
+        int $p_tax_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateTaxUnarchive(
             :p_tax_id,
@@ -84,7 +84,7 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function fetchTax(
-        $p_tax_id
+        int $p_tax_id
     ) {
         $sql = 'CALL fetchTax(
             :p_tax_id
@@ -100,7 +100,7 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function deleteTax(
-        $p_tax_id
+        int $p_tax_id
     ) {
         $sql = 'CALL deleteTax(
             :p_tax_id
@@ -116,7 +116,7 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function checkTaxExist(
-        $p_tax_id
+        int $p_tax_id
     ) {
         $sql = 'CALL checkTaxExist(
             :p_tax_id
@@ -132,10 +132,10 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function generateTaxTable(
-        $p_filter_by_tax_type,
-        $p_filter_by_tax_computation,
-        $p_filter_by_tax_scope,
-        $p_filter_by_tax_status
+        string $p_filter_by_tax_type,
+        string $p_filter_by_tax_computation,
+        string $p_filter_by_tax_scope,
+        string $p_filter_by_tax_status
     ) {
         $sql = 'CALL generateTaxTable(
             :p_filter_by_tax_type,

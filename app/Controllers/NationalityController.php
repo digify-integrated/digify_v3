@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Nationality;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class NationalityController
-{
+class NationalityController {
     protected Nationality $nationality;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class NationalityController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class NationalityController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class NationalityController
         };
     }
 
-    public function saveNationality($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveNationality(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'nationality_form')) {
@@ -96,47 +127,52 @@ class NationalityController
         $nationalityId      = $_POST['nationality_id'] ?? null;
         $nationalityName    = $_POST['nationality_name'] ?? null;
 
-        $nationalityId              = $this->nationality->saveNationality($nationalityId, $nationalityName, $lastLogBy);
-        $encryptedNationalityId     = $this->security->encryptData($nationalityId);
+        $nationalityId = $this->nationality->saveNationality(
+            $nationalityId,
+            $nationalityName,
+            $lastLogBy
+        );
+        
+        $encryptedNationalityId = $this->security->encryptData($nationalityId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Nationality Success',
             'The nationality has been saved successfully.',
             ['nationality_id' => $encryptedNationalityId]
         );
     }
 
-    public function deleteNationality(){
+    public function deleteNationality() {
         $nationalityId = $_POST['nationality_id'] ?? null;
 
         $this->nationality->deleteNationality($nationalityId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Nationality Success',
             'The nationality has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleNationality(){
+    public function deleteMultipleNationality() {
         $nationalityIds = $_POST['nationality_id'] ?? null;
 
         foreach($nationalityIds as $nationalityId){
             $this->nationality->deleteNationality($nationalityId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Nationalities Success',
             'The selected Nationalities have been deleted successfully.'
         );
     }
 
-    public function fetchNationalityDetails(){
+    public function fetchNationalityDetails() {
         $nationalityId          = $_POST['nationality_id'] ?? null;
         $checkNationalityExist  = $this->nationality->checkNationalityExist($nationalityId);
         $total                  = $checkNationalityExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Nationality Details',
                 'The nationality does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class NationalityController
         exit;
     }
 
-    public function generateNationalityTable()
-    {
+    public function generateNationalityTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class NationalityController
         echo json_encode($response);
     }
     
-    public function generateNationalityOptions()
-    {
+    public function generateNationalityOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class NationalityController
     }
 }
 
-# Bootstrap the controller
 $controller = new NationalityController(
     new Nationality(),
     new Authentication(),

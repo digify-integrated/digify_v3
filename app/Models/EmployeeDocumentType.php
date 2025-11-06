@@ -10,9 +10,9 @@ class EmployeeDocumentType extends Model {
     ============================================================================================= */
 
     public function saveEmployeeDocumentType(
-        $p_employee_document_type_id,
-        $p_employee_document_type_name,
-        $p_last_log_by
+        int $p_employee_document_type_id,
+        string $p_employee_document_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveEmployeeDocumentType(
             :p_employee_document_type_id,
@@ -42,7 +42,7 @@ class EmployeeDocumentType extends Model {
     ============================================================================================= */
 
     public function fetchEmployeeDocumentType(
-        $p_employee_document_type_id
+        int $p_employee_document_type_id
     ) {
         $sql = 'CALL fetchEmployeeDocumentType(
             :p_employee_document_type_id
@@ -58,7 +58,7 @@ class EmployeeDocumentType extends Model {
     ============================================================================================= */
 
     public function deleteEmployeeDocumentType(
-        $p_employee_document_type_id
+        int $p_employee_document_type_id
     ) {
         $sql = 'CALL deleteEmployeeDocumentType(
             :p_employee_document_type_id
@@ -74,7 +74,7 @@ class EmployeeDocumentType extends Model {
     ============================================================================================= */
 
     public function checkEmployeeDocumentTypeExist(
-        $p_employee_document_type_id
+        int $p_employee_document_type_id
     ) {
         $sql = 'CALL checkEmployeeDocumentTypeExist(
             :p_employee_document_type_id

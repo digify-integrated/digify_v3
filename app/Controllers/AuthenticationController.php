@@ -67,6 +67,38 @@ class AuthenticationController {
         };
     }
 
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
     public function authenticate() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -123,14 +155,14 @@ class AuthenticationController {
                 false
             );
 
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Authentication Failed',
                 'Invalid credentials. Please check and try again.'
             );
         }
 
         if ($isActive === 'No') {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Account Inactive', 
                 'Your account is inactive. Please contact your administrator for assistance.'
             );
@@ -161,7 +193,7 @@ class AuthenticationController {
         $_SESSION['user_account_id']    = $userAccountId;
         $_SESSION['session_token']      = $sessionToken;
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             '',
             '',
             ['redirect_link' => 'apps.php']
@@ -201,14 +233,14 @@ class AuthenticationController {
         if ($result) {
             $_SESSION['2fa_user_account_id'] = $userAccountId;
 
-            $this->systemHelper->sendSuccessResponse(
+            $this->systemHelper::sendSuccessResponse(
                 'OTP Sent',
                 'A one-time password has been sent to your registered email address.',
                 ['redirect_link' => OTP_VERIFICATION_LINK . $encryptedUserAccountID]
             );
         }
         else {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Sending OTP Failed',
                 is_string($result) ? $result : 'Unable to send OTP. Please try again later.'
             );
@@ -256,14 +288,14 @@ class AuthenticationController {
         $failedOtpAttempts  = $otpDetails['failed_otp_attempts'] ?? '';        
 
         if ($isActive === 'No') {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Account Inactive', 
                 'Your account is inactive. Please contact your administrator for assistance.'
             );
         }
         
         if (strtotime(date('Y-m-d H:i:s')) > strtotime($otpExpiryDate)) {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Expired OTP Code',
                 'The OTP code you entered is expired. Please request a new one.'
             );
@@ -273,7 +305,7 @@ class AuthenticationController {
             if ($failedOtpAttempts >= MAX_FAILED_OTP_ATTEMPTS) {
                 $this->authentication->updateOTPAsExpired($userAccountId);
 
-                $this->systemHelper->sendErrorResponse(
+                $this->systemHelper::sendErrorResponse(
                     'Invalid OTP Code',
                     'The OTP code you entered is invalid. Please request a new one.'
                 );
@@ -284,7 +316,7 @@ class AuthenticationController {
                 $failedOtpAttempts + 1
             );
 
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Invalid OTP Code',
                 'The OTP code you entered is incorrect.'
             );
@@ -312,7 +344,7 @@ class AuthenticationController {
 
         unset($_SESSION['2fa_user_account_id']);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             '',
             '',
             additionalData: ['redirect_link' => 'apps.php']
@@ -348,7 +380,7 @@ class AuthenticationController {
         $encryptedUserAccountID = $this->security::encryptData($userAccountId);
 
         if ($isActive === 'No') {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Account Inactive', 
                 'Your account is inactive. Please contact your administrator for assistance.'
             );
@@ -380,13 +412,14 @@ class AuthenticationController {
         );
 
         if ($result === true) {
-            $this->systemHelper->sendSuccessResponse(
+            $this->systemHelper::sendSuccessResponse(
                 'Password Reset',
                 'We have sent a password reset link to your registered email address. Please check your inbox and follow the provided instructions to securely reset your password. If you do not receive the email within a few minutes, please also check your spam folder.',
-             ['redirect_link' => 'index.php']);
+                ['redirect_link' => 'index.php']
+            );
         }
         else {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Password Reset Failed',
                 is_string($result) ? $result : 'Unable to send password reset link. Please try again later.'
             );
@@ -420,7 +453,7 @@ class AuthenticationController {
         $isActive       = $credentials['active'] ?? 'No';
 
         if ($isActive === 'No') {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Account Inactive', 
                 'Your account is inactive. Please contact your administrator for assistance.'
             );
@@ -430,7 +463,7 @@ class AuthenticationController {
         $resetTokenExpiryDate = $resetTokenDetails['reset_token_expiry_date'] ?? null;
 
         if(strtotime(date('Y-m-d H:i:s')) > strtotime($resetTokenExpiryDate)){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Password Reset Token Expired', 
                 'The password reset token has expired. Please request a new link to reset your password.'
             );
@@ -443,7 +476,7 @@ class AuthenticationController {
 
         $this->authentication->updateResetTokenAsExpired($userAccountId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Password Reset Success',
             'Your password has been successfully updated. For security reasons, please use your new password to log in.',
             ['redirect_link' => 'index.php']
@@ -498,13 +531,13 @@ class AuthenticationController {
         );
 
         if ($result === true) {
-            $this->systemHelper->sendSuccessResponse(
+            $this->systemHelper::sendSuccessResponse(
                 'OTP Resend',
                 'A new OTP has been sent to you.'
             );
         }
         else {
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Resending OTP Failed',
                 is_string($result) ? $result : 'Unable to resend OTP. Please try again later.'
             );

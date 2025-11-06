@@ -66,8 +66,8 @@ class AppModuleController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -88,6 +88,38 @@ class AppModuleController {
                                                 )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveAppModule(
         int $lastLogBy
@@ -113,7 +145,7 @@ class AppModuleController {
         $appModuleId            = $this->appModule->saveAppModule($appModuleId, $appModuleName, $appModuleDescription, $menuItemId, $menuItemName, $orderSequence, $lastLogBy);
         $encryptedappModuleId   = $this->security->encryptData($appModuleId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save App Module Success',
             'The app module has been saved successfully.',
             ['app_module_id' => $encryptedappModuleId]
@@ -206,7 +238,7 @@ class AppModuleController {
             $lastLogBy
         );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update App Module Logo Success',
             'The app module logo has been updated successfully.'
         );
@@ -221,7 +253,7 @@ class AppModuleController {
 
         $this->appModule->deleteAppModule($appModuleId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete App Module Success',
             'The app module has been deleted successfully.'
         );
@@ -239,7 +271,7 @@ class AppModuleController {
             $this->appModule->deleteAppModule($appModuleId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple App Modules Success',
             'The selected app modules have been deleted successfully.'
         );
@@ -251,7 +283,7 @@ class AppModuleController {
         $total                  = $checkAppModuleExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get App Module Details',
                 'The app module does not exist',
                 ['notExist' => true]

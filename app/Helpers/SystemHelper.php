@@ -13,16 +13,14 @@ use DateTime;
  *
  * @package App\Helpers
  */
-class SystemHelper extends Security
-{
+class SystemHelper extends Security {
     /**
      * Returns a human-readable elapsed time string.
      *
      * @param string $dateTime Date/time string
      * @return string Human-readable string
      */
-    public static function timeElapsedString(string $dateTime): string
-    {
+    public static function timeElapsedString(string $dateTime) {
         $timestamp = strtotime($dateTime);
         if ($timestamp === false) {
             return 'Invalid date';
@@ -70,8 +68,7 @@ class SystemHelper extends Security
      * @param string $endDateTime   Format: "Month Year"
      * @return string Elapsed difference or error
      */
-    public static function yearMonthElapsedComparisonString(string $startDateTime, string $endDateTime): string
-    {
+    public static function yearMonthElapsedComparisonString(string $startDateTime, string $endDateTime) {
         $startDate  = DateTime::createFromFormat('d F Y', '01 ' . $startDateTime);
         $endDate    = DateTime::createFromFormat('d F Y', '01 ' . $endDateTime);
 
@@ -100,8 +97,7 @@ class SystemHelper extends Security
      * @param string|null $modify Modification string (e.g. "+1 day")
      * @return string Formatted date
      */
-    public static function formatDate(string $format, string $date, ?string $modify = null): string
-    {
+    public static function formatDate(string $format, string $date, ?string $modify = null) {
         $dateTime = new DateTime($date);
         if ($modify) {
             $dateTime->modify($modify);
@@ -115,8 +111,7 @@ class SystemHelper extends Security
      * @param int $lockDuration Duration in seconds
      * @return array Duration parts
      */
-    public static function formatDuration(int $lockDuration): array
-    {
+    public static function formatDuration(int $lockDuration) {
         $parts = [];
 
         $units = [
@@ -146,8 +141,7 @@ class SystemHelper extends Security
      * @param string $type
      * @return string Image path
      */
-    public static function getDefaultImage(string $type): string
-    {
+    public static function getDefaultImage(string $type) {
         $defaults = [
             'profile'               => DEFAULT_AVATAR_IMAGE,
             'login background'      => DEFAULT_BG_IMAGE,
@@ -172,8 +166,7 @@ class SystemHelper extends Security
      * @param string      $type
      * @return string Image path
      */
-    public static function checkImageExist(?string $image, string $type): string
-    {
+    public static function checkImageExist(?string $image, string $type) {
         if (empty($image)) {
             return self::getDefaultImage($type);
         }
@@ -198,8 +191,7 @@ class SystemHelper extends Security
      * @param string|null $image
      * @return bool True if deleted, false if not
      */
-    public static function deleteFileIfExist(?string $file): bool
-    {
+    public static function deleteFileIfExist(?string $file) {
         if (!defined('PROJECT_BASE_DIR')) {
             define('PROJECT_BASE_DIR', dirname(__DIR__, 2));
         }
@@ -218,8 +210,7 @@ class SystemHelper extends Security
         return true;
     }
 
-    public static function getFileDetails(?string $filePath, bool $withIcon = false): ?array
-    {
+    public static function getFileDetails(?string $filePath, bool $withIcon = false) {
         if (empty($filePath)) {
             return null;
         }
@@ -262,8 +253,7 @@ class SystemHelper extends Security
      * @param string $type File extension
      * @return string Icon path
      */
-    public static function getFileExtensionIcon(string $type): string
-    {
+    public static function getFileExtensionIcon(string $type) {
         $icons = [
             'ai'    => './assets/images/file_icon/img-file-ai.svg',
             'doc'   => './assets/images/file_icon/img-file-doc.svg',
@@ -291,8 +281,7 @@ class SystemHelper extends Security
      * @param int $precision
      * @return string
      */
-    public static function getFormatBytes(int $bytes, int $precision = 2): string
-    {
+    public static function getFormatBytes(int $bytes, int $precision = 2) {
         $units  = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
         $bytes  = max($bytes, 0);
         $pow    = (int) floor(log($bytes ?: 1, 1024));
@@ -305,8 +294,7 @@ class SystemHelper extends Security
      *
      * @return string
      */
-    public static function generateMonthOptions(): string
-    {
+    public static function generateMonthOptions() {
         $months = [
             'January','February','March','April',
             'May','June','July','August',
@@ -326,8 +314,7 @@ class SystemHelper extends Security
      * @param int $end   End year
      * @return string
      */
-    public static function generateYearOptions(int $start, int $end): string
-    {
+    public static function generateYearOptions(int $start, int $end) {
         return implode('', array_map(
             fn($y) => "<option value=\"$y\">$y</option>",
             range($start, $end)
@@ -337,8 +324,7 @@ class SystemHelper extends Security
     /**
      * Send standardized JSON error response and exit.
      */
-    public static function sendErrorResponse(string $title, string $message, array $additionalData = []): void
-    {
+    public static function sendErrorResponse(string $title, string $message, array $additionalData = []) {
         $response = array_merge([
             'success'       => false,
             'title'         => $title,
@@ -353,8 +339,7 @@ class SystemHelper extends Security
     /**
      * Send standardized JSON success response and exit.
      */
-    public static function sendSuccessResponse(string $title, string $message, array $additionalData = []): void
-    {
+    public static function sendSuccessResponse(string $title, string $message, array $additionalData = []) {
         $response = array_merge([
             'success'       => true,
             'title'         => $title,
@@ -450,7 +435,7 @@ class SystemHelper extends Security
         return $html;
     }
 
-    public static function getScriptFile(string $folderName, bool $newRecord, ?int $detailID, ?string $import): string {
+    public static function getScriptFile(string $folderName, bool $newRecord, ?int $detailID, ?string $import) {
         if ($newRecord) {
             return './assets/js/page/'. $folderName .'/new.js';
         }
@@ -466,8 +451,7 @@ class SystemHelper extends Security
         return './assets/js/page/'. $folderName .'/index.js';
     }
 
-    public static function checkFilter($values): ?string
-    {
+    public static function checkFilter($values) {
         if ($values === null) {
             return null;
         }
@@ -494,8 +478,6 @@ class SystemHelper extends Security
             : null;
     }
 
-
-
     public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {
         $systemDate     ??= date('Y-m-d');
         $systemTime     ??= date('H:i:s');
@@ -513,8 +495,7 @@ class SystemHelper extends Security
         return $formattedDate;
     }
 
-    private function needsTime(string $type): bool
-    {
+    private function needsTime(string $type) {
         static $typesRequiringTime = ['complete', 'encoded', 'date time'];
         return in_array(strtolower($type), $typesRequiringTime, true);
     }

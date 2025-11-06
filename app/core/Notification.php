@@ -14,8 +14,7 @@ namespace App\Core;
  *
  * @package App\Core
  */
-class Notification
-{
+class Notification {
     /**
      * @var object Provides access to notification settings (templates and configs).
      */
@@ -85,7 +84,7 @@ class Notification
         array $placeholders = [],
         array $ccEmails = [],
         array $bccEmails = []
-    ): bool {
+    ) {
         $success = false;
 
         // Normalize recipients into arrays

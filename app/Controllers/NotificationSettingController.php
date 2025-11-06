@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\NotificationSetting;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class NotificationSettingController
-{
+class NotificationSettingController {
     protected NotificationSetting $notificationSetting;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class NotificationSettingController
         $this->systemHelper         = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class NotificationSettingController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -89,7 +86,41 @@ class NotificationSettingController
         };
     }
 
-    public function saveNotificationSetting($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveNotificationSetting(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'notification_setting_form')) {
@@ -103,17 +134,25 @@ class NotificationSettingController
         $notificationSettingName            = $_POST['notification_setting_name'] ?? null;
         $notificationSettingDescription     = $_POST['notification_setting_description'] ?? null;
 
-        $notificationSettingId              = $this->notificationSetting->saveNotificationSetting($notificationSettingId, $notificationSettingName, $notificationSettingDescription, $lastLogBy);
-        $encryptedNotificationSettingId     = $this->security->encryptData($notificationSettingId);
+        $notificationSettingId = $this->notificationSetting->saveNotificationSetting(
+            $notificationSettingId,
+            $notificationSettingName,
+            $notificationSettingDescription,
+            $lastLogBy
+        );
+        
+        $encryptedNotificationSettingId = $this->security->encryptData($notificationSettingId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Notification Setting Success',
             'The notification setting has been saved successfully.',
             ['notification_setting_id' => $encryptedNotificationSettingId]
         );
     }
 
-    public function saveSystemNotificationTemplate($lastLogBy){
+    public function saveSystemNotificationTemplate(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_system_notification_template_form')) {
@@ -127,15 +166,22 @@ class NotificationSettingController
         $systemNotificationTitle    = $_POST['system_notification_title'] ?? null;
         $systemNotificationMessage  = $_POST['system_notification_message'] ?? null;
 
-        $this->notificationSetting->saveSystemNotificationTemplate($notificationSettingId, $systemNotificationTitle, $systemNotificationMessage, $lastLogBy);
+        $this->notificationSetting->saveSystemNotificationTemplate(
+            $notificationSettingId, 
+            $systemNotificationTitle, 
+            $systemNotificationMessage, 
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save System Notification Template Success',
             'The system notification template has been saved successfully.'
         );
     }
 
-    public function saveEmailNotificationTemplate($lastLogBy){
+    public function saveEmailNotificationTemplate(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_email_notification_template_form')) {
@@ -149,15 +195,22 @@ class NotificationSettingController
         $emailNotificationSubject   = $_POST['email_notification_subject'] ?? null;
         $emailNotificationBody      = $_POST['email_notification_body'] ?? null;
 
-        $this->notificationSetting->saveEmailNotificationTemplate($notificationSettingId, $emailNotificationSubject, $emailNotificationBody, $lastLogBy);
+        $this->notificationSetting->saveEmailNotificationTemplate(
+            $notificationSettingId,
+            $emailNotificationSubject,
+            $emailNotificationBody,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save System Notification Template Success',
             'The system notification template has been saved successfully.'
         );
     }
 
-    public function saveSMSNotificationTemplate($lastLogBy){
+    public function saveSMSNotificationTemplate(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_sms_notification_template_form')) {
@@ -170,58 +223,69 @@ class NotificationSettingController
         $notificationSettingId      = $_POST['notification_setting_id'] ?? null;
         $smsNotificationMessage     = $_POST['sms_notification_message'] ?? null;
 
-        $this->notificationSetting->saveSMSNotificationTemplate($notificationSettingId, $smsNotificationMessage, $lastLogBy);
+        $this->notificationSetting->saveSMSNotificationTemplate(
+            $notificationSettingId,
+            $smsNotificationMessage,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save System Notification Template Success',
             'The system notification template has been saved successfully.'
         );
     }
 
-    public function updateNotificationSettingChannel($lastLogBy){
+    public function updateNotificationSettingChannel(
+        int $lastLogBy
+    ) {
         $notificationSettingId  = $_POST['notification_setting_id'] ?? null;
         $channel                = $_POST['channel'] ?? null;
         $status                 = $_POST['status'] ?? null;
 
-        $this->notificationSetting->updateNotificationChannel($notificationSettingId, $channel, $status, $lastLogBy);
+        $this->notificationSetting->updateNotificationChannel(
+            $notificationSettingId,
+            $channel,
+            $status,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save System Notification Template Success',
             'The system notification template has been saved successfully.'
         );
     }
 
-    public function deleteNotificationSetting(){
+    public function deleteNotificationSetting() {
         $notificationSettingId = $_POST['notification_setting_id'] ?? null;
 
         $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Notification Setting Success',
             'The notification setting has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleNotificationSetting(){
+    public function deleteMultipleNotificationSetting() {
         $notificationSettingIds = $_POST['notification_setting_id'] ?? null;
 
         foreach($notificationSettingIds as $notificationSettingId){
             $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Notification Settings Success',
             'The selected notification settings have been deleted successfully.'
         );
     }
 
-    public function fetchNotificationSettingDetails(){
+    public function fetchNotificationSettingDetails() {
         $notificationSettingId          = $_POST['notification_setting_id'] ?? null;
         $checkNotificationSettingExist  = $this->notificationSetting->checkNotificationSettingExist($notificationSettingId);
         $total                          = $checkNotificationSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Notification Setting Details',
                 'The notification setting does not exist'
             );
@@ -242,13 +306,13 @@ class NotificationSettingController
         exit;
     }
 
-    public function fetchSystemNotificationTemplateDetails(){
+    public function fetchSystemNotificationTemplateDetails() {
         $notificationSettingId          = $_POST['notification_setting_id'] ?? null;
         $checkNotificationSettingExist  = $this->notificationSetting->checkNotificationSettingExist($notificationSettingId);
         $total                          = $checkNotificationSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Notification Setting Details',
                 'The notification setting does not exist'
             );
@@ -266,13 +330,13 @@ class NotificationSettingController
         exit;
     }
 
-    public function fetchEmailNotificationTemplateDetails(){
+    public function fetchEmailNotificationTemplateDetails() {
         $notificationSettingId          = $_POST['notification_setting_id'] ?? null;
         $checkNotificationSettingExist  = $this->notificationSetting->checkNotificationSettingExist($notificationSettingId);
         $total                          = $checkNotificationSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Notification Setting Details',
                 'The notification setting does not exist'
             );
@@ -290,13 +354,13 @@ class NotificationSettingController
         exit;
     }
 
-    public function fetchSMSNotificationTemplateDetails(){
+    public function fetchSMSNotificationTemplateDetails() {
         $notificationSettingId          = $_POST['notification_setting_id'] ?? null;
         $checkNotificationSettingExist  = $this->notificationSetting->checkNotificationSettingExist($notificationSettingId);
         $total                          = $checkNotificationSettingExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Notification Setting Details',
                 'The notification setting does not exist',
                 ['notExist' => true]
@@ -314,8 +378,7 @@ class NotificationSettingController
         exit;
     }
 
-    public function generateNotificationSettingTable()
-    {
+    public function generateNotificationSettingTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -333,7 +396,7 @@ class NotificationSettingController
                                                         <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $notificationSettingId .'">
                                                     </div>',
                 'NOTIFICATION_SETTING_NAME'     => '<div class="d-flex flex-column">
-                                                        <a href="#" class="fs-5 text-gray-900 fw-bold">'. $notificationSettingName .'</a>
+                                                        <div class="fs-5 text-gray-900 fw-bold">'. $notificationSettingName .'</div>
                                                         <div class="fs-7 text-gray-500">'. $notificationSettingDescription .'</div>
                                                     </div>',
                 'LINK'                          => $pageLink .'&id='. $notificationSettingIdEncrypted
@@ -344,7 +407,6 @@ class NotificationSettingController
     }
 }
 
-# Bootstrap the controller
 $controller = new NotificationSettingController(
     new NotificationSetting(),
     new Authentication(),

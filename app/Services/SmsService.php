@@ -14,8 +14,7 @@ class SmsService
      * @param string $message Message content
      * @return bool|string True if success, error message if failed
      */
-    public function sendSms(string $phone, string $message): bool|string
-    {
+    public function sendSms(string $phone, string $message) {
         try {
             // TODO: Replace with actual SMS provider API integration.
             // Example (pseudo-code for Twilio, etc.):
@@ -27,7 +26,8 @@ class SmsService
 
             // For now, simulate success
             return true;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return 'Failed to send SMS. Error: ' . $e->getMessage();
         }
     }

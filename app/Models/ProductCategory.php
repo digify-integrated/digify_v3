@@ -10,13 +10,13 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function saveProductCategory(
-        $p_product_category_id,
-        $p_product_category_name,
-        $p_parent_category_id,
-        $p_parent_category_name,
-        $p_costing_method,
-        $p_display_order,
-        $p_last_log_by
+        int $p_product_category_id,
+        string $p_product_category_name,
+        int $p_parent_category_id,
+        string $p_parent_category_name,
+        string $p_costing_method,
+        int $p_display_order,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveProductCategory(
             :p_product_category_id,
@@ -54,7 +54,7 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function fetchProductCategory(
-        $p_product_category_id
+        int $p_product_category_id
     ) {
         $sql = 'CALL fetchProductCategory(
             :p_product_category_id
@@ -70,7 +70,7 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function deleteProductCategory(
-        $p_product_category_id
+        int $p_product_category_id
     ) {
         $sql = 'CALL deleteProductCategory(
             :p_product_category_id
@@ -86,7 +86,7 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function checkProductCategoryExist(
-        $p_product_category_id
+        int $p_product_category_id
     ) {
         $sql = 'CALL checkProductCategoryExist(
             :p_product_category_id
@@ -102,8 +102,8 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
    public function generateProductCategoryTable(
-        $p_filter_by_parent_category,
-        $p_filter_by_costing_method,
+        string $p_filter_by_parent_category,
+        string $p_filter_by_costing_method,
     ) {
         $sql = 'CALL generateProductCategoryTable(
             :p_filter_by_parent_category,
@@ -123,7 +123,7 @@ class ProductCategory extends Model {
     }
 
      public function generateParentCategoryOptions(
-        $p_product_category_id
+        int $p_product_category_id
     ) {
         $sql = 'CALL generateParentCategoryOptions(:p_product_category_id)';
         

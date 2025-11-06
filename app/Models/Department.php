@@ -10,13 +10,13 @@ class Department extends Model {
     ============================================================================================= */
 
     public function saveDepartment(
-        $p_department_id,
-        $p_department_name,
-        $p_parent_department_id,
-        $p_parent_department_name,
-        $p_manager_id,
-        $p_manager_name,
-        $p_last_log_by
+        int $p_department_id,
+        string $p_department_name,
+        int $p_parent_department_id,
+        string $p_parent_department_name,
+        int $p_manager_id,
+        string $p_manager_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveDepartment(
             :p_department_id,
@@ -54,7 +54,7 @@ class Department extends Model {
     ============================================================================================= */
 
     public function fetchDepartment(
-        $p_department_id
+        int $p_department_id
     ) {
         $sql = 'CALL fetchDepartment(
             :p_department_id
@@ -70,7 +70,7 @@ class Department extends Model {
     ============================================================================================= */
 
     public function deleteDepartment(
-        $p_department_id
+        int $p_department_id
     ) {
         $sql = 'CALL deleteDepartment(
             :p_department_id
@@ -86,7 +86,7 @@ class Department extends Model {
     ============================================================================================= */
 
     public function checkDepartmentExist(
-        $p_department_id
+        int $p_department_id
     ) {
         $sql = 'CALL checkDepartmentExist(
             :p_department_id
@@ -102,8 +102,8 @@ class Department extends Model {
     ============================================================================================= */
 
     public function generateDepartmentTable(
-        $p_filter_by_parent_department,
-        $p_filter_by_manager
+        string $p_filter_by_parent_department,
+        string $p_filter_by_manager
     ) {
         $sql = 'CALL generateDepartmentTable(
             :p_filter_by_parent_department,
@@ -123,7 +123,7 @@ class Department extends Model {
     }
 
     public function generateParentDepartmentOptions(
-        $p_department_id
+        int $p_department_id
     ) {
         $sql = 'CALL generateParentDepartmentOptions(:p_department_id)';
         

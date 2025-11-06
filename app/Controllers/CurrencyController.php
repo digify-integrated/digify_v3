@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Currency;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CurrencyController
-{
+class CurrencyController {
     protected Currency $currency;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class CurrencyController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class CurrencyController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class CurrencyController
         };
     }
 
-    public function saveCurrency($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveCurrency(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'currency_form')) {
@@ -98,47 +129,54 @@ class CurrencyController
         $symbol         = $_POST['symbol'] ?? null;
         $shorthand      = $_POST['shorthand'] ?? null;
 
-        $currencyId             = $this->currency->saveCurrency($currencyId, $currencyName, $symbol, $shorthand, $lastLogBy);
-        $encryptedcurrencyId    = $this->security->encryptData($currencyId);
+        $currencyId = $this->currency->saveCurrency(
+            $currencyId,
+            $currencyName,
+            $symbol,
+            $shorthand,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $encryptedcurrencyId = $this->security->encryptData($currencyId);
+
+        $this->systemHelper::sendSuccessResponse(
             'Save Currency Success',
             'The currency has been saved successfully.',
             ['currency_id' => $encryptedcurrencyId]
         );
     }
 
-    public function deleteCurrency(){
+    public function deleteCurrency() {
         $currencyId = $_POST['currency_id'] ?? null;
 
         $this->currency->deleteCurrency($currencyId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Currency Success',
             'The currency has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleCurrency(){
+    public function deleteMultipleCurrency() {
         $currencyIds = $_POST['currency_id'] ?? null;
 
         foreach($currencyIds as $currencyId){
             $this->currency->deleteCurrency($currencyId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Currencies Success',
             'The selected currencies have been deleted successfully.'
         );
     }
 
-    public function fetchCurrencyDetails(){
+    public function fetchCurrencyDetails() {
         $currencyId             = $_POST['currency_id'] ?? null;
         $checkCurrencyExist     = $this->currency->checkCurrencyExist($currencyId);
         $total                  = $checkCurrencyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Currency Details',
                 'The currency does not exist',
                 ['notExist' => true]
@@ -158,8 +196,7 @@ class CurrencyController
         exit;
     }
 
-    public function generateCurrencyTable()
-    {
+    public function generateCurrencyTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -187,8 +224,7 @@ class CurrencyController
         echo json_encode($response);
     }
     
-    public function generateCurrencyOptions()
-    {
+    public function generateCurrencyOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -212,7 +248,6 @@ class CurrencyController
     }
 }
 
-# Bootstrap the controller
 $controller = new CurrencyController(
     new Currency(),
     new Authentication(),

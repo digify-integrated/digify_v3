@@ -10,11 +10,11 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function saveCurrency(
-        $p_currency_id,
-        $p_currency_name,
-        $p_symbol,
-        $p_shorthand,
-        $p_last_log_by
+        int $p_currency_id,
+        string $p_currency_name,
+        string $p_symbol,
+        string $p_shorthand,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCurrency(
             :p_currency_id,
@@ -48,7 +48,7 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function fetchCurrency(
-        $p_currency_id
+        int $p_currency_id
     ) {
         $sql = 'CALL fetchCurrency(
             :p_currency_id
@@ -64,7 +64,7 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function deleteCurrency(
-        $p_currency_id
+        int $p_currency_id
     ) {
         $sql = 'CALL deleteCurrency(
             :p_currency_id
@@ -80,7 +80,7 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function checkCurrencyExist(
-        $p_currency_id
+        int $p_currency_id
     ) {
         $sql = 'CALL checkCurrencyExist(
             :p_currency_id

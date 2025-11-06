@@ -10,11 +10,11 @@ class Import extends Model {
     ============================================================================================= */
 
     public function saveImport(
-        $p_table_name,
-        $p_columns,
-        $p_placeholders,
-        $p_updateFields,
-        $p_values
+        string $p_table_name,
+        string $p_columns,
+        string $p_placeholders,
+        string $p_updateFields,
+        string $p_values
     )    {
         $sql = 'CALL saveImport(
             :p_table_name,

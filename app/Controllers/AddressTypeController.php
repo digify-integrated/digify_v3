@@ -58,8 +58,8 @@ class AddressTypeController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -79,6 +79,38 @@ class AddressTypeController {
                                                     )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveAddressType(
         int $lastLogBy
@@ -103,7 +135,7 @@ class AddressTypeController {
 
         $encryptedAddressTypeId = $this->security->encryptData($addressTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Address Type Success',
             'The address type has been saved successfully.',
             ['address_type_id' => $encryptedAddressTypeId]
@@ -115,7 +147,7 @@ class AddressTypeController {
 
         $this->addressType->deleteAddressType($addressTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Address Type Success',
             'The address type has been deleted successfully.'
         );
@@ -128,7 +160,7 @@ class AddressTypeController {
             $this->addressType->deleteAddressType($addressTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Address Types Success',
             'The selected address types have been deleted successfully.'
         );
@@ -140,7 +172,7 @@ class AddressTypeController {
         $total                  = $checkAddressTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Address Type Details',
                 'The address type does not exist',
                 ['notExist' => true]

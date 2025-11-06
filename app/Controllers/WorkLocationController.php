@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\WorkLocation;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class WorkLocationController
-{
+class WorkLocationController {
     protected WorkLocation $workLocation;
     protected City $city;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class WorkLocationController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +62,8 @@ class WorkLocationController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -87,7 +84,41 @@ class WorkLocationController
         };
     }
 
-    public function saveWorkLocation($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveWorkLocation(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'work_location_form')) {
@@ -112,47 +143,62 @@ class WorkLocationController
         $countryId      = $cityDetails['country_id'] ?? null;
         $countryName    = $cityDetails['country_name'] ?? null;
 
-        $workLocationId             = $this->workLocation->saveWorkLocation($workLocationId, $workLocationName, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $phone, $telephone, $email, $lastLogBy);
-        $encryptedWorkLocationId    = $this->security->encryptData($workLocationId);
+        $workLocationId = $this->workLocation->saveWorkLocation(
+            $workLocationId,
+            $workLocationName,
+            $address,
+            $cityId,
+            $cityName,
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $phone,
+            $telephone,
+            $email,
+            $lastLogBy
+        );
+        
+        $encryptedWorkLocationId = $this->security->encryptData($workLocationId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Work Location Success',
             'The work location has been saved successfully.',
             ['work_location_id' => $encryptedWorkLocationId]
         );
     }
 
-    public function deleteWorkLocation(){
+    public function deleteWorkLocation() {
         $workLocationId = $_POST['work_location_id'] ?? null;
 
         $this->workLocation->deleteWorkLocation($workLocationId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Work Location Success',
             'The work location has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleWorkLocation(){
+    public function deleteMultipleWorkLocation() {
         $workLocationIds = $_POST['work_location_id'] ?? null;
 
         foreach($workLocationIds as $workLocationId){
             $this->workLocation->deleteWorkLocation($workLocationId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Work Locations Success',
             'The selected work locations have been deleted successfully.'
         );
     }
 
-    public function fetchWorkLocationDetails(){
+    public function fetchWorkLocationDetails() {
         $workLocationId             = $_POST['work_location_id'] ?? null;
         $checkWorkLocationExist     = $this->workLocation->checkWorkLocationExist($workLocationId);
         $total                      = $checkWorkLocationExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Work Location Details',
                 'The work location does not exist',
                 ['notExist' => true]
@@ -175,15 +221,18 @@ class WorkLocationController
         exit;
     }
 
-    public function generateWorkLocationTable()
-    {
+    public function generateWorkLocationTable() {
         $cityFilter     = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
         $stateFilter    = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
         $countryFilter  = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
         $pageLink       = $_POST['page_link'] ?? null;
         $response       = [];
 
-        $workLocations = $this->workLocation->generateWorkLocationTable($cityFilter, $stateFilter, $countryFilter);
+        $workLocations = $this->workLocation->generateWorkLocationTable(
+            $cityFilter,
+            $stateFilter,
+            $countryFilter
+        );
 
         foreach ($workLocations as $row) {
             $workLocationId     = $row['work_location_id'];
@@ -193,8 +242,8 @@ class WorkLocationController
             $stateName          = $row['state_name'];
             $countryName        = $row['country_name'];
 
-            $parts = [$address, $cityName, $stateName, $countryName];
-            $fullAddress = implode(', ', array_filter($parts));
+            $parts          = [$address, $cityName, $stateName, $countryName];
+            $fullAddress    = implode(', ', array_filter($parts));
 
             $workLocationIdEncrypted = $this->security->encryptData($workLocationId);
 
@@ -213,8 +262,7 @@ class WorkLocationController
         echo json_encode($response);
     }
     
-    public function generateWorkLocationOptions()
-    {
+    public function generateWorkLocationOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -238,7 +286,6 @@ class WorkLocationController
     }
 }
 
-# Bootstrap the controller
 $controller = new WorkLocationController(
     new WorkLocation(),
     new City(),

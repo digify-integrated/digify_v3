@@ -58,8 +58,8 @@ class BankAccountTypeController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -79,6 +79,38 @@ class BankAccountTypeController {
                                                         )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveBankAccountType(
         int $lastLogBy
@@ -103,7 +135,7 @@ class BankAccountTypeController {
 
         $encryptedBankAccountTypeId = $this->security->encryptData($bankAccountTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Bank Account Type Success',
             'The bank account type has been saved successfully.',
             ['bank_account_type_id' => $encryptedBankAccountTypeId]
@@ -115,7 +147,7 @@ class BankAccountTypeController {
 
         $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Bank Account Type Success',
             'The bank account type has been deleted successfully.'
         );
@@ -128,7 +160,7 @@ class BankAccountTypeController {
             $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Bank Account Types Success',
             'The selected bank account types have been deleted successfully.'
         );
@@ -140,7 +172,7 @@ class BankAccountTypeController {
         $total                      = $checkBankAccountTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Bank Account Type Details',
                 'The bank account type does not exist',
                 ['notExist' => true]

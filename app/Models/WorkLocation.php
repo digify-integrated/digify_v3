@@ -10,19 +10,19 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function saveWorkLocation(
-        $p_work_location_id,
-        $p_work_location_name,
-        $p_address,
-        $p_city_id,
-        $p_city_name,
-        $p_state_id,
-        $p_state_name,
-        $p_country_id,
-        $p_country_name,
-        $p_phone,
-        $p_telephone,
-        $p_email,
-        $p_last_log_by
+        int $p_work_location_id,
+        string $p_work_location_name,
+        string $p_address,
+        int $p_city_id,
+        string $p_city_name,
+        int $p_state_id,
+        string $p_state_name,
+        int $p_country_id,
+        string $p_country_name,
+        string $p_phone,
+        string $p_telephone,
+        string $p_email,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveWorkLocation(
             :p_work_location_id,
@@ -72,7 +72,7 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function fetchWorkLocation(
-        $p_work_location_id
+        int $p_work_location_id
     ) {
         $sql = 'CALL fetchWorkLocation(
             :p_work_location_id
@@ -88,7 +88,7 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function deleteWorkLocation(
-        $p_work_location_id
+        int $p_work_location_id
     ) {
         $sql = 'CALL deleteWorkLocation(
             :p_work_location_id
@@ -104,7 +104,7 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function checkWorkLocationExist(
-        $p_work_location_id
+        int $p_work_location_id
     ) {
         $sql = 'CALL checkWorkLocationExist(
             :p_work_location_id
@@ -120,9 +120,9 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function generateWorkLocationTable(
-        $p_filter_by_city,
-        $p_filter_by_state,
-        $p_filter_by_country
+        string $p_filter_by_city,
+        string $p_filter_by_state,
+        string $p_filter_by_country
     ) {
         $sql = 'CALL generateWorkLocationTable(
             :p_filter_by_city,

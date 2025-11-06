@@ -10,10 +10,10 @@ class Role extends Model {
     ============================================================================================= */
 
     public function saveRole(
-        $p_role_id,
-        $p_role_name,
-        $p_role_description,
-        $p_last_log_by
+        int $p_role_id,
+        string $p_role_name,
+        string $p_role_description,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveRole(
             :p_role_id,
@@ -37,11 +37,11 @@ class Role extends Model {
     ============================================================================================= */
 
     public function insertRolePermission(
-        $p_role_id,
-        $p_role_name,
-        $p_menu_item_id,
-        $p_menu_item_name,
-        $p_last_log_by
+        int $p_role_id,
+        string $p_role_name,
+        int $p_menu_item_id,
+        string $p_menu_item_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL insertRolePermission(
             :p_role_id,
@@ -61,11 +61,11 @@ class Role extends Model {
     }
 
     public function insertRoleSystemActionPermission(
-        $p_role_id,
-        $p_role_name,
-        $p_system_action_id,
-        $p_system_action_name,
-        $p_last_log_by
+        int $p_role_id,
+        string $p_role_name,
+        int $p_system_action_id,
+        string $p_system_action_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL insertRoleSystemActionPermission(
             :p_role_id,
@@ -85,11 +85,11 @@ class Role extends Model {
     }
 
     public function insertRoleUserAccount(
-        $p_role_id,
-        $p_role_name,
-        $p_user_account_id,
-        $p_file_as,
-        $p_last_log_by
+        int $p_role_id,
+        string $p_role_name,
+        int $p_user_account_id,
+        string $p_file_as,
+        int $p_last_log_by
     ) {
         $sql = 'CALL insertRoleUserAccount(
             :p_role_id,
@@ -113,10 +113,10 @@ class Role extends Model {
     =============================================================================================  */
 
     public function updateRolePermission(
-        $p_role_permission_id,
-        $p_access_type,
-        $p_access,
-        $p_last_log_by
+        int $p_role_permission_id,
+        string $p_access_type,
+        int $p_access,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateRolePermission(
             :p_role_permission_id,
@@ -134,9 +134,9 @@ class Role extends Model {
     }
 
     public function updateRoleSystemActionPermission(
-        $p_role_permission_id,
-        $p_system_action_access,
-        $p_last_log_by
+        int $p_role_permission_id,
+        int $p_system_action_access,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateRoleSystemActionPermission(
             :p_role_permission_id,
@@ -156,7 +156,7 @@ class Role extends Model {
     ============================================================================================= */
 
     public function fetchRole(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL fetchRole(
             :p_role_id
@@ -172,7 +172,7 @@ class Role extends Model {
     ============================================================================================= */
 
     public function deleteRole(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL deleteRole(
             :p_role_id
@@ -184,7 +184,7 @@ class Role extends Model {
     }
 
     public function deleteRolePermission(
-        $p_role_permission_id
+        int $p_role_permission_id
     ) {
         $sql = 'CALL deleteRolePermission(
             :p_role_permission_id
@@ -196,7 +196,7 @@ class Role extends Model {
     }
 
     public function deleteRoleSystemActionPermission(
-        $p_role_system_action_permission_id
+        int $p_role_system_action_permission_id
     ) {
         $sql = 'CALL deleteRoleSystemActionPermission(
             :p_role_system_action_permission_id
@@ -208,7 +208,7 @@ class Role extends Model {
     }
 
     public function deleteRoleUserAccount(
-        $p_role_user_account_id
+        int $p_role_user_account_id
     ) {
         $sql = 'CALL deleteRoleUserAccount(
             :p_role_user_account_id
@@ -224,7 +224,7 @@ class Role extends Model {
     ============================================================================================= */
 
     public function checkRoleExist(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL checkRoleExist(
             :p_role_id
@@ -236,7 +236,7 @@ class Role extends Model {
     }
 
     public function checkRolePermissionExist(
-        $p_role_permission_id
+        int $p_role_permission_id
     ) {
         $sql = 'CALL checkRolePermissionExist(
             :p_role_permission_id
@@ -248,7 +248,7 @@ class Role extends Model {
     }
 
     public function checkRoleSystemActionPermissionExist(
-        $p_role_system_action_permission_id
+        int $p_role_system_action_permission_id
     ) {
         $sql = 'CALL checkRoleSystemActionPermissionExist(
             :p_role_system_action_permission_id
@@ -260,7 +260,7 @@ class Role extends Model {
     }
 
     public function checkRoleUserAccountExist(
-        $p_role_user_account_id
+        int $p_role_user_account_id
     ) {
         $sql = 'CALL checkRoleUserAccountExist(
             :p_role_user_account_id
@@ -282,7 +282,7 @@ class Role extends Model {
     }
 
     public function generateRoleMenuItemPermissionTable(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleMenuItemPermissionTable(
             :p_role_id
@@ -294,7 +294,7 @@ class Role extends Model {
     }
 
     public function generateRoleSystemActionPermissionTable(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleSystemActionPermissionTable(
             :p_role_id
@@ -306,7 +306,7 @@ class Role extends Model {
     }
 
     public function generateRoleUserAccountTable(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleUserAccountTable(
             :p_role_id
@@ -318,7 +318,7 @@ class Role extends Model {
     }
 
     public function generateRoleAssignedMenuItemTable(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleAssignedMenuItemTable(
             :p_role_id
@@ -330,7 +330,7 @@ class Role extends Model {
     }
 
     public function generateRoleAssignedSystemActionTable(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleAssignedSystemActionTable(
             :p_role_id
@@ -342,7 +342,7 @@ class Role extends Model {
     }
 
     public function generateUserAccountRoleDualListBoxOptions(
-        $p_user_account_id
+        int $p_user_account_id
     ) {
         $sql = 'CALL generateUserAccountRoleDualListBoxOptions(
             :p_user_account_id
@@ -354,7 +354,7 @@ class Role extends Model {
     }
 
     public function generateRoleMenuItemDualListBoxOptions(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleMenuItemDualListBoxOptions(
             :p_role_id
@@ -366,7 +366,7 @@ class Role extends Model {
     }
 
     public function generateRoleSystemActionDualListBoxOptions(
-        $p_role_id
+        int $p_role_id
     ) {
         $sql = 'CALL generateRoleSystemActionDualListBoxOptions(
             :p_role_id

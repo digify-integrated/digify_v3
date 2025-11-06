@@ -10,9 +10,9 @@ class AddressType extends Model {
     ============================================================================================= */
 
     public function saveAddressType(
-        $p_address_type_id,
-        $p_address_type_name,
-        $p_last_log_by
+        int $p_address_type_id,
+        string $p_address_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveAddressType(
             :p_address_type_id,
@@ -42,7 +42,7 @@ class AddressType extends Model {
     ============================================================================================= */
 
     public function fetchAddressType(
-        $p_address_type_id
+        int $p_address_type_id
     ) {
         $sql = 'CALL fetchAddressType(
             :p_address_type_id
@@ -58,7 +58,7 @@ class AddressType extends Model {
     ============================================================================================= */
 
     public function deleteAddressType(
-        $p_address_type_id
+        int $p_address_type_id
     ) {
         $sql = 'CALL deleteAddressType(
             :p_address_type_id
@@ -74,7 +74,7 @@ class AddressType extends Model {
     ============================================================================================= */
 
     public function checkAddressTypeExist(
-        $p_address_type_id
+        int $p_address_type_id
     ) {
         $sql = 'CALL checkAddressTypeExist(
             :p_address_type_id

@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\WarehouseType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class WarehouseTypeController
-{
+class WarehouseTypeController {
     protected WarehouseType $warehouseType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class WarehouseTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class WarehouseTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class WarehouseTypeController
         };
     }
 
-    public function saveWarehouseType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveWarehouseType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'warehouse_type_form')) {
@@ -93,50 +124,55 @@ class WarehouseTypeController
             );
         }
 
-        $warehouseTypeId      = $_POST['warehouse_type_id'] ?? null;
-        $warehouseTypeName    = $_POST['warehouse_type_name'] ?? null;
+        $warehouseTypeId    = $_POST['warehouse_type_id'] ?? null;
+        $warehouseTypeName  = $_POST['warehouse_type_name'] ?? null;
 
-        $warehouseTypeId              = $this->warehouseType->saveWarehouseType($warehouseTypeId, $warehouseTypeName, $lastLogBy);
-        $encryptedWarehouseTypeId     = $this->security->encryptData($warehouseTypeId);
+        $warehouseTypeId = $this->warehouseType->saveWarehouseType(
+            $warehouseTypeId,
+            $warehouseTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedWarehouseTypeId = $this->security->encryptData($warehouseTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Warehouse Type Success',
             'The warehouse type has been saved successfully.',
             ['warehouse_type_id' => $encryptedWarehouseTypeId]
         );
     }
 
-    public function deleteWarehouseType(){
+    public function deleteWarehouseType() {
         $warehouseTypeId = $_POST['warehouse_type_id'] ?? null;
 
         $this->warehouseType->deleteWarehouseType($warehouseTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Warehouse Type Success',
             'The warehouse type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleWarehouseType(){
+    public function deleteMultipleWarehouseType() {
         $warehouseTypeIds = $_POST['warehouse_type_id'] ?? null;
 
         foreach($warehouseTypeIds as $warehouseTypeId){
             $this->warehouseType->deleteWarehouseType($warehouseTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Warehouse Types Success',
             'The selected warehouse types have been deleted successfully.'
         );
     }
 
-    public function fetchWarehouseTypeDetails(){
-        $warehouseTypeId          = $_POST['warehouse_type_id'] ?? null;
-        $checkWarehouseTypeExist  = $this->warehouseType->checkWarehouseTypeExist($warehouseTypeId);
-        $total                  = $checkWarehouseTypeExist['total'] ?? 0;
+    public function fetchWarehouseTypeDetails() {
+        $warehouseTypeId            = $_POST['warehouse_type_id'] ?? null;
+        $checkWarehouseTypeExist    = $this->warehouseType->checkWarehouseTypeExist($warehouseTypeId);
+        $total                      = $checkWarehouseTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Warehouse Type Details',
                 'The warehouse type does not exist',
                 ['notExist' => true]
@@ -146,24 +182,23 @@ class WarehouseTypeController
         $warehouseTypeDetails = $this->warehouseType->fetchWarehouseType($warehouseTypeId);
 
         $response = [
-            'success'           => true,
-            'warehouseTypeName'   => $warehouseTypeDetails['warehouse_type_name'] ?? null
+            'success'               => true,
+            'warehouseTypeName'     => $warehouseTypeDetails['warehouse_type_name'] ?? null
         ];
 
         echo json_encode($response);
         exit;
     }
 
-    public function generateWarehouseTypeTable()
-    {
+    public function generateWarehouseTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
         $warehouseTypes = $this->warehouseType->generateWarehouseTypeTable();
 
         foreach ($warehouseTypes as $row) {
-            $warehouseTypeId      = $row['warehouse_type_id'];
-            $warehouseTypeName    = $row['warehouse_type_name'];
+            $warehouseTypeId    = $row['warehouse_type_id'];
+            $warehouseTypeName  = $row['warehouse_type_name'];
 
             $warehouseTypeIdEncrypted = $this->security->encryptData($warehouseTypeId);
 
@@ -179,8 +214,7 @@ class WarehouseTypeController
         echo json_encode($response);
     }
     
-    public function generateWarehouseTypeOptions()
-    {
+    public function generateWarehouseTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class WarehouseTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new WarehouseTypeController(
     new WarehouseType(),
     new Authentication(),

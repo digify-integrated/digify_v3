@@ -10,12 +10,12 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function saveAttribute(
-        $p_attribute_id,
-        $p_attribute_name,
-        $p_attribute_description,
-        $p_variant_creation,
-        $p_display_type,
-        $p_last_log_by
+        int $p_attribute_id,
+        string $p_attribute_name,
+        string $p_attribute_description,
+        string $p_variant_creation,
+        string $p_display_type,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveAttribute(
             :p_attribute_id,
@@ -39,11 +39,11 @@ class Attribute extends Model {
     }
 
     public function saveAttributeValue(
-        $p_attribute_value_id,
-        $p_attribute_value_name,
-        $p_attribute_id,
-        $p_attribute_name,
-        $p_last_log_by
+        int $p_attribute_value_id,
+        string $p_attribute_value_name,
+        int $p_attribute_id,
+        string $p_attribute_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveAttributeValue(
             :p_attribute_value_id,
@@ -77,7 +77,7 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function fetchAttribute(
-        $p_attribute_id
+        int $p_attribute_id
     ) {
         $sql = 'CALL fetchAttribute(
             :p_attribute_id
@@ -89,7 +89,7 @@ class Attribute extends Model {
     }
 
     public function fetchAttributeValue(
-        $p_attribute_value_id
+        int $p_attribute_value_id
     ) {
         $sql = 'CALL fetchAttributeValue(
             :p_attribute_value_id
@@ -105,7 +105,7 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function deleteAttribute(
-        $p_attribute_id
+        int $p_attribute_id
     ) {
         $sql = 'CALL deleteAttribute(
             :p_attribute_id
@@ -117,7 +117,7 @@ class Attribute extends Model {
     }
 
     public function deleteAttributeValue(
-        $p_attribute_value_id
+        int $p_attribute_value_id
     ) {
         $sql = 'CALL deleteAttributeValue(
             :p_attribute_value_id
@@ -133,7 +133,7 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function checkAttributeExist(
-        $p_attribute_id
+        int $p_attribute_id
     ) {
         $sql = 'CALL checkAttributeExist(
             :p_attribute_id
@@ -145,7 +145,7 @@ class Attribute extends Model {
     }
 
     public function checkAttributeValueExist(
-        $p_attribute_value_id
+        int $p_attribute_value_id
     ) {
         $sql = 'CALL checkAttributeValueExist(
             :p_attribute_value_id
@@ -161,8 +161,8 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function generateAttributeTable(
-        $p_filter_by_variant_creation,
-        $p_filter_by_display_type
+        string $p_filter_by_variant_creation,
+        string $p_filter_by_display_type
     ) {
         $sql = 'CALL generateAttributeTable(
             :p_filter_by_variant_creation,
@@ -176,7 +176,7 @@ class Attribute extends Model {
     }
 
     public function generateAttributeValueTable(
-        $p_attribute_id
+        int $p_attribute_id
     ) {
         $sql = 'CALL generateAttributeValueTable(
             :p_attribute_id
@@ -200,7 +200,7 @@ class Attribute extends Model {
     }
 
     public function generateProductAttributeValueOptions(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL generateProductAttributeValueOptions(
             :p_product_id

@@ -10,10 +10,10 @@ class LanguageProficiency extends Model {
     ============================================================================================= */
 
     public function saveLanguageProficiency(
-        $p_language_proficiency_id,
-        $p_language_proficiency_name,
-        $p_language_proficiency_description,
-        $p_last_log_by
+        int $p_language_proficiency_id,
+        string $p_language_proficiency_name,
+        string $p_language_proficiency_description,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveLanguageProficiency(
             :p_language_proficiency_id,
@@ -45,7 +45,7 @@ class LanguageProficiency extends Model {
     ============================================================================================= */
 
     public function fetchLanguageProficiency(
-        $p_language_proficiency_id
+        int $p_language_proficiency_id
     ) {
         $sql = 'CALL fetchLanguageProficiency(
             :p_language_proficiency_id
@@ -61,7 +61,7 @@ class LanguageProficiency extends Model {
     ============================================================================================= */
 
     public function deleteLanguageProficiency(
-        $p_language_proficiency_id
+        int $p_language_proficiency_id
     ) {
         $sql = 'CALL deleteLanguageProficiency(
             :p_language_proficiency_id
@@ -77,7 +77,7 @@ class LanguageProficiency extends Model {
     ============================================================================================= */
 
     public function checkLanguageProficiencyExist(
-        $p_language_proficiency_id
+        int $p_language_proficiency_id
     ) {
         $sql = 'CALL checkLanguageProficiencyExist(
             :p_language_proficiency_id

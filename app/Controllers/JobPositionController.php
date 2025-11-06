@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\JobPosition;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class JobPositionController
-{
+class JobPositionController {
     protected JobPosition $jobPosition;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class JobPositionController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class JobPositionController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class JobPositionController
         };
     }
 
-    public function saveJobPosition($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveJobPosition(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'job_position_form')) {
@@ -96,47 +127,52 @@ class JobPositionController
         $jobPositionId      = $_POST['job_position_id'] ?? null;
         $jobPositionName    = $_POST['job_position_name'] ?? null;
 
-        $jobPositionId              = $this->jobPosition->saveJobPosition($jobPositionId, $jobPositionName, $lastLogBy);
-        $encryptedJobPositionId     = $this->security->encryptData($jobPositionId);
+        $jobPositionId = $this->jobPosition->saveJobPosition(
+            $jobPositionId,
+            $jobPositionName,
+            $lastLogBy
+        );
+        
+        $encryptedJobPositionId = $this->security->encryptData($jobPositionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Job Position Success',
             'The job position has been saved successfully.',
             ['job_position_id' => $encryptedJobPositionId]
         );
     }
 
-    public function deleteJobPosition(){
+    public function deleteJobPosition() {
         $jobPositionId = $_POST['job_position_id'] ?? null;
 
         $this->jobPosition->deleteJobPosition($jobPositionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Job Position Success',
             'The job position has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleJobPosition(){
+    public function deleteMultipleJobPosition() {
         $jobPositionIds = $_POST['job_position_id'] ?? null;
 
         foreach($jobPositionIds as $jobPositionId){
             $this->jobPosition->deleteJobPosition($jobPositionId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Job Positions Success',
             'The selected job positions have been deleted successfully.'
         );
     }
 
-    public function fetchJobPositionDetails(){
+    public function fetchJobPositionDetails() {
         $jobPositionId          = $_POST['job_position_id'] ?? null;
         $checkJobPositionExist  = $this->jobPosition->checkJobPositionExist($jobPositionId);
         $total                  = $checkJobPositionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Job Position Details',
                 'The job position does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class JobPositionController
         exit;
     }
 
-    public function generateJobPositionTable()
-    {
+    public function generateJobPositionTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class JobPositionController
         echo json_encode($response);
     }
     
-    public function generateJobPositionOptions()
-    {
+    public function generateJobPositionOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class JobPositionController
     }
 }
 
-# Bootstrap the controller
 $controller = new JobPositionController(
     new JobPosition(),
     new Authentication(),

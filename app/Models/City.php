@@ -10,13 +10,13 @@ class City extends Model {
     ============================================================================================= */
 
     public function saveCity(
-        $p_city_id,
-        $p_city_name,
-        $p_state_id,
-        $p_state_name,
-        $p_country_id,
-        $p_country_name,
-        $p_last_log_by
+        int $p_city_id,
+        string $p_city_name,
+        int $p_state_id,
+        string $p_state_name,
+        int $p_country_id,
+        string $p_country_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCity(
             :p_city_id,
@@ -54,7 +54,7 @@ class City extends Model {
     ============================================================================================= */
 
     public function fetchCity(
-        $p_city_id
+        int $p_city_id
     ) {
         $sql = 'CALL fetchCity(
             :p_city_id
@@ -70,7 +70,7 @@ class City extends Model {
     ============================================================================================= */
 
     public function deleteCity(
-        $p_city_id
+        int $p_city_id
     ) {
         $sql = 'CALL deleteCity(
             :p_city_id
@@ -86,7 +86,7 @@ class City extends Model {
     ============================================================================================= */
 
     public function checkCityExist(
-        $p_city_id
+        int $p_city_id
     ) {
         $sql = 'CALL checkCityExist(
             :p_city_id
@@ -102,8 +102,8 @@ class City extends Model {
     ============================================================================================= */
 
     public function generateCityTable(
-        $p_filter_by_state,
-        $p_filter_by_country
+        string $p_filter_by_state,
+        string $p_filter_by_country
     ) {
         $sql = 'CALL generateCityTable(
             :p_filter_by_state,

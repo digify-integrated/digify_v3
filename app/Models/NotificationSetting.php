@@ -10,10 +10,10 @@ class NotificationSetting extends Model {
     ============================================================================================= */
 
     public function saveNotificationSetting(
-        $p_notification_setting_id,
-        $p_notification_setting_name,
-        $p_notification_setting_description,
-        $p_last_log_by
+        int $p_notification_setting_id,
+        string $p_notification_setting_name,
+        string $p_notification_setting_description,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveNotificationSetting(
             :p_notification_setting_id,
@@ -33,10 +33,10 @@ class NotificationSetting extends Model {
     }
 
     public function saveSystemNotificationTemplate(
-        $p_notification_setting_id,
-        $p_system_notification_title,
-        $p_system_notification_message,
-        $p_last_log_by
+        int $p_notification_setting_id,
+        string $p_system_notification_title,
+        string $p_system_notification_message,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveSystemNotificationTemplate(
             :p_notification_setting_id,
@@ -54,10 +54,10 @@ class NotificationSetting extends Model {
     }
 
     public function saveEmailNotificationTemplate(
-        $p_notification_setting_id,
-        $p_email_notification_subject,
-        $p_email_notification_body,
-        $p_last_log_by
+        int $p_notification_setting_id,
+        string $p_email_notification_subject,
+        string $p_email_notification_body,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmailNotificationTemplate(
             :p_notification_setting_id,
@@ -75,9 +75,9 @@ class NotificationSetting extends Model {
     }
 
     public function saveSMSNotificationTemplate(
-        $p_notification_setting_id,
-        $p_sms_notification_message,
-        $p_last_log_by
+        int $p_notification_setting_id,
+        string $p_sms_notification_message,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveSMSNotificationTemplate(
             :p_notification_setting_id,
@@ -101,10 +101,10 @@ class NotificationSetting extends Model {
     =============================================================================================  */
 
     public function updateNotificationChannel(
-        $p_notification_setting_id,
-        $p_notification_channel,
-        $p_notification_channel_value,
-        $p_last_log_by
+        int $p_notification_setting_id,
+        string $p_notification_channel,
+        string $p_notification_channel_value,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateNotificationChannel(
             :p_notification_setting_id,
@@ -126,7 +126,7 @@ class NotificationSetting extends Model {
     ============================================================================================= */
 
     public function fetchNotificationSetting(
-        $p_notification_setting_id
+        int $p_notification_setting_id
     ) {
         $sql = 'CALL fetchNotificationSetting(
             :p_notification_setting_id
@@ -138,7 +138,7 @@ class NotificationSetting extends Model {
     }
 
     public function fetchEmailNotificationTemplate(
-        $p_notification_setting_id
+        int $p_notification_setting_id
     ) {
         $sql = 'CALL fetchEmailNotificationTemplate(
             :p_notification_setting_id
@@ -150,7 +150,7 @@ class NotificationSetting extends Model {
     }
 
     public function fetchSystemNotificationTemplate(
-        $p_notification_setting_id
+        int $p_notification_setting_id
     ) {
         $sql = 'CALL fetchSystemNotificationTemplate(
             :p_notification_setting_id
@@ -176,7 +176,7 @@ class NotificationSetting extends Model {
     ============================================================================================= */
 
     public function deleteNotificationSetting(
-        $p_notification_setting_id
+        int $p_notification_setting_id
     ) {
         $sql = 'CALL deleteNotificationSetting(
             :p_notification_setting_id
@@ -192,7 +192,7 @@ class NotificationSetting extends Model {
     ============================================================================================= */
 
     public function checkNotificationSettingExist(
-        $p_notification_setting_id
+        int $p_notification_setting_id
     ) {
         $sql = 'CALL checkNotificationSettingExist(
             :p_notification_setting_id

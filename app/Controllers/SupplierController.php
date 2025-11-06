@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Supplier;
@@ -12,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class SupplierController
-{
+class SupplierController {
     protected Supplier $supplier;
     protected City $city;
     protected Authentication $authentication;
@@ -34,8 +32,7 @@ class SupplierController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +62,8 @@ class SupplierController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -89,7 +86,41 @@ class SupplierController
         };
     }
 
-    public function saveSupplier($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveSupplier(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'supplier_form')) {
@@ -116,77 +147,103 @@ class SupplierController
         $countryId      = $cityDetails['country_id'] ?? null;
         $countryName    = $cityDetails['country_name'] ?? null;
 
-        $supplierId = $this->supplier->saveSupplier($supplierId, $supplierName, $contactPerson, $phone, $telephone, $email, $address, $cityId, $cityName, $stateId, $stateName, $countryId, $countryName, $taxIdNumber, $lastLogBy);
+        $supplierId = $this->supplier->saveSupplier(
+            $supplierId,
+            $supplierName,
+            $contactPerson,
+            $phone,
+            $telephone,
+            $email,
+            $address,
+            $cityId,
+            $cityName,
+            $stateId,
+            $stateName,
+            $countryId,
+            $countryName,
+            $taxIdNumber,
+            $lastLogBy
+        );
 
         $encryptedsupplierId = $this->security->encryptData($supplierId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Supplier Success',
             'The supplier has been saved successfully.',
             ['supplier_id' => $encryptedsupplierId]
         );
     }
 
-    public function updateSupplierArchive($lastLogBy){
+    public function updateSupplierArchive(
+        int $lastLogBy
+    ) {
         $supplierId = $_POST['supplier_id'] ?? null;
 
-        $this->supplier->updateSupplierArchive($supplierId, $lastLogBy);
+        $this->supplier->updateSupplierArchive(
+            $supplierId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Supplier Archive Success',
             'The supplier has been archived successfully.'
         );
     }
 
-    public function updateSupplierUnarchive($lastLogBy){
+    public function updateSupplierUnarchive(
+        int $lastLogBy
+    ) {
         $supplierId = $_POST['supplier_id'] ?? null;
 
-        $this->supplier->updateSupplierUnarchive($supplierId, $lastLogBy);
+        $this->supplier->updateSupplierUnarchive(
+            $supplierId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Supplier Unarchive Success',
             'The supplier has been unarchived successfully.'
         );
     }
 
-    public function deleteSupplier(){
+    public function deleteSupplier() {
         $supplierId = $_POST['supplier_id'] ?? null;
 
         $this->supplier->deleteSupplier($supplierId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Supplier Success',
             'The supplier has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleSupplier(){
+    public function deleteMultipleSupplier() {
         $supplierIds = $_POST['supplier_id'] ?? null;
 
         foreach($supplierIds as $supplierId){
             $this->supplier->deleteSupplier($supplierId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Suppliers Success',
             'The selected suppliers have been deleted successfully.'
         );
     }
 
-    public function fetchSupplierDetails(){
+    public function fetchSupplierDetails() {
         $supplierId             = $_POST['supplier_id'] ?? null;
         $checkSupplierExist     = $this->supplier->checkSupplierExist($supplierId);
         $total                  = $checkSupplierExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Supplier Details',
                 'The supplier does not exist',
                 ['notExist' => true]
             );
         }
 
-        $supplierDetails     = $this->supplier->fetchSupplier($supplierId);
+        $supplierDetails = $this->supplier->fetchSupplier($supplierId);
 
         $response = [
             'success'           => true,
@@ -204,8 +261,7 @@ class SupplierController
         exit;
     }
 
-    public function generateSupplierTable()
-    {
+    public function generateSupplierTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
         $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
@@ -213,7 +269,12 @@ class SupplierController
         $supplierStatusFilter   = $this->systemHelper->checkFilter($_POST['supplier_status_filter'] ?? null);
         $response               = [];
 
-        $suppliers = $this->supplier->generateSupplierTable($cityFilter, $stateFilter, $countryFilter, $supplierStatusFilter);
+        $suppliers = $this->supplier->generateSupplierTable(
+            $cityFilter,
+            $stateFilter,
+            $countryFilter,
+            $supplierStatusFilter
+        );
 
         foreach ($suppliers as $row) {
             $supplierId             = $row['supplier_id'];
@@ -226,22 +287,21 @@ class SupplierController
             $supplierIdEncrypted    = $this->security->encryptData($supplierId);
 
             $response[] = [
-                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $supplierId .'">
-                                    </div>',
-                'SUPPLIER_NAME'  => '<div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-bold mb-1">'. $supplierName .'</span>
-                                        <small class="text-gray-600">'. $supplierAddress .'</small>
-                                    </div>',
-                'LINK'          => $pageLink .'&id='. $supplierIdEncrypted
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $supplierId .'">
+                                        </div>',
+                'SUPPLIER_NAME'     => '<div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-bold mb-1">'. $supplierName .'</span>
+                                            <small class="text-gray-600">'. $supplierAddress .'</small>
+                                        </div>',
+                'LINK'              => $pageLink .'&id='. $supplierIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
     
-    public function generateSupplierOptions()
-    {
+    public function generateSupplierOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -265,7 +325,6 @@ class SupplierController
     }
 }
 
-# Bootstrap the controller
 $controller = new SupplierController(
     new Supplier(),
     new City(),

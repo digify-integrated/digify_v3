@@ -11,8 +11,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class SystemActionController
-{
+class SystemActionController {
     protected SystemAction $systemAction;
     protected Role $role;
     protected Authentication $authentication;
@@ -33,8 +32,7 @@ class SystemActionController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -65,8 +63,8 @@ class SystemActionController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -92,7 +90,41 @@ class SystemActionController
         };
     }
 
-    public function saveSystemAction($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveSystemAction(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'system_action_form')) {
@@ -106,17 +138,25 @@ class SystemActionController
         $systemActionName           = $_POST['system_action_name'] ?? null;
         $systemActionDescription    = $_POST['system_action_description'] ?? null;
 
-        $systemActionId             = $this->systemAction->saveSystemAction($systemActionId, $systemActionName, $systemActionDescription, $lastLogBy);
-        $encryptedSystemActionId    = $this->security->encryptData($systemActionId);
+        $systemActionId = $this->systemAction->saveSystemAction(
+            $systemActionId,
+            $systemActionName,
+            $systemActionDescription,
+            $lastLogBy
+        );
+        
+        $encryptedSystemActionId = $this->security->encryptData($systemActionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save System Action Success',
             'The system action has been saved successfully.',
             ['system_action_id' => $encryptedSystemActionId]
         );
     }
 
-    public function saveSystemActionRolePermission($lastLogBy){
+    public function saveSystemActionRolePermission(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'role_permission_assignment_form')) {
@@ -143,16 +183,24 @@ class SystemActionController
             $roleDetails    = $this->role->fetchRole($roleId);
             $roleName       = $roleDetails['role_name'] ?? null;
 
-            $this->role->insertRoleSystemActionPermission($roleId, $roleName, $systemActionId, $systemActionName, $lastLogBy);
+            $this->role->insertRoleSystemActionPermission(
+                $roleId,
+                $roleName,
+                $systemActionId,
+                $systemActionName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign Role Success',
             'The role has been assigned successfully.'
         );
     }
 
-    public function updateSystemActionRolePermission($lastLogBy){
+    public function updateSystemActionRolePermission(
+        int $lastLogBy
+    ) {
         $rolePermissionId   = $_POST['role_permission_id'] ?? null;
         $access             = $_POST['access'] ?? null;
 
@@ -160,62 +208,66 @@ class SystemActionController
         $total                                  = $checkSystemActionRolePermissionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Update Role Permission Error',
                 'The role permission does not exist.'
             );
         }
 
-        $this->role->updateRoleSystemActionPermission($rolePermissionId, $access, $lastLogBy);
+        $this->role->updateRoleSystemActionPermission(
+            $rolePermissionId,
+            $access,
+            $lastLogBy
+        );
         
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Role Permission Success',
             'The role permission has been updated successfully.'
         );
     }
 
-    public function deleteSystemAction(){
+    public function deleteSystemAction() {
         $systemActionId = $_POST['system_action_id'] ?? null;
 
         $this->systemAction->deleteSystemAction($systemActionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete System Action Success',
             'The system action has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleSystemAction(){
+    public function deleteMultipleSystemAction() {
         $systemActionIds = $_POST['system_action_id'] ?? null;
 
         foreach($systemActionIds as $systemActionId){
             $this->systemAction->deleteSystemAction($systemActionId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
-            'Delete Multiple System Actionss Success',
-            'The selected system action have been deleted successfully.'
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple System Actions Success',
+            'The selected system actions have been deleted successfully.'
         );
     }
 
-    public function deleteSystemActionRolePermission(){
+    public function deleteSystemActionRolePermission() {
         $rolePermissionId = $_POST['role_permission_id'] ?? null;
 
         $this->role->deleteRoleSystemActionPermission($rolePermissionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Permission Success',
             'The role permission has been deleted successfully.'
         );
     }
 
-    public function fetchSystemActionDetails(){
+    public function fetchSystemActionDetails() {
         $systemActionId             = $_POST['system_action_id'] ?? null;
         $checkSystemActionExist     = $this->systemAction->checkSystemActionExist($systemActionId);
         $total                      = $checkSystemActionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get System Action Details',
                 'The system action does not exist',
                 ['notExist' => true]
@@ -234,8 +286,7 @@ class SystemActionController
         exit;
     }
 
-    public function generateSystemActionTable()
-    {
+    public function generateSystemActionTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -249,31 +300,31 @@ class SystemActionController
             $systemActionIdEncrypted = $this->security->encryptData($systemActionId);
 
             $response[] = [
-                'CHECK_BOX' => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemActionId .'">
-                                </div>',
-                'SYSTEM_ACTION_NAME' => '<div class="d-flex flex-column">
-                                            <a href="#" class="fs-5 text-gray-900 fw-bold">'. $systemActionName .'</a>
-                                            <div class="fs-7 text-gray-500">'. $systemActionDescription .'</div>
-                                        </div>',
-                'LINK' => $pageLink .'&id='. $systemActionIdEncrypted
+                'CHECK_BOX'             => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                                <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemActionId .'">
+                                            </div>',
+                'SYSTEM_ACTION_NAME'    => '<div class="d-flex flex-column">
+                                                <div class="fs-5 text-gray-900 fw-bold">'. $systemActionName .'</div>
+                                                <div class="fs-7 text-gray-500">'. $systemActionDescription .'</div>
+                                            </div>',
+                'LINK'                  => $pageLink .'&id='. $systemActionIdEncrypted
             ];
         }
 
         echo json_encode($response);
     }
 
-    public function generateSystemActionAssignedRoleTable($userId, $pageId)
-    {
+    public function generateSystemActionAssignedRoleTable(
+        int $userId,
+        int $pageId
+    ) {
         $systemActionId     = $_POST['system_action_id'] ?? null;
-        $response       = [];
+        $response           = [];
 
         $updateRoleSystemActionAccess   = $this->authentication->checkUserSystemActionPermission($userId, 9)['total'] ?? 0;
         $deleteRoleSystemActionAccess   = $this->authentication->checkUserSystemActionPermission($userId, 10)['total'] ?? 0;
         $logNotesAccess                 = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
         $disabled                       = ($updateRoleSystemActionAccess == 0) ? 'disabled' : '';
-        $deleteButton                   = '';
-        $logNotes                       = '';
 
         $systemActions = $this->systemAction->generateSystemActionAssignedRoleTable($systemActionId);
 
@@ -284,16 +335,18 @@ class SystemActionController
 
             $roleAccessChecked = $roleAccess ? 'checked' : '';
 
+            $deleteButton = '';
             if($deleteRoleSystemActionAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-role-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-role-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
                                         <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                                    </a>';
+                                    </button>';
             }
 
+            $logNotes = '';
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-role-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-role-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                     <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
             $roleAccessButton = '<div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
@@ -313,8 +366,7 @@ class SystemActionController
         echo json_encode($response);
     }
 
-    public function generateSystemActionOptions()
-    {
+    public function generateSystemActionOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -337,8 +389,7 @@ class SystemActionController
         echo json_encode($response);
     }
 
-    public function generateSystemActionRoleDualListBoxOptions()
-    {
+    public function generateSystemActionRoleDualListBoxOptions() {
         $systemActionId     = $_POST['system_action_id'] ?? null;
         $response           = [];
         $systemActions      = $this->systemAction->generateSystemActionRoleDualListBoxOptions($systemActionId);
@@ -354,7 +405,6 @@ class SystemActionController
     }
 }
 
-# Bootstrap the controller
 $controller = new SystemActionController(
     new SystemAction(),
     new Role(),

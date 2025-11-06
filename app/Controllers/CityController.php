@@ -62,8 +62,8 @@ class CityController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -84,6 +84,38 @@ class CityController {
                                                 )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveCity(
         int $lastLogBy
@@ -118,7 +150,7 @@ class CityController {
         
         $encryptedCityId = $this->security->encryptData($cityId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save City Success',
             'The city has been saved successfully.',
             ['city_id' => $encryptedCityId]
@@ -130,7 +162,7 @@ class CityController {
 
         $this->city->deleteCity($cityId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete City Success',
             'The city has been deleted successfully.'
         );
@@ -143,7 +175,7 @@ class CityController {
             $this->city->deleteCity($cityId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Cities Success',
             'The selected cities have been deleted successfully.'
         );
@@ -155,7 +187,7 @@ class CityController {
         $total              = $checkCityExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get City Details',
                 'The city does not exist',
                 ['notExist' => true]

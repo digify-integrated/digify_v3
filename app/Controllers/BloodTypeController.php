@@ -58,8 +58,8 @@ class BloodTypeController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -79,6 +79,38 @@ class BloodTypeController {
                                                 )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveBloodType(
         int $lastLogBy
@@ -103,7 +135,7 @@ class BloodTypeController {
         
         $encryptedBloodTypeId = $this->security->encryptData($bloodTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Blood Type Success',
             'The blood type has been saved successfully.',
             ['blood_type_id' => $encryptedBloodTypeId]
@@ -115,7 +147,7 @@ class BloodTypeController {
 
         $this->bloodType->deleteBloodType($bloodTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Blood Type Success',
             'The blood type has been deleted successfully.'
         );
@@ -128,7 +160,7 @@ class BloodTypeController {
             $this->bloodType->deleteBloodType($bloodTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Blood Types Success',
             'The selected blood types have been deleted successfully.'
         );
@@ -140,7 +172,7 @@ class BloodTypeController {
         $total                  = $checkBloodTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Blood Type Details',
                 'The blood type does not exist',
                 ['notExist' => true]

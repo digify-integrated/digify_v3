@@ -669,15 +669,15 @@ END //
 DROP PROCEDURE IF EXISTS generateUserAccountTable//
 
 CREATE PROCEDURE generateUserAccountTable(
-    IN p_active VARCHAR(5)
+    IN p_filter_by_active VARCHAR(5)
 )
 BEGIN
     DECLARE query TEXT DEFAULT 
         'SELECT user_account_id, file_as, email, profile_picture, active, last_connection_date, last_failed_connection_date
         FROM user_account WHERE 1=1';
 
-    IF p_active IS NOT NULL AND p_active <> '' THEN
-        SET query = CONCAT(query, ' AND active = ', QUOTE(p_active));
+    IF p_filter_by_active IS NOT NULL AND p_filter_by_active <> '' THEN
+        SET query = CONCAT(query, ' AND active = ', QUOTE(p_filter_by_active));
     END IF;
 
     SET query = CONCAT(query, ' ORDER BY file_as');
@@ -7411,7 +7411,7 @@ CREATE PROCEDURE updateEmployeePersonalDetails(
     IN p_religion_name VARCHAR(100),
     IN p_blood_type_id INT,
     IN p_blood_type_name VARCHAR(100),
-    IN p_home_work_distance DOUBLE,
+    IN p_home_work_distance FLOAT,
     IN p_height FLOAT,
     IN p_weight FLOAT,
     IN p_last_log_by INT
@@ -8774,6 +8774,16 @@ BEGIN
             last_log_by     = p_last_log_by
         WHERE attribute_id  = p_attribute_id;
 
+        UPDATE product_attribute
+        SET attribute_name  = p_attribute_name,
+            last_log_by     = p_last_log_by
+        WHERE attribute_id  = p_attribute_id;
+
+        UPDATE product_variant
+        SET attribute_name  = p_attribute_name,
+            last_log_by     = p_last_log_by
+        WHERE attribute_id  = p_attribute_id;
+
         UPDATE attribute
         SET attribute_name          = p_attribute_name,
             attribute_description   = p_attribute_description,
@@ -8821,6 +8831,16 @@ BEGIN
             p_last_log_by
         );
     ELSE
+        UPDATE product_attribute
+        SET attribute_value_name    = p_attribute_value_name,
+            last_log_by             = p_last_log_by
+        WHERE attribute_value_id    = p_attribute_value_id;
+
+        UPDATE product_variant
+        SET attribute_value_name    = p_attribute_value_name,
+            last_log_by             = p_last_log_by
+        WHERE attribute_value_id    = p_attribute_value_id;
+
         UPDATE attribute_value
         SET attribute_value_name    = p_attribute_value_name,
             attribute_id            = p_attribute_id,
@@ -9547,6 +9567,11 @@ BEGIN
         
         SET v_new_tax_id = LAST_INSERT_ID();
     ELSE        
+        UPDATE product_tax
+        SET tax_name            = p_tax_name,
+            last_log_by         = p_last_log_by
+        WHERE tax_id            = p_tax_id;
+
         UPDATE tax
         SET tax_name            = p_tax_name,
             tax_rate            = p_tax_rate,
@@ -10234,14 +10259,14 @@ BEGIN
         SET v_new_unit_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE unit
-        SET unit_type_name   = p_unit_type_name,
-            last_log_by         = p_last_log_by
-        WHERE unit_type_id   = p_unit_type_id;
+        SET unit_type_name  = p_unit_type_name,
+            last_log_by     = p_last_log_by
+        WHERE unit_type_id  = p_unit_type_id;
 
         UPDATE unit_type
-        SET unit_type_name   = p_unit_type_name,
-            last_log_by         = p_last_log_by
-        WHERE unit_type_id   = p_unit_type_id;
+        SET unit_type_name  = p_unit_type_name,
+            last_log_by     = p_last_log_by
+        WHERE unit_type_id  = p_unit_type_id;
 
         SET v_new_unit_type_id = p_unit_type_id;
     END IF;
@@ -10940,6 +10965,41 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    UPDATE product
+    SET parent_product_name     = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE parent_product_id     = p_product_id;
+
+    UPDATE product_tax
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
+    
+    UPDATE product_category_map
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
+    
+    UPDATE product_attribute
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
+    
+    UPDATE product_variant
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
+    
+    UPDATE product_variant
+    SET parent_product_name     = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE parent_product_id     = p_product_id;
+    
+    UPDATE product_pricelist
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
 
     UPDATE product
     SET product_name            = p_product_name,

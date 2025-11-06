@@ -10,9 +10,9 @@ class EducationalStage extends Model {
     ============================================================================================= */
 
     public function saveEducationalStage(
-        $p_educational_stage_id,
-        $p_educational_stage_name,
-        $p_last_log_by
+        int $p_educational_stage_id,
+        string $p_educational_stage_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveEducationalStage(
             :p_educational_stage_id,
@@ -42,7 +42,7 @@ class EducationalStage extends Model {
     ============================================================================================= */
 
     public function fetchEducationalStage(
-        $p_educational_stage_id
+        int $p_educational_stage_id
     ) {
         $sql = 'CALL fetchEducationalStage(
             :p_educational_stage_id
@@ -58,7 +58,7 @@ class EducationalStage extends Model {
     ============================================================================================= */
 
     public function deleteEducationalStage(
-        $p_educational_stage_id
+        int $p_educational_stage_id
     ) {
         $sql = 'CALL deleteEducationalStage(
             :p_educational_stage_id
@@ -74,7 +74,7 @@ class EducationalStage extends Model {
     ============================================================================================= */
 
     public function checkEducationalStageExist(
-        $p_educational_stage_id
+        int $p_educational_stage_id
     ) {
         $sql = 'CALL checkEducationalStageExist(
             :p_educational_stage_id

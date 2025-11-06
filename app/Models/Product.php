@@ -10,11 +10,11 @@ class Product extends Model {
     ============================================================================================= */
 
     public function saveSubProductAndVariants(
-        $p_parent_product_id,
-        $p_parent_product_name,
-        $p_variant_name,
-        $p_variant_signature,
-        $p_last_log_by
+        int $p_parent_product_id,
+        string $p_parent_product_name,
+        string $p_variant_name,
+        string $p_variant_signature,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveSubProductAndVariants(
             :p_parent_product_id,
@@ -36,16 +36,16 @@ class Product extends Model {
     }
 
     public function saveProductPricelist(
-        $p_product_pricelist_id,
-        $p_product_id,
-        $p_product_name,
-        $p_discount_type,
-        $p_fixed_price,
-        $p_min_quantity,
-        $p_validity_start_date,
-        $p_validity_end_date,
-        $p_remarks,
-        $p_last_log_by
+        int $p_product_pricelist_id,
+        int $p_product_id,
+        string $p_product_name,
+        string $p_discount_type,
+        float $p_fixed_price,
+        int $p_min_quantity,
+        string $p_validity_start_date,
+        string $p_validity_end_date,
+        string $p_remarks,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveProductPricelist(
             :p_product_pricelist_id,
@@ -79,9 +79,9 @@ class Product extends Model {
     ============================================================================================= */
 
     public function insertProduct(
-        $p_product_name,
-        $p_product_description,
-        $p_last_log_by
+        string $p_product_name,
+        string $p_product_description,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertProduct(
             :p_product_name,
@@ -99,15 +99,15 @@ class Product extends Model {
     }
 
     public function insertProductVariant(
-        $p_parent_product_id,
-        $p_parent_product_name,
-        $p_product_id,
-        $p_product_name,
-        $p_attribute_id,
-        $p_attribute_name,
-        $p_attribute_value_id,
-        $p_attribute_value_name,
-        $p_last_log_by
+        int $p_parent_product_id,
+        string $p_parent_product_name,
+        int $p_product_id,
+        string $p_product_name,
+        int $p_attribute_id,
+        string $p_attribute_name,
+        int $p_attribute_value_id,
+        string $p_attribute_value_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertProductVariant(
             :p_parent_product_id,
@@ -135,11 +135,11 @@ class Product extends Model {
     }
 
     public function insertProductCategoryMap(
-        $p_product_id,
-        $p_product_name,
-        $p_category_id,
-        $p_category_name,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_product_name,
+        int $p_category_id,
+        string $p_category_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertProductCategoryMap(
             :p_product_id,
@@ -159,12 +159,12 @@ class Product extends Model {
     }
 
     public function insertProductTax(
-        $p_product_id,
-        $p_product_name,
-        $p_tax_type,
-        $p_tax_id,
-        $p_tax_name,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_product_name,
+        string $p_tax_type,
+        int $p_tax_id,
+        string $p_tax_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertProductTax(
             :p_product_id,
@@ -186,13 +186,13 @@ class Product extends Model {
     }
 
     public function insertProductAttribute(
-        $p_product_id,
-        $p_product_name,
-        $p_attribute_id,
-        $p_attribute_name,
-        $p_attribute_value_id,
-        $p_attribute_value_name,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_product_name,
+        int $p_attribute_id,
+        string $p_attribute_name,
+        int $p_attribute_value_id,
+        string $p_attribute_value_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertProductAttribute(
             :p_product_id,
@@ -220,10 +220,10 @@ class Product extends Model {
     =============================================================================================  */
 
     public function updateProductGeneral(
-        $p_product_id,
-        $p_product_name,
-        $p_product_description,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_product_name,
+        string $p_product_description,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductGeneral(
             :p_product_id,
@@ -241,15 +241,15 @@ class Product extends Model {
     }
 
     public function updateProductInventory(
-        $p_product_id,
-        $p_sku,
-        $p_barcode,
-        $p_product_type,
-        $p_quantity_on_hand,
-        $p_unit_id,
-        $p_unit_name,
-        $p_unit_abbreviation,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_sku,
+        string $p_barcode,
+        string $p_product_type,
+        float $p_quantity_on_hand,
+        int $p_unit_id,
+        string $p_unit_name,
+        string $p_unit_abbreviation,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductInventory(
             :p_product_id,
@@ -277,10 +277,10 @@ class Product extends Model {
     }
 
     public function updateProductPricing(
-        $p_product_id,
-        $p_sales_price,
-        $p_cost,
-        $p_last_log_by
+        int $p_product_id,
+        float $p_sales_price,
+        float $p_cost,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductPricing(
             :p_product_id,
@@ -298,12 +298,12 @@ class Product extends Model {
     }
 
     public function updateProductShipping(
-        $p_product_id,
-        $p_weight,
-        $p_width,
-        $p_height,
-        $p_length,
-        $p_last_log_by
+        int $p_product_id,
+        float $p_weight,
+        float $p_width,
+        float $p_height,
+        float $p_length,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductShipping(
             :p_product_id,
@@ -325,8 +325,8 @@ class Product extends Model {
     }
 
     public function updateProductArchive(
-        $p_product_id,
-        $p_last_log_by
+        int $p_product_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductArchive(
             :p_product_id,
@@ -340,8 +340,8 @@ class Product extends Model {
     }
 
     public function updateProductUnarchive(
-        $p_product_id,
-        $p_last_log_by
+        int $p_product_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductUnarchive(
             :p_product_id,
@@ -355,8 +355,8 @@ class Product extends Model {
     }
 
     public function updateAllSubProductsDeactivate(
-        $p_parent_product_id,
-        $p_last_log_by
+        int $p_parent_product_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateAllSubProductsDeactivate(
             :p_parent_product_id,
@@ -370,10 +370,10 @@ class Product extends Model {
     }
 
     public function updateProductSettings(
-        $p_product_id,
-        $p_value,
-        $p_update_type,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_value,
+        string $p_update_type,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductSettings(
             :p_product_id,
@@ -391,9 +391,9 @@ class Product extends Model {
     }
 
     public function updateProductImage(
-        $p_product_id,
-        $p_product_image,
-        $p_last_log_by
+        int $p_product_id,
+        string $p_product_image,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateProductImage(
             :p_product_id,
@@ -413,7 +413,7 @@ class Product extends Model {
     ============================================================================================= */
 
     public function fetchProduct(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL fetchProduct(
             :p_product_id
@@ -425,7 +425,7 @@ class Product extends Model {
     }
 
     public function fetchProductCategoryMap(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL fetchProductCategoryMap(
             :p_product_id
@@ -437,8 +437,8 @@ class Product extends Model {
     }
 
     public function fetchProductTax(
-        $p_product_id,
-        $p_tax_type
+        int $p_product_id,
+        string $p_tax_type
     ) {
         $sql = 'CALL fetchProductTax(
             :p_product_id,
@@ -452,7 +452,7 @@ class Product extends Model {
     }
 
     public function fetchProductAttribute(
-        $p_product_attribute_id
+        int $p_product_attribute_id
     ) {
         $sql = 'CALL fetchProductAttribute(
             :p_product_attribute_id
@@ -464,8 +464,8 @@ class Product extends Model {
     }
 
     public function fetchAllProductAttributes(
-        $p_product_id,
-        $p_creation_type
+        int $p_product_id,
+        string $p_creation_type
     ) {
         $sql = 'CALL fetchAllProductAttributes(
             :p_product_id,
@@ -479,7 +479,7 @@ class Product extends Model {
     }
 
     public function fetchProductPricelist(
-        $p_product_pricelist_id
+        int $p_product_pricelist_id
     ) {
         $sql = 'CALL fetchProductPricelist(
             :p_product_pricelist_id
@@ -495,7 +495,7 @@ class Product extends Model {
     ============================================================================================= */
 
     public function deleteProduct(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL deleteProduct(
             :p_product_id
@@ -507,7 +507,7 @@ class Product extends Model {
     }
 
     public function deleteProductCategoryMap(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL deleteProductCategoryMap(
             :p_product_id
@@ -519,7 +519,7 @@ class Product extends Model {
     }
 
     public function deleteProductTax(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL deleteProductTax(
             :p_product_id
@@ -531,7 +531,7 @@ class Product extends Model {
     }
 
     public function deleteProductAttribute(
-        $p_product_attribute_id
+        int $p_product_attribute_id
     ) {
         $sql = 'CALL deleteProductAttribute(
             :p_product_attribute_id
@@ -543,7 +543,7 @@ class Product extends Model {
     }
 
     public function deleteProductPricelist(
-        $p_product_pricelist_id
+        int $p_product_pricelist_id
     ) {
         $sql = 'CALL deleteProductPricelist(
             :p_product_pricelist_id
@@ -559,7 +559,7 @@ class Product extends Model {
     ============================================================================================= */
 
     public function checkProductExist(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL checkProductExist(
             :p_product_id
@@ -571,8 +571,8 @@ class Product extends Model {
     }
 
     public function checkProductSKUExist(
-        $p_product_id,
-        $p_sku
+        int $p_product_id,
+        string $p_sku
     ) {
         $sql = 'CALL checkProductSKUExist(
             :p_product_id,
@@ -586,8 +586,8 @@ class Product extends Model {
     }
 
     public function checkProductBarcodeExist(
-        $p_product_id,
-        $p_barcode
+        int $p_product_id,
+        string $p_barcode
     ) {
         $sql = 'CALL checkProductBarcodeExist(
             :p_product_id,
@@ -600,8 +600,7 @@ class Product extends Model {
         ]);
     }
 
-    public function checkProductVariantExists($p_product_id, $p_attribute_value_id)
-    {
+    public function checkProductVariantExists($p_product_id, $p_attribute_value_id) {
         $sql = 'CALL checkProductVariantExists(
             :p_product_id, 
             :p_attribute_value_id
@@ -613,8 +612,7 @@ class Product extends Model {
         ]);
     }
 
-    public function checkProductPricelistExists($p_product_pricelist_id)
-    {
+    public function checkProductPricelistExists($p_product_pricelist_id) {
         $sql = 'CALL checkProductPricelistExists(
             :p_product_pricelist_id
         )';
@@ -629,15 +627,15 @@ class Product extends Model {
     ============================================================================================= */
 
     public function generateProductCard(
-        $p_search_value,
-        $p_filter_by_product_type, 
-        $p_filter_by_product_category, 
-        $p_filter_by_is_sellable, 
-        $p_filter_by_is_purchasable, 
-        $p_filter_by_show_on_pos, 
-        $p_filter_by_product_status, 
-        $p_limit, 
-        $p_offset
+        string $p_search_value,
+        string $p_filter_by_product_type, 
+        string $p_filter_by_product_category, 
+        string $p_filter_by_is_sellable, 
+        string $p_filter_by_is_purchasable, 
+        string $p_filter_by_show_on_pos, 
+        string $p_filter_by_product_status, 
+        int $p_limit, 
+        int $p_offset
     ) {
         $sql = 'CALL generateProductCard(
             :p_search_value,
@@ -665,12 +663,12 @@ class Product extends Model {
     }
 
     public function generateProductTable(
-        $p_filter_by_product_type, 
-        $p_filter_by_product_category, 
-        $p_filter_by_is_sellable, 
-        $p_filter_by_is_purchasable, 
-        $p_filter_by_show_on_pos, 
-        $p_filter_by_product_status
+        string $p_filter_by_product_type, 
+        string $p_filter_by_product_category, 
+        string $p_filter_by_is_sellable, 
+        string $p_filter_by_is_purchasable, 
+        string $p_filter_by_show_on_pos, 
+        string $p_filter_by_product_status
     ) {
         $sql = 'CALL generateProductTable(
             :p_filter_by_product_type,
@@ -692,7 +690,7 @@ class Product extends Model {
     }
 
     public function generateProductAttributeTable(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL generateProductAttributeTable(
             :p_product_id
@@ -704,7 +702,7 @@ class Product extends Model {
     }
 
     public function generateProductVariationTable(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL generateProductVariationTable(
             :p_product_id
@@ -716,7 +714,7 @@ class Product extends Model {
     }
 
     public function generateProductPricelistTable(
-        $p_product_id
+        int $p_product_id
     ) {
         $sql = 'CALL generateProductPricelistTable(
             :p_product_id

@@ -10,9 +10,9 @@ class Language extends Model {
     ============================================================================================= */
 
     public function saveLanguage(
-        $p_language_id,
-        $p_language_name,
-        $p_last_log_by
+        int $p_language_id,
+        string $p_language_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveLanguage(
             :p_language_id,
@@ -42,7 +42,7 @@ class Language extends Model {
     ============================================================================================= */
 
     public function fetchLanguage(
-        $p_language_id
+        int $p_language_id
     ) {
         $sql = 'CALL fetchLanguage(
             :p_language_id
@@ -58,7 +58,7 @@ class Language extends Model {
     ============================================================================================= */
 
     public function deleteLanguage(
-        $p_language_id
+        int $p_language_id
     ) {
         $sql = 'CALL deleteLanguage(
             :p_language_id
@@ -74,7 +74,7 @@ class Language extends Model {
     ============================================================================================= */
 
     public function checkLanguageExist(
-        $p_language_id
+        int $p_language_id
     ) {
         $sql = 'CALL checkLanguageExist(
             :p_language_id

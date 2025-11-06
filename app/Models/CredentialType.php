@@ -10,9 +10,9 @@ class CredentialType extends Model {
     ============================================================================================= */
 
     public function saveCredentialType(
-        $p_credential_type_id,
-        $p_credential_type_name,
-        $p_last_log_by
+        int $p_credential_type_id,
+        string $p_credential_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCredentialType(
             :p_credential_type_id,
@@ -42,7 +42,7 @@ class CredentialType extends Model {
     ============================================================================================= */
 
     public function fetchCredentialType(
-        $p_credential_type_id
+        int $p_credential_type_id
     ) {
         $sql = 'CALL fetchCredentialType(
             :p_credential_type_id
@@ -58,7 +58,7 @@ class CredentialType extends Model {
     ============================================================================================= */
 
     public function deleteCredentialType(
-        $p_credential_type_id
+        int $p_credential_type_id
     ) {
         $sql = 'CALL deleteCredentialType(
             :p_credential_type_id
@@ -74,7 +74,7 @@ class CredentialType extends Model {
     ============================================================================================= */
 
     public function checkCredentialTypeExist(
-        $p_credential_type_id
+        int $p_credential_type_id
     ) {
         $sql = 'CALL checkCredentialTypeExist(
             :p_credential_type_id

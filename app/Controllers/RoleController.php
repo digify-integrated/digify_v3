@@ -12,8 +12,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class RoleController
-{
+class RoleController {
     protected Role $role;
     protected MenuItem $menuItem;
     protected SystemAction $systemAction;
@@ -37,8 +36,7 @@ class RoleController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -69,8 +67,8 @@ class RoleController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -100,7 +98,41 @@ class RoleController
         };
     }
 
-    public function saveRole($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveRole(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'role_form')) {
@@ -114,17 +146,25 @@ class RoleController
         $roleName           = $_POST['role_name'] ?? null;
         $roleDescription    = $_POST['role_description'] ?? null;
 
-        $roleId             = $this->role->saveRole($roleId, $roleName, $roleDescription, $lastLogBy);
-        $encryptedRoleId    = $this->security->encryptData($roleId);
+        $roleId = $this->role->saveRole(
+            $roleId,
+            $roleName,
+            $roleDescription,
+            $lastLogBy
+        );
+        
+        $encryptedRoleId = $this->security->encryptData($roleId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Role Success',
             'The role has been saved successfully.',
             ['role_id' => $encryptedRoleId]
         );
     }
 
-    public function saveRoleMenuItemPermission($lastLogBy){
+    public function saveRoleMenuItemPermission(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'menu_item_permission_assignment_form')) {
@@ -151,16 +191,24 @@ class RoleController
             $menuItemDetails    = $this->menuItem->fetchMenuItem($menuItemId);
             $menuItemName       = $menuItemDetails['menu_item_name'] ?? '';
 
-            $this->role->insertRolePermission($roleId, $roleName, $menuItemId, $menuItemName, $lastLogBy);
+            $this->role->insertRolePermission(
+                $roleId,
+                $roleName,
+                $menuItemId,
+                $menuItemName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign Menu Item Success',
             'The menu item has been assigned successfully.'
         );
     }
 
-    public function saveRoleSystemActionPermission($lastLogBy){
+    public function saveRoleSystemActionPermission(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'system_action_permission_assignment_form')) {
@@ -187,16 +235,24 @@ class RoleController
             $systemActionDetails    = $this->systemAction->fetchSystemAction($systemActionId);
             $systemActionName       = $systemActionDetails['system_action_name'] ?? '';
 
-            $this->role->insertRoleSystemActionPermission($roleId, $roleName, $systemActionId, $systemActionName, $lastLogBy);
+            $this->role->insertRoleSystemActionPermission(
+                $roleId,
+                $roleName,
+                $systemActionId,
+                $systemActionName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Assign System Action Success',
             'The system action has been assigned successfully.'
         );
     }
 
-    public function updateRoleMenuItemPermission($lastLogBy){
+    public function updateRoleMenuItemPermission(
+        int $lastLogBy
+    ) {
         $rolePermissionId   = $_POST['role_permission_id'] ?? null;
         $accessType         = $_POST['access_type'] ?? null;
         $access             = $_POST['access'] ?? null;
@@ -205,21 +261,28 @@ class RoleController
         $total                              = $checkRoleMenuItemPermissionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Update Role Permission Error',
                 'The role permission does not exist.'
             );
         }
 
-        $this->role->updateRolePermission($rolePermissionId, $accessType, $access, $lastLogBy);
+        $this->role->updateRolePermission(
+            $rolePermissionId,
+            $accessType,
+            $access,
+            $lastLogBy
+        );
         
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Role Permission Success',
             'The role permission has been updated successfully.'
         );
     }
 
-    public function updateRoleSystemActionPermission($lastLogBy){
+    public function updateRoleSystemActionPermission(
+        int $lastLogBy
+    ) {
         $rolePermissionId   = $_POST['role_permission_id'] ?? null;
         $access             = $_POST['access'] ?? null;
 
@@ -227,73 +290,77 @@ class RoleController
         $total                                  = $checkRoleSystemActionPermissionExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Update Role Permission Error',
                 'The role permission does not exist.'
             );
         }
 
-        $this->role->updateRoleSystemActionPermission($rolePermissionId, $access, $lastLogBy);
+        $this->role->updateRoleSystemActionPermission(
+            $rolePermissionId,
+            $access,
+            $lastLogBy
+        );
         
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Role Permission Success',
             'The role permission has been updated successfully.'
         );
     }
 
-    public function deleteRole(){
+    public function deleteRole() {
         $roleId = $_POST['role_id'] ?? null;
 
         $this->role->deleteRole($roleId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Success',
             'The role has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleRole(){
+    public function deleteMultipleRole() {
         $roleIds = $_POST['role_id'] ?? null;
 
         foreach($roleIds as $roleId){
             $this->role->deleteRole($roleId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Roles Success',
             'The selected roles have been deleted successfully.'
         );
     }
     
-    public function deleteRoleMenuItemPermission(){
+    public function deleteRoleMenuItemPermission() {
         $rolePermissionId = $_POST['role_permission_id'] ?? null;
 
         $this->role->deleteRolePermission($rolePermissionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Permission Success',
             'The role permission has been deleted successfully.'
         );
     }
 
-    public function deleteRoleSystemActionPermission(){
+    public function deleteRoleSystemActionPermission() {
         $rolePermissionId = $_POST['role_permission_id'] ?? null;
 
         $this->role->deleteRoleSystemActionPermission($rolePermissionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Role Permission Success',
             'The role permission has been deleted successfully.'
         );
     }
 
-    public function fetchRoleDetails(){
+    public function fetchRoleDetails() {
         $roleId             = $_POST['role_id'] ?? null;
         $checkRoleExist     = $this->role->checkRoleExist($roleId);
         $total              = $checkRoleExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Role Details',
                 'The role does not exist',
                 ['notExist' => true]
@@ -312,8 +379,7 @@ class RoleController
         exit;
     }
 
-    public function generateRoleTable()
-    {
+    public function generateRoleTable() {
         $pageLink   = $_POST['page_link'] ?? '';
         $response   = [];
 
@@ -341,8 +407,10 @@ class RoleController
         echo json_encode($response);
     }
 
-    public function generateRoleAssignedMenuItemTable($userId, $pageId)
-    {
+    public function generateRoleAssignedMenuItemTable(
+        int $userId,
+        int $pageId
+    ) {
         $roleId     = $_POST['role_id'] ?? null;
         $response   = [];
 
@@ -350,9 +418,7 @@ class RoleController
         $deleteRoleAccess   = $this->authentication->checkUserSystemActionPermission($userId, 7)['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
         $disabled           = ($updateRoleAccess == 0) ? 'disabled' : '';
-        $deleteButton       = '';
-        $logNotes           = '';
-
+        
         $menuItems = $this->role->generateRoleAssignedMenuItemTable($roleId);
 
         foreach ($menuItems as $row) {
@@ -374,16 +440,18 @@ class RoleController
             $exportAccessChecked    = $exportAccessRights ? 'checked' : '';
             $logNotesAccessChecked  = $logNotesAccessRights ? 'checked' : '';
 
+            $deleteButton = '';
             if($deleteRoleAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-menu-item-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-menu-item-permission" data-role-permission-id="' . $rolePermissionId . '" title="Delete Role Permission">
                                     <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
+            $logNotes = '';
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-menu-item-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-menu-item-permission-log-notes" data-role-permission-id="' . $rolePermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                 <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                            </a>';
+                            </button>';
             }
 
             $readAccessButton = '<div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
@@ -433,8 +501,10 @@ class RoleController
         echo json_encode($response);
     }
 
-    public function generateRoleAssignedSystemActionTable($userId, $pageId)
-    {
+    public function generateRoleAssignedSystemActionTable(
+        int $userId,
+        int $pageId
+    ) {
         $roleId     = $_POST['role_id'] ?? null;
         $response   = [];
 
@@ -455,15 +525,15 @@ class RoleController
             $roleAccessChecked = $roleAccess ? 'checked' : '';
 
             if($deleteRoleSystemActionAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-system-action-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-system-action-permission" data-role-permission-id="' . $roleSystemActionPermissionId . '" title="Delete Role Permission">
                                         <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                                    </a>';
+                                    </button>';
             }
 
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-system-action-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-system-action-permission-log-notes" data-role-permission-id="' . $roleSystemActionPermissionId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                     <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
             $roleAccessButton = '<div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
@@ -483,8 +553,7 @@ class RoleController
         echo json_encode($response);
     }
 
-    public function generateRoleMenuItemDualListBoxOptions()
-    {
+    public function generateRoleMenuItemDualListBoxOptions() {
         $roleId     = $_POST['role_id'] ?? null;
         $response   = [];
         $menuItems  = $this->role->generateRoleMenuItemDualListBoxOptions($roleId);
@@ -499,8 +568,7 @@ class RoleController
         echo json_encode($response);
     }
 
-    public function generateRoleSystemActionDualListBoxOptions()
-    {
+    public function generateRoleSystemActionDualListBoxOptions() {
         $roleId         = $_POST['role_id'] ?? null;
         $response       = [];
         $systemActions  = $this->role->generateRoleSystemActionDualListBoxOptions($roleId);
@@ -516,7 +584,6 @@ class RoleController
     }
 }
 
-# Bootstrap the controller
 $controller = new RoleController(
     new Role(),
     new MenuItem(),

@@ -58,8 +58,8 @@ class CivilStatusController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -79,6 +79,38 @@ class CivilStatusController {
                                                     )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveCivilStatus(
         int $lastLogBy
@@ -103,7 +135,7 @@ class CivilStatusController {
         
         $encryptedCivilStatusId = $this->security->encryptData($civilStatusId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Civil Status Success',
             'The civil status has been saved successfully.',
             ['civil_status_id' => $encryptedCivilStatusId]
@@ -115,7 +147,7 @@ class CivilStatusController {
 
         $this->civilStatus->deleteCivilStatus($civilStatusId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Civil Status Success',
             'The civil status has been deleted successfully.'
         );
@@ -128,7 +160,7 @@ class CivilStatusController {
             $this->civilStatus->deleteCivilStatus($civilStatusId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Civil Status Success',
             'The selected civil status have been deleted successfully.'
         );
@@ -140,7 +172,7 @@ class CivilStatusController {
         $total                  = $checkCivilStatusExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Civil Status Details',
                 'The civil status does not exist',
                 ['notExist' => true]

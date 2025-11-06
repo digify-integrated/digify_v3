@@ -10,9 +10,9 @@ class Relationship extends Model {
     ============================================================================================= */
 
     public function saveRelationship(
-        $p_relationship_id,
-        $p_relationship_name,
-        $p_last_log_by
+        int $p_relationship_id,
+        string $p_relationship_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveRelationship(
             :p_relationship_id,
@@ -42,7 +42,7 @@ class Relationship extends Model {
     ============================================================================================= */
 
     public function fetchRelationship(
-        $p_relationship_id
+        int $p_relationship_id
     ) {
         $sql = 'CALL fetchRelationship(
             :p_relationship_id
@@ -58,7 +58,7 @@ class Relationship extends Model {
     ============================================================================================= */
 
     public function deleteRelationship(
-        $p_relationship_id
+        int $p_relationship_id
     ) {
         $sql = 'CALL deleteRelationship(
             :p_relationship_id
@@ -74,7 +74,7 @@ class Relationship extends Model {
     ============================================================================================= */
 
     public function checkRelationshipExist(
-        $p_relationship_id
+        int $p_relationship_id
     ) {
         $sql = 'CALL checkRelationshipExist(
             :p_relationship_id

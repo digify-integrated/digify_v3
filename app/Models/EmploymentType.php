@@ -10,9 +10,9 @@ class EmploymentType extends Model {
     ============================================================================================= */
 
     public function saveEmploymentType(
-        $p_employment_type_id,
-        $p_employment_type_name,
-        $p_last_log_by
+        int $p_employment_type_id,
+        string $p_employment_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveEmploymentType(
             :p_employment_type_id,
@@ -42,7 +42,7 @@ class EmploymentType extends Model {
     ============================================================================================= */
 
     public function fetchEmploymentType(
-        $p_employment_type_id
+        int $p_employment_type_id
     ) {
         $sql = 'CALL fetchEmploymentType(
             :p_employment_type_id
@@ -58,7 +58,7 @@ class EmploymentType extends Model {
     ============================================================================================= */
 
     public function deleteEmploymentType(
-        $p_employment_type_id
+        int $p_employment_type_id
     ) {
         $sql = 'CALL deleteEmploymentType(
             :p_employment_type_id
@@ -74,7 +74,7 @@ class EmploymentType extends Model {
     ============================================================================================= */
 
     public function checkEmploymentTypeExist(
-        $p_employment_type_id
+        int $p_employment_type_id
     ) {
         $sql = 'CALL checkEmploymentTypeExist(
             :p_employment_type_id

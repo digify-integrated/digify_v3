@@ -10,11 +10,11 @@ class Country extends Model {
     ============================================================================================= */
 
     public function saveCountry(
-        $p_country_id,
-        $p_country_name,
-        $p_country_code,
-        $p_phone_code,
-        $p_last_log_by
+        int $p_country_id,
+        string $p_country_name,
+        string $p_country_code,
+        string $p_phone_code,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveCountry(
             :p_country_id,
@@ -48,7 +48,7 @@ class Country extends Model {
     ============================================================================================= */
 
     public function fetchCountry(
-        $p_country_id
+        int $p_country_id
     ) {
         $sql = 'CALL fetchCountry(
             :p_country_id
@@ -64,7 +64,7 @@ class Country extends Model {
     ============================================================================================= */
 
     public function deleteCountry(
-        $p_country_id
+        int $p_country_id
     ) {
         $sql = 'CALL deleteCountry(
             :p_country_id
@@ -80,7 +80,7 @@ class Country extends Model {
     ============================================================================================= */
 
     public function checkCountryExist(
-        $p_country_id
+        int $p_country_id
     ) {
         $sql = 'CALL checkCountryExist(
             :p_country_id

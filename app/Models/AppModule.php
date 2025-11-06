@@ -10,13 +10,13 @@ class AppModule extends Model {
     ============================================================================================= */
 
     public function saveAppModule(
-        $p_app_module_id,
-        $p_app_module_name,
-        $p_app_module_description,
-        $p_menu_item_id,
-        $p_menu_item_name,
-        $p_order_sequence,
-        $p_last_log_by
+        int $p_app_module_id,
+        string $p_app_module_name,
+        string $p_app_module_description,
+        int $p_menu_item_id,
+        string $p_menu_item_name,
+        int $p_order_sequence,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveAppModule(
             :p_app_module_id,
@@ -50,9 +50,9 @@ class AppModule extends Model {
     =============================================================================================  */
 
     public function updateAppLogo(
-        $p_app_module_id,
-        $p_app_logo,
-        $p_last_log_by
+        int $p_app_module_id,
+        string $p_app_logo,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateAppLogo(
             :p_app_module_id,
@@ -72,7 +72,7 @@ class AppModule extends Model {
     ============================================================================================= */
 
     public function fetchAppModule(
-        $p_app_module_id
+        int $p_app_module_id
     ) {
         $sql = 'CALL fetchAppModule(
             :p_app_module_id
@@ -88,7 +88,7 @@ class AppModule extends Model {
     ============================================================================================= */
 
     public function deleteAppModule(
-        $p_app_module_id
+        int $p_app_module_id
     ) {
         $sql = 'CALL deleteAppModule(
             :p_app_module_id
@@ -104,7 +104,7 @@ class AppModule extends Model {
     ============================================================================================= */
 
     public function checkAppModuleExist(
-        $p_app_module_id
+        int $p_app_module_id
     ) {
         $sql = 'CALL checkAppModuleExist(
             :p_app_module_id

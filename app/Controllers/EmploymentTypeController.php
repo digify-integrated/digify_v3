@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\EmploymentType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class EmploymentTypeController
-{
+class EmploymentTypeController {
     protected EmploymentType $employmentType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class EmploymentTypeController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class EmploymentTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class EmploymentTypeController
         };
     }
 
-    public function saveEmploymentType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveEmploymentType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employment_type_form')) {
@@ -96,47 +127,52 @@ class EmploymentTypeController
         $employmentTypeId       = $_POST['employment_type_id'] ?? null;
         $employmentTypeName     = $_POST['employment_type_name'] ?? null;
 
-        $employmentTypeId           = $this->employmentType->saveEmploymentType($employmentTypeId, $employmentTypeName, $lastLogBy);
-        $encryptedEmploymentTypeId  = $this->security->encryptData($employmentTypeId);
+        $employmentTypeId = $this->employmentType->saveEmploymentType(
+            $employmentTypeId,
+            $employmentTypeName,
+            $lastLogBy
+        );
+        
+        $encryptedEmploymentTypeId = $this->security->encryptData($employmentTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employment Type Success',
             'The employment type has been saved successfully.',
             ['employment_type_id' => $encryptedEmploymentTypeId]
         );
     }
 
-    public function deleteEmploymentType(){
+    public function deleteEmploymentType() {
         $employmentTypeId = $_POST['employment_type_id'] ?? null;
 
         $this->employmentType->deleteEmploymentType($employmentTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employment Type Success',
             'The employment type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleEmploymentType(){
+    public function deleteMultipleEmploymentType() {
         $employmentTypeIds = $_POST['employment_type_id'] ?? null;
 
         foreach($employmentTypeIds as $employmentTypeId){
             $this->employmentType->deleteEmploymentType($employmentTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Employment Types Success',
             'The selected employment types have been deleted successfully.'
         );
     }
 
-    public function fetchEmploymentTypeDetails(){
+    public function fetchEmploymentTypeDetails() {
         $employmentTypeId           = $_POST['employment_type_id'] ?? null;
         $checkEmploymentTypeExist   = $this->employmentType->checkEmploymentTypeExist($employmentTypeId);
         $total                      = $checkEmploymentTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Employment Type Details',
                 'The employment type does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class EmploymentTypeController
         exit;
     }
 
-    public function generateEmploymentTypeTable()
-    {
+    public function generateEmploymentTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class EmploymentTypeController
         echo json_encode($response);
     }
     
-    public function generateEmploymentTypeOptions()
-    {
+    public function generateEmploymentTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class EmploymentTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new EmploymentTypeController(
     new EmploymentType(),
     new Authentication(),

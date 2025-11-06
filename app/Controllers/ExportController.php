@@ -12,8 +12,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 require_once '../../config/config.php';
 
-class ExportController
-{
+class ExportController {
     protected Export $export;
     protected Authentication $authentication;
     protected Security $security;
@@ -31,8 +30,7 @@ class ExportController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -62,9 +60,9 @@ class ExportController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
-                    ]
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
+                ]
             );
         }
         
@@ -81,12 +79,46 @@ class ExportController
         };
     }
 
-    public function generateExportColumnOption()
-    {
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function generateExportColumnOption() {
         $tableName = isset($_POST['table_name']) ? $_POST['table_name'] : null;
         $response = [];
 
-        $exports = $this->export->generateExportOptions(DB_NAME, $tableName);
+        $exports = $this->export->generateExportOptions(
+            DB_NAME,
+            $tableName
+        );
 
         foreach ($exports as $row) {
             $response[] = [
@@ -98,8 +130,7 @@ class ExportController
         echo json_encode($response);
     }
 
-    public function generateExportTableOption()
-    {
+    public function generateExportTableOption() {
         $multiple = isset($_POST['multiple']) ? $_POST['multiple'] : false;
         $response = [];
 
@@ -122,12 +153,11 @@ class ExportController
         echo json_encode($response);
     }
 
-    public function exportData()
-    {
-        $exportTo           = $_POST['export_to']       ?? null;
-        $exportIDs          = $_POST['export_id']       ?? null;
-        $tableColumns       = $_POST['table_column']    ?? null;
-        $tableName          = $_POST['table_name']      ?? null;
+    public function exportData() {
+        $exportTo           = $_POST['export_to'] ?? null;
+        $exportIDs          = $_POST['export_id'] ?? null;
+        $tableColumns       = $_POST['table_column'] ?? null;
+        $tableName          = $_POST['table_name'] ?? null;
         $cleanTableName     = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($tableName));
         $timestamp          = date('Y-m-d_Hi');
         
@@ -193,7 +223,6 @@ class ExportController
     }
 }
 
-# Bootstrap the controller
 $controller = new ExportController(
     new Export(),
     new Authentication(),

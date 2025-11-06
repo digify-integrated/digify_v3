@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\ProductCategory;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class ProductCategoryController
-{
+class ProductCategoryController {
     protected ProductCategory $productCategory;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class ProductCategoryController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class ProductCategoryController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -84,7 +81,41 @@ class ProductCategoryController
         };
     }
 
-    public function saveProductCategory($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveProductCategory(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_category_form')) {
@@ -103,47 +134,56 @@ class ProductCategoryController
         $parentCategoryDetails  = $this->productCategory->fetchProductCategory($parentCategoryId);
         $parentCategoryName     = $parentCategoryDetails['product_category_name'] ?? '';
 
-        $productCategoryId              = $this->productCategory->saveProductCategory($productCategoryId, $productCategoryName, $parentCategoryId, $parentCategoryName, $costingMethod, $displayOrder, $lastLogBy);
-        $encryptedProductCategoryId     = $this->security->encryptData($productCategoryId);
+        $productCategoryId = $this->productCategory->saveProductCategory(
+            $productCategoryId,
+            $productCategoryName,
+            $parentCategoryId,
+            $parentCategoryName,
+            $costingMethod,
+            $displayOrder,
+            $lastLogBy
+        );
+        
+        $encryptedProductCategoryId = $this->security->encryptData($productCategoryId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Product Category Success',
             'The product category has been saved successfully.',
             ['product_category_id' => $encryptedProductCategoryId]
         );
     }
 
-    public function deleteProductCategory(){
+    public function deleteProductCategory() {
         $productCategoryId = $_POST['product_category_id'] ?? null;
 
         $this->productCategory->deleteProductCategory($productCategoryId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Product Category Success',
             'The product category has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleProductCategory(){
+    public function deleteMultipleProductCategory() {
         $productCategoryIds = $_POST['product_category_id'] ?? null;
 
         foreach($productCategoryIds as $productCategoryId){
             $this->productCategory->deleteProductCategory($productCategoryId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Product Categories Success',
             'The selected product categories have been deleted successfully.'
         );
     }
 
-    public function fetchProductCategoryDetails(){
+    public function fetchProductCategoryDetails() {
         $productCategoryId          = $_POST['product_category_id'] ?? null;
         $checkProductCategoryExist  = $this->productCategory->checkProductCategoryExist($productCategoryId);
         $total                      = $checkProductCategoryExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Product Category Details',
                 'The product category does not exist',
                 ['notExist' => true]
@@ -164,14 +204,16 @@ class ProductCategoryController
         exit;
     }
 
-     public function generateProductCategoryTable()
-    {
+    public function generateProductCategoryTable() {
         $filterParentCategory   = $this->systemHelper->checkFilter($_POST['parent_category_filter'] ?? null);
         $filterCostingMethod    = $this->systemHelper->checkFilter($_POST['costing_method_filter'] ?? null);
         $pageLink               = $_POST['page_link'] ?? null;
         $response               = [];
 
-        $departments = $this->productCategory->generateProductCategoryTable($filterParentCategory, $filterCostingMethod);
+        $departments = $this->productCategory->generateProductCategoryTable(
+            $filterParentCategory,
+            $filterCostingMethod
+        );
 
         foreach ($departments as $row) {
             $productCategoryId      = $row['product_category_id'];
@@ -197,8 +239,7 @@ class ProductCategoryController
         echo json_encode($response);
     }
     
-    public function generateProductCategoryOptions()
-    {
+    public function generateProductCategoryOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -221,8 +262,7 @@ class ProductCategoryController
         echo json_encode($response);
     }
 
-    public function generateParentCategoryOptions()
-    {
+    public function generateParentCategoryOptions() {
         $productCategoryId  = $_POST['product_category_id'] ?? null;
         $multiple           = $_POST['multiple'] ?? false;
         $response           = [];
@@ -247,7 +287,6 @@ class ProductCategoryController
     }
 }
 
-# Bootstrap the controller
 $controller = new ProductCategoryController(
     new ProductCategory(),
     new Authentication(),

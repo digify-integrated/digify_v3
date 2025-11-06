@@ -10,9 +10,9 @@ class BankAccountType extends Model {
     ============================================================================================= */
 
     public function saveBankAccountType(
-        $p_bank_account_type_id,
-        $p_bank_account_type_name,
-        $p_last_log_by
+        int $p_bank_account_type_id,
+        string $p_bank_account_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveBankAccountType(
             :p_bank_account_type_id,
@@ -42,7 +42,7 @@ class BankAccountType extends Model {
     ============================================================================================= */
 
     public function fetchBankAccountType(
-        $p_bank_account_type_id
+        int $p_bank_account_type_id
     ) {
         $sql = 'CALL fetchBankAccountType(
             :p_bank_account_type_id
@@ -58,7 +58,7 @@ class BankAccountType extends Model {
     ============================================================================================= */
 
     public function deleteBankAccountType(
-        $p_bank_account_type_id
+        int $p_bank_account_type_id
     ) {
         $sql = 'CALL deleteBankAccountType(
             :p_bank_account_type_id
@@ -74,7 +74,7 @@ class BankAccountType extends Model {
     ============================================================================================= */
 
     public function checkBankAccountTypeExist(
-        $p_bank_account_type_id
+        int $p_bank_account_type_id
     ) {
         $sql = 'CALL checkBankAccountTypeExist(
             :p_bank_account_type_id

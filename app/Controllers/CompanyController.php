@@ -70,8 +70,8 @@ class CompanyController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -92,6 +92,38 @@ class CompanyController {
                                             )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveCompany(
         int $lastLogBy
@@ -148,7 +180,7 @@ class CompanyController {
 
         $encryptedcompanyId = $this->security->encryptData($companyId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Company Success',
             'The company has been saved successfully.',
             ['company_id' => $encryptedcompanyId]
@@ -241,7 +273,7 @@ class CompanyController {
             $lastLogBy
         );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Company Logo Success',
             'The company logo has been updated successfully.'
         );
@@ -256,7 +288,7 @@ class CompanyController {
 
         $this->company->deleteCompany($companyId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Company Success',
             'The company has been deleted successfully.'
         );
@@ -274,7 +306,7 @@ class CompanyController {
             $this->company->deleteCompany($companyId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Companies Success',
             'The selected companies have been deleted successfully.'
         );
@@ -286,7 +318,7 @@ class CompanyController {
         $total              = $checkCompanyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Company Details',
                 'The company does not exist',
                 ['notExist' => true]
@@ -322,14 +354,14 @@ class CompanyController {
         $currencyFilter     = $this->systemHelper->checkFilter($_POST['currency_filter'] ?? null);
         $response           = [];
 
-        $companys = $this->company->generateCompanyTable(
+        $companies = $this->company->generateCompanyTable(
             $cityFilter,
             $stateFilter,
             $countryFilter,
             $currencyFilter
         );
 
-        foreach ($companys as $row) {
+        foreach ($companies as $row) {
             $companyId              = $row['company_id'];
             $companyName            = $row['company_name'];
             $address                = $row['address'];
@@ -373,9 +405,9 @@ class CompanyController {
             ];
         }
 
-        $companys = $this->company->generateCompanyOptions();
+        $companies = $this->company->generateCompanyOptions();
 
-        foreach ($companys as $row) {
+        foreach ($companies as $row) {
             $response[] = [
                 'id'    => $row['company_id'],
                 'text'  => $row['company_name']

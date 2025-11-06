@@ -10,10 +10,10 @@ class SystemAction extends Model {
     ============================================================================================= */
 
     public function saveSystemAction(
-        $p_system_action_id,
-        $p_system_action_name,
-        $p_system_action_description,
-        $p_last_log_by
+        int $p_system_action_id,
+        string $p_system_action_name,
+        string $p_system_action_description,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveSystemAction(
             :p_system_action_id,
@@ -45,7 +45,7 @@ class SystemAction extends Model {
     ============================================================================================= */
 
     public function fetchSystemAction(
-        $p_system_action_id
+        int $p_system_action_id
     ) {
         $sql = 'CALL fetchSystemAction(
             :p_system_action_id
@@ -61,7 +61,7 @@ class SystemAction extends Model {
     ============================================================================================= */
 
     public function deleteSystemAction(
-        $p_system_action_id
+        int $p_system_action_id
     ) {
         $sql = 'CALL deleteSystemAction(
             :p_system_action_id
@@ -77,7 +77,7 @@ class SystemAction extends Model {
     ============================================================================================= */
 
     public function checkSystemActionExist(
-        $p_system_action_id
+        int $p_system_action_id
     ) {
         $sql = 'CALL checkSystemActionExist(
             :p_system_action_id
@@ -105,7 +105,7 @@ class SystemAction extends Model {
     }
 
     public function generateSystemActionAssignedRoleTable(
-        $p_system_action_id
+        int $p_system_action_id
     ) {
         $sql = 'CALL generateSystemActionAssignedRoleTable(
             :p_system_action_id
@@ -117,7 +117,7 @@ class SystemAction extends Model {
     }
 
     public function generateSystemActionRoleDualListBoxOptions(
-        $p_system_action_id
+        int $p_system_action_id
     ) {
         $sql = 'CALL generateSystemActionRoleDualListBoxOptions(
             :p_system_action_id

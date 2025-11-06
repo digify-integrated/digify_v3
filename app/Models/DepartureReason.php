@@ -10,9 +10,9 @@ class DepartureReason extends Model {
     ============================================================================================= */
 
     public function saveDepartureReason(
-        $p_departure_reason_id,
-        $p_departure_reason_name,
-        $p_last_log_by
+        int $p_departure_reason_id,
+        string $p_departure_reason_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveDepartureReason(
             :p_departure_reason_id,
@@ -42,7 +42,7 @@ class DepartureReason extends Model {
     ============================================================================================= */
 
     public function fetchDepartureReason(
-        $p_departure_reason_id
+        int $p_departure_reason_id
     ) {
         $sql = 'CALL fetchDepartureReason(
             :p_departure_reason_id
@@ -58,7 +58,7 @@ class DepartureReason extends Model {
     ============================================================================================= */
 
     public function deleteDepartureReason(
-        $p_departure_reason_id
+        int $p_departure_reason_id
     ) {
         $sql = 'CALL deleteDepartureReason(
             :p_departure_reason_id
@@ -74,7 +74,7 @@ class DepartureReason extends Model {
     ============================================================================================= */
 
     public function checkDepartureReasonExist(
-        $p_departure_reason_id
+        int $p_departure_reason_id
     ) {
         $sql = 'CALL checkDepartureReasonExist(
             :p_departure_reason_id

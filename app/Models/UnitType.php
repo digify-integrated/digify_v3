@@ -10,9 +10,9 @@ class UnitType extends Model {
     ============================================================================================= */
 
     public function saveUnitType(
-        $p_unit_type_id,
-        $p_unit_type_name,
-        $p_last_log_by
+        int $p_unit_type_id,
+        string $p_unit_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveUnitType(
             :p_unit_type_id,
@@ -42,7 +42,7 @@ class UnitType extends Model {
     ============================================================================================= */
 
     public function fetchUnitType(
-        $p_unit_type_id
+        int $p_unit_type_id
     ) {
         $sql = 'CALL fetchUnitType(
             :p_unit_type_id
@@ -58,7 +58,7 @@ class UnitType extends Model {
     ============================================================================================= */
 
     public function deleteUnitType(
-        $p_unit_type_id
+        int $p_unit_type_id
     ) {
         $sql = 'CALL deleteUnitType(
             :p_unit_type_id
@@ -74,7 +74,7 @@ class UnitType extends Model {
     ============================================================================================= */
 
     public function checkUnitTypeExist(
-        $p_unit_type_id
+        int $p_unit_type_id
     ) {
         $sql = 'CALL checkUnitTypeExist(
             :p_unit_type_id

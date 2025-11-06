@@ -10,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class LogNotesController
-{
+class LogNotesController {
     protected LogNotes $logNotes;
     protected Authentication $authentication;
     protected Security $security;
@@ -29,8 +28,7 @@ class LogNotesController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -60,9 +58,9 @@ class LogNotesController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
-                    ]
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
+                ]
             );
         }
 
@@ -76,8 +74,40 @@ class LogNotesController
                                     )
         };
     }
-    public function fetchLogNotes()
-    {
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function fetchLogNotes() {
         $databaseTable  = $_POST['database_table'] ?? null;
         $referenceID    = $_POST['reference_id'] ?? null;
         $logNote        = '';
@@ -97,39 +127,39 @@ class LogNotesController
             $marginClass = ($index === $count - 1) ? 'mb-0' : 'mb-9';
 
             $logNote .= '<div class="timeline-item">
-                                    <div class="timeline-line"></div>
-                                        <div class="timeline-icon">
-                                            <i class="ki-outline ki-message-text-2 fs-2 text-gray-500"></i>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-icon">
+                                <i class="ki-outline ki-message-text-2 fs-2 text-gray-500"></i>
+                            </div>
+                            <div class="timeline-content '. $marginClass .' mt-n1">
+                                <div class="pe-3 mb-5">
+                                    <div class="fs-6 fw-semibold mb-2">
+                                        '. $log .'
+                                    </div>
+                                    <div class="d-flex align-items-center mt-1 fs-6">
+                                        <div class="text-muted me-2 fs-7">
+                                            Logged: '. $timeElapsed .' by
                                         </div>
-                                        <div class="timeline-content '. $marginClass .' mt-n1">
-                                            <div class="pe-3 mb-5">
-                                                <div class="fs-6 fw-semibold mb-2">
-                                                    '. $log .'
-                                                 </div>
-                                                <div class="d-flex align-items-center mt-1 fs-6">
-                                                    <div class="text-muted me-2 fs-7">
-                                                        Logged: '. $timeElapsed .' by
-                                                    </div>
-                                                    <div class="symbol symbol-circle symbol-25px me-2">
-                                                        <img src="'. $profilePicture .'" alt="img" />
-                                                    </div>
-                                                    <span class="text-primary fw-bold me-1 fs-7">'. $fileAs .'</span>
-                                                 </div>
-                                            </div>
+                                        <div class="symbol symbol-circle symbol-25px me-2">
+                                            <img src="'. $profilePicture .'" alt="img" />
                                         </div>
-                                    </div>';
+                                        <span class="text-primary fw-bold me-1 fs-7">'. $fileAs .'</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>';
         }
 
         if(empty($logNote)){
-                    $logNote = '<div class="mb-0">
-                                    <div class="card card-bordered w-100">   
-                                        <div class="card-body">    
-                                            <p class="fw-normal fs-6 text-gray-700 m-0">
-                                                No log notes found.
-                                            </p>   
-                                        </div>
-                                    </div>
-                                </div>';
+            $logNote = '<div class="mb-0">
+                            <div class="card card-bordered w-100">   
+                                <div class="card-body">    
+                                    <p class="fw-normal fs-6 text-gray-700 m-0">
+                                        No log notes found.
+                                    </p>   
+                                </div>
+                            </div>
+                        </div>';
         }
 
 
@@ -143,7 +173,6 @@ class LogNotesController
     }
 }
 
-# Bootstrap the controller
 $controller = new LogNotesController(
     new LogNotes(),
     new Authentication(),

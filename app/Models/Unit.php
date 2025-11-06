@@ -10,13 +10,13 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function saveUnit(
-        $p_unit_id,
-        $p_unit_name,
-        $p_unit_abbreviation,
-        $p_unit_type_id,
-        $p_unit_type_name,
-        $p_ratio_to_base,
-        $p_last_log_by
+        int $p_unit_id,
+        string $p_unit_name,
+        string $p_unit_abbreviation,
+        int $p_unit_type_id,
+        string $p_unit_type_name,
+        float $p_ratio_to_base,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveUnit(
             :p_unit_id,
@@ -54,7 +54,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function fetchUnit(
-        $p_unit_id
+        int $p_unit_id
     ) {
         $sql = 'CALL fetchUnit(
             :p_unit_id
@@ -70,7 +70,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function deleteUnit(
-        $p_unit_id
+        int $p_unit_id
     ) {
         $sql = 'CALL deleteUnit(
             :p_unit_id
@@ -86,7 +86,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function checkUnitExist(
-        $p_unit_id
+        int $p_unit_id
     ) {
         $sql = 'CALL checkUnitExist(
             :p_unit_id
@@ -102,7 +102,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function generateUnitTable(
-        $p_filter_by_unit_type
+        string $p_filter_by_unit_type
     ) {
         $sql = 'CALL generateUnitTable(
             :p_filter_by_unit_type

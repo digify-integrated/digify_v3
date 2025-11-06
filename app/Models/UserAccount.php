@@ -14,11 +14,11 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function insertUserAccount(
-        $p_file_as,
-        $p_email,
-        $p_password,
-        $p_phone,
-        $p_last_log_by
+        string $p_file_as,
+        string $p_email,
+        string $p_password,
+        string $p_phone,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertUserAccount(
             :p_file_as,
@@ -44,10 +44,10 @@ class UserAccount extends Model {
     =============================================================================================  */
 
     public function updateUserAccount(
-        $p_user_account_id,
-        $p_value,
-        $p_update_type,
-        $p_last_log_by
+        int $p_user_account_id,
+        string $p_value,
+        string $p_update_type,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateUserAccount(
             :p_user_account_id,
@@ -69,7 +69,7 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function fetchUserAccount(
-        $p_user_account_id
+        int $p_user_account_id
     ) {
         $sql = 'CALL fetchUserAccount(
             :p_user_account_id
@@ -85,7 +85,7 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function deleteUserAccount(
-        $p_user_account_id
+        int $p_user_account_id
     ) {
         $sql = 'CALL deleteUserAccount(
             :p_user_account_id
@@ -101,7 +101,7 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function checkUserAccountExist(
-        $p_user_account_id
+        int $p_user_account_id
     ) {
         $sql = 'CALL checkUserAccountExist(
             :p_user_account_id
@@ -113,8 +113,8 @@ class UserAccount extends Model {
     }
 
     public function checkUserAccountEmailExist(
-        $p_user_account_id,
-        $p_email
+        int $p_user_account_id,
+        string $p_email
     ) {
         $sql = 'CALL checkUserAccountEmailExist(
             :p_user_account_id,
@@ -128,7 +128,7 @@ class UserAccount extends Model {
     }
 
     public function checkUserAccountInsertEmailExist(
-        $p_email
+        string $p_email
     ) {
         $sql = 'CALL checkUserAccountInsertEmailExist(
             :p_email
@@ -140,8 +140,8 @@ class UserAccount extends Model {
     }
 
     public function checkUserAccountPhoneExist(
-        $p_user_account_id,
-        $p_phone
+        int $p_user_account_id,
+        string $p_phone
     ) {
         $sql = 'CALL checkUserAccountPhoneExist(
             :p_user_account_id,
@@ -159,14 +159,14 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function generateUserAccountTable(
-        $p_active,
+        string $p_filter_by_active,
     ) {
         $sql = 'CALL generateUserAccountTable(
-            :p_active
+            :p_filter_by_active
         )';
         
         return $this->fetchAll($sql, [
-            'p_active' => $p_active
+            'p_filter_by_active' => $p_filter_by_active
         ]);
     }
 
@@ -177,7 +177,7 @@ class UserAccount extends Model {
     }
 
     public function generateUserAccountRoleList(
-        $p_user_account_id
+        int $p_user_account_id
     ) {
         $sql = 'CALL generateUserAccountRoleList(
             :p_user_account_id

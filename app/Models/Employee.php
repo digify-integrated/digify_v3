@@ -10,12 +10,12 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function saveEmployeeLanguage(
-        $p_employee_id,
-        $p_language_id,
-        $p_language_name,
-        $p_language_proficiency_id,
-        $p_language_proficiency_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_language_id,
+        string $p_language_name,
+        int $p_language_proficiency_id,
+        string $p_language_proficiency_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeLanguage(
             :p_employee_id,
@@ -37,18 +37,18 @@ class Employee extends Model {
     }
 
     public function saveEmployeeEducation(
-        $p_employee_education_id,
-        $p_employee_id,
-        $p_school,
-        $p_degree,
-        $p_field_of_study,
-        $p_start_month,
-        $p_start_year,
-        $p_end_month,
-        $p_end_year,
-        $p_activities_societies,
-        $p_education_description,
-        $p_last_log_by
+        int $p_employee_education_id,
+        int $p_employee_id,
+        string $p_school,
+        string $p_degree,
+        string $p_field_of_study,
+        string $p_start_month,
+        string $p_start_year,
+        string $p_end_month,
+        string $p_end_year,
+        string $p_activities_societies,
+        string $p_education_description,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeEducation(
             :p_employee_education_id,
@@ -82,15 +82,15 @@ class Employee extends Model {
     }
 
     public function saveEmployeeEmergencyContact(
-        $p_employee_emergency_contact_id,
-        $p_employee_id,
-        $p_emergency_contact_name,
-        $p_relationship_id,
-        $p_relationship_name,
-        $p_telephone,
-        $p_mobile,
-        $p_email,
-        $p_last_log_by
+        int $p_employee_emergency_contact_id,
+        int $p_employee_id,
+        string $p_emergency_contact_name,
+        int $p_relationship_id,
+        string $p_relationship_name,
+        string $p_telephone,
+        string $p_mobile,
+        string $p_email,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeEmergencyContact(
             :p_employee_emergency_contact_id,
@@ -118,14 +118,14 @@ class Employee extends Model {
     }
 
     public function saveEmployeeLicense(
-        $p_employee_license_id,
-        $p_employee_id,
-        $p_licensed_profession,
-        $p_licensing_body,
-        $p_license_number,
-        $p_issue_date,
-        $p_expiration_date,
-        $p_last_log_by
+        int $p_employee_license_id,
+        int $p_employee_id,
+        string $p_licensed_profession,
+        string $p_licensing_body,
+        string $p_license_number,
+        string $p_issue_date,
+        string $p_expiration_date,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeLicense(
             :p_employee_license_id,
@@ -151,19 +151,19 @@ class Employee extends Model {
     }
 
     public function saveEmployeeExperience(
-        $p_employee_experience_id,
-        $p_employee_id,
-        $p_job_title,
-        $p_employment_type_id,
-        $p_employment_type_name,
-        $p_company_name,
-        $p_location,
-        $p_start_month,
-        $p_start_year,
-        $p_end_month,
-        $p_end_year,
-        $p_job_description,
-        $p_last_log_by
+        int $p_employee_experience_id,
+        int $p_employee_id,
+        string $p_job_title,
+        int $p_employment_type_id,
+        string $p_employment_type_name,
+        string $p_company_name,
+        string $p_location,
+        string $p_start_month,
+        string $p_start_year,
+        string $p_end_month,
+        string $p_end_year,
+        string $p_job_description,
+        int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeExperience(
             :p_employee_experience_id,
@@ -203,18 +203,18 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function insertEmployee(
-        $p_full_name,
-        $p_first_name,
-        $p_middle_name,
-        $p_last_name,
-        $p_suffix,
-        $p_company_id,
-        $p_company_name,
-        $p_department_id,
-        $p_department_name,
-        $p_job_position_id,
-        $p_job_position_name,
-        $p_last_log_by
+        string $p_full_name,
+        string $p_first_name,
+        string $p_middle_name,
+        string $p_last_name,
+        string $p_suffix,
+        int $p_company_id,
+        string $p_company_name,
+        int $p_department_id,
+        string $p_department_name,
+        int $p_job_position_id,
+        string $p_job_position_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertEmployee(
             :p_full_name,
@@ -249,12 +249,12 @@ class Employee extends Model {
         return $row['new_employee_id'] ?? null;
     }
     public function insertEmployeeDocument(
-        $p_employee_id,
-        $p_document_name,
-        $p_document_file,
-        $p_employee_document_type_id,
-        $p_employee_document_type_name,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_document_name,
+        string $p_document_file,
+        int $p_employee_document_type_id,
+        string $p_employee_document_type_name,
+        int $p_last_log_by
     )    {
         $sql = 'CALL insertEmployeeDocument(
             :p_employee_id,
@@ -280,31 +280,31 @@ class Employee extends Model {
     =============================================================================================  */
 
     public function updateEmployeePersonalDetails(
-        $p_employee_id,
-        $p_full_name,
-        $p_first_name,
-        $p_middle_name,
-        $p_last_name,
-        $p_suffix,
-        $p_nickname,
-        $p_private_address,
-        $p_private_address_city_id,
-        $p_private_address_city_name,
-        $p_private_address_state_id,
-        $p_private_address_state_name,
-        $p_private_address_country_id,
-        $p_private_address_country_name,
-        $p_civil_status_id,
-        $p_civil_status_name,
-        $p_dependents,
-        $p_religion_id,
-        $p_religion_name,
-        $p_blood_type_id,
-        $p_blood_type_name,
-        $p_home_work_distance,
-        $p_height,
-        $p_weight,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_full_name,
+        string $p_first_name,
+        string $p_middle_name,
+        string $p_last_name,
+        string $p_suffix,
+        string $p_nickname,
+        string $p_private_address,
+        int $p_private_address_city_id,
+        string $p_private_address_city_name,
+        int $p_private_address_state_id,
+        string $p_private_address_state_name,
+        int $p_private_address_country_id,
+        string $p_private_address_country_name,
+        int $p_civil_status_id,
+        string $p_civil_status_name,
+        int $p_dependents,
+        int $p_religion_id,
+        string $p_religion_name,
+        int $p_blood_type_id,
+        string $p_blood_type_name,
+        float $p_home_work_distance,
+        float $p_height,
+        float $p_weight,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePersonalDetails(
             :p_employee_id,
@@ -364,9 +364,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeePINCode(
-        $p_employee_id,
-        $p_pin_code,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_pin_code,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePINCode(
             :p_employee_id,
@@ -382,9 +382,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeBadgeId(
-        $p_employee_id,
-        $p_badge_id,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_badge_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeBadgeId(
             :p_employee_id,
@@ -400,9 +400,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeePrivateEmail(
-        $p_employee_id,
-        $p_private_email,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_private_email,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePrivateEmail(
             :p_employee_id,
@@ -418,9 +418,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeePrivatePhone(
-        $p_employee_id,
-        $p_private_phone,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_private_phone,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePrivatePhone(
             :p_employee_id,
@@ -436,9 +436,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeePrivateTelephone(
-        $p_employee_id,
-        $p_private_telephone,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_private_telephone,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePrivateTelephone(
             :p_employee_id,
@@ -454,10 +454,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeNationality(
-        $p_employee_id,
-        $p_nationality_id,
-        $p_nationality_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_nationality_id,
+        string $p_nationality_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeNationality(
             :p_employee_id,
@@ -475,10 +475,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeGender(
-        $p_employee_id,
-        $p_gender_id,
-        $p_gender_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_gender_id,
+        string $p_gender_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeGender(
             :p_employee_id,
@@ -496,9 +496,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeBirthday(
-        $p_employee_id,
-        $p_birthday,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_birthday,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeBirthday(
             :p_employee_id,
@@ -514,9 +514,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeePlaceOfBirth(
-        $p_employee_id,
-        $p_place_of_birth,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_place_of_birth,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePlaceOfBirth(
             :p_employee_id,
@@ -532,10 +532,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeCompany(
-        $p_employee_id,
-        $p_company_id,
-        $p_company_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_company_id,
+        string $p_company_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeCompany(
             :p_employee_id,
@@ -553,10 +553,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeDepartment(
-        $p_employee_id,
-        $p_department_id,
-        $p_department_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_department_id,
+        string $p_department_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeDepartment(
             :p_employee_id,
@@ -574,10 +574,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeJobPosition(
-        $p_employee_id,
-        $p_job_position_id,
-        $p_job_position_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_job_position_id,
+        string $p_job_position_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeJobPosition(
             :p_employee_id,
@@ -595,10 +595,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeManager(
-        $p_employee_id,
-        $p_manager_id,
-        $p_manager_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_manager_id,
+        string $p_manager_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeManager(
             :p_employee_id,
@@ -616,10 +616,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeTimeOffApprover(
-        $p_employee_id,
-        $p_time_off_approver_id,
-        $p_time_off_approver_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_time_off_approver_id,
+        string $p_time_off_approver_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeTimeOffApprover(
             :p_employee_id,
@@ -637,10 +637,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeEmploymentType(
-        $p_employee_id,
-        $p_employment_type_id,
-        $p_employment_type_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_employment_type_id,
+        string $p_employment_type_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeEmploymentType(
             :p_employee_id,
@@ -658,10 +658,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeEmploymentLocationType(
-        $p_employee_id,
-        $p_employment_location_type_id,
-        $p_employment_location_type_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_employment_location_type_id,
+        string $p_employment_location_type_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeEmploymentLocationType(
             :p_employee_id,
@@ -679,10 +679,10 @@ class Employee extends Model {
     }
 
     public function updateEmployeeWorkLocation(
-        $p_employee_id,
-        $p_work_location_id,
-        $p_work_location_name,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_work_location_id,
+        string $p_work_location_name,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeWorkLocation(
             :p_employee_id,
@@ -700,9 +700,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeOnBoardDate(
-        $p_employee_id,
-        $p_on_board_date,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_on_board_date,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeOnBoardDate(
             :p_employee_id,
@@ -718,9 +718,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeWorkEmail(
-        $p_employee_id,
-        $p_work_email,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_work_email,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeWorkEmail(
             :p_employee_id,
@@ -736,9 +736,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeWorkPhone(
-        $p_employee_id,
-        $p_work_phone,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_work_phone,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeWorkPhone(
             :p_employee_id,
@@ -754,9 +754,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeWorkTelephone(
-        $p_employee_id,
-        $p_work_telephone,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_work_telephone,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeWorkTelephone(
             :p_employee_id,
@@ -772,9 +772,9 @@ class Employee extends Model {
     }
 
     public function updateEmployeeImage(
-        $p_employee_id,
-        $p_employee_image,
-        $p_last_log_by
+        int $p_employee_id,
+        string $p_employee_image,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeImage(
             :p_employee_id,
@@ -790,12 +790,12 @@ class Employee extends Model {
     }
 
     public function updateEmployeeArchive(
-        $p_employee_id,
-        $p_departure_reason_id,
-        $p_departure_reason_name,
-        $p_detailed_departure_reason,
-        $p_departure_date,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_departure_reason_id,
+        string $p_departure_reason_name,
+        string $p_detailed_departure_reason,
+        string $p_departure_date,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeArchive(
             :p_employee_id,
@@ -817,8 +817,8 @@ class Employee extends Model {
     }
 
     public function updateEmployeeUnarchive(
-        $p_employee_id,
-        $p_last_log_by
+        int $p_employee_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeeUnarchive(
             :p_employee_id,
@@ -836,7 +836,7 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function fetchEmployee(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL fetchEmployee(
             :p_employee_id
@@ -848,7 +848,7 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeEducation(
-        $p_employee_education_id
+        int $p_employee_education_id
     ): array|null {
         $sql = 'CALL fetchEmployeeEducation(
             :p_employee_education_id
@@ -860,7 +860,7 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeEmergencyContact(
-        $p_employee_emergency_contact_id
+        int $p_employee_emergency_contact_id
     ): array|null {
         $sql = 'CALL fetchEmployeeEmergencyContact(
             :p_employee_emergency_contact_id
@@ -872,7 +872,7 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeLicense(
-        $p_employee_license_id
+        int $p_employee_license_id
     ): array|null {
         $sql = 'CALL fetchEmployeeLicense(
             :p_employee_license_id
@@ -884,7 +884,7 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeExperience(
-        $p_employee_experience_id
+        int $p_employee_experience_id
     ): array|null {
         $sql = 'CALL fetchEmployeeExperience(
             :p_employee_experience_id
@@ -896,7 +896,7 @@ class Employee extends Model {
     }
 
     public function fetchEmployeeDocument(
-        $p_employee_document_id
+        int $p_employee_document_id
     ): array|null {
         $sql = 'CALL fetchEmployeeDocument(
             :p_employee_document_id
@@ -908,7 +908,7 @@ class Employee extends Model {
     }
 
     public function fetchAllEmployeeDocument(
-        $p_employee_id
+        int $p_employee_id
     ): array|null {
         $sql = 'CALL fetchAllEmployeeDocument(
             :p_employee_id
@@ -924,7 +924,7 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function deleteEmployee(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL deleteEmployee(
             :p_employee_id
@@ -936,7 +936,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeLanguage(
-        $p_employee_language_id
+        int $p_employee_language_id
     ) {
         $sql = 'CALL deleteEmployeeLanguage(
             :p_employee_language_id
@@ -948,7 +948,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeEducation(
-        $p_employee_education_id
+        int $p_employee_education_id
     ) {
         $sql = 'CALL deleteEmployeeEducation(
             :p_employee_education_id
@@ -960,7 +960,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeEmergencyContact(
-        $p_employee_emergency_contact_id
+        int $p_employee_emergency_contact_id
     ) {
         $sql = 'CALL deleteEmployeeEmergencyContact(
             :p_employee_emergency_contact_id
@@ -972,7 +972,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeLicense(
-        $p_employee_license_id
+        int $p_employee_license_id
     ) {
         $sql = 'CALL deleteEmployeeLicense(
             :p_employee_license_id
@@ -984,7 +984,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeExperience(
-        $p_employee_experience_id
+        int $p_employee_experience_id
     ) {
         $sql = 'CALL deleteEmployeeExperience(
             :p_employee_experience_id
@@ -996,7 +996,7 @@ class Employee extends Model {
     }
 
     public function deleteEmployeeDocument(
-        $p_employee_document_id
+        int $p_employee_document_id
     ) {
         $sql = 'CALL deleteEmployeeDocument(
             :p_employee_document_id
@@ -1012,7 +1012,7 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function checkEmployeeExist(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL checkEmployeeExist(
             :p_employee_id
@@ -1028,16 +1028,16 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function generateEmployeeCard(
-        $p_search_value,
-        $p_filter_by_company, 
-        $p_filter_by_department, 
-        $p_filter_by_job_position, 
-        $p_filter_by_employee_status, 
-        $p_filter_by_work_location, 
-        $p_filter_by_employment_type, 
-        $p_filter_by_gender, 
-        $p_limit, 
-        $p_offset
+        string $p_search_value,
+        string $p_filter_by_company, 
+        string $p_filter_by_department, 
+        string $p_filter_by_job_position, 
+        string $p_filter_by_employee_status, 
+        string $p_filter_by_work_location, 
+        string $p_filter_by_employment_type, 
+        string $p_filter_by_gender, 
+        int $p_limit, 
+        int $p_offset
     ) {
         $sql = 'CALL generateEmployeeCard(
             :p_search_value,
@@ -1067,13 +1067,13 @@ class Employee extends Model {
     }
 
     public function generateEmployeeTable(
-        $p_filter_by_company, 
-        $p_filter_by_department, 
-        $p_filter_by_job_position, 
-        $p_filter_by_employee_status, 
-        $p_filter_by_work_location, 
-        $p_filter_by_employment_type, 
-        $p_filter_by_gender
+        string $p_filter_by_company, 
+        string $p_filter_by_department, 
+        string $p_filter_by_job_position, 
+        string $p_filter_by_employee_status, 
+        string $p_filter_by_work_location, 
+        string $p_filter_by_employment_type, 
+        string $p_filter_by_gender
     ) {
         $sql = 'CALL generateEmployeeTable(
             :p_filter_by_company,
@@ -1103,7 +1103,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeLanguageList(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeLanguageList(
             :p_employee_id
@@ -1115,7 +1115,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeEducationList(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeEducationList(
             :p_employee_id
@@ -1127,7 +1127,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeEmergencyContactList(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeEmergencyContactList(
             :p_employee_id
@@ -1139,7 +1139,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeLicenseList(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeLicenseList(
             :p_employee_id
@@ -1151,7 +1151,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeExperienceList(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeExperienceList(
             :p_employee_id
@@ -1163,7 +1163,7 @@ class Employee extends Model {
     }
 
     public function generateEmployeeDocumentTable(
-        $p_employee_id
+        int $p_employee_id
     ) {
         $sql = 'CALL generateEmployeeDocumentTable(
             :p_employee_id

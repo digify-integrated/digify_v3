@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Employee;
@@ -29,8 +28,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class EmployeeController
-{
+class EmployeeController {
     protected Employee $employee;
     protected Company $company;
     protected Department $department;
@@ -102,8 +100,7 @@ class EmployeeController
         $this->systemHelper             = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -134,8 +131,8 @@ class EmployeeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'imageut.php?imageut'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -204,7 +201,41 @@ class EmployeeController
         };
     }
 
-    public function saveEmployee($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveEmployee(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_form')) {
@@ -233,18 +264,33 @@ class EmployeeController
         $jobPositionDetails     = $this->jobPosition->fetchJobPosition($jobPositionId);
         $jobPositionName        = $jobPositionDetails['job_position_name'] ?? null;
 
-        $employeeId = $this->employee->insertEmployee($fullName, $firstName, $middleName, $lastName, $suffix, $companyId, $companyName, $departmentId, $departmentName, $jobPositionId, $jobPositionName, $lastLogBy);
+        $employeeId = $this->employee->insertEmployee(
+            $fullName,
+            $firstName,
+            $middleName,
+            $lastName,
+            $suffix,
+            $companyId,
+            $companyName,
+            $departmentId,
+            $departmentName,
+            $jobPositionId,
+            $jobPositionName,
+            $lastLogBy
+        );
 
         $encryptedemployeeId = $this->security->encryptData($employeeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Success',
             'The employee has been saved successfully.',
             ['employee_id' => $encryptedemployeeId]
         );
     }
 
-    public function saveEmployeeLanguage($lastLogBy){
+    public function saveEmployeeLanguage(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_language_form')) {
@@ -264,15 +310,24 @@ class EmployeeController
         $languageProficiency        = $this->languageProficiency->fetchLanguageProficiency($languageProficiencyId);
         $languageProficiencyname    = $languageProficiency['language_proficiency_name'] ?? null;
 
-        $this->employee->saveEmployeeLanguage( $employeeId, $languageId, $languageName, $languageProficiencyId, $languageProficiencyname, $lastLogBy);
+        $this->employee->saveEmployeeLanguage(
+            $employeeId,
+            $languageId,
+            $languageName,
+            $languageProficiencyId,
+            $languageProficiencyname,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Language Success',
             'The employee language has been saved successfully.'
         );
     }
 
-    public function saveEmployeeEducation($lastLogBy){
+    public function saveEmployeeEducation(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_education_form')) {
@@ -294,15 +349,30 @@ class EmployeeController
         $activitiesSocieties    = $_POST['activities_societies'] ?? null;
         $educationDescription   = $_POST['education_description'] ?? null;
 
-        $this->employee->saveEmployeeEducation($employeeEducationId, $employeeId, $school, $degree, $fieldOfStudy, $startMonth, $startYear, $endMonth, $endYear, $activitiesSocieties, $educationDescription, $lastLogBy);
+        $this->employee->saveEmployeeEducation(
+            $employeeEducationId,
+            $employeeId,
+            $school,
+            $degree,
+            $fieldOfStudy,
+            $startMonth,
+            $startYear,
+            $endMonth,
+            $endYear,
+            $activitiesSocieties,
+            $educationDescription,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Educational Background Success',
             'The employee educational background has been saved successfully.'
         );
     }
 
-    public function saveEmployeeEmergencyContact($lastLogBy){
+    public function saveEmployeeEmergencyContact(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_emergency_contact_form')) {
@@ -320,18 +390,30 @@ class EmployeeController
         $mobile                         = $_POST['emergency_contact_mobile'] ?? null;
         $email                          = $_POST['emergency_contact_email'] ?? null;
 
-        $relationshipDetails = $this->relationship->fetchRelationship($relationshipId);
-        $relationshipName = $relationshipDetails['relationship_name'] ?? null;
+        $relationshipDetails    = $this->relationship->fetchRelationship($relationshipId);
+        $relationshipName       = $relationshipDetails['relationship_name'] ?? null;
 
-        $this->employee->saveEmployeeEmergencyContact($employeeEmergencyContactId, $employeeId, $emergencyContactName, $relationshipId, $relationshipName, $telephone, $mobile, $email, $lastLogBy);
+        $this->employee->saveEmployeeEmergencyContact(
+            $employeeEmergencyContactId,
+            $employeeId,
+            $emergencyContactName,
+            $relationshipId,
+            $relationshipName,
+            $telephone,
+            $mobile,
+            $email,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Emergency Contact Success',
             'The employee emergency contact has been saved successfully.'
         );
     }
 
-    public function saveEmployeeLicense($lastLogBy){
+    public function saveEmployeeLicense(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_license_form')) {
@@ -349,15 +431,26 @@ class EmployeeController
         $issueDate              = $this->systemHelper->checkDate('empty', $_POST['issue_date'], '', 'Y-m-d', '');
         $expirationDate         = $this->systemHelper->checkDate('empty', $_POST['expiration_date'], '', 'Y-m-d', '');
 
-        $this->employee->saveEmployeeLicense($employeeLicenseId, $employeeId, $licensedProfession, $licensingBody, $licenseNumber, $issueDate, $expirationDate, $lastLogBy);
+        $this->employee->saveEmployeeLicense(
+            $employeeLicenseId,
+            $employeeId,
+            $licensedProfession,
+            $licensingBody,
+            $licenseNumber,
+            $issueDate,
+            $expirationDate,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee License Success',
             'The employee license has been saved successfully.'
         );
     }
 
-    public function saveEmployeeExperience($lastLogBy){
+    public function saveEmployeeExperience(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_experience_form')) {
@@ -382,15 +475,31 @@ class EmployeeController
         $employmentTypeDetails  = $this->employmentType->fetchEmploymentType($employmentTypeId);
         $employmentTypeName     = $employmentTypeDetails['employment_type_name'] ?? null;
 
-        $this->employee->saveEmployeeExperience($employeeExperienceId, $employeeId, $jobTitle, $employmentTypeId, $employmentTypeName, $companyName, $location, $startMonth, $startYear, $endMonth, $endYear, $jobDescription, $lastLogBy);
+        $this->employee->saveEmployeeExperience(
+            $employeeExperienceId,
+            $employeeId,
+            $jobTitle,
+            $employmentTypeId,
+            $employmentTypeName,
+            $companyName,
+            $location,
+            $startMonth,
+            $startYear,
+            $endMonth,
+            $endYear,
+            $jobDescription,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Work Experience Success',
             'The employee work experience has been saved successfully.'
         );
     }
 
-    public function insertEmployeeDocument($lastLogBy){
+    public function insertEmployeeDocument(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'employee_document_form')) {
@@ -485,15 +594,24 @@ class EmployeeController
         $employeeDocumentTypeDetails    = $this->employeeDocumentType->fetchEmployeeDocumentType($employeeDocumentTypeId);
         $employeeDocumentTypeName       = $employeeDocumentTypeDetails['employee_document_type_name'] ?? null;
 
-        $this->employee->insertEmployeeDocument($employeeId, $documentName, $filePath, $employeeDocumentTypeId, $employeeDocumentTypeName, $lastLogBy);
+        $this->employee->insertEmployeeDocument(
+            $employeeId,
+            $documentName,
+            $filePath,
+            $employeeDocumentTypeId,
+            $employeeDocumentTypeName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Document Success',
             'The employee document has been saved successfully.'
         );
     }
 
-    public function updateEmployeePersonalDetails($lastLogBy){
+    public function updateEmployeePersonalDetails(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'personal_details_form')) {
@@ -537,15 +655,43 @@ class EmployeeController
         $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
         $bloodTypeName      = $bloodTypeDetails['blood_type_name'] ?? null;
 
-        $this->employee->updateEmployeePersonalDetails($employeeId, $fullName, $firstName, $middleName, $lastName, $suffix, $nickname, $privateAddress, $privateAddressCityId, $privateAddressCityName, $privateAddressStateId, $privateAddressStateName, $privateAddressCountryId, $privateAddressCountryName, $civilStatusId, $civilStatusName, $dependents, $religionId, $religionName, $bloodTypeId, $bloodTypeName, $homeWorkDistance, $height, $weight, $lastLogBy);
+        $this->employee->updateEmployeePersonalDetails(
+            $employeeId,
+            $fullName,
+            $firstName,
+            $middleName,
+            $lastName,
+            $suffix,
+            $nickname,
+            $privateAddress,
+            $privateAddressCityId,
+            $privateAddressCityName,
+            $privateAddressStateId,
+            $privateAddressStateName,
+            $privateAddressCountryId,
+            $privateAddressCountryName,
+            $civilStatusId,
+            $civilStatusName,
+            $dependents,
+            $religionId,
+            $religionName,
+            $bloodTypeId,
+            $bloodTypeName,
+            $homeWorkDistance,
+            $height,
+            $weight,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Personal Details Success',
             'The employee personal details has been saved successfully.'
         );
     }
 
-    public function updateEmployeePINCode($lastLogBy){
+    public function updateEmployeePINCode(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_pin_code_form')) {
@@ -559,15 +705,21 @@ class EmployeeController
         $pinCode        = $_POST['pin_code'] ?? null;
         $hashedPINCode  = password_hash($pinCode, PASSWORD_BCRYPT);
 
-        $this->employee->updateEmployeePINCode($employeeId, $hashedPINCode, $lastLogBy);
+        $this->employee->updateEmployeePINCode(
+            $employeeId,
+            $hashedPINCode,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee PIN Code Success',
-            'The employee PIN code has been saved successfully.'
+            'The employee pin code has been saved successfully.'
         );
     }
 
-    public function updateEmployeeBadgeId($lastLogBy){
+    public function updateEmployeeBadgeId(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_badge_id_form')) {
@@ -580,15 +732,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $badgeId        = $_POST['badge_id'] ?? null;
 
-        $this->employee->updateEmployeeBadgeId($employeeId, $badgeId, $lastLogBy);
+        $this->employee->updateEmployeeBadgeId(
+            $employeeId,
+            $badgeId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Badge ID Success',
             'The employee badge ID has been saved successfully.'
         );
     }
 
-    public function updateEmployeePrivateEmail($lastLogBy){
+    public function updateEmployeePrivateEmail(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_email_form')) {
@@ -601,15 +759,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $privateEmail   = $_POST['private_email'] ?? null;
 
-        $this->employee->updateEmployeePrivateEmail($employeeId, $privateEmail, $lastLogBy);
+        $this->employee->updateEmployeePrivateEmail(
+            $employeeId,
+            $privateEmail,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Private Email Success',
             'The employee private email has been saved successfully.'
         );
     }
 
-    public function updateEmployeePrivatePhone($lastLogBy){
+    public function updateEmployeePrivatePhone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_phone_form')) {
@@ -622,15 +786,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $privatePhone   = $_POST['private_phone'] ?? null;
 
-        $this->employee->updateEmployeePrivatePhone($employeeId, $privatePhone, $lastLogBy);
+        $this->employee->updateEmployeePrivatePhone(
+            $employeeId,
+            $privatePhone,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Private Phone Success',
             'The employee private phone has been saved successfully.'
         );
     }
 
-    public function updateEmployeePrivateTelephone($lastLogBy){
+    public function updateEmployeePrivateTelephone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_private_telephone_form')) {
@@ -643,15 +813,21 @@ class EmployeeController
         $employeeId         = $_POST['employee_id'] ?? null;
         $privateTelephone   = $_POST['private_telephone'] ?? null;
 
-        $this->employee->updateEmployeePrivateTelephone($employeeId, $privateTelephone, $lastLogBy);
+        $this->employee->updateEmployeePrivateTelephone(
+            $employeeId,
+            $privateTelephone,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Private Telephone Success',
             'The employee private telephone has been saved successfully.'
         );
     }
 
-    public function updateEmployeeNationality($lastLogBy){
+    public function updateEmployeeNationality(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_nationality_form')) {
@@ -667,15 +843,22 @@ class EmployeeController
         $nationalityDetails = $this->nationality->fetchNationality($nationalityId);
         $nationalityName = $nationalityDetails['nationality_name'] ?? null;
 
-        $this->employee->updateEmployeeNationality($employeeId, $nationalityId, $nationalityName, $lastLogBy);
+        $this->employee->updateEmployeeNationality(
+            $employeeId,
+            $nationalityId,
+            $nationalityName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Nationality Success',
             'The employee nationality has been saved successfully.'
         );
     }
 
-    public function updateEmployeeGender($lastLogBy){
+    public function updateEmployeeGender(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_gender_form')) {
@@ -688,18 +871,25 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $genderId       = $_POST['gender_id'] ?? null;
 
-        $genderDetails = $this->gender->fetchGender($genderId);
-        $genderName = $genderDetails['gender_name'] ?? null;
+        $genderDetails  = $this->gender->fetchGender($genderId);
+        $genderName     = $genderDetails['gender_name'] ?? null;
 
-        $this->employee->updateEmployeeGender($employeeId, $genderId, $genderName, $lastLogBy);
+        $this->employee->updateEmployeeGender(
+            $employeeId,
+            $genderId,
+            $genderName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Gender Success',
             'The employee gender has been saved successfully.'
         );
     }
 
-    public function updateEmployeeBirthday($lastLogBy){
+    public function updateEmployeeBirthday(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_birthday_form')) {
@@ -712,15 +902,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $birthday       = $this->systemHelper->checkDate('empty', $_POST['birthday'], '', 'Y-m-d', '');
 
-        $this->employee->updateEmployeeBirthday($employeeId, $birthday, $lastLogBy);
+        $this->employee->updateEmployeeBirthday(
+            $employeeId,
+            $birthday,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Date of Birth Success',
             'The employee date of birth has been saved successfully.'
         );
     }
 
-    public function updateEmployeePlaceOfBirth($lastLogBy){
+    public function updateEmployeePlaceOfBirth(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_place_of_birth_form')) {
@@ -733,15 +929,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $placeOfBirth   = $_POST['place_of_birth'] ?? null;
 
-        $this->employee->updateEmployeePlaceOfBirth($employeeId, $placeOfBirth, $lastLogBy);
+        $this->employee->updateEmployeePlaceOfBirth(
+            $employeeId,
+            $placeOfBirth,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Place of Birth Success',
             'The employee place of birth has been saved successfully.'
         );
     }
 
-    public function updateEmployeeCompany($lastLogBy){
+    public function updateEmployeeCompany(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_company_form')) {
@@ -757,15 +959,22 @@ class EmployeeController
         $companyDetails     = $this->company->fetchCompany($companyId);
         $companyName        = $companyDetails['company_name'] ?? null;
 
-        $this->employee->updateEmployeeCompany($employeeId, $companyId, $companyName, $lastLogBy);
+        $this->employee->updateEmployeeCompany(
+            $employeeId,
+            $companyId,
+            $companyName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Company Success',
             'The employee company has been saved successfully.'
         );
     }
 
-    public function updateEmployeeDepartment($lastLogBy){
+    public function updateEmployeeDepartment(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_department_form')) {
@@ -781,15 +990,22 @@ class EmployeeController
         $departmentDetails  = $this->department->fetchDepartment($departmentId);
         $departmentName     = $departmentDetails['department_name'] ?? null;
 
-        $this->employee->updateEmployeeDepartment($employeeId, $departmentId, $departmentName, $lastLogBy);
+        $this->employee->updateEmployeeDepartment(
+            $employeeId,
+            $departmentId,
+            $departmentName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Department Success',
             'The employee department has been saved successfully.'
         );
     }
 
-    public function updateEmployeeJobPosition($lastLogBy){
+    public function updateEmployeeJobPosition(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_job_position_form')) {
@@ -805,15 +1021,22 @@ class EmployeeController
         $jobPositionDetails     = $this->jobPosition->fetchJobPosition($jobPositionId);
         $jobPositionName        = $jobPositionDetails['job_position_name'] ?? null;
 
-        $this->employee->updateEmployeeJobPosition($employeeId, $jobPositionId, $jobPositionName, $lastLogBy);
+        $this->employee->updateEmployeeJobPosition(
+            $employeeId,
+            $jobPositionId,
+            $jobPositionName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Job Position Success',
             'The employee job position has been saved successfully.'
         );
     }
 
-    public function updateEmployeeManager($lastLogBy){
+    public function updateEmployeeManager(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_manager_form')) {
@@ -829,15 +1052,22 @@ class EmployeeController
         $manageDetails  = $this->employee->fetchEmployee($managerId);
         $manageName     = $manageDetails['full_name'] ?? null;
 
-        $this->employee->updateEmployeeManager($employeeId, $managerId, $manageName, $lastLogBy);
+        $this->employee->updateEmployeeManager(
+            $employeeId,
+            $managerId,
+            $manageName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Manager Success',
             'The employee manager has been saved successfully.'
         );
     }
 
-    public function updateEmployeeTimeOffApprover($lastLogBy){
+    public function updateEmployeeTimeOffApprover(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_time_off_approver_form')) {
@@ -853,15 +1083,22 @@ class EmployeeController
         $timeOffApproverDetails     = $this->employee->fetchEmployee($timeOffApproverId);
         $timeOffApproverName        = $timeOffApproverDetails['full_name'] ?? null;
 
-        $this->employee->updateEmployeeTimeOffApprover($employeeId, $timeOffApproverId, $timeOffApproverName, $lastLogBy);
+        $this->employee->updateEmployeeTimeOffApprover(
+            $employeeId,
+            $timeOffApproverId,
+            $timeOffApproverName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Time Off Approver Success',
             'The employee time off approver has been saved successfully.'
         );
     }
 
-    public function updateEmployeeEmploymentType($lastLogBy){
+    public function updateEmployeeEmploymentType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_employment_type_form')) {
@@ -877,15 +1114,22 @@ class EmployeeController
         $employmentTypeDetails  = $this->employmentType->fetchEmploymentType($employmentTypeId);
         $employmentTypeName     = $employmentTypeDetails['employment_type_name'] ?? null;
 
-        $this->employee->updateEmployeeEmploymentType($employeeId, $employmentTypeId, $employmentTypeName, $lastLogBy);
+        $this->employee->updateEmployeeEmploymentType(
+            $employeeId,
+            $employmentTypeId,
+            $employmentTypeName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Employment Type Success',
             'The employee employment type has been saved successfully.'
         );
     }
 
-    public function updateEmployeeEmploymentLocationType($lastLogBy){
+    public function updateEmployeeEmploymentLocationType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_employment_location_type_form')) {
@@ -901,15 +1145,22 @@ class EmployeeController
         $employmentTLocationypeDetails  = $this->employmentLocationType->fetchEmploymentLocationType($employmentLocationTypeId);
         $employmentLocationTypeName     = $employmentTLocationypeDetails['employment_location_type_name'] ?? null;
 
-        $this->employee->updateEmployeeEmploymentLocationType($employeeId, $employmentLocationTypeId, $employmentLocationTypeName, $lastLogBy);
+        $this->employee->updateEmployeeEmploymentLocationType(
+            $employeeId,
+            $employmentLocationTypeId,
+            $employmentLocationTypeName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Employment Location Type Success',
             'The employee employment location type has been saved successfully.'
         );
     }
 
-    public function updateEmployeeWorkLocation($lastLogBy){
+    public function updateEmployeeWorkLocation(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_location_form')) {
@@ -925,15 +1176,22 @@ class EmployeeController
         $workLocationDetails    = $this->workLocation->fetchWorkLocation($wokLocationId);
         $workLocationName       = $workLocationDetails['work_location_name'] ?? null;
 
-        $this->employee->updateEmployeeWorkLocation($employeeId, $wokLocationId, $workLocationName, $lastLogBy);
+        $this->employee->updateEmployeeWorkLocation(
+            $employeeId,
+            $wokLocationId,
+            $workLocationName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Work Location Success',
             'The employee work location has been saved successfully.'
         );
     }
 
-    public function updateEmployeeOnBoardDate($lastLogBy){
+    public function updateEmployeeOnBoardDate(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_on_board_date_form')) {
@@ -946,15 +1204,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $onBoardDate    = $this->systemHelper->checkDate('empty', $_POST['on_board_date'], '', 'Y-m-d', '');
 
-        $this->employee->updateEmployeeOnBoardDate($employeeId, $onBoardDate, $lastLogBy);
+        $this->employee->updateEmployeeOnBoardDate(
+            $employeeId,
+            $onBoardDate,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee On Board Date Success',
             'The employee on board date has been saved successfully.'
         );
     }
 
-    public function updateEmployeeWorkEmail($lastLogBy){
+    public function updateEmployeeWorkEmail(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_email_form')) {
@@ -967,15 +1231,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $workEmail      = $_POST['work_email'] ?? null;
 
-        $this->employee->updateEmployeeWorkEmail($employeeId, $workEmail, $lastLogBy);
+        $this->employee->updateEmployeeWorkEmail(
+            $employeeId,
+            $workEmail,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Work Email Success',
             'The employee work email has been saved successfully.'
         );
     }
 
-    public function updateEmployeeWorkPhone($lastLogBy){
+    public function updateEmployeeWorkPhone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_phone_form')) {
@@ -988,15 +1258,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $workPhone      = $_POST['work_phone'] ?? null;
 
-        $this->employee->updateEmployeeWorkPhone($employeeId, $workPhone, $lastLogBy);
+        $this->employee->updateEmployeeWorkPhone(
+            $employeeId,
+            $workPhone,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Work Phone Success',
             'The employee work phone has been saved successfully.'
         );
     }
 
-    public function updateEmployeeWorkTelephone($lastLogBy){
+    public function updateEmployeeWorkTelephone(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'update_work_telephone_form')) {
@@ -1009,15 +1285,21 @@ class EmployeeController
         $employeeId     = $_POST['employee_id'] ?? null;
         $workTelephone  = $_POST['work_telephone'] ?? null;
 
-        $this->employee->updateEmployeeWorkTelephone($employeeId, $workTelephone, $lastLogBy);
+        $this->employee->updateEmployeeWorkTelephone(
+            $employeeId,
+            $workTelephone,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Employee Work Telephone Success',
             'The employee work telephone has been saved successfully.'
         );
     }
 
-    public function updateEmployeeImage($lastLogBy){
+    public function updateEmployeeImage(
+        int $lastLogBy
+    ) {
         $employeeId   = $_POST['employee_id'] ?? null;
        
         $employeeImageFileName              = $_FILES['employee_image']['name'];
@@ -1096,15 +1378,21 @@ class EmployeeController
             );
         }
 
-        $this->employee->updateEmployeeImage($employeeId, $filePath, $lastLogBy);
+        $this->employee->updateEmployeeImage(
+            $employeeId,
+            $filePath,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Employee Image Success',
             'The employee image has been updated successfully.'
         );
     }
 
-    public function updateEmployeeArchive($lastLogBy){
+    public function updateEmployeeArchive(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'archive_employee_form')) {
@@ -1122,26 +1410,38 @@ class EmployeeController
         $departureReasonDetails     = $this->departureReason->fetchDepartureReason($departureReasonId);
         $departureReasonName        = $departureReasonDetails['departure_reason_name'] ?? null;
 
-        $this->employee->updateEmployeeArchive($employeeId, $departureReasonId, $departureReasonName, $detailedDepartureReason, $departureDate, $lastLogBy);
+        $this->employee->updateEmployeeArchive(
+            $employeeId,
+            $departureReasonId,
+            $departureReasonName,
+            $detailedDepartureReason,
+            $departureDate,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Employee Archive Success',
             'The employee has been archived successfully.'
         );
     }
 
-    public function updateEmployeeUnarchive($lastLogBy){
+    public function updateEmployeeUnarchive(
+        int $lastLogBy
+    ) {
         $employeeId = $_POST['employee_id'] ?? null;
 
-        $this->employee->updateEmployeeUnarchive($employeeId, $lastLogBy);
+        $this->employee->updateEmployeeUnarchive(
+            $employeeId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Employee Unarchive Success',
             'The employee has been unarchived successfully.'
         );
     }
 
-    public function deleteEmployee(){
+    public function deleteEmployee() {
         $employeeId         = $_POST['employee_id'] ?? null;
         $employeeDetails    = $this->employee->fetchEmployee($employeeId);
         $employeeImage      = $employeeDetails['employee_image'] ?? null;
@@ -1158,13 +1458,13 @@ class EmployeeController
 
         $this->employee->deleteEmployee($employeeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Success',
             'The employee has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleEmployee(){
+    public function deleteMultipleEmployee() {
         $employeeIds = $_POST['employee_id'] ?? null;
 
         foreach($employeeIds as $employeeId){
@@ -1184,68 +1484,68 @@ class EmployeeController
             $this->employee->deleteEmployee($employeeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Employees Success',
             'The selected employees have been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeLanguage(){
+    public function deleteEmployeeLanguage() {
         $employeeLanguageId = $_POST['employee_language_id'] ?? null;
 
         $this->employee->deleteEmployeeLanguage($employeeLanguageId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Language Success',
             'The employee language has been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeEducation(){
+    public function deleteEmployeeEducation() {
         $employeeEducationId = $_POST['employee_education_id'] ?? null;
 
         $this->employee->deleteEmployeeEducation($employeeEducationId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Educational Background Success',
             'The employee educational background has been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeEmergencyContact(){
+    public function deleteEmployeeEmergencyContact() {
         $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
 
         $this->employee->deleteEmployeeEmergencyContact($employeeEmergencyContactId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Emergency Contact Success',
             'The employee emergency contact has been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeLicense(){
+    public function deleteEmployeeLicense() {
         $employeeLicenseId = $_POST['employee_license_id'] ?? null;
 
         $this->employee->deleteEmployeeLicense($employeeLicenseId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee License Success',
             'The employee license has been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeExperience(){
+    public function deleteEmployeeExperience() {
         $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
 
         $this->employee->deleteEmployeeExperience($employeeExperienceId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Experience Success',
             'The employee experience has been deleted successfully.'
         );
     }
 
-    public function deleteEmployeeDocument(){
+    public function deleteEmployeeDocument() {
         $employeeDocumentId = $_POST['employee_document_id'] ?? null;
 
         $employeeDocumentDetails    = $this->employee->fetchEmployeeDocument($employeeDocumentId);
@@ -1255,19 +1555,19 @@ class EmployeeController
 
         $this->employee->deleteEmployeeDocument($employeeDocumentId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Employee Document Success',
             'The employee document has been deleted successfully.'
         );
     }
 
-    public function fetchEmployeeDetails(){
+    public function fetchEmployeeDetails() {
         $employeeId             = $_POST['employee_id'] ?? null;
         $checkEmployeeExist     = $this->employee->checkEmployeeExist($employeeId);
         $total                  = $checkEmployeeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Employee Details',
                 'The employee does not exist',
                 ['notExist' => true]
@@ -1344,7 +1644,7 @@ class EmployeeController
         exit;
     }
 
-    public function fetchEmployeeEducationDetails(){
+    public function fetchEmployeeEducationDetails() {
         $employeeEducationId = $_POST['employee_education_id'] ?? null;
 
         $employeeEducationDetails = $this->employee->fetchEmployeeEducation($employeeEducationId);
@@ -1366,7 +1666,7 @@ class EmployeeController
         exit;
     }
 
-    public function fetchEmployeeEmergencyContactDetails(){
+    public function fetchEmployeeEmergencyContactDetails() {
         $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
 
         $employeeEmergencyContactDetails = $this->employee->fetchEmployeeEmergencyContact($employeeEmergencyContactId);
@@ -1384,7 +1684,7 @@ class EmployeeController
         exit;
     }
 
-    public function fetchEmployeeLicenseDetails(){
+    public function fetchEmployeeLicenseDetails() {
         $employeeLicenseId = $_POST['employee_license_id'] ?? null;
 
         $employeeLicenseDetails = $this->employee->fetchEmployeeLicense($employeeLicenseId);
@@ -1402,7 +1702,7 @@ class EmployeeController
         exit;
     }
 
-    public function fetchEmployeeExperienceDetails(){
+    public function fetchEmployeeExperienceDetails() {
         $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
 
         $employeeExperienceDetails = $this->employee->fetchEmployeeExperience($employeeExperienceId);
@@ -1424,8 +1724,7 @@ class EmployeeController
         exit;
     }
 
-    public function generateEmployeeCard()
-    {
+    public function generateEmployeeCard() {
         $pageLink               = $_POST['page_link'] ?? null;
         $searchValue            = $_POST['search_value'] ?? null;
         $companyFilter          = $this->systemHelper->checkFilter($_POST['filter_by_company'] ?? null);
@@ -1439,7 +1738,18 @@ class EmployeeController
         $offset                 = $_POST['offset'] ?? null;
         $response               = [];
 
-        $employees = $this->employee->generateEmployeeCard($searchValue, $companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter, $limit, $offset);
+        $employees = $this->employee->generateEmployeeCard(
+            $searchValue,
+            $companyFilter,
+            $departmentFilter,
+            $jobPositionFilter,
+            $employeeStatusFilter,
+            $workLocationFilter,
+            $employmentTypeFilter,
+            $genderFilter,
+            $limit,
+            $offset
+        );
 
         foreach ($employees as $row) {
             $employeeId         = $row['employee_id'];
@@ -1477,8 +1787,7 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeTable()
-    {
+    public function generateEmployeeTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $companyFilter          = $this->systemHelper->checkFilter($_POST['filter_by_company'] ?? null);
         $departmentFilter       = $this->systemHelper->checkFilter($_POST['filter_by_department'] ?? null);
@@ -1489,7 +1798,15 @@ class EmployeeController
         $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
         $response               = [];
 
-        $employees = $this->employee->generateEmployeeTable($companyFilter, $departmentFilter, $jobPositionFilter, $employeeStatusFilter, $workLocationFilter, $employmentTypeFilter, $genderFilter);
+        $employees = $this->employee->generateEmployeeTable(
+            $companyFilter,
+            $departmentFilter,
+            $jobPositionFilter,
+            $employeeStatusFilter,
+            $workLocationFilter,
+            $employmentTypeFilter,
+            $genderFilter
+        );
 
         foreach ($employees as $row) {
             $employeeId         = $row['employee_id'];
@@ -1528,8 +1845,7 @@ class EmployeeController
         echo json_encode($response);
     }
     
-    public function generateEmployeeOptions()
-    {
+    public function generateEmployeeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -1552,12 +1868,14 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeLanguageList($lastLogBy, $pageId)
-    {
-        $employeeId     = $_POST['employee_id'] ?? null;
-        $writeAccess    = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
+    public function generateEmployeeLanguageList(
+        int $lastLogBy,
+        int $pageId
+    ) {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
-        $list           = '';
+        $list               = '';
 
         $results = $this->employee->generateEmployeeLanguageList($employeeId);
 
@@ -1584,16 +1902,16 @@ class EmployeeController
             }
 
             $list .= '<div class="d-flex flex-stack">
-                                    <div class="d-flex flex-column">
-                                        <span class="fs-6">'. $languageName .'</span>
-                                        <span class="text-muted">'. $languageProficiencyName .'</span>
-                                    </div>
+                        <div class="d-flex flex-column">
+                            <span class="fs-6">'. $languageName .'</span>
+                            <span class="text-muted">'. $languageProficiencyName .'</span>
+                        </div>
 
-                                    <div class="d-flex justify-content-end align-items-center">
-                                        '. $logNotes .'
-                                        '. $deleteButton .'
-                                    </div>
-                                </div>';
+                        <div class="d-flex justify-content-end align-items-center">
+                            '. $logNotes .'
+                            '. $deleteButton .'
+                        </div>
+                    </div>';
 
             if ($row !== $lastRole) {
                 $list .= '<div class="separator separator-dashed my-5"></div>';
@@ -1618,8 +1936,10 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeEducationList($lastLogBy, $pageId)
-    {
+    public function generateEmployeeEducationList(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $employeeId         = $_POST['employee_id'] ?? null;
         $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
@@ -1694,7 +2014,7 @@ class EmployeeController
                                         <h4 class="text-gray-900 fw-bold">Add New Educational Background for Employee</h4>
                                         <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s educational background, including school, degree, and field of study.</div>
                                     </div>
-                                    <a href="javascript:void(0);" id="add-employee-education" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_education_modal"> New Educational Background</a>
+                                    <button id="add-employee-education" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_education_modal">New Educational Background</button>
                                 </div>
                             </div>
                         </div>';
@@ -1709,8 +2029,10 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeEmergencyContactList($lastLogBy, $pageId)
-    {
+    public function generateEmployeeEmergencyContactList(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $employeeId         = $_POST['employee_id'] ?? null;
         $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
@@ -1776,7 +2098,7 @@ class EmployeeController
                                         <h4 class="text-gray-900 fw-bold">Add New Emergency Contact for Employee</h4>
                                         <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s emergency contact, including the contact’s full name, relationship to the employee, mobile, telephone and email.</div>
                                     </div>
-                                    <a href="javascript:void(0);" id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_emergency_contact_modal"> New Emergency Contact</a>
+                                    <button id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_emergency_contact_modal">New Emergency Contact</button>
                                 </div>
                             </div>
                         </div>';
@@ -1791,8 +2113,10 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeLicenseList($lastLogBy, $pageId)
-    {
+    public function generateEmployeeLicenseList(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $employeeId         = $_POST['employee_id'] ?? null;
         $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
@@ -1858,7 +2182,7 @@ class EmployeeController
                                         <h4 class="text-gray-900 fw-bold">Add New License for Employee</h4>
                                         <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s license, including the license profession, license number, licensing body, issuance date and expiry date.</div>
                                     </div>
-                                    <a href="javascript:void(0);" id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_license_modal"> New License</a>
+                                    <button id="add-employee-emergency-contact" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_license_modal">New License</button>
                                 </div>
                             </div>
                         </div>';
@@ -1873,8 +2197,10 @@ class EmployeeController
         echo json_encode($response);
     }
 
-    public function generateEmployeeExperienceList($lastLogBy, $pageId)
-    {
+    public function generateEmployeeExperienceList(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $employeeId         = $_POST['employee_id'] ?? null;
         $writeAccess        = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($lastLogBy, $pageId, 'log notes')['total'] ?? 0;
@@ -1945,7 +2271,7 @@ class EmployeeController
                                         <h4 class="text-gray-900 fw-bold">Add New Work Experience for Employee</h4>
                                         <div class="fs-6 text-gray-700 pe-7">Provide detailed information about the employee\'s work experience, including company, job title, job description, degree, start month, start year, end month, end year, employment type, and work location.</div>
                                     </div>
-                                    <a href="javascript:void(0);" id="add-employee-experience" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_experience_modal"> New Work Experience</a>
+                                    <button id="add-employee-experience" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#employee_experience_modal">New Work Experience</button>
                                 </div>
                             </div>
                         </div>';
@@ -1956,12 +2282,13 @@ class EmployeeController
             'EXPERIENCE_LIST' => $list
         ];
 
-
         echo json_encode($response);
     }
 
-    public function generateEmployeeDocumentTable($lastLogBy, $pageId)
-    {
+    public function generateEmployeeDocumentTable(
+        int $lastLogBy,
+        int $pageId
+    ) {
         $employeeId     = $_POST['employee_id'] ?? null;
         $response       = [];
 
@@ -1994,7 +2321,7 @@ class EmployeeController
             }
 
             $response[] = [
-                'DOCUMENT'         => '<div class="d-flex align-items-center">
+                'DOCUMENT'      => '<div class="d-flex align-items-center">
                                             <div class="symbol symbol-30px me-5">
                                                 <img src="'. $documentFileDetails['icon'] .'" alt="'. $documentName .'">
                                             </div>
@@ -2003,15 +2330,15 @@ class EmployeeController
                                                 <small class="text-gray-600">'. $employeeDocumentTypeName .'</small>
                                             </div>
                                         </div>',
-                'SIZE'              => $documentFileDetails['size'],
-                'UPLOAD_DATE'       => $createdDate,
-                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
-                                            '. $logNotes .'
-                                            <a href="'. $documentFile .'" class="btn btn-icon btn-light btn-active-light-warning" download="'. $documentName .'" target="_blank">
-                                                <i class="ki-outline ki-file-down fs-3 m-0 fs-5"></i>
-                                            </a>
-                                            '. $button .'
-                                        </div>'
+                'SIZE'          => $documentFileDetails['size'],
+                'UPLOAD_DATE'   => $createdDate,
+                'ACTION'        => '<div class="d-flex justify-content-end gap-3">
+                                        '. $logNotes .'
+                                        <a href="'. $documentFile .'" class="btn btn-icon btn-light btn-active-light-warning" download="'. $documentName .'" target="_blank">
+                                            <i class="ki-outline ki-file-down fs-3 m-0 fs-5"></i>
+                                        </a>
+                                        '. $button .'
+                                    </div>'
             ];
         }
 
@@ -2019,7 +2346,6 @@ class EmployeeController
     }
 }
 
-# Bootstrap the controller
 $controller = new EmployeeController(
     new Employee(),
     new Company(),

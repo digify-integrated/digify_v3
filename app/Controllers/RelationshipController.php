@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Relationship;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class RelationshipController
-{
+class RelationshipController {
     protected Relationship $relationship;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class RelationshipController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class RelationshipController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class RelationshipController
         };
     }
 
-    public function saveRelationship($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveRelationship(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'relationship_form')) {
@@ -96,47 +127,52 @@ class RelationshipController
         $relationshipId     = $_POST['relationship_id'] ?? null;
         $relationshipName   = $_POST['relationship_name'] ?? null;
 
-        $relationshipId             = $this->relationship->saveRelationship($relationshipId, $relationshipName, $lastLogBy);
-        $encryptedRelationshipId    = $this->security->encryptData($relationshipId);
+        $relationshipId = $this->relationship->saveRelationship(
+            $relationshipId,
+            $relationshipName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $encryptedRelationshipId = $this->security->encryptData($relationshipId);
+
+        $this->systemHelper::sendSuccessResponse(
             'Save Relationship Success',
             'The relationship has been saved successfully.',
             ['relationship_id' => $encryptedRelationshipId]
         );
     }
 
-    public function deleteRelationship(){
+    public function deleteRelationship() {
         $relationshipId = $_POST['relationship_id'] ?? null;
 
         $this->relationship->deleteRelationship($relationshipId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Relationship Success',
             'The relationship has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleRelationship(){
+    public function deleteMultipleRelationship() {
         $relationshipIds = $_POST['relationship_id'] ?? null;
 
         foreach($relationshipIds as $relationshipId){
             $this->relationship->deleteRelationship($relationshipId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Relationships Success',
             'The selected relationships have been deleted successfully.'
         );
     }
 
-    public function fetchRelationshipDetails(){
+    public function fetchRelationshipDetails() {
         $relationshipId             = $_POST['relationship_id'] ?? null;
         $checkRelationshipyExist    = $this->relationship->checkRelationshipExist($relationshipId);
         $total                      = $checkRelationshipyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Relationship Details',
                 'The relationship does not exist',
                 ['notExist' => true]
@@ -154,15 +190,14 @@ class RelationshipController
         exit;
     }
 
-    public function generateRelationshipTable()
-    {
+    public function generateRelationshipTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
         $relationships = $this->relationship->generateRelationshipTable();
 
         foreach ($relationships as $row) {
-            $relationshipId      = $row['relationship_id'];
+            $relationshipId     = $row['relationship_id'];
             $relationshipName   = $row['relationship_name'];
 
             $relationshipIdEncrypted = $this->security->encryptData($relationshipId);
@@ -179,8 +214,7 @@ class RelationshipController
         echo json_encode($response);
     }
     
-    public function generateRelationshipOptions()
-    {
+    public function generateRelationshipOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class RelationshipController
     }
 }
 
-# Bootstrap the controller
 $controller = new RelationshipController(
     new Relationship(),
     new Authentication(),

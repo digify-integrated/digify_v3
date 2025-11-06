@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\ContactInformationType;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class ContactInformationTypeController
-{
+class ContactInformationTypeController {
     protected ContactInformationType $contactInformationType;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class ContactInformationTypeController
         $this->systemHelper             = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class ContactInformationTypeController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class ContactInformationTypeController
         };
     }
 
-    public function saveContactInformationType($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveContactInformationType(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'contact_information_type_form')) {
@@ -96,47 +127,52 @@ class ContactInformationTypeController
         $contactInformationTypeId       = $_POST['contact_information_type_id'] ?? null;
         $contactInformationTypeName     = $_POST['contact_information_type_name'] ?? null;
 
-        $contactInformationTypeId           = $this->contactInformationType->saveContactInformationType($contactInformationTypeId, $contactInformationTypeName, $lastLogBy);
-        $encryptedContactInformationTypeId  = $this->security->encryptData($contactInformationTypeId);
+        $contactInformationTypeId = $this->contactInformationType->saveContactInformationType(
+            $contactInformationTypeId,
+            $contactInformationTypeName,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $encryptedContactInformationTypeId = $this->security->encryptData($contactInformationTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
             'Save Contact Information Type Success',
             'The contact information type has been saved successfully.',
             ['contact_information_type_id' => $encryptedContactInformationTypeId]
         );
     }
 
-    public function deleteContactInformationType(){
+    public function deleteContactInformationType() {
         $contactInformationTypeId = $_POST['contact_information_type_id'] ?? null;
 
         $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Contact Information Type Success',
             'The contact information type has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleContactInformationType(){
+    public function deleteMultipleContactInformationType() {
         $contactInformationTypeIds = $_POST['contact_information_type_id'] ?? null;
 
         foreach($contactInformationTypeIds as $contactInformationTypeId){
             $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Contact Information Types Success',
             'The selected contact information types have been deleted successfully.'
         );
     }
 
-    public function fetchContactInformationTypeDetails(){
+    public function fetchContactInformationTypeDetails() {
         $contactInformationTypeId           = $_POST['contact_information_type_id'] ?? null;
         $checkContactInformationTypeExist   = $this->contactInformationType->checkContactInformationTypeExist($contactInformationTypeId);
         $total                              = $checkContactInformationTypeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Contact Information Type Details',
                 'The contact information type does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class ContactInformationTypeController
         exit;
     }
 
-    public function generateContactInformationTypeTable()
-    {
+    public function generateContactInformationTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class ContactInformationTypeController
         echo json_encode($response);
     }
     
-    public function generateContactInformationTypeOptions()
-    {
+    public function generateContactInformationTypeOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class ContactInformationTypeController
     }
 }
 
-# Bootstrap the controller
 $controller = new ContactInformationTypeController(
     new ContactInformationType(),
     new Authentication(),

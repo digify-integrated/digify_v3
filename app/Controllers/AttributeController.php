@@ -59,8 +59,8 @@ class AttributeController {
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -86,6 +86,38 @@ class AttributeController {
                                                         )
         };
     }
+
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
 
     public function saveAttribute(
         int $lastLogBy
@@ -116,7 +148,7 @@ class AttributeController {
 
         $encryptedAttributeId = $this->security->encryptData($attributeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Attribute Success',
             'The attribute has been saved successfully.',
             ['attribute_id' => $encryptedAttributeId]
@@ -150,7 +182,7 @@ class AttributeController {
             $lastLogBy
         );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Attribute Value Success',
             'The attribute value has been saved successfully.'
         );
@@ -161,7 +193,7 @@ class AttributeController {
 
         $this->attribute->deleteAttribute($attributeId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Attribute Success',
             'The attribute has been deleted successfully.'
         );
@@ -174,7 +206,7 @@ class AttributeController {
             $this->attribute->deleteAttribute($attributeId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Attributes Success',
             'The selected attributes have been deleted successfully.'
         );
@@ -185,7 +217,7 @@ class AttributeController {
 
         $this->attribute->deleteAttributeValue($attributeValueId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Attribute Value Success',
             'The attribute value has been deleted successfully.'
         );
@@ -197,7 +229,7 @@ class AttributeController {
         $total                  = $checkAttributeExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Attribute Details',
                 'The attribute does not exist',
                 ['notExist' => true]
@@ -224,7 +256,7 @@ class AttributeController {
         $total                      = $checkAttributeValueExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Attribute Value Details',
                 'The attribute value does not exist',
                 ['notExist' => true]

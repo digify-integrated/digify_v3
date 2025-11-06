@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Religion;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class ReligionController
-{
+class ReligionController {
     protected Religion $religion;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class ReligionController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class ReligionController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class ReligionController
         };
     }
 
-    public function saveReligion($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveReligion(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'religion_form')) {
@@ -96,47 +127,52 @@ class ReligionController
         $religionId     = $_POST['religion_id'] ?? null;
         $religionName   = $_POST['religion_name'] ?? null;
 
-        $religionId             = $this->religion->saveReligion($religionId, $religionName, $lastLogBy);
-        $encryptedReligionId    = $this->security->encryptData($religionId);
+        $religionId = $this->religion->saveReligion(
+            $religionId,
+            $religionName,
+            $lastLogBy
+        );
+        
+        $encryptedReligionId = $this->security->encryptData($religionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Religion Success',
             'The religion has been saved successfully.',
             ['religion_id' => $encryptedReligionId]
         );
     }
 
-    public function deleteReligion(){
+    public function deleteReligion() {
         $religionId = $_POST['religion_id'] ?? null;
 
         $this->religion->deleteReligion($religionId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Religion Success',
             'The religion has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleReligion(){
-        $religionIds  = $_POST['religion_id'] ?? null;
+    public function deleteMultipleReligion() {
+        $religionIds = $_POST['religion_id'] ?? null;
 
         foreach($religionIds as $religionId){
             $this->religion->deleteReligion($religionId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Religions Success',
             'The selected religions have been deleted successfully.'
         );
     }
 
-    public function fetchReligionDetails(){
+    public function fetchReligionDetails() {
         $religionId             = $_POST['religion_id'] ?? null;
         $checkReligionyExist    = $this->religion->checkReligionExist($religionId);
         $total                  = $checkReligionyExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Religion Details',
                 'The religion does not exist',
                 ['notExist' => true]
@@ -154,8 +190,7 @@ class ReligionController
         exit;
     }
 
-    public function generateReligionTable()
-    {
+    public function generateReligionTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -179,8 +214,7 @@ class ReligionController
         echo json_encode($response);
     }
     
-    public function generateReligionOptions()
-    {
+    public function generateReligionOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -204,7 +238,6 @@ class ReligionController
     }
 }
 
-# Bootstrap the controller
 $controller = new ReligionController(
     new Religion(),
     new Authentication(),

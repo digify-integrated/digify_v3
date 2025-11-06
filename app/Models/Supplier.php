@@ -10,21 +10,21 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function saveSupplier(
-        $p_supplier_id,
-        $p_supplier_name,
-        $p_contact_person,
-        $p_phone,
-        $p_telephone,
-        $p_email,
-        $p_address,
-        $p_city_id,
-        $p_city_name,
-        $p_state_id,
-        $p_state_name,
-        $p_country_id,
-        $p_country_name,
-        $p_tax_id_number,
-        $p_last_log_by
+        int $p_supplier_id,
+        string $p_supplier_name,
+        string $p_contact_person,
+        string $p_phone,
+        string $p_telephone,
+        string $p_email,
+        string $p_address,
+        int $p_city_id,
+        string $p_city_name,
+        int $p_state_id,
+        string $p_state_name,
+        int $p_country_id,
+        string $p_country_name,
+        string $p_tax_id_number,
+        int $p_last_log_by
     )    {
         $sql = 'CALL saveSupplier(
             :p_supplier_id,
@@ -74,8 +74,8 @@ class Supplier extends Model {
     =============================================================================================  */
 
     public function updateSupplierArchive(
-        $p_supplier_id,
-        $p_last_log_by
+        int $p_supplier_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateSupplierArchive(
             :p_supplier_id,
@@ -89,8 +89,8 @@ class Supplier extends Model {
     }
 
     public function updateSupplierUnarchive(
-        $p_supplier_id,
-        $p_last_log_by
+        int $p_supplier_id,
+        int $p_last_log_by
     ) {
         $sql = 'CALL updateSupplierUnarchive(
             :p_supplier_id,
@@ -108,7 +108,7 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function fetchSupplier(
-        $p_supplier_id
+        int $p_supplier_id
     ) {
         $sql = 'CALL fetchSupplier(
             :p_supplier_id
@@ -124,7 +124,7 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function deleteSupplier(
-        $p_supplier_id
+        int $p_supplier_id
     ) {
         $sql = 'CALL deleteSupplier(
             :p_supplier_id
@@ -140,7 +140,7 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function checkSupplierExist(
-        $p_supplier_id
+        int $p_supplier_id
     ) {
         $sql = 'CALL checkSupplierExist(
             :p_supplier_id
@@ -156,10 +156,10 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function generateSupplierTable(
-        $p_filter_by_city,
-        $p_filter_by_state,
-        $p_filter_by_country,
-        $p_filter_by_supplier_status
+        string $p_filter_by_city,
+        string $p_filter_by_state,
+        string $p_filter_by_country,
+        string $p_filter_by_supplier_status
     ) {
         $sql = 'CALL generateSupplierTable(
             :p_filter_by_city,

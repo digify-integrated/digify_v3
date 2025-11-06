@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Product;
@@ -16,8 +15,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class ProductController
-{
+class ProductController {
     protected Product $product;
     protected ProductCategory $productCategory;
     protected Tax $tax;
@@ -50,8 +48,7 @@ class ProductController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -82,8 +79,8 @@ class ProductController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'imageut.php?imageut'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -125,7 +122,41 @@ class ProductController
         };
     }
 
-    public function saveProductCategory($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveProductCategory(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_category_form')) {
@@ -154,37 +185,45 @@ class ProductController
             $productCategoryDetails   = $this->productCategory->fetchProductCategory($productCategoryId);
             $productCategoryName      = $productCategoryDetails['product_category_name'] ?? null;
 
-            $this->product->insertProductCategoryMap($productId, $productName, $productCategoryId, $productCategoryName, $lastLogBy);
+            $this->product->insertProductCategoryMap(
+                $productId,
+                $productName,
+                $productCategoryId,
+                $productCategoryName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Product Category Success',
             'The product categories have been added successfully.'
         );
     }
 
-    public function saveProductAttribute($lastLogBy){
+    public function saveProductAttribute(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_attribute_form')) {
             $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
         }
 
-        $productId = $_POST['product_id'] ?? null;
-        $attributeValueIds = $_POST['attribute_value_id'] ?? [];
+        $productId          = $_POST['product_id'] ?? null;
+        $attributeValueIds  = $_POST['attribute_value_id'] ?? [];
 
         if (empty($attributeValueIds)) {
             $this->systemHelper::sendErrorResponse('Save Product Attribute Error', 'Please select the product attribute.');
         }
 
-        $productDetails = $this->product->fetchProduct($productId);
-        $productName = $productDetails['product_name'] ?? '';
+        $productDetails     = $this->product->fetchProduct($productId);
+        $productName        = $productDetails['product_name'] ?? '';
 
         foreach ($attributeValueIds as $attributeValueId) {
-            $attributeValueDetails = $this->attribute->fetchAttributeValue($attributeValueId);
-            $attributeId = $attributeValueDetails['attribute_id'] ?? null;
-            $attributeName = $attributeValueDetails['attribute_name'] ?? null;
-            $attributeValueName = $attributeValueDetails['attribute_value_name'] ?? null;
+            $attributeValueDetails  = $this->attribute->fetchAttributeValue($attributeValueId);
+            $attributeId            = $attributeValueDetails['attribute_id'] ?? null;
+            $attributeName          = $attributeValueDetails['attribute_name'] ?? null;
+            $attributeValueName     = $attributeValueDetails['attribute_value_name'] ?? null;
 
             $this->product->insertProductAttribute(
                 $productId,
@@ -262,13 +301,13 @@ class ProductController
         );
 
         foreach ($productAttributesNever as $row) {
-            $attributeId = $row['attribute_id'];
-            $attributeName = $row['attribute_name'];
-            $attributeValueId = $row['attribute_value_id'];
-            $attributeValueName = $row['attribute_value_name'];
+            $attributeId            = $row['attribute_id'];
+            $attributeName          = $row['attribute_name'];
+            $attributeValueId       = $row['attribute_value_id'];
+            $attributeValueName     = $row['attribute_value_name'];
 
-            $variantSignature = sha1($productId . '-' . $attributeValueId);
-            $variantName = $productName . ' - ' . $attributeValueName;
+            $variantSignature   = sha1($productId . '-' . $attributeValueId);
+            $variantName        = $productName . ' - ' . $attributeValueName;
 
             $subproductId = $this->product->saveSubProductAndVariants(
                 $productId,
@@ -295,13 +334,15 @@ class ProductController
             }
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Product Attribute Success',
             'The product attributes have been saved successfully.'
         );
     }
 
-    public function saveProductPricelist($lastLogBy){
+    public function saveProductPricelist(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_pricelist_form')) {
@@ -333,15 +374,15 @@ class ProductController
             $lastLogBy
         );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Product Pricelist Success',
             'The product pricelist has been saved successfully.'
         );
-    }
+    }    
 
-    
-
-    public function insertProduct($lastLogBy){
+    public function insertProduct(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_form')) {
@@ -354,18 +395,24 @@ class ProductController
         $productName            = $_POST['product_name'] ?? null;
         $productDescription     = $_POST['product_description'] ?? null;
 
-        $productId = $this->product->insertProduct($productName, $productDescription, $lastLogBy);
+        $productId = $this->product->insertProduct(
+            $productName,
+            $productDescription,
+            $lastLogBy
+        );
 
         $encryptedproductId = $this->security->encryptData($productId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Product Success',
             'The product has been saved successfully.',
             ['product_id' => $encryptedproductId]
         );
     }
 
-    public function updateProductGeneral($lastLogBy){
+    public function updateProductGeneral(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_general_form')) {
@@ -379,15 +426,22 @@ class ProductController
         $productName            = $_POST['product_name'] ?? null;
         $productDescription     = $_POST['product_description'] ?? null;
 
-        $this->product->updateProductGeneral($productId, $productName, $productDescription, $lastLogBy);
+        $this->product->updateProductGeneral(
+            $productId,
+            $productName,
+            $productDescription,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Product Success',
             'The product has been updated successfully.'
         );
     }
 
-    public function updateProductPricing($lastLogBy){
+    public function updateProductPricing(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_pricing_form')) {
@@ -403,7 +457,12 @@ class ProductController
         $salesTaxIds        = $_POST['sales_tax_id'] ?? [];
         $purchaseTaxIds     = $_POST['purchase_tax_id'] ?? [];
 
-        $this->product->updateProductPricing($productId, $salesPrice, $cost, $lastLogBy);
+        $this->product->updateProductPricing(
+            $productId,
+            $salesPrice,
+            $cost,
+            $lastLogBy
+        );
 
         $this->product->deleteProductTax($productId);
 
@@ -414,23 +473,39 @@ class ProductController
             $taxDetails     = $this->tax->fetchTax($salesTaxId);
             $taxName        = $taxDetails['tax_name'] ?? null;
 
-            $this->product->insertProductTax($productId, $productName, 'Sales', $salesTaxId, $taxName, $lastLogBy);
+            $this->product->insertProductTax(
+                $productId,
+                $productName,
+                'Sales',
+                $salesTaxId,
+                $taxName,
+                $lastLogBy
+            );
         }
 
         foreach ($purchaseTaxIds as $purchaseTaxId) {
             $taxDetails     = $this->tax->fetchTax($purchaseTaxId);
             $taxName        = $taxDetails['tax_name'] ?? null;
 
-            $this->product->insertProductTax($productId, $productName, 'Purchases', $purchaseTaxId, $taxName, $lastLogBy);
+            $this->product->insertProductTax(
+                $productId,
+                $productName,
+                'Purchases',
+                $purchaseTaxId,
+                $taxName,
+                $lastLogBy
+            );
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Product Success',
             'The product has been updated successfully.'
         );
     }
 
-    public function updateProductInventory($lastLogBy){
+    public function updateProductInventory(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_inventory_form')) {
@@ -451,8 +526,8 @@ class ProductController
         $unitName           = $unitIdDetails['unit_name'] ?? null;
         $unitAbbreviation   = $unitIdDetails['unit_abbreviation'] ?? null;
         
-        $checkProductSKUExist       = $this->product->checkProductSKUExist($productId, $sku);
-        $totalSKU                   = $checkProductSKUExist['total'] ?? 0;
+        $checkProductSKUExist   = $this->product->checkProductSKUExist($productId, $sku);
+        $totalSKU               = $checkProductSKUExist['total'] ?? 0;
 
         $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
         $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
@@ -471,15 +546,27 @@ class ProductController
             );
         }
 
-        $this->product->updateProductInventory($productId, $sku, $barcode, $productType, $quantityOnHand, $unitId, $unitName, $unitAbbreviation, $lastLogBy);
+        $this->product->updateProductInventory(
+            $productId,
+            $sku,
+            $barcode,
+            $productType,
+            $quantityOnHand,
+            $unitId,
+            $unitName,
+            $unitAbbreviation,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Product Success',
             'The product has been updated successfully.'
         );
     }
 
-    public function updateProductShipping($lastLogBy){
+    public function updateProductShipping(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_shipping_form')) {
@@ -495,79 +582,119 @@ class ProductController
         $height     = $_POST['height'] ?? null;
         $length     = $_POST['length'] ?? null;
 
-        $this->product->updateProductShipping($productId, $weight, $width, $height, $length, $lastLogBy);
+        $this->product->updateProductShipping(
+            $productId,
+            $weight,
+            $width,
+            $height,
+            $length,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Product Success',
             'The product has been updated successfully.'
         );
     }
 
-    public function updateProductIsSellable($lastLogBy){
+    public function updateProductIsSellable(
+        int $lastLogBy
+    ) {
         $productId          = $_POST['product_id'] ?? null;
         $productDetails     = $this->product->fetchProduct($productId);
         $isSellable         = $productDetails['is_sellable'] ?? 'Yes';
         $isSellable         = ($isSellable === 'Yes') ? 'No' : 'Yes';
 
-        $this->product->updateProductSettings($productId, $isSellable, 'is sellable', $lastLogBy);
+        $this->product->updateProductSettings(
+            $productId,
+            $isSellable,
+            'is sellable',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Sales Success',
             'The sales has been updated successfully.'
         );
     }
 
-    public function updateProductIsPurchasable($lastLogBy){
+    public function updateProductIsPurchasable(
+        int $lastLogBy
+    ) {
         $productId          = $_POST['product_id'] ?? null;
         $productDetails     = $this->product->fetchProduct($productId);
         $isPurchasable      = $productDetails['is_purchasable'] ?? 'Yes';
         $isPurchasable      = ($isPurchasable === 'Yes') ? 'No' : 'Yes';
 
-        $this->product->updateProductSettings($productId, $isPurchasable, 'is purchasable', $lastLogBy);
+        $this->product->updateProductSettings(
+            $productId,
+            $isPurchasable,
+            'is purchasable',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Purchase Success',
             'The purchase has been updated successfully.'
         );
     }
 
-    public function updateProductShowOnPos($lastLogBy){
+    public function updateProductShowOnPos(
+        int $lastLogBy
+    ) {
         $productId          = $_POST['product_id'] ?? null;
         $productDetails     = $this->product->fetchProduct($productId);
         $showOnPos          = $productDetails['show_on_pos'] ?? 'Yes';
         $showOnPos          = ($showOnPos === 'Yes') ? 'No' : 'Yes';
 
-        $this->product->updateProductSettings($productId, $showOnPos, 'show on pos', $lastLogBy);
+        $this->product->updateProductSettings(
+            $productId,
+            $showOnPos,
+            'show on pos',
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Point of Sale Success',
             'The point of sale has been updated successfully.'
         );
     }
 
-    public function updateProductArchive($lastLogBy){
+    public function updateProductArchive(
+        int $lastLogBy
+    ) {
         $productId = $_POST['product_id'] ?? null;
 
-        $this->product->updateProductArchive($productId, $lastLogBy);
+        $this->product->updateProductArchive(
+            $productId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Product Archive Success',
             'The product has been archived successfully.'
         );
     }
 
-    public function updateProductUnarchive($lastLogBy){
+    public function updateProductUnarchive(
+        int $lastLogBy
+    ) {
         $productId = $_POST['product_id'] ?? null;
 
-        $this->product->updateProductUnarchive($productId, $lastLogBy);
+        $this->product->updateProductUnarchive(
+            $productId,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Product Unarchive Success',
             'The product has been unarchived successfully.'
         );
     }
 
-    public function updateProductImage($lastLogBy){
+    public function updateProductImage(
+        int $lastLogBy
+    ) {
         $productId = $_POST['product_id'] ?? null;
        
         $productImageFileName               = $_FILES['product_image']['name'];
@@ -646,15 +773,19 @@ class ProductController
             );
         }
 
-        $this->product->updateProductImage($productId, $filePath, $lastLogBy);
+        $this->product->updateProductImage(
+            $productId,
+            $filePath,
+            $lastLogBy
+        );
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Update Product Image Success',
             'The product image has been updated successfully.'
         );
     }
 
-    public function deleteProduct(){
+    public function deleteProduct() {
         $productId          = $_POST['product_id'] ?? null;
         $productDetails     = $this->product->fetchProduct($productId);
         $productImage       = $productDetails['product_image'] ?? null;
@@ -663,13 +794,13 @@ class ProductController
 
         $this->product->deleteProduct($productId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Product Success',
             'The product has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleProduct(){
+    public function deleteMultipleProduct() {
         $productIds = $_POST['product_id'] ?? null;
 
         foreach($productIds as $productId){
@@ -681,23 +812,22 @@ class ProductController
             $this->product->deleteProduct($productId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Products Success',
             'The selected products have been deleted successfully.'
         );
     }
 
     public function deleteProductAttribute() {
-        $productAttributeId = $_POST['product_attribute_id'] ?? null;
-
-        $productAttributeDetails = $this->product->fetchProductAttribute($productAttributeId);
-        $productId = $productAttributeDetails['product_id'] ?? null;
+        $productAttributeId         = $_POST['product_attribute_id'] ?? null;
+        $productAttributeDetails    = $this->product->fetchProductAttribute($productAttributeId);
+        $productId                  = $productAttributeDetails['product_id'] ?? null;
 
         $this->product->deleteProductAttribute($productAttributeId);
 
         $this->rebuildProductVariants($productId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Product Attribute Success',
             'The product attribute was deleted and the variants have been regenerated.'
         );
@@ -708,19 +838,19 @@ class ProductController
 
         $this->product->deleteProductPricelist($productPricelistId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Product Pricelist Success',
             'The product pricelist has been deleted successfully.'
         );
     }
 
-    public function fetchProductDetails(){
+    public function fetchProductDetails() {
         $productId          = $_POST['product_id'] ?? null;
         $checkProductExist  = $this->product->checkProductExist($productId);
         $total              = $checkProductExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Product Details',
                 'The product does not exist',
                 ['notExist' => true]
@@ -755,21 +885,28 @@ class ProductController
         exit;
     }
 
-    public function fetchProductTaxDetails(){
+    public function fetchProductTaxDetails() {
         $productId          = $_POST['product_id'] ?? null;
         $checkProductExist  = $this->product->checkProductExist($productId);
         $total              = $checkProductExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Product Categories Details',
                 'The product does not exist',
                 ['notExist' => true]
             );
         }
 
-        $salesTaxDetails        = $this->product->fetchProductTax($productId, 'Sales');
-        $purchaseTaxDetails     = $this->product->fetchProductTax($productId, 'Purchases');
+        $salesTaxDetails = $this->product->fetchProductTax(
+            $productId,
+            'Sales'
+        );
+
+        $purchaseTaxDetails = $this->product->fetchProductTax(
+            $productId,
+            'Purchases'
+        );
 
         $salesTax = [];
         foreach ($salesTaxDetails as $row) {
@@ -791,13 +928,13 @@ class ProductController
         exit;
     }
 
-    public function fetchProductCategoryMapDetails(){
+    public function fetchProductCategoryMapDetails() {
         $productId          = $_POST['product_id'] ?? null;
         $checkProductExist  = $this->product->checkProductExist($productId);
         $total              = $checkProductExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Product Categories Details',
                 'The product does not exist',
                 ['notExist' => true]
@@ -820,10 +957,9 @@ class ProductController
         exit;
     }
 
-    public function fetchProductPricelistDetails(){
-        $productPricelistId = $_POST['product_pricelist_id'] ?? null;
-
-        $productPricelistDetails = $this->product->fetchProductPricelist($productPricelistId);
+    public function fetchProductPricelistDetails() {
+        $productPricelistId         = $_POST['product_pricelist_id'] ?? null;
+        $productPricelistDetails    = $this->product->fetchProductPricelist($productPricelistId);
 
         $response = [
             'success'               => true,
@@ -839,7 +975,7 @@ class ProductController
         exit;
     }
 
-    public function generateProductCard(){
+    public function generateProductCard() {
         $pageLink               = $_POST['page_link'] ?? null;
         $searchValue            = $_POST['search_value'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
@@ -852,7 +988,17 @@ class ProductController
         $offset                 = $_POST['offset'] ?? null;
         $response               = [];
 
-        $products = $this->product->generateProductCard($searchValue, $productTypeFilter, $productCategoryFilter, $isSellableFilter, $isPurchasableFilter, $showOnPosFilter, $productStatusFilter, $limit, $offset);
+        $products = $this->product->generateProductCard(
+            $searchValue,
+            $productTypeFilter,
+            $productCategoryFilter,
+            $isSellableFilter,
+            $isPurchasableFilter,
+            $showOnPosFilter,
+            $productStatusFilter,
+            $limit,
+            $offset
+        );
 
         foreach ($products as $row) {
             $productId              = $row['product_id'];
@@ -891,7 +1037,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductTable(){
+    public function generateProductTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
         $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
@@ -901,7 +1047,14 @@ class ProductController
         $productStatusFilter    = $this->systemHelper->checkFilter($_POST['filter_by_product_status'] ?? null);
         $response               = [];
 
-        $products = $this->product->generateProductTable($productTypeFilter, $productCategoryFilter, $isSellableFilter, $isPurchasableFilter, $showOnPosFilter, $productStatusFilter);
+        $products = $this->product->generateProductTable(
+            $productTypeFilter,
+            $productCategoryFilter,
+            $isSellableFilter,
+            $isPurchasableFilter,
+            $showOnPosFilter,
+            $productStatusFilter
+        );
 
         foreach ($products as $row) {
             $productId              = $row['product_id'];
@@ -915,7 +1068,6 @@ class ProductController
             $cost                   = $row['cost'];
             $productStatus          = $row['product_status'];
             $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'default');
-
             $badgeClass             = $productStatus == 'Active' ? 'badge-light-success' : 'badge-light-danger';
 
             $productIdEncrypted = $this->security->encryptData($productId);
@@ -955,15 +1107,16 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductAttributeTable($userId, $pageId){
+    public function generateProductAttributeTable(
+        int $userId,
+        int $pageId
+    ) {
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
 
         $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
-        $deleteButton       = '';
-        $logNotes           = '';
-
+        
         $productAttributes = $this->product->generateProductAttributeTable($productId);
 
         foreach ($productAttributes as $row) {
@@ -971,16 +1124,18 @@ class ProductController
             $attributeName          = $row['attribute_name'];
             $attributeValueName     = $row['attribute_value_name'];
 
+            $deleteButton = '';
             if($writeAccess > 0){
-                $deleteButton = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-danger delete-product-attribute" data-product-attribute-id="' . $productAttributeId . '" title="Delete Attribute">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-product-attribute" data-product-attribute-id="' . $productAttributeId . '" title="Delete Attribute">
                                         <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                                    </a>';
+                                    </button>';
             }
 
+            $logNotes = '';
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-product-attribute-log-notes" data-product-attribute-id="' . $productAttributeId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-product-attribute-log-notes" data-product-attribute-id="' . $productAttributeId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                     <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
             $response[] = [
@@ -996,7 +1151,7 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductVariationTable(){        
+    public function generateProductVariationTable() {        
         $pageLink   = $_POST['page_link'] ?? null;
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
@@ -1021,15 +1176,16 @@ class ProductController
         echo json_encode($response);
     }
 
-    public function generateProductPricelistTable($userId, $pageId){
+    public function generateProductPricelistTable(
+        int $userId,
+        int $pageId
+    ) {
         $productId  = $_POST['product_id'] ?? null;
         $response   = [];
 
         $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
         $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
-        $deleteButton       = '';
-        $logNotes           = '';
-
+        
         $productPricelists = $this->product->generateProductPricelistTable($productId);
 
         foreach ($productPricelists as $row) {
@@ -1045,19 +1201,21 @@ class ProductController
             ? 'Effective from ' . $validityStartDate
             : $validityStartDate . ' - ' . $validityEndDate;
 
+            $deleteButton = '';
             if($writeAccess > 0){
                 $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-product-pricelist" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" data-product-pricelist-id="' . $productPricelistId . '">
-                                <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
-                            </button>
-                            <button class="btn btn-icon btn-light btn-active-light-danger delete-product-pricelist" data-product-pricelist-id="' . $productPricelistId . '">
-                                 <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
-                            </button>';
+                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                                </button>
+                                <button class="btn btn-icon btn-light btn-active-light-danger delete-product-pricelist" data-product-pricelist-id="' . $productPricelistId . '">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                </button>';
             }
-
+            
+            $logNotes = '';
             if($logNotesAccess > 0){
-                $logNotes = '<a href="javascript:void(0);" class="btn btn-icon btn-light btn-active-light-primary view-product-pricelist-log-notes" data-product-pricelist-id="' . $productPricelistId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-product-pricelist-log-notes" data-product-pricelist-id="' . $productPricelistId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
                                     <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                                </a>';
+                                </button>';
             }
 
             $response[] = [
@@ -1076,7 +1234,7 @@ class ProductController
         echo json_encode($response);
     }
     
-    public function generateProductOptions(){
+    public function generateProductOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -1099,8 +1257,11 @@ class ProductController
         echo json_encode($response);
     }
 
-    private function generateCombinations($groups) {
+    private function generateCombinations(
+        array $groups
+    ) {
         $result = [[]];
+
         foreach ($groups as $attributeName => $attributeData) {
             $temp = [];
             foreach ($result as $combo) {
@@ -1118,7 +1279,9 @@ class ProductController
         return $result;
     }
 
-    private function rebuildProductVariants($productId) {
+    private function rebuildProductVariants(
+        int $productId
+    ) {
         $lastLogBy = $_SESSION['user_account_id'] ?? 1;
 
         $this->product->updateAllSubProductsDeactivate(
@@ -1126,11 +1289,11 @@ class ProductController
             $lastLogBy
         );
 
-        $productDetails = $this->product->fetchProduct($productId);
-        $productName = $productDetails['product_name'] ?? '';
+        $productDetails     = $this->product->fetchProduct($productId);
+        $productName        = $productDetails['product_name'] ?? '';
 
-        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
-        $groupedAttributes = [];
+        $productAttributesInstantly     = $this->product->fetchAllProductAttributes($productId, 'Instantly');
+        $groupedAttributes              = [];
 
         foreach ($productAttributesInstantly as $row) {
             $attributeName = $row['attribute_name'];
@@ -1180,7 +1343,6 @@ class ProductController
     }
 }
 
-# Bootstrap the controller
 $controller = new ProductController(
     new Product(),
     new ProductCategory(),

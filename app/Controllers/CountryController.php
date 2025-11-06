@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-
 session_start();
 
 use App\Models\Country;
@@ -11,8 +10,7 @@ use App\Helpers\SystemHelper;
 
 require_once '../../config/config.php';
 
-class CountryController
-{
+class CountryController {
     protected Country $country;
     protected Authentication $authentication;
     protected Security $security;
@@ -30,8 +28,7 @@ class CountryController
         $this->systemHelper     = $systemHelper;
     }
 
-    public function handleRequest() 
-    {
+    public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->systemHelper::sendErrorResponse(
                 'Invalid Request',
@@ -61,8 +58,8 @@ class CountryController
                 'Session Expired', 
                 'Your session has expired. Please log in again to continue.',
                 [
-                    'invalid_session' => true,
-                    'redirect_link' => 'logout.php?logout'
+                    'invalid_session'   => true,
+                    'redirect_link'     => 'logout.php?logout'
                 ]
             );
         }
@@ -83,7 +80,41 @@ class CountryController
         };
     }
 
-    public function saveCountry($lastLogBy){
+    /* =============================================================================================
+        SECTION 1: SAVE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function saveCountry(
+        int $lastLogBy
+    ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
         if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'country_form')) {
@@ -98,54 +129,61 @@ class CountryController
         $countryCode    = $_POST['country_code'] ?? null;
         $phoneCode      = $_POST['phone_code'] ?? null;
 
-        $countryId              = $this->country->saveCountry($countryId, $countryName, $countryCode, $phoneCode, $lastLogBy);
-        $encryptedcountryId     = $this->security->encryptData($countryId);
+        $countryId = $this->country->saveCountry(
+            $countryId,
+            $countryName,
+            $countryCode,
+            $phoneCode,
+            $lastLogBy
+        );
+        
+        $encryptedcountryId = $this->security->encryptData($countryId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Save Country Success',
             'The country has been saved successfully.',
             ['country_id' => $encryptedcountryId]
         );
     }
 
-    public function deleteCountry(){
+    public function deleteCountry() {
         $countryId = $_POST['country_id'] ?? null;
 
         $this->country->deleteCountry($countryId);
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Country Success',
             'The country has been deleted successfully.'
         );
     }
 
-    public function deleteMultipleCountry(){
+    public function deleteMultipleCountry() {
         $countryIds = $_POST['country_id'] ?? null;
 
         foreach($countryIds as $countryId){
             $this->country->deleteCountry($countryId);
         }
 
-        $this->systemHelper->sendSuccessResponse(
+        $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Countries Success',
             'The selected countries have been deleted successfully.'
         );
     }
 
-    public function fetchCountryDetails(){
+    public function fetchCountryDetails() {
         $countryId          = $_POST['country_id'] ?? null;
         $checkCountryExist  = $this->country->checkCountryExist($countryId);
         $total              = $checkCountryExist['total'] ?? 0;
 
         if($total === 0){
-            $this->systemHelper->sendErrorResponse(
+            $this->systemHelper::sendErrorResponse(
                 'Get Country Details',
                 'The country does not exist',
                 ['notExist' => true]
             );
         }
 
-        $countryDetails   = $this->country->fetchCountry($countryId);
+        $countryDetails = $this->country->fetchCountry($countryId);
 
         $response = [
             'success'       => true,
@@ -158,8 +196,7 @@ class CountryController
         exit;
     }
 
-    public function generateCountryTable()
-    {
+    public function generateCountryTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
 
@@ -187,8 +224,7 @@ class CountryController
         echo json_encode($response);
     }
     
-    public function generateCountryOptions()
-    {
+    public function generateCountryOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
 
@@ -212,7 +248,6 @@ class CountryController
     }
 }
 
-# Bootstrap the controller
 $controller = new CountryController(
     new Country(),
     new Authentication(),
