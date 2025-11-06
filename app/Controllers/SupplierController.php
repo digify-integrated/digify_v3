@@ -90,34 +90,6 @@ class SupplierController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveSupplier(
         int $lastLogBy
     ) {
@@ -174,6 +146,14 @@ class SupplierController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
     public function updateSupplierArchive(
         int $lastLogBy
     ) {
@@ -206,29 +186,9 @@ class SupplierController {
         );
     }
 
-    public function deleteSupplier() {
-        $supplierId = $_POST['supplier_id'] ?? null;
-
-        $this->supplier->deleteSupplier($supplierId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Supplier Success',
-            'The supplier has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleSupplier() {
-        $supplierIds = $_POST['supplier_id'] ?? null;
-
-        foreach($supplierIds as $supplierId){
-            $this->supplier->deleteSupplier($supplierId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Suppliers Success',
-            'The selected suppliers have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchSupplierDetails() {
         $supplierId             = $_POST['supplier_id'] ?? null;
@@ -260,6 +220,42 @@ class SupplierController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteSupplier() {
+        $supplierId = $_POST['supplier_id'] ?? null;
+
+        $this->supplier->deleteSupplier($supplierId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Supplier Success',
+            'The supplier has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleSupplier() {
+        $supplierIds = $_POST['supplier_id'] ?? null;
+
+        foreach($supplierIds as $supplierId){
+            $this->supplier->deleteSupplier($supplierId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Suppliers Success',
+            'The selected suppliers have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateSupplierTable() {
         $pageLink               = $_POST['page_link'] ?? null;
@@ -323,6 +319,14 @@ class SupplierController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new SupplierController(

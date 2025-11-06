@@ -84,34 +84,6 @@ class CredentialTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveCredentialType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class CredentialTypeController {
         );
     }
 
-    public function deleteCredentialType() {
-        $credentialTypeId = $_POST['credential_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->credentialType->deleteCredentialType($credentialTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Credential Type Success',
-            'The credential type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleCredentialType() {
-        $credentialTypeIds = $_POST['credential_type_id'] ?? null;
-
-        foreach($credentialTypeIds as $credentialTypeId){
-            $this->credentialType->deleteCredentialType($credentialTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Credential Types Success',
-            'The selected credential types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchCredentialTypeDetails() {
         $credentialTypeId           = $_POST['credential_type_id'] ?? null;
@@ -189,6 +149,42 @@ class CredentialTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteCredentialType() {
+        $credentialTypeId = $_POST['credential_type_id'] ?? null;
+
+        $this->credentialType->deleteCredentialType($credentialTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Credential Type Success',
+            'The credential type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleCredentialType() {
+        $credentialTypeIds = $_POST['credential_type_id'] ?? null;
+
+        foreach($credentialTypeIds as $credentialTypeId){
+            $this->credentialType->deleteCredentialType($credentialTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Credential Types Success',
+            'The selected credential types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateCredentialTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class CredentialTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new CredentialTypeController(

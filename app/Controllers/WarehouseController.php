@@ -94,34 +94,6 @@ class WarehouseController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveWarehouse(
         int $lastLogBy
     ) {
@@ -184,6 +156,14 @@ class WarehouseController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
     public function updateWarehouseArchive(
         int $lastLogBy
     ) {
@@ -216,29 +196,9 @@ class WarehouseController {
         );
     }
 
-    public function deleteWarehouse() {
-        $warehouseId = $_POST['warehouse_id'] ?? null;
-
-        $this->warehouse->deleteWarehouse($warehouseId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Warehouse Success',
-            'The warehouse has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleWarehouse() {
-        $warehouseIds = $_POST['warehouse_id'] ?? null;
-
-        foreach($warehouseIds as $warehouseId){
-            $this->warehouse->deleteWarehouse($warehouseId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Warehouses Success',
-            'The selected warehouses have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchWarehouseDetails() {
         $warehouseId            = $_POST['warehouse_id'] ?? null;
@@ -271,6 +231,42 @@ class WarehouseController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteWarehouse() {
+        $warehouseId = $_POST['warehouse_id'] ?? null;
+
+        $this->warehouse->deleteWarehouse($warehouseId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Warehouse Success',
+            'The warehouse has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleWarehouse() {
+        $warehouseIds = $_POST['warehouse_id'] ?? null;
+
+        foreach($warehouseIds as $warehouseId){
+            $this->warehouse->deleteWarehouse($warehouseId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Warehouses Success',
+            'The selected warehouses have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateWarehouseTable() {
         $pageLink               = $_POST['page_link'] ?? null;
@@ -336,6 +332,14 @@ class WarehouseController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new WarehouseController(

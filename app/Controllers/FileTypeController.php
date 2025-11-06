@@ -84,34 +84,6 @@ class FileTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveFileType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class FileTypeController {
         );
     }
 
-    public function deleteFileType() {
-        $fileTypeId = $_POST['file_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->fileType->deleteFileType($fileTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete File Type Success',
-            'The file type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleFileType() {
-        $fileTypeIds = $_POST['file_type_id'] ?? null;
-
-        foreach($fileTypeIds as $fileTypeId){
-            $this->fileType->deleteFileType($fileTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple File Types Success',
-            'The selected file types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchFileTypeDetails() {
         $fileTypeId             = $_POST['file_type_id'] ?? null;
@@ -189,6 +149,42 @@ class FileTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteFileType() {
+        $fileTypeId = $_POST['file_type_id'] ?? null;
+
+        $this->fileType->deleteFileType($fileTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete File Type Success',
+            'The file type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleFileType() {
+        $fileTypeIds = $_POST['file_type_id'] ?? null;
+
+        foreach($fileTypeIds as $fileTypeId){
+            $this->fileType->deleteFileType($fileTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple File Types Success',
+            'The selected file types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateFileTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class FileTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new FileTypeController(

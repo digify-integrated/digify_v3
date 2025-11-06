@@ -126,34 +126,6 @@ class ProductController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveProductCategory(
         int $lastLogBy
     ) {
@@ -378,7 +350,11 @@ class ProductController {
             'Save Product Pricelist Success',
             'The product pricelist has been saved successfully.'
         );
-    }    
+    }
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
     public function insertProduct(
         int $lastLogBy
@@ -409,6 +385,10 @@ class ProductController {
             ['product_id' => $encryptedproductId]
         );
     }
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
     public function updateProductGeneral(
         int $lastLogBy
@@ -785,64 +765,9 @@ class ProductController {
         );
     }
 
-    public function deleteProduct() {
-        $productId          = $_POST['product_id'] ?? null;
-        $productDetails     = $this->product->fetchProduct($productId);
-        $productImage       = $productDetails['product_image'] ?? null;
-
-        $this->systemHelper->deleteFileIfExist($productImage);
-
-        $this->product->deleteProduct($productId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Product Success',
-            'The product has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleProduct() {
-        $productIds = $_POST['product_id'] ?? null;
-
-        foreach($productIds as $productId){
-            $productDetails     = $this->product->fetchProduct($productId);
-            $productImage       = $productDetails['product_image'] ?? null;
-
-            $this->systemHelper->deleteFileIfExist($productImage);
-
-            $this->product->deleteProduct($productId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Products Success',
-            'The selected products have been deleted successfully.'
-        );
-    }
-
-    public function deleteProductAttribute() {
-        $productAttributeId         = $_POST['product_attribute_id'] ?? null;
-        $productAttributeDetails    = $this->product->fetchProductAttribute($productAttributeId);
-        $productId                  = $productAttributeDetails['product_id'] ?? null;
-
-        $this->product->deleteProductAttribute($productAttributeId);
-
-        $this->rebuildProductVariants($productId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Product Attribute Success',
-            'The product attribute was deleted and the variants have been regenerated.'
-        );
-    }
-
-    public function deleteProductPricelist() {
-        $productPricelistId = $_POST['product_pricelist_id'] ?? null;
-
-        $this->product->deleteProductPricelist($productPricelistId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Product Pricelist Success',
-            'The product pricelist has been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchProductDetails() {
         $productId          = $_POST['product_id'] ?? null;
@@ -974,6 +899,77 @@ class ProductController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteProduct() {
+        $productId          = $_POST['product_id'] ?? null;
+        $productDetails     = $this->product->fetchProduct($productId);
+        $productImage       = $productDetails['product_image'] ?? null;
+
+        $this->systemHelper->deleteFileIfExist($productImage);
+
+        $this->product->deleteProduct($productId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Product Success',
+            'The product has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleProduct() {
+        $productIds = $_POST['product_id'] ?? null;
+
+        foreach($productIds as $productId){
+            $productDetails     = $this->product->fetchProduct($productId);
+            $productImage       = $productDetails['product_image'] ?? null;
+
+            $this->systemHelper->deleteFileIfExist($productImage);
+
+            $this->product->deleteProduct($productId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Products Success',
+            'The selected products have been deleted successfully.'
+        );
+    }
+
+    public function deleteProductAttribute() {
+        $productAttributeId         = $_POST['product_attribute_id'] ?? null;
+        $productAttributeDetails    = $this->product->fetchProductAttribute($productAttributeId);
+        $productId                  = $productAttributeDetails['product_id'] ?? null;
+
+        $this->product->deleteProductAttribute($productAttributeId);
+
+        $this->rebuildProductVariants($productId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Product Attribute Success',
+            'The product attribute was deleted and the variants have been regenerated.'
+        );
+    }
+
+    public function deleteProductPricelist() {
+        $productPricelistId = $_POST['product_pricelist_id'] ?? null;
+
+        $this->product->deleteProductPricelist($productPricelistId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Product Pricelist Success',
+            'The product pricelist has been deleted successfully.'
+        );
+    }
+    
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateProductCard() {
         $pageLink               = $_POST['page_link'] ?? null;
@@ -1279,6 +1275,10 @@ class ProductController {
         return $result;
     }
 
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
     private function rebuildProductVariants(
         int $productId
     ) {
@@ -1341,6 +1341,10 @@ class ProductController {
             }
         }
     }
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new ProductController(

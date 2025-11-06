@@ -84,34 +84,6 @@ class LanguageProficiencyController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveLanguageProficiency(
         int $lastLogBy
     ) {
@@ -144,29 +116,17 @@ class LanguageProficiencyController {
         );
     }
 
-    public function deleteLanguageProficiency() {
-        $languageProficiencyId = $_POST['language_proficiency_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Language Proficiency Success',
-            'The language proficiency has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleLanguageProficiency() {
-        $languageProficiencyIds = $_POST['language_proficiency_id'] ?? null;
-
-        foreach($languageProficiencyIds as $languageProficiencyId){
-            $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Language Proficiencies Success',
-            'The selected language proficiencies have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchLanguageProficiencyDetails() {
         $languageProficiencyId          = $_POST['language_proficiency_id'] ?? null;
@@ -192,6 +152,42 @@ class LanguageProficiencyController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteLanguageProficiency() {
+        $languageProficiencyId = $_POST['language_proficiency_id'] ?? null;
+
+        $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Language Proficiency Success',
+            'The language proficiency has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleLanguageProficiency() {
+        $languageProficiencyIds = $_POST['language_proficiency_id'] ?? null;
+
+        foreach($languageProficiencyIds as $languageProficiencyId){
+            $this->languageProficiency->deleteLanguageProficiency($languageProficiencyId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Language Proficiencies Success',
+            'The selected language proficiencies have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateLanguageProficiencyTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -243,6 +239,14 @@ class LanguageProficiencyController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new LanguageProficiencyController(

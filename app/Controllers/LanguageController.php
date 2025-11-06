@@ -84,34 +84,6 @@ class LanguageController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveLanguage(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class LanguageController {
         );
     }
 
-    public function deleteLanguage() {
-        $languageId = $_POST['language_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->language->deleteLanguage($languageId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Language Success',
-            'The language has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleLanguage() {
-        $languageIds = $_POST['language_id'] ?? null;
-
-        foreach($languageIds as $languageId){
-            $this->language->deleteLanguage($languageId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Languages Success',
-            'The selected languages have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchLanguageDetails() {
         $languageId             = $_POST['language_id'] ?? null;
@@ -189,6 +149,42 @@ class LanguageController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteLanguage() {
+        $languageId = $_POST['language_id'] ?? null;
+
+        $this->language->deleteLanguage($languageId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Language Success',
+            'The language has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleLanguage() {
+        $languageIds = $_POST['language_id'] ?? null;
+
+        foreach($languageIds as $languageId){
+            $this->language->deleteLanguage($languageId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Languages Success',
+            'The selected languages have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateLanguageTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class LanguageController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new LanguageController(

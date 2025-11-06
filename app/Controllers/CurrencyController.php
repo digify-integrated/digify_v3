@@ -84,34 +84,6 @@ class CurrencyController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveCurrency(
         int $lastLogBy
     ) {
@@ -146,29 +118,17 @@ class CurrencyController {
         );
     }
 
-    public function deleteCurrency() {
-        $currencyId = $_POST['currency_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->currency->deleteCurrency($currencyId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Currency Success',
-            'The currency has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleCurrency() {
-        $currencyIds = $_POST['currency_id'] ?? null;
-
-        foreach($currencyIds as $currencyId){
-            $this->currency->deleteCurrency($currencyId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Currencies Success',
-            'The selected currencies have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchCurrencyDetails() {
         $currencyId             = $_POST['currency_id'] ?? null;
@@ -195,6 +155,42 @@ class CurrencyController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteCurrency() {
+        $currencyId = $_POST['currency_id'] ?? null;
+
+        $this->currency->deleteCurrency($currencyId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Currency Success',
+            'The currency has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleCurrency() {
+        $currencyIds = $_POST['currency_id'] ?? null;
+
+        foreach($currencyIds as $currencyId){
+            $this->currency->deleteCurrency($currencyId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Currencies Success',
+            'The selected currencies have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateCurrencyTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -246,6 +242,14 @@ class CurrencyController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new CurrencyController(

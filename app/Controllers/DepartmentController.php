@@ -89,34 +89,6 @@ class DepartmentController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveDepartment(
         int $lastLogBy
     ) {
@@ -159,29 +131,17 @@ class DepartmentController {
         );
     }
 
-    public function deleteDepartment() {
-        $departmentId = $_POST['department_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->department->deleteDepartment($departmentId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Department Success',
-            'The department has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleDepartment() {
-        $departmentIds = $_POST['department_id'] ?? null;
-
-        foreach($departmentIds as $departmentId){
-            $this->department->deleteDepartment($departmentId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Departments Success',
-            'The selected departments have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchDepartmentDetails() {
         $departmentId           = $_POST['department_id'] ?? null;
@@ -208,6 +168,42 @@ class DepartmentController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteDepartment() {
+        $departmentId = $_POST['department_id'] ?? null;
+
+        $this->department->deleteDepartment($departmentId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Department Success',
+            'The department has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleDepartment() {
+        $departmentIds = $_POST['department_id'] ?? null;
+
+        foreach($departmentIds as $departmentId){
+            $this->department->deleteDepartment($departmentId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Departments Success',
+            'The selected departments have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateDepartmentTable() {
         $filterParentDepartment     = $this->systemHelper->checkFilter($_POST['parent_department_filter'] ?? null);
@@ -286,6 +282,14 @@ class DepartmentController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new DepartmentController(

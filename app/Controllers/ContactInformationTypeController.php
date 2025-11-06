@@ -84,34 +84,6 @@ class ContactInformationTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveContactInformationType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class ContactInformationTypeController {
         );
     }
 
-    public function deleteContactInformationType() {
-        $contactInformationTypeId = $_POST['contact_information_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Contact Information Type Success',
-            'The contact information type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleContactInformationType() {
-        $contactInformationTypeIds = $_POST['contact_information_type_id'] ?? null;
-
-        foreach($contactInformationTypeIds as $contactInformationTypeId){
-            $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Contact Information Types Success',
-            'The selected contact information types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchContactInformationTypeDetails() {
         $contactInformationTypeId           = $_POST['contact_information_type_id'] ?? null;
@@ -189,6 +149,42 @@ class ContactInformationTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteContactInformationType() {
+        $contactInformationTypeId = $_POST['contact_information_type_id'] ?? null;
+
+        $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Contact Information Type Success',
+            'The contact information type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleContactInformationType() {
+        $contactInformationTypeIds = $_POST['contact_information_type_id'] ?? null;
+
+        foreach($contactInformationTypeIds as $contactInformationTypeId){
+            $this->contactInformationType->deleteContactInformationType($contactInformationTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Contact Information Types Success',
+            'The selected contact information types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateContactInformationTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class ContactInformationTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new ContactInformationTypeController(

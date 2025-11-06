@@ -88,34 +88,6 @@ class WorkLocationController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveWorkLocation(
         int $lastLogBy
     ) {
@@ -168,29 +140,17 @@ class WorkLocationController {
         );
     }
 
-    public function deleteWorkLocation() {
-        $workLocationId = $_POST['work_location_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->workLocation->deleteWorkLocation($workLocationId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Work Location Success',
-            'The work location has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleWorkLocation() {
-        $workLocationIds = $_POST['work_location_id'] ?? null;
-
-        foreach($workLocationIds as $workLocationId){
-            $this->workLocation->deleteWorkLocation($workLocationId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Work Locations Success',
-            'The selected work locations have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchWorkLocationDetails() {
         $workLocationId             = $_POST['work_location_id'] ?? null;
@@ -220,6 +180,42 @@ class WorkLocationController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteWorkLocation() {
+        $workLocationId = $_POST['work_location_id'] ?? null;
+
+        $this->workLocation->deleteWorkLocation($workLocationId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Work Location Success',
+            'The work location has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleWorkLocation() {
+        $workLocationIds = $_POST['work_location_id'] ?? null;
+
+        foreach($workLocationIds as $workLocationId){
+            $this->workLocation->deleteWorkLocation($workLocationId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Work Locations Success',
+            'The selected work locations have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateWorkLocationTable() {
         $cityFilter     = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
@@ -284,6 +280,14 @@ class WorkLocationController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new WorkLocationController(

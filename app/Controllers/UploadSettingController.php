@@ -89,34 +89,6 @@ class UploadSettingController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveUploadSetting(
         int $lastLogBy
     ) {
@@ -199,29 +171,17 @@ class UploadSettingController {
         );
     }
 
-    public function deleteUploadSetting() {
-        $uploadSettingId = $_POST['upload_setting_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->uploadSetting->deleteUploadSetting($uploadSettingId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Upload Setting Success',
-            'The upload setting has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleUploadSetting() {
-        $uploadSettingIds = $_POST['upload_setting_id'] ?? null;
-
-        foreach($uploadSettingIds as $uploadSettingId){
-            $this->uploadSetting->deleteUploadSetting($uploadSettingId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Upload Settings Success',
-            'The selected upload settings have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchUploadSettingDetails() {
         $uploadSettingId            = $_POST['upload_setting_id'] ?? null;
@@ -278,6 +238,42 @@ class UploadSettingController {
         exit;
     }
 
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteUploadSetting() {
+        $uploadSettingId = $_POST['upload_setting_id'] ?? null;
+
+        $this->uploadSetting->deleteUploadSetting($uploadSettingId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Upload Setting Success',
+            'The upload setting has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleUploadSetting() {
+        $uploadSettingIds = $_POST['upload_setting_id'] ?? null;
+
+        foreach($uploadSettingIds as $uploadSettingId){
+            $this->uploadSetting->deleteUploadSetting($uploadSettingId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Upload Settings Success',
+            'The selected upload settings have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
     public function generateUploadSettingTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
@@ -307,6 +303,14 @@ class UploadSettingController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new UploadSettingController(

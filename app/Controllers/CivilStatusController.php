@@ -84,34 +84,6 @@ class CivilStatusController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveCivilStatus(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class CivilStatusController {
         );
     }
 
-    public function deleteCivilStatus() {
-        $civilStatusId = $_POST['civil_status_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->civilStatus->deleteCivilStatus($civilStatusId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Civil Status Success',
-            'The civil status has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleCivilStatus() {
-        $civilStatusIds = $_POST['civil_status_id'] ?? null;
-
-        foreach($civilStatusIds as $civilStatusId){
-            $this->civilStatus->deleteCivilStatus($civilStatusId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Civil Status Success',
-            'The selected civil status have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchCivilStatusDetails() {
         $civilStatusId          = $_POST['civil_status_id'] ?? null;
@@ -189,6 +149,42 @@ class CivilStatusController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteCivilStatus() {
+        $civilStatusId = $_POST['civil_status_id'] ?? null;
+
+        $this->civilStatus->deleteCivilStatus($civilStatusId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Civil Status Success',
+            'The civil status has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleCivilStatus() {
+        $civilStatusIds = $_POST['civil_status_id'] ?? null;
+
+        foreach($civilStatusIds as $civilStatusId){
+            $this->civilStatus->deleteCivilStatus($civilStatusId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Civil Status Success',
+            'The selected civil status have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateCivilStatusTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class CivilStatusController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new CivilStatusController(

@@ -84,34 +84,6 @@ class JobPositionController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveJobPosition(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class JobPositionController {
         );
     }
 
-    public function deleteJobPosition() {
-        $jobPositionId = $_POST['job_position_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->jobPosition->deleteJobPosition($jobPositionId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Job Position Success',
-            'The job position has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleJobPosition() {
-        $jobPositionIds = $_POST['job_position_id'] ?? null;
-
-        foreach($jobPositionIds as $jobPositionId){
-            $this->jobPosition->deleteJobPosition($jobPositionId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Job Positions Success',
-            'The selected job positions have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchJobPositionDetails() {
         $jobPositionId          = $_POST['job_position_id'] ?? null;
@@ -189,6 +149,42 @@ class JobPositionController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteJobPosition() {
+        $jobPositionId = $_POST['job_position_id'] ?? null;
+
+        $this->jobPosition->deleteJobPosition($jobPositionId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Job Position Success',
+            'The job position has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleJobPosition() {
+        $jobPositionIds = $_POST['job_position_id'] ?? null;
+
+        foreach($jobPositionIds as $jobPositionId){
+            $this->jobPosition->deleteJobPosition($jobPositionId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Job Positions Success',
+            'The selected job positions have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateJobPositionTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class JobPositionController {
 
         echo json_encode($response);
     }
+        
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new JobPositionController(

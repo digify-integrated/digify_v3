@@ -97,34 +97,6 @@ class CompanyController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveCompany(
         int $lastLogBy
     ) {
@@ -186,6 +158,14 @@ class CompanyController {
             ['company_id' => $encryptedcompanyId]
         );
     }
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
     public function updateCompanyLogo(
         int $lastLogBy
@@ -279,38 +259,9 @@ class CompanyController {
         );
     }
 
-    public function deleteCompany() {
-        $companyId          = $_POST['company_id'] ?? null;
-        $companyDetails     = $this->company->fetchCompany($companyId);
-        $companyLogo        = $companyDetails['company_logo'] ?? null;
-
-        $this->systemHelper->deleteFileIfExist($companyLogo);
-
-        $this->company->deleteCompany($companyId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Company Success',
-            'The company has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleCompany() {
-        $companyIds = $_POST['company_id'] ?? null;
-
-        foreach($companyIds as $companyId){
-            $companyDetails     = $this->company->fetchCompany($companyId);
-            $companyLogo        = $companyDetails['company_logo'] ?? null;
-
-            $this->systemHelper->deleteFileIfExist($companyLogo);
-
-            $this->company->deleteCompany($companyId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Companies Success',
-            'The selected companies have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchCompanyDetails() {
         $companyId          = $_POST['company_id'] ?? null;
@@ -393,7 +344,52 @@ class CompanyController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteCompany() {
+        $companyId          = $_POST['company_id'] ?? null;
+        $companyDetails     = $this->company->fetchCompany($companyId);
+        $companyLogo        = $companyDetails['company_logo'] ?? null;
+
+        $this->systemHelper->deleteFileIfExist($companyLogo);
+
+        $this->company->deleteCompany($companyId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Company Success',
+            'The company has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleCompany() {
+        $companyIds = $_POST['company_id'] ?? null;
+
+        foreach($companyIds as $companyId){
+            $companyDetails     = $this->company->fetchCompany($companyId);
+            $companyLogo        = $companyDetails['company_logo'] ?? null;
+
+            $this->systemHelper->deleteFileIfExist($companyLogo);
+
+            $this->company->deleteCompany($companyId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Companies Success',
+            'The selected companies have been deleted successfully.'
+        );
+    }
     
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
     public function generateCompanyOptions() {
         $multiple   = $_POST['multiple'] ?? false;
         $response   = [];
@@ -416,6 +412,14 @@ class CompanyController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new CompanyController(

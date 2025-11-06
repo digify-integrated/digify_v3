@@ -84,34 +84,6 @@ class NationalityController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveNationality(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class NationalityController {
         );
     }
 
-    public function deleteNationality() {
-        $nationalityId = $_POST['nationality_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->nationality->deleteNationality($nationalityId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Nationality Success',
-            'The nationality has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleNationality() {
-        $nationalityIds = $_POST['nationality_id'] ?? null;
-
-        foreach($nationalityIds as $nationalityId){
-            $this->nationality->deleteNationality($nationalityId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Nationalities Success',
-            'The selected Nationalities have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchNationalityDetails() {
         $nationalityId          = $_POST['nationality_id'] ?? null;
@@ -189,6 +149,42 @@ class NationalityController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteNationality() {
+        $nationalityId = $_POST['nationality_id'] ?? null;
+
+        $this->nationality->deleteNationality($nationalityId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Nationality Success',
+            'The nationality has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleNationality() {
+        $nationalityIds = $_POST['nationality_id'] ?? null;
+
+        foreach($nationalityIds as $nationalityId){
+            $this->nationality->deleteNationality($nationalityId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Nationalities Success',
+            'The selected Nationalities have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateNationalityTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class NationalityController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new NationalityController(

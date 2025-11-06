@@ -94,34 +94,6 @@ class SystemActionController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveSystemAction(
         int $lastLogBy
     ) {
@@ -198,6 +170,14 @@ class SystemActionController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
     public function updateSystemActionRolePermission(
         int $lastLogBy
     ) {
@@ -225,6 +205,39 @@ class SystemActionController {
             'The role permission has been updated successfully.'
         );
     }
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    public function fetchSystemActionDetails() {
+        $systemActionId             = $_POST['system_action_id'] ?? null;
+        $checkSystemActionExist     = $this->systemAction->checkSystemActionExist($systemActionId);
+        $total                      = $checkSystemActionExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper::sendErrorResponse(
+                'Get System Action Details',
+                'The system action does not exist',
+                ['notExist' => true]
+            );
+        }
+
+        $systemActionDetails = $this->systemAction->fetchSystemAction($systemActionId);
+
+        $response = [
+            'success'                   => true,
+            'systemActionName'          => $systemActionDetails['system_action_name'] ?? null,
+            'systemActionDescription'   => $systemActionDetails['system_action_description'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
 
     public function deleteSystemAction() {
         $systemActionId = $_POST['system_action_id'] ?? null;
@@ -261,30 +274,13 @@ class SystemActionController {
         );
     }
 
-    public function fetchSystemActionDetails() {
-        $systemActionId             = $_POST['system_action_id'] ?? null;
-        $checkSystemActionExist     = $this->systemAction->checkSystemActionExist($systemActionId);
-        $total                      = $checkSystemActionExist['total'] ?? 0;
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
 
-        if($total === 0){
-            $this->systemHelper::sendErrorResponse(
-                'Get System Action Details',
-                'The system action does not exist',
-                ['notExist' => true]
-            );
-        }
-
-        $systemActionDetails = $this->systemAction->fetchSystemAction($systemActionId);
-
-        $response = [
-            'success'                   => true,
-            'systemActionName'          => $systemActionDetails['system_action_name'] ?? null,
-            'systemActionDescription'   => $systemActionDetails['system_action_description'] ?? null
-        ];
-
-        echo json_encode($response);
-        exit;
-    }
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateSystemActionTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -403,6 +399,14 @@ class SystemActionController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new SystemActionController(

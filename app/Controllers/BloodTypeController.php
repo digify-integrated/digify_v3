@@ -84,34 +84,6 @@ class BloodTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveBloodType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class BloodTypeController {
         );
     }
 
-    public function deleteBloodType() {
-        $bloodTypeId = $_POST['blood_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->bloodType->deleteBloodType($bloodTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Blood Type Success',
-            'The blood type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleBloodType() {
-        $bloodTypeIds = $_POST['blood_type_id'] ?? null;
-
-        foreach($bloodTypeIds as $bloodTypeId){
-            $this->bloodType->deleteBloodType($bloodTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Blood Types Success',
-            'The selected blood types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchBloodTypeDetails() {
         $bloodTypeId            = $_POST['blood_type_id'] ?? null;
@@ -189,6 +149,42 @@ class BloodTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteBloodType() {
+        $bloodTypeId = $_POST['blood_type_id'] ?? null;
+
+        $this->bloodType->deleteBloodType($bloodTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Blood Type Success',
+            'The blood type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleBloodType() {
+        $bloodTypeIds = $_POST['blood_type_id'] ?? null;
+
+        foreach($bloodTypeIds as $bloodTypeId){
+            $this->bloodType->deleteBloodType($bloodTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Blood Types Success',
+            'The selected blood types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateBloodTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class BloodTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new BloodTypeController(

@@ -97,34 +97,6 @@ class MenuItemController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveMenuItem(
         int $lastLogBy
     ) {
@@ -219,6 +191,14 @@ class MenuItemController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
     public function updateMenuItemRolePermission(
         int $lastLogBy
     ) {
@@ -248,6 +228,44 @@ class MenuItemController {
             'The role permission has been updated successfully.'
         );
     }
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    public function fetchMenuItemDetails() {
+        $menuItemId             = $_POST['menu_item_id'] ?? null;
+        $checkMenuItemExist     = $this->menuItem->checkMenuItemExist($menuItemId);
+        $total                  = $checkMenuItemExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper::sendErrorResponse(
+                'Get Menu Item Details',
+                'The menu item does not exist'
+            );
+        }
+
+        $menuItemDetails   = $this->menuItem->fetchMenuItem($menuItemId);
+        $parentId          = $menuItemDetails['parent_id'] == 0 ? '' : $menuItemDetails['parent_id'];
+
+        $response = [
+            'success'           => true,
+            'menuItemName'      => $menuItemDetails['menu_item_name'] ?? null,
+            'menuItemURL'       => $menuItemDetails['menu_item_url'] ?? null,
+            'menuItemIcon'      => $menuItemDetails['menu_item_icon'] ?? null,
+            'appModuleID'       => $menuItemDetails['app_module_id'] ?? null,
+            'parentID'          => $parentId,
+            'tableName'         => $menuItemDetails['table_name'] ?? null,
+            'orderSequence'     => $menuItemDetails['order_sequence'] ?? null
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
 
     public function deleteMenuItem() {
         $menuItemId = $_POST['menu_item_id'] ?? null;
@@ -284,35 +302,13 @@ class MenuItemController {
         );
     }
 
-    public function fetchMenuItemDetails() {
-        $menuItemId             = $_POST['menu_item_id'] ?? null;
-        $checkMenuItemExist     = $this->menuItem->checkMenuItemExist($menuItemId);
-        $total                  = $checkMenuItemExist['total'] ?? 0;
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
 
-        if($total === 0){
-            $this->systemHelper::sendErrorResponse(
-                'Get Menu Item Details',
-                'The menu item does not exist'
-            );
-        }
-
-        $menuItemDetails   = $this->menuItem->fetchMenuItem($menuItemId);
-        $parentId          = $menuItemDetails['parent_id'] == 0 ? '' : $menuItemDetails['parent_id'];
-
-        $response = [
-            'success'           => true,
-            'menuItemName'      => $menuItemDetails['menu_item_name'] ?? null,
-            'menuItemURL'       => $menuItemDetails['menu_item_url'] ?? null,
-            'menuItemIcon'      => $menuItemDetails['menu_item_icon'] ?? null,
-            'appModuleID'       => $menuItemDetails['app_module_id'] ?? null,
-            'parentID'          => $parentId,
-            'tableName'         => $menuItemDetails['table_name'] ?? null,
-            'orderSequence'     => $menuItemDetails['order_sequence'] ?? null
-        ];
-
-        echo json_encode($response);
-        exit;
-    }
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateMenuItemTable() {
         $filterAppModule    = $this->systemHelper->checkFilter($_POST['app_module_filter'] ?? null);
@@ -481,6 +477,14 @@ class MenuItemController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new MenuItemController(

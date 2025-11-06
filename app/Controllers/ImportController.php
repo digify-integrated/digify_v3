@@ -84,118 +84,6 @@ class ImportController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
-    public function generateImportDataPreview() {
-        $csrfToken = $_POST['csrf_token'] ?? null;
-
-        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_form')) {
-            $this->systemHelper::sendErrorResponse(
-                'Invalid Request',
-                'Security check failed. Please refresh and try again.'
-            );
-        }
-
-        $importFileName             = $_FILES['import_file']['name'];
-        $importFileSize             = $_FILES['import_file']['size'];
-        $importTempName             = $_FILES['import_file']['tmp_name'];
-        $importFileExtension        = explode('.', $importFileName);
-        $importActualFileExtension  = strtolower(end($importFileExtension));
-
-        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
-        $maxFileSize    = $uploadSetting['max_file_size'];
-
-        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(3);
-        $allowedFileExtensions          = [];
-
-        foreach ($uploadSettingFileExtension as $row) {
-            $allowedFileExtensions[] = $row['file_extension'];
-        }
-
-        if (!in_array($importActualFileExtension, $allowedFileExtensions)) {
-            $this->systemHelper::sendErrorResponse(
-                'Upload File',
-                'The file uploaded is not supported.'
-            );
-        }
-
-        if($importFileSize > ($maxFileSize * 1024)){
-            $this->systemHelper::sendErrorResponse(
-                'Upload File',
-                'The file exceeds the maximum allowed size of ' . number_format($maxFileSize) . ' kb.'
-            );
-        }
-
-        $file = fopen($importTempName, 'r');
-
-        if ($file !== false) {
-            $headers = fgetcsv($file);
-    
-            $data = [];
-
-            while (($row = fgetcsv($file)) !== false) {
-                $data[] = $row;
-            }
-    
-            fclose($file);
-    
-            $html = '<thead class="text-center"><tr>';
-            foreach ($headers as $header) {
-                $html .= '<th class="fw-bold">' . htmlspecialchars($header) . '</th>';
-            }
-            $html .= '</tr></thead><tbody>';
-    
-            foreach ($data as $row) {
-                $html .= '<tr>';
-                foreach ($row as $cell) {
-                     $html .= '<td>' . htmlspecialchars($cell) . '</td>';
-                }
-                $html .= '</tr>';
-            }
-    
-            $html .= '</tbody>';
-
-            $this->systemHelper::sendSuccessResponse(
-                '',
-                '',
-                ['preview' => $html]
-            );
-        }
-        else {
-
-            $this->systemHelper::sendErrorResponse(
-                'Upload File',
-                'Failed to open file.'
-            );
-        }
-    }
-
     public function saveImportData() {
         $csrfToken = $_POST['csrf_token'] ?? null;
 
@@ -306,6 +194,122 @@ class ImportController {
             );
         }
     }
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
+    public function generateImportDataPreview() {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'upload_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $importFileName             = $_FILES['import_file']['name'];
+        $importFileSize             = $_FILES['import_file']['size'];
+        $importTempName             = $_FILES['import_file']['tmp_name'];
+        $importFileExtension        = explode('.', $importFileName);
+        $importActualFileExtension  = strtolower(end($importFileExtension));
+
+        $uploadSetting  = $this->uploadSetting->fetchUploadSetting(3);
+        $maxFileSize    = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension     = $this->uploadSetting->fetchUploadSettingFileExtension(3);
+        $allowedFileExtensions          = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $allowedFileExtensions[] = $row['file_extension'];
+        }
+
+        if (!in_array($importActualFileExtension, $allowedFileExtensions)) {
+            $this->systemHelper::sendErrorResponse(
+                'Upload File',
+                'The file uploaded is not supported.'
+            );
+        }
+
+        if($importFileSize > ($maxFileSize * 1024)){
+            $this->systemHelper::sendErrorResponse(
+                'Upload File',
+                'The file exceeds the maximum allowed size of ' . number_format($maxFileSize) . ' kb.'
+            );
+        }
+
+        $file = fopen($importTempName, 'r');
+
+        if ($file !== false) {
+            $headers = fgetcsv($file);
+    
+            $data = [];
+
+            while (($row = fgetcsv($file)) !== false) {
+                $data[] = $row;
+            }
+    
+            fclose($file);
+    
+            $html = '<thead class="text-center"><tr>';
+            foreach ($headers as $header) {
+                $html .= '<th class="fw-bold">' . htmlspecialchars($header) . '</th>';
+            }
+            $html .= '</tr></thead><tbody>';
+    
+            foreach ($data as $row) {
+                $html .= '<tr>';
+                foreach ($row as $cell) {
+                     $html .= '<td>' . htmlspecialchars($cell) . '</td>';
+                }
+                $html .= '</tr>';
+            }
+    
+            $html .= '</tbody>';
+
+            $this->systemHelper::sendSuccessResponse(
+                '',
+                '',
+                ['preview' => $html]
+            );
+        }
+        else {
+
+            $this->systemHelper::sendErrorResponse(
+                'Upload File',
+                'Failed to open file.'
+            );
+        }
+    }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new ImportController(

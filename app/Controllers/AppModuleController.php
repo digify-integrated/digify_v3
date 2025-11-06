@@ -93,34 +93,6 @@ class AppModuleController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveAppModule(
         int $lastLogBy
     ) {
@@ -151,6 +123,14 @@ class AppModuleController {
             ['app_module_id' => $encryptedappModuleId]
         );
     }
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
     public function updateAppModuleLogo(
         int $lastLogBy
@@ -244,6 +224,44 @@ class AppModuleController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
+
+    public function fetchAppModuleDetails() {
+        $appModuleId            = $_POST['app_module_id'] ?? null;
+        $checkAppModuleExist    = $this->appModule->checkAppModuleExist($appModuleId);
+        $total                  = $checkAppModuleExist['total'] ?? 0;
+
+        if($total === 0){
+            $this->systemHelper::sendErrorResponse(
+                'Get App Module Details',
+                'The app module does not exist',
+                ['notExist' => true]
+            );
+        }
+
+        $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
+        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
+
+        $response = [
+            'success'               => true,
+            'appModuleName'         => $appModuleDetails['app_module_name'] ?? null,
+            'appModuleDescription'  => $appModuleDetails['app_module_description'] ?? null,
+            'menuItemID'            => $appModuleDetails['menu_item_id'] ?? null,
+            'menuItemName'          => $appModuleDetails['menu_item_name'] ?? null,
+            'orderSequence'         => $appModuleDetails['order_sequence'] ?? null,
+            'appLogo'               => $appLogo
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
     public function deleteAppModule() {
         $appModuleId        = $_POST['app_module_id'] ?? null;
         $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
@@ -277,35 +295,13 @@ class AppModuleController {
         );
     }
 
-    public function fetchAppModuleDetails() {
-        $appModuleId            = $_POST['app_module_id'] ?? null;
-        $checkAppModuleExist    = $this->appModule->checkAppModuleExist($appModuleId);
-        $total                  = $checkAppModuleExist['total'] ?? 0;
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
 
-        if($total === 0){
-            $this->systemHelper::sendErrorResponse(
-                'Get App Module Details',
-                'The app module does not exist',
-                ['notExist' => true]
-            );
-        }
-
-        $appModuleDetails   = $this->appModule->fetchAppModule($appModuleId);
-        $appLogo            = $this->systemHelper->checkImageExist($appModuleDetails['app_logo'] ?? null, 'app module logo');
-
-        $response = [
-            'success'               => true,
-            'appModuleName'         => $appModuleDetails['app_module_name'] ?? null,
-            'appModuleDescription'  => $appModuleDetails['app_module_description'] ?? null,
-            'menuItemID'            => $appModuleDetails['menu_item_id'] ?? null,
-            'menuItemName'          => $appModuleDetails['menu_item_name'] ?? null,
-            'orderSequence'         => $appModuleDetails['order_sequence'] ?? null,
-            'appLogo'               => $appLogo
-        ];
-
-        echo json_encode($response);
-        exit;
-    }
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateAppModuleTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -362,6 +358,14 @@ class AppModuleController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new AppModuleController(

@@ -84,34 +84,6 @@ class RelationshipController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveRelationship(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class RelationshipController {
         );
     }
 
-    public function deleteRelationship() {
-        $relationshipId = $_POST['relationship_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->relationship->deleteRelationship($relationshipId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Relationship Success',
-            'The relationship has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleRelationship() {
-        $relationshipIds = $_POST['relationship_id'] ?? null;
-
-        foreach($relationshipIds as $relationshipId){
-            $this->relationship->deleteRelationship($relationshipId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Relationships Success',
-            'The selected relationships have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchRelationshipDetails() {
         $relationshipId             = $_POST['relationship_id'] ?? null;
@@ -189,6 +149,42 @@ class RelationshipController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteRelationship() {
+        $relationshipId = $_POST['relationship_id'] ?? null;
+
+        $this->relationship->deleteRelationship($relationshipId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Relationship Success',
+            'The relationship has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleRelationship() {
+        $relationshipIds = $_POST['relationship_id'] ?? null;
+
+        foreach($relationshipIds as $relationshipId){
+            $this->relationship->deleteRelationship($relationshipId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Relationships Success',
+            'The selected relationships have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateRelationshipTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class RelationshipController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new RelationshipController(

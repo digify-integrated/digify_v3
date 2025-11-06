@@ -84,34 +84,6 @@ class WarehouseTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveWarehouseType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class WarehouseTypeController {
         );
     }
 
-    public function deleteWarehouseType() {
-        $warehouseTypeId = $_POST['warehouse_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->warehouseType->deleteWarehouseType($warehouseTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Warehouse Type Success',
-            'The warehouse type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleWarehouseType() {
-        $warehouseTypeIds = $_POST['warehouse_type_id'] ?? null;
-
-        foreach($warehouseTypeIds as $warehouseTypeId){
-            $this->warehouseType->deleteWarehouseType($warehouseTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Warehouse Types Success',
-            'The selected warehouse types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchWarehouseTypeDetails() {
         $warehouseTypeId            = $_POST['warehouse_type_id'] ?? null;
@@ -189,6 +149,42 @@ class WarehouseTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteWarehouseType() {
+        $warehouseTypeId = $_POST['warehouse_type_id'] ?? null;
+
+        $this->warehouseType->deleteWarehouseType($warehouseTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Warehouse Type Success',
+            'The warehouse type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleWarehouseType() {
+        $warehouseTypeIds = $_POST['warehouse_type_id'] ?? null;
+
+        foreach($warehouseTypeIds as $warehouseTypeId){
+            $this->warehouseType->deleteWarehouseType($warehouseTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Warehouse Types Success',
+            'The selected warehouse types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateWarehouseTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class WarehouseTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new WarehouseTypeController(

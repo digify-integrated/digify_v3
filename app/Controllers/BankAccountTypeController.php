@@ -84,34 +84,6 @@ class BankAccountTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveBankAccountType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class BankAccountTypeController {
         );
     }
 
-    public function deleteBankAccountType() {
-        $bankAccountTypeId = $_POST['bank_account_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Bank Account Type Success',
-            'The bank account type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleBankAccountType() {
-        $bankAccountTypeIds = $_POST['bank_account_type_id'] ?? null;
-
-        foreach($bankAccountTypeIds as $bankAccountTypeId){
-            $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Bank Account Types Success',
-            'The selected bank account types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchBankAccountTypeDetails() {
         $bankAccountTypeId          = $_POST['bank_account_type_id'] ?? null;
@@ -189,6 +149,42 @@ class BankAccountTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteBankAccountType() {
+        $bankAccountTypeId = $_POST['bank_account_type_id'] ?? null;
+
+        $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Bank Account Type Success',
+            'The bank account type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleBankAccountType() {
+        $bankAccountTypeIds = $_POST['bank_account_type_id'] ?? null;
+
+        foreach($bankAccountTypeIds as $bankAccountTypeId){
+            $this->bankAccountType->deleteBankAccountType($bankAccountTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Bank Account Types Success',
+            'The selected bank account types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateBankAccountTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class BankAccountTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new BankAccountTypeController(

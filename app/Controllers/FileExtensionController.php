@@ -88,34 +88,6 @@ class FileExtensionController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveFileExtension(
         int $lastLogBy
     ) {
@@ -154,29 +126,17 @@ class FileExtensionController {
         );
     }
 
-    public function deleteFileExtension() {
-        $fileExtensionId = $_POST['file_extension_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->fileExtension->deleteFileExtension($fileExtensionId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete File Extension Success',
-            'The file extension has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleFileExtension() {
-        $fileExtensionIds = $_POST['file_extension_id'] ?? null;
-
-        foreach($fileExtensionIds as $fileExtensionId){
-            $this->fileExtension->deleteFileExtension($fileExtensionId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple File Extensions Success',
-            'The selected file extensions have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchFileExtensionDetails() {
         $fileExtensionId            = $_POST['file_extension_id'] ?? null;
@@ -203,6 +163,42 @@ class FileExtensionController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteFileExtension() {
+        $fileExtensionId = $_POST['file_extension_id'] ?? null;
+
+        $this->fileExtension->deleteFileExtension($fileExtensionId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete File Extension Success',
+            'The file extension has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleFileExtension() {
+        $fileExtensionIds = $_POST['file_extension_id'] ?? null;
+
+        foreach($fileExtensionIds as $fileExtensionId){
+            $this->fileExtension->deleteFileExtension($fileExtensionId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple File Extensions Success',
+            'The selected file extensions have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateFileExtensionTable() {
         $pageLink           = $_POST['page_link'] ?? null;
@@ -254,6 +250,14 @@ class FileExtensionController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new FileExtensionController(

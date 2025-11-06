@@ -84,34 +84,6 @@ class EmployeeDocumentTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveEmployeeDocumentType(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class EmployeeDocumentTypeController {
         );
     }
 
-    public function deleteEmployeeDocumentType() {
-        $employeeDocumentTypeId = $_POST['employee_document_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Document Type Success',
-            'The employee document type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleEmployeeDocumentType() {
-        $employeeDocumentTypeIds = $_POST['employee_document_type_id'] ?? null;
-
-        foreach($employeeDocumentTypeIds as $employeeDocumentTypeId){
-            $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Employee Document Types Success',
-            'The selected employee document types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchEmployeeDocumentTypeDetails() {
         $employeeDocumentTypeId             = $_POST['employee_document_type_id'] ?? null;
@@ -189,6 +149,42 @@ class EmployeeDocumentTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteEmployeeDocumentType() {
+        $employeeDocumentTypeId = $_POST['employee_document_type_id'] ?? null;
+
+        $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Document Type Success',
+            'The employee document type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleEmployeeDocumentType() {
+        $employeeDocumentTypeIds = $_POST['employee_document_type_id'] ?? null;
+
+        foreach($employeeDocumentTypeIds as $employeeDocumentTypeId){
+            $this->employeeDocumentType->deleteEmployeeDocumentType($employeeDocumentTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Employee Document Types Success',
+            'The selected employee document types have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateEmployeeDocumentTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class EmployeeDocumentTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new EmployeeDocumentTypeController(

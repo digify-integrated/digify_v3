@@ -90,34 +90,6 @@ class NotificationSettingController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveNotificationSetting(
         int $lastLogBy
     ) {
@@ -235,6 +207,14 @@ class NotificationSettingController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
+
     public function updateNotificationSettingChannel(
         int $lastLogBy
     ) {
@@ -255,29 +235,9 @@ class NotificationSettingController {
         );
     }
 
-    public function deleteNotificationSetting() {
-        $notificationSettingId = $_POST['notification_setting_id'] ?? null;
-
-        $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Notification Setting Success',
-            'The notification setting has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleNotificationSetting() {
-        $notificationSettingIds = $_POST['notification_setting_id'] ?? null;
-
-        foreach($notificationSettingIds as $notificationSettingId){
-            $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Notification Settings Success',
-            'The selected notification settings have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchNotificationSettingDetails() {
         $notificationSettingId          = $_POST['notification_setting_id'] ?? null;
@@ -378,6 +338,42 @@ class NotificationSettingController {
         exit;
     }
 
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteNotificationSetting() {
+        $notificationSettingId = $_POST['notification_setting_id'] ?? null;
+
+        $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Notification Setting Success',
+            'The notification setting has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleNotificationSetting() {
+        $notificationSettingIds = $_POST['notification_setting_id'] ?? null;
+
+        foreach($notificationSettingIds as $notificationSettingId){
+            $this->notificationSetting->deleteNotificationSetting($notificationSettingId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Notification Settings Success',
+            'The selected notification settings have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
+
     public function generateNotificationSettingTable() {
         $pageLink   = $_POST['page_link'] ?? null;
         $response   = [];
@@ -405,6 +401,14 @@ class NotificationSettingController {
 
         echo json_encode($response);
     }
+    
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new NotificationSettingController(

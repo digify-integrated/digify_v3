@@ -112,34 +112,6 @@ class UserAccountController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveUserAccount(
         int $lastLogBy
     ) {
@@ -228,6 +200,14 @@ class UserAccountController {
             'The role has been assigned successfully.'
         );
     }
+
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
     public function updateUserAccountFullName(
         int $lastLogBy
@@ -730,129 +710,9 @@ class UserAccountController {
         );
     }
 
-    public function activateUserAccount(
-        int $lastLogBy
-    ) {
-        $userAccountId = $_POST['user_account_id'] ?? null;
-
-        $this->userAccount->updateUserAccount(
-            $userAccountId,
-            'Yes',
-            'status',
-            $lastLogBy
-        );
-
-        $this->systemHelper::sendSuccessResponse(
-            'Activate User Account Success',
-            'The user account has been activated successfully.'
-        );
-    }
-    
-    public function activateMultipleUserAccount(
-        int $lastLogBy
-    ) {
-        $userAccountIds = $_POST['user_account_id'] ?? null;
-
-        foreach($userAccountIds as $userAccountId){
-            $this->userAccount->updateUserAccount(
-                $userAccountId,
-                'Yes',
-                'status',
-                $lastLogBy
-            );
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Activate Multiple User Accounts Success',
-            'The selected user accounts have been activated successfully.'
-        );
-    }
-
-    public function deactivateUserAccount(
-        int $lastLogBy
-    ) {
-        $userAccountId = $_POST['user_account_id'] ?? null;
-
-        if($userAccountId == $lastLogBy){
-            $this->systemHelper::sendErrorResponse(
-                'Deactivate User Account Error',
-                'You cannot deactivate the user account you are currently logged in as.'
-            );
-        }
-
-        $this->userAccount->updateUserAccount(
-            $userAccountId,
-            'No',
-            'status',
-            $lastLogBy
-        );
-
-        $this->systemHelper::sendSuccessResponse(
-            'Deactivate User Account Success',
-            'The user account has been deactivated successfully.'
-        );
-    }
-    
-    public function deactivateMultipleUserAccount(
-        int $lastLogBy
-    ) {
-        $userAccountIds = $_POST['user_account_id'] ?? null;
-
-        foreach($userAccountIds as $userAccountId){
-            if($userAccountId != $lastLogBy){
-                $this->userAccount->updateUserAccount(
-                    $userAccountId,
-                    'No',
-                    'status',
-                    $lastLogBy
-                );
-            }
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Deactivate Multiple User Accounts Success',
-            'The selected user accounts have been deactivated successfully.'
-        );
-    }
-
-    public function deleteUserAccount() {
-        $userAccountId          = $_POST['user_account_id'] ?? null;
-        $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
-        $profilePicture         = $userAccountDetails['profile_picture'] ?? null;
-
-        $this->systemHelper->deleteFileIfExist($profilePicture);
-
-        $this->userAccount->deleteUserAccount($userAccountId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete User Account Success',
-            'The user account has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleUserAccount() {
-        $userAccountIds = $_POST['user_account_id'] ?? null;
-
-        foreach($userAccountIds as $userAccountId){
-            $this->userAccount->deleteUserAccount($userAccountId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple User Accounts Success',
-            'The selected user accounts have been deleted successfully.'
-        );
-    }
-
-    public function deleteUserAccountRole() {
-        $roleUserAccountId = $_POST['role_user_account_id'] ?? null;
-
-        $this->role->deleteRoleUserAccount($roleUserAccountId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Role Success',
-            'The role has been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchUserAccountDetails() {
         $userAccountId          = $_POST['user_account_id'] ?? null;
@@ -937,6 +797,57 @@ class UserAccountController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteUserAccount() {
+        $userAccountId          = $_POST['user_account_id'] ?? null;
+        $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
+        $profilePicture         = $userAccountDetails['profile_picture'] ?? null;
+
+        $this->systemHelper->deleteFileIfExist($profilePicture);
+
+        $this->userAccount->deleteUserAccount($userAccountId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete User Account Success',
+            'The user account has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleUserAccount() {
+        $userAccountIds = $_POST['user_account_id'] ?? null;
+
+        foreach($userAccountIds as $userAccountId){
+            $this->userAccount->deleteUserAccount($userAccountId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple User Accounts Success',
+            'The selected user accounts have been deleted successfully.'
+        );
+    }
+
+    public function deleteUserAccountRole() {
+        $roleUserAccountId = $_POST['role_user_account_id'] ?? null;
+
+        $this->role->deleteRoleUserAccount($roleUserAccountId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Role Success',
+            'The role has been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateUserAccountTable() {
         $filterStatus   = $_POST['user_account_status_filter'] ?? null;
@@ -1045,6 +956,99 @@ class UserAccountController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    public function activateUserAccount(
+        int $lastLogBy
+    ) {
+        $userAccountId = $_POST['user_account_id'] ?? null;
+
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            'Yes',
+            'status',
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Activate User Account Success',
+            'The user account has been activated successfully.'
+        );
+    }
+    
+    public function activateMultipleUserAccount(
+        int $lastLogBy
+    ) {
+        $userAccountIds = $_POST['user_account_id'] ?? null;
+
+        foreach($userAccountIds as $userAccountId){
+            $this->userAccount->updateUserAccount(
+                $userAccountId,
+                'Yes',
+                'status',
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Activate Multiple User Accounts Success',
+            'The selected user accounts have been activated successfully.'
+        );
+    }
+
+    public function deactivateUserAccount(
+        int $lastLogBy
+    ) {
+        $userAccountId = $_POST['user_account_id'] ?? null;
+
+        if($userAccountId == $lastLogBy){
+            $this->systemHelper::sendErrorResponse(
+                'Deactivate User Account Error',
+                'You cannot deactivate the user account you are currently logged in as.'
+            );
+        }
+
+        $this->userAccount->updateUserAccount(
+            $userAccountId,
+            'No',
+            'status',
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Deactivate User Account Success',
+            'The user account has been deactivated successfully.'
+        );
+    }
+    
+    public function deactivateMultipleUserAccount(
+        int $lastLogBy
+    ) {
+        $userAccountIds = $_POST['user_account_id'] ?? null;
+
+        foreach($userAccountIds as $userAccountId){
+            if($userAccountId != $lastLogBy){
+                $this->userAccount->updateUserAccount(
+                    $userAccountId,
+                    'No',
+                    'status',
+                    $lastLogBy
+                );
+            }
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Deactivate Multiple User Accounts Success',
+            'The selected user accounts have been deactivated successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new UserAccountController(

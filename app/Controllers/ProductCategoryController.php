@@ -85,34 +85,6 @@ class ProductCategoryController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveProductCategory(
         int $lastLogBy
     ) {
@@ -153,29 +125,17 @@ class ProductCategoryController {
         );
     }
 
-    public function deleteProductCategory() {
-        $productCategoryId = $_POST['product_category_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->productCategory->deleteProductCategory($productCategoryId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Product Category Success',
-            'The product category has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleProductCategory() {
-        $productCategoryIds = $_POST['product_category_id'] ?? null;
-
-        foreach($productCategoryIds as $productCategoryId){
-            $this->productCategory->deleteProductCategory($productCategoryId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Product Categories Success',
-            'The selected product categories have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchProductCategoryDetails() {
         $productCategoryId          = $_POST['product_category_id'] ?? null;
@@ -203,6 +163,42 @@ class ProductCategoryController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteProductCategory() {
+        $productCategoryId = $_POST['product_category_id'] ?? null;
+
+        $this->productCategory->deleteProductCategory($productCategoryId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Product Category Success',
+            'The product category has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleProductCategory() {
+        $productCategoryIds = $_POST['product_category_id'] ?? null;
+
+        foreach($productCategoryIds as $productCategoryId){
+            $this->productCategory->deleteProductCategory($productCategoryId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Product Categories Success',
+            'The selected product categories have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateProductCategoryTable() {
         $filterParentCategory   = $this->systemHelper->checkFilter($_POST['parent_category_filter'] ?? null);
@@ -285,6 +281,14 @@ class ProductCategoryController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new ProductCategoryController(

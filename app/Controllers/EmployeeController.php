@@ -205,34 +205,6 @@ class EmployeeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveEmployee(
         int $lastLogBy
     ) {
@@ -497,6 +469,10 @@ class EmployeeController {
         );
     }
 
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
     public function insertEmployeeDocument(
         int $lastLogBy
     ) {
@@ -608,6 +584,10 @@ class EmployeeController {
             'The employee document has been saved successfully.'
         );
     }
+
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
     public function updateEmployeePersonalDetails(
         int $lastLogBy
@@ -1441,125 +1421,9 @@ class EmployeeController {
         );
     }
 
-    public function deleteEmployee() {
-        $employeeId         = $_POST['employee_id'] ?? null;
-        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-        $employeeImage      = $employeeDetails['employee_image'] ?? null;
-
-        $this->systemHelper->deleteFileIfExist($employeeImage);
-
-        $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
-
-        foreach ($employeeDocuments as $row) {
-            $documentFile = $row['document_file'] ?? null;
-
-            $this->systemHelper->deleteFileIfExist($documentFile);
-        }
-
-        $this->employee->deleteEmployee($employeeId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Success',
-            'The employee has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleEmployee() {
-        $employeeIds = $_POST['employee_id'] ?? null;
-
-        foreach($employeeIds as $employeeId){
-            $employeeDetails    = $this->employee->fetchEmployee($employeeId);
-            $employeeImage      = $employeeDetails['employee_image'] ?? null;
-
-            $this->systemHelper->deleteFileIfExist($employeeImage);
-
-            $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
-
-            foreach ($employeeDocuments as $row) {
-                $documentFile = $row['document_file'] ?? null;
-
-                $this->systemHelper->deleteFileIfExist($documentFile);
-            }
-
-            $this->employee->deleteEmployee($employeeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Employees Success',
-            'The selected employees have been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeLanguage() {
-        $employeeLanguageId = $_POST['employee_language_id'] ?? null;
-
-        $this->employee->deleteEmployeeLanguage($employeeLanguageId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Language Success',
-            'The employee language has been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeEducation() {
-        $employeeEducationId = $_POST['employee_education_id'] ?? null;
-
-        $this->employee->deleteEmployeeEducation($employeeEducationId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Educational Background Success',
-            'The employee educational background has been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeEmergencyContact() {
-        $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
-
-        $this->employee->deleteEmployeeEmergencyContact($employeeEmergencyContactId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Emergency Contact Success',
-            'The employee emergency contact has been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeLicense() {
-        $employeeLicenseId = $_POST['employee_license_id'] ?? null;
-
-        $this->employee->deleteEmployeeLicense($employeeLicenseId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee License Success',
-            'The employee license has been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeExperience() {
-        $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
-
-        $this->employee->deleteEmployeeExperience($employeeExperienceId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Experience Success',
-            'The employee experience has been deleted successfully.'
-        );
-    }
-
-    public function deleteEmployeeDocument() {
-        $employeeDocumentId = $_POST['employee_document_id'] ?? null;
-
-        $employeeDocumentDetails    = $this->employee->fetchEmployeeDocument($employeeDocumentId);
-        $documentFile               = $employeeDocumentDetails['document_file'] ?? null;
-        
-        $this->systemHelper->deleteFileIfExist($documentFile);
-
-        $this->employee->deleteEmployeeDocument($employeeDocumentId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employee Document Success',
-            'The employee document has been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchEmployeeDetails() {
         $employeeId             = $_POST['employee_id'] ?? null;
@@ -1723,6 +1587,138 @@ class EmployeeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteEmployee() {
+        $employeeId         = $_POST['employee_id'] ?? null;
+        $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+        $employeeImage      = $employeeDetails['employee_image'] ?? null;
+
+        $this->systemHelper->deleteFileIfExist($employeeImage);
+
+        $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
+
+        foreach ($employeeDocuments as $row) {
+            $documentFile = $row['document_file'] ?? null;
+
+            $this->systemHelper->deleteFileIfExist($documentFile);
+        }
+
+        $this->employee->deleteEmployee($employeeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Success',
+            'The employee has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleEmployee() {
+        $employeeIds = $_POST['employee_id'] ?? null;
+
+        foreach($employeeIds as $employeeId){
+            $employeeDetails    = $this->employee->fetchEmployee($employeeId);
+            $employeeImage      = $employeeDetails['employee_image'] ?? null;
+
+            $this->systemHelper->deleteFileIfExist($employeeImage);
+
+            $employeeDocuments = $this->employee->fetchAllEmployeeDocument($employeeId);
+
+            foreach ($employeeDocuments as $row) {
+                $documentFile = $row['document_file'] ?? null;
+
+                $this->systemHelper->deleteFileIfExist($documentFile);
+            }
+
+            $this->employee->deleteEmployee($employeeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Employees Success',
+            'The selected employees have been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeLanguage() {
+        $employeeLanguageId = $_POST['employee_language_id'] ?? null;
+
+        $this->employee->deleteEmployeeLanguage($employeeLanguageId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Language Success',
+            'The employee language has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeEducation() {
+        $employeeEducationId = $_POST['employee_education_id'] ?? null;
+
+        $this->employee->deleteEmployeeEducation($employeeEducationId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Educational Background Success',
+            'The employee educational background has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeEmergencyContact() {
+        $employeeEmergencyContactId = $_POST['employee_emergency_contact_id'] ?? null;
+
+        $this->employee->deleteEmployeeEmergencyContact($employeeEmergencyContactId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Emergency Contact Success',
+            'The employee emergency contact has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeLicense() {
+        $employeeLicenseId = $_POST['employee_license_id'] ?? null;
+
+        $this->employee->deleteEmployeeLicense($employeeLicenseId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee License Success',
+            'The employee license has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeExperience() {
+        $employeeExperienceId = $_POST['employee_experience_id'] ?? null;
+
+        $this->employee->deleteEmployeeExperience($employeeExperienceId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Experience Success',
+            'The employee experience has been deleted successfully.'
+        );
+    }
+
+    public function deleteEmployeeDocument() {
+        $employeeDocumentId = $_POST['employee_document_id'] ?? null;
+
+        $employeeDocumentDetails    = $this->employee->fetchEmployeeDocument($employeeDocumentId);
+        $documentFile               = $employeeDocumentDetails['document_file'] ?? null;
+        
+        $this->systemHelper->deleteFileIfExist($documentFile);
+
+        $this->employee->deleteEmployeeDocument($employeeDocumentId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employee Document Success',
+            'The employee document has been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateEmployeeCard() {
         $pageLink               = $_POST['page_link'] ?? null;
@@ -2344,6 +2340,14 @@ class EmployeeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new EmployeeController(

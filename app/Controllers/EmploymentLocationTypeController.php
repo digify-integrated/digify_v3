@@ -84,34 +84,6 @@ class EmploymentLocationTypeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveEmploymentLocationType(
         int $lastLogBy
     ) {
@@ -137,29 +109,17 @@ class EmploymentLocationTypeController {
         );
     }
 
-    public function deleteEmploymentLocationType() {
-        $employmentLocationTypeId = $_POST['employment_location_type_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Employment Location Type Success',
-            'The employment location type has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleEmploymentLocationType() {
-        $employmentLocationTypeIds = $_POST['employment_location_type_id'] ?? null;
-
-        foreach($employmentLocationTypeIds as $employmentLocationTypeId){
-            $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Employment Location Types Success',
-            'The selected employment location types have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchEmploymentLocationTypeDetails() {
         $employmentLocationTypeId           = $_POST['employment_location_type_id'] ?? null;
@@ -184,6 +144,42 @@ class EmploymentLocationTypeController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteEmploymentLocationType() {
+        $employmentLocationTypeId = $_POST['employment_location_type_id'] ?? null;
+
+        $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Employment Location Type Success',
+            'The employment location type has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleEmploymentLocationType() {
+        $employmentLocationTypeIds = $_POST['employment_location_type_id'] ?? null;
+
+        foreach($employmentLocationTypeIds as $employmentLocationTypeId){
+            $this->employmentLocationType->deleteEmploymentLocationType($employmentLocationTypeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Employment Location Types Success',
+            'The selected employment location types have been deleted successfully.'
+        );
+    }
+    
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateEmploymentLocationTypeTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -231,6 +227,14 @@ class EmploymentLocationTypeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new EmploymentLocationTypeController(

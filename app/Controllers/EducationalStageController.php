@@ -84,34 +84,6 @@ class EducationalStageController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveEducationalStage(
         int $lastLogBy
     ) {
@@ -142,29 +114,17 @@ class EducationalStageController {
         );
     }
 
-    public function deleteEducationalStage() {
-        $educationalStageId = $_POST['educational_stage_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->educationalStage->deleteEducationalStage($educationalStageId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Educational Stage Success',
-            'The educational stage has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleEducationalStage() {
-        $educationalStageIds = $_POST['educational_stage_id'] ?? null;
-
-        foreach($educationalStageIds as $educationalStageId){
-            $this->educationalStage->deleteEducationalStage($educationalStageId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Educational Stages Success',
-            'The selected educational stages have been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchEducationalStageDetails() {
         $educationalStageId             = $_POST['educational_stage_id'] ?? null;
@@ -189,6 +149,42 @@ class EducationalStageController {
         echo json_encode($response);
         exit;
     }
+
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteEducationalStage() {
+        $educationalStageId = $_POST['educational_stage_id'] ?? null;
+
+        $this->educationalStage->deleteEducationalStage($educationalStageId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Educational Stage Success',
+            'The educational stage has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleEducationalStage() {
+        $educationalStageIds = $_POST['educational_stage_id'] ?? null;
+
+        foreach($educationalStageIds as $educationalStageId){
+            $this->educationalStage->deleteEducationalStage($educationalStageId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Educational Stages Success',
+            'The selected educational stages have been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateEducationalStageTable() {
         $pageLink   = $_POST['page_link'] ?? null;
@@ -236,6 +232,14 @@ class EducationalStageController {
 
         echo json_encode($response);
     }
+    
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new EducationalStageController(

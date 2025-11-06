@@ -91,34 +91,6 @@ class AttributeController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 3: UPDATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 4: FETCH METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 5: DELETE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 6: CHECK METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 7: GENERATE METHOD
-    ============================================================================================= */
-
-    /* =============================================================================================
-        SECTION 8: CUSTOM METHOD
-    ============================================================================================= */
-
     public function saveAttribute(
         int $lastLogBy
     ) {
@@ -188,40 +160,17 @@ class AttributeController {
         );
     }
 
-    public function deleteAttribute() {
-        $attributeId = $_POST['attribute_id'] ?? null;
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
 
-        $this->attribute->deleteAttribute($attributeId);
+    /* =============================================================================================
+        SECTION 3: UPDATE METHOD
+    ============================================================================================= */
 
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Attribute Success',
-            'The attribute has been deleted successfully.'
-        );
-    }
-
-    public function deleteMultipleAttribute() {
-        $attributeIds = $_POST['attribute_id'] ?? null;
-
-        foreach($attributeIds as $attributeId){
-            $this->attribute->deleteAttribute($attributeId);
-        }
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Multiple Attributes Success',
-            'The selected attributes have been deleted successfully.'
-        );
-    }
-
-    public function deleteAttributeValue() {
-        $attributeValueId = $_POST['attribute_value_id'] ?? null;
-
-        $this->attribute->deleteAttributeValue($attributeValueId);
-
-        $this->systemHelper::sendSuccessResponse(
-            'Delete Attribute Value Success',
-            'The attribute value has been deleted successfully.'
-        );
-    }
+    /* =============================================================================================
+        SECTION 4: FETCH METHOD
+    ============================================================================================= */
 
     public function fetchAttributeDetails() {
         $attributeId            = $_POST['attribute_id'] ?? null;
@@ -273,6 +222,53 @@ class AttributeController {
         echo json_encode($response);
         exit;
     }
+    
+    /* =============================================================================================
+        SECTION 5: DELETE METHOD
+    ============================================================================================= */
+
+    public function deleteAttribute() {
+        $attributeId = $_POST['attribute_id'] ?? null;
+
+        $this->attribute->deleteAttribute($attributeId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Attribute Success',
+            'The attribute has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleAttribute() {
+        $attributeIds = $_POST['attribute_id'] ?? null;
+
+        foreach($attributeIds as $attributeId){
+            $this->attribute->deleteAttribute($attributeId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Attributes Success',
+            'The selected attributes have been deleted successfully.'
+        );
+    }
+
+    public function deleteAttributeValue() {
+        $attributeValueId = $_POST['attribute_value_id'] ?? null;
+
+        $this->attribute->deleteAttributeValue($attributeValueId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Attribute Value Success',
+            'The attribute value has been deleted successfully.'
+        );
+    }
+
+    /* =============================================================================================
+        SECTION 6: CHECK METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        SECTION 7: GENERATE METHOD
+    ============================================================================================= */
 
     public function generateAttributeTable() {
         $pageLink               = $_POST['page_link'] ?? null;
@@ -440,6 +436,14 @@ class AttributeController {
 
         echo json_encode($response);
     }
+
+    /* =============================================================================================
+        SECTION 8: CUSTOM METHOD
+    ============================================================================================= */
+
+    /* =============================================================================================
+        END OF METHODS
+    ============================================================================================= */
 }
 
 $controller = new AttributeController(
