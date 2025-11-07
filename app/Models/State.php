@@ -10,7 +10,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function saveState(
-        int $p_state_id,
+        null|int $p_state_id,
         string $p_state_name,
         int $p_country_id,
         string $p_country_name,
@@ -96,7 +96,7 @@ class State extends Model {
     ============================================================================================= */
 
     public function generateStateTable(
-        string $p_filter_by_country
+        null|string $p_filter_by_country
     ) {
         $sql = 'CALL generateStateTable(
             :p_filter_by_country

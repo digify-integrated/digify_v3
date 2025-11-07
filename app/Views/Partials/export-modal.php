@@ -9,7 +9,9 @@
             </div>
 
             <div class="modal-body">
-                <label class="fs-6 fw-semibold mb-2" for="export_to"><span class="required">Export To</span></label>
+                <label class="fs-6 fw-semibold required mb-2" for="export_to">
+                    Export To
+                </label>
                 <div class="row g-9 mb-4" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button='true']">
                     <div class="col-6">
                         <label class="btn btn-outline btn-outline-dashed btn-active-light-primary active d-flex text-start p-6" data-kt-button="true">

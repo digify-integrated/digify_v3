@@ -10,7 +10,7 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function saveTax(
-        int $p_tax_id,
+        null|int $p_tax_id,
         string $p_tax_name,
         float $p_tax_rate,
         string $p_tax_type,
@@ -132,10 +132,10 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function generateTaxTable(
-        string $p_filter_by_tax_type,
-        string $p_filter_by_tax_computation,
-        string $p_filter_by_tax_scope,
-        string $p_filter_by_tax_status
+        null|string $p_filter_by_tax_type,
+        null|string $p_filter_by_tax_computation,
+        null|string $p_filter_by_tax_scope,
+        null|string $p_filter_by_tax_status
     ) {
         $sql = 'CALL generateTaxTable(
             :p_filter_by_tax_type,

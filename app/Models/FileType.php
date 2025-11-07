@@ -10,7 +10,7 @@ class FileType extends Model {
     ============================================================================================= */
 
     public function saveFileType(
-        int $p_file_type_id,
+        null|int $p_file_type_id,
         string $p_file_type_name,
         int $p_last_log_by
     )    {

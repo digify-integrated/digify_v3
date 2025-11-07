@@ -10,10 +10,10 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function saveProductCategory(
-        int $p_product_category_id,
+        null|int $p_product_category_id,
         string $p_product_category_name,
-        int $p_parent_category_id,
-        string $p_parent_category_name,
+        null|string|int $p_parent_category_id,
+        null|string $p_parent_category_name,
         string $p_costing_method,
         int $p_display_order,
         int $p_last_log_by
@@ -54,7 +54,7 @@ class ProductCategory extends Model {
     ============================================================================================= */
 
     public function fetchProductCategory(
-        int $p_product_category_id
+        null|string|int $p_product_category_id
     ) {
         $sql = 'CALL fetchProductCategory(
             :p_product_category_id
@@ -101,9 +101,9 @@ class ProductCategory extends Model {
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
 
-   public function generateProductCategoryTable(
-        string $p_filter_by_parent_category,
-        string $p_filter_by_costing_method,
+    public function generateProductCategoryTable(
+        null|string $p_filter_by_parent_category,
+        null|string $p_filter_by_costing_method,
     ) {
         $sql = 'CALL generateProductCategoryTable(
             :p_filter_by_parent_category,

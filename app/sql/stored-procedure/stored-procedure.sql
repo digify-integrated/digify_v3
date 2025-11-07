@@ -8538,7 +8538,6 @@ BEGIN
         employment_type_name, 
         company_name, 
         location, 
-        work_location_type_name, 
         start_month, 
         start_year, 
         end_month, 

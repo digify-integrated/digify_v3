@@ -29,8 +29,8 @@
         <form id="nationality_form" method="post" action="#">
             <?= $security->csrfInput('nationality_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="nationality_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="nationality_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="nationality_name" name="nationality_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>

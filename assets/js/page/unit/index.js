@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
         data: { transaction: 'generate unit type options', multiple : true }
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#unit-table');
     initializeExportFeature('unit');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

@@ -4,8 +4,6 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeExportFeature('product');
-
     let isFetching = false;
     let hasQueuedRequest = false;
     let offset = 0;
@@ -52,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatatable(datatableConfig());
     initializeDatatableControls('#product-table');
+    initializeExportFeature('product');
 
     const containerId = 'product-card';
     const container = document.querySelector(`#${containerId}`);

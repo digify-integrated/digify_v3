@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#employee-document-type-table');
-    initializeExportFeature('employee_document_type');
-
     initializeDatatable({
         selector: '#employee-document-type-table',
         ajaxUrl: './app/Controllers/EmployeeDocumentTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#employee-document-type-table');
+    initializeExportFeature('employee_document_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-employee-document-type')) return;

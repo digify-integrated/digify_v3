@@ -32,8 +32,8 @@
         <form id="menu_item_form" method="post" action="#">
             <?= $security->csrfInput('menu_item_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="menu_item_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="menu_item_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="menu_item_name" name="menu_item_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -42,8 +42,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="app_module_id">
-                            <span class="required">App Module</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="app_module_id">
+                            App Module
                         </label>
 
                         <select id="app_module_id" name="app_module_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
@@ -80,8 +80,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="parent_id">
-                            <span class="required">Order Sequence</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="parent_id">
+                            Order Sequence
                         </label>
 
                         <input type="number" class="form-control" id="order_sequence" name="order_sequence" min="0" <?php echo $disabled; ?>>

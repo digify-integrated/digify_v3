@@ -4,8 +4,6 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeExportFeature('work_location');
-
     const datatableConfig = () => ({
         selector: '#work-location-table',
         ajaxUrl: './app/Controllers/WorkLocationController.php',
@@ -44,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initializeDatatable(datatableConfig());
     initializeDatatableControls('#work-location-table');
+    initializeExportFeature('work_location');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

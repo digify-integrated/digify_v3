@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#relationship-table');
-    initializeExportFeature('relationship');
-
     initializeDatatable({
         selector: '#relationship-table',
         ajaxUrl: './app/Controllers/RelationshipController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#relationship-table');
+    initializeExportFeature('relationship');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-relationship')) return;

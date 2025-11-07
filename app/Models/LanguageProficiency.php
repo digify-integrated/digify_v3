@@ -10,7 +10,7 @@ class LanguageProficiency extends Model {
     ============================================================================================= */
 
     public function saveLanguageProficiency(
-        int $p_language_proficiency_id,
+        null|int $p_language_proficiency_id,
         string $p_language_proficiency_name,
         string $p_language_proficiency_description,
         int $p_last_log_by

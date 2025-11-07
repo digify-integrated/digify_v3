@@ -3,9 +3,7 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeExportFeature('warehouse');
-    
+document.addEventListener('DOMContentLoaded', () => {    
     const datatableConfig = () => ({
         selector: '#warehouse-table',
         ajaxUrl: './app/Controllers/WarehouseController.php',
@@ -47,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatatable(datatableConfig());
     initializeDatatableControls('#warehouse-table');
+    initializeExportFeature('warehouse');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

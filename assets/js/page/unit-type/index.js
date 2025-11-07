@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#unit-type-table');
-    initializeExportFeature('unit_type');
-
     initializeDatatable({
         selector: '#unit-type-table',
         ajaxUrl: './app/Controllers/UnitTypeController.php',
@@ -22,14 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#unit-type-table');
+    initializeExportFeature('unit_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-unit-type')) return;
 
-        const transaction       = 'delete multiple unit type';
-        const unit_type_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                    .filter(el => el.checked)
-                                    .map(el => el.value);
+        const transaction   = 'delete multiple unit type';
+        const unit_type_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                .filter(el => el.checked)
+                                .map(el => el.value);
 
         if (unit_type_id.length === 0) {
             showNotification('Deletion Multiple Unit Types Error', 'Please select the unit types you wish to delete.', 'error');

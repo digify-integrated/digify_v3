@@ -10,7 +10,7 @@ class BankAccountType extends Model {
     ============================================================================================= */
 
     public function saveBankAccountType(
-        int $p_bank_account_type_id,
+        null|int $p_bank_account_type_id,
         string $p_bank_account_type_name,
         int $p_last_log_by
     )    {

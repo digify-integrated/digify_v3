@@ -9,9 +9,9 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="file_as">
-                    <span class="required">Full Name</span>
-                </label>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="file_as">
+                            Full Name  
+                        </label>
 
                         <input type="text" class="form-control maxlength" id="file_as" name="file_as" maxlength="300" autocomplete="off">
                     </div>
@@ -19,8 +19,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="email">
-                            <span class="required">Email</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="email">
+                            Email
                         </label>
 
                         <input type="email" class="form-control maxlength" id="email" name="email" maxlength="255" autocomplete="off">
@@ -40,8 +40,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="password">
-                            <span class="required">Password</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="password">
+                            Password
                         </label>
 
                         <div class="position-relative mb-3">

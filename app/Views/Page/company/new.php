@@ -6,8 +6,8 @@
         <form id="company_form" method="post" action="#">
             <?= $security->csrfInput('company_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="company_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="company_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="company_name" name="company_name" maxlength="100" autocomplete="off">
@@ -16,8 +16,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="address">
-                            <span class="required">Address</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="address">
+                            Address
                         </label>
 
                         <input type="text" class="form-control" id="address" name="address" maxlength="1000" autocomplete="off">
@@ -27,8 +27,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="city_id">
-                            <span class="required">City</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="city_id">
+                            City
                         </label>
 
                         <select id="city_id" name="city_id" class="form-select" data-control="select2" data-allow-clear="false"></select>

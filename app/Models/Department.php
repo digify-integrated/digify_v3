@@ -10,11 +10,11 @@ class Department extends Model {
     ============================================================================================= */
 
     public function saveDepartment(
-        int $p_department_id,
+        null|int $p_department_id,
         string $p_department_name,
-        int $p_parent_department_id,
+        null|string|int $p_parent_department_id,
         string $p_parent_department_name,
-        int $p_manager_id,
+        null|string|int $p_manager_id,
         string $p_manager_name,
         int $p_last_log_by
     )    {
@@ -54,7 +54,7 @@ class Department extends Model {
     ============================================================================================= */
 
     public function fetchDepartment(
-        int $p_department_id
+        null|string|int $p_department_id
     ) {
         $sql = 'CALL fetchDepartment(
             :p_department_id
@@ -102,8 +102,8 @@ class Department extends Model {
     ============================================================================================= */
 
     public function generateDepartmentTable(
-        string $p_filter_by_parent_department,
-        string $p_filter_by_manager
+        null|string $p_filter_by_parent_department,
+        null|string $p_filter_by_manager
     ) {
         $sql = 'CALL generateDepartmentTable(
             :p_filter_by_parent_department,

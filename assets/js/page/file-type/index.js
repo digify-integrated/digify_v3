@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#file-type-table');
-    initializeExportFeature('file_type');
-
     initializeDatatable({
         selector: '#file-type-table',
         ajaxUrl: './app/Controllers/FileTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#file-type-table');
+    initializeExportFeature('file_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-file-type')) return;

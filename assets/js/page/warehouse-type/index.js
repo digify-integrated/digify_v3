@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#warehouse-type-table');
-    initializeExportFeature('warehouse_type');
-
     initializeDatatable({
         selector: '#warehouse-type-table',
         ajaxUrl: './app/Controllers/WarehouseTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#warehouse-type-table');
+    initializeExportFeature('warehouse_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-warehouse-type')) return;

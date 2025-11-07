@@ -10,7 +10,7 @@ class JobPosition extends Model {
     ============================================================================================= */
 
     public function saveJobPosition(
-        int $p_job_position_id,
+        null|int $p_job_position_id,
         string $p_job_position_name,
         int $p_last_log_by
     )    {

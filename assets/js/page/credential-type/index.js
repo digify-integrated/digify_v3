@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#credential-type-table');
-    initializeExportFeature('credential_type');
-
     initializeDatatable({
         selector: '#credential-type-table',
         ajaxUrl: './app/Controllers/CredentialTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#credential-type-table');
+    initializeExportFeature('credential_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-credential-type')) return;

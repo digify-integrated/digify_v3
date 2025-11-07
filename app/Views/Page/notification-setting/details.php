@@ -32,15 +32,15 @@
                 <?= $security->csrfInput('notification_setting_form'); ?>
                 <div class="card-body border-top p-9">
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="notification_setting_name">
-                            <span class="required">Display Name</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="notification_setting_name">
+                            Display Name
                         </label>
 
                         <input type="text" class="form-control" id="notification_setting_name" name="notification_setting_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
                     </div>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="notification_setting_description">
-                            <span class="required">Description</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="notification_setting_description">
+                            Description
                         </label>
 
                         <input type="text" class="form-control" id="notification_setting_description" name="notification_setting_description" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
@@ -67,15 +67,15 @@
                 <form id="update_system_notification_template_form">
                     <?= $security->csrfInput('update_system_notification_template_form'); ?>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="system_notification_title">
-                            <span class="required">Title</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="system_notification_title">
+                            Title
                         </label>
 
                         <input type="text" class="form-control" id="system_notification_title" name="system_notification_title" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                     </div>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="system_notification_message">
-                            <span class="required">Message</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="system_notification_message">
+                            Message
                         </label>
 
                         <textarea class="form-control" id="system_notification_message" name="system_notification_message" maxlength="500" rows="3" <?php echo $disabled; ?>></textarea>
@@ -101,15 +101,15 @@
                 <form id="update_email_notification_template_form">
                     <?= $security->csrfInput('update_email_notification_template_form'); ?>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="email_notification_subject">
-                            <span class="required">Subject</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="email_notification_subject">
+                            Subject
                         </label>
 
                         <input type="text" class="form-control" id="email_notification_subject" name="email_notification_subject" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                     </div>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="email_notification_body">
-                            <span class="required">Body</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="email_notification_body">
+                            Body
                         </label>
 
                         <textarea id="email_notification_body" class="tox-target" <?php echo $disabled; ?>></textarea>
@@ -135,8 +135,8 @@
                 <form id="update_sms_notification_template_form">
                     <?= $security->csrfInput('update_sms_notification_template_form'); ?>
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="sms_notification_message">
-                            <span class="required">Message</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="sms_notification_message">
+                            Message
                         </label>
 
                         <textarea class="form-control" id="sms_notification_message" name="sms_notification_message" maxlength="500" rows="3" <?php echo $disabled; ?>></textarea>

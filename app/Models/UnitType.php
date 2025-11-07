@@ -10,7 +10,7 @@ class UnitType extends Model {
     ============================================================================================= */
 
     public function saveUnitType(
-        int $p_unit_type_id,
+        null|int $p_unit_type_id,
         string $p_unit_type_name,
         int $p_last_log_by
     )    {

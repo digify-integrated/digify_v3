@@ -10,7 +10,7 @@ class Product extends Model {
     ============================================================================================= */
 
     public function saveSubProductAndVariants(
-        int $p_parent_product_id,
+        null|string|int $p_parent_product_id,
         string $p_parent_product_name,
         string $p_variant_name,
         string $p_variant_signature,
@@ -36,14 +36,14 @@ class Product extends Model {
     }
 
     public function saveProductPricelist(
-        int $p_product_pricelist_id,
+        null|string|int $p_product_pricelist_id,
         int $p_product_id,
         string $p_product_name,
         string $p_discount_type,
         float $p_fixed_price,
         int $p_min_quantity,
         string $p_validity_start_date,
-        string $p_validity_end_date,
+        null|string $p_validity_end_date,
         string $p_remarks,
         int $p_last_log_by
     ) {
@@ -627,13 +627,13 @@ class Product extends Model {
     ============================================================================================= */
 
     public function generateProductCard(
-        string $p_search_value,
-        string $p_filter_by_product_type, 
-        string $p_filter_by_product_category, 
-        string $p_filter_by_is_sellable, 
-        string $p_filter_by_is_purchasable, 
-        string $p_filter_by_show_on_pos, 
-        string $p_filter_by_product_status, 
+        null|string $p_search_value,
+        null|string $p_filter_by_product_type, 
+        null|string $p_filter_by_product_category, 
+        null|string $p_filter_by_is_sellable, 
+        null|string $p_filter_by_is_purchasable, 
+        null|string $p_filter_by_show_on_pos, 
+        null|string $p_filter_by_product_status, 
         int $p_limit, 
         int $p_offset
     ) {
@@ -663,12 +663,12 @@ class Product extends Model {
     }
 
     public function generateProductTable(
-        string $p_filter_by_product_type, 
-        string $p_filter_by_product_category, 
-        string $p_filter_by_is_sellable, 
-        string $p_filter_by_is_purchasable, 
-        string $p_filter_by_show_on_pos, 
-        string $p_filter_by_product_status
+        null|string $p_filter_by_product_type, 
+        null|string $p_filter_by_product_category, 
+        null|string $p_filter_by_is_sellable, 
+        null|string $p_filter_by_is_purchasable, 
+        null|string $p_filter_by_show_on_pos, 
+        null|string $p_filter_by_product_status
     ) {
         $sql = 'CALL generateProductTable(
             :p_filter_by_product_type,

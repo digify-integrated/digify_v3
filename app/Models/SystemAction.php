@@ -10,7 +10,7 @@ class SystemAction extends Model {
     ============================================================================================= */
 
     public function saveSystemAction(
-        int $p_system_action_id,
+        null|int $p_system_action_id,
         string $p_system_action_name,
         string $p_system_action_description,
         int $p_last_log_by

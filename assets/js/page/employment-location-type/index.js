@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#employment-location-type-table');
-    initializeExportFeature('employment_location_type');
-
     initializeDatatable({
         selector: '#employment-location-type-table',
         ajaxUrl: './app/Controllers/EmploymentLocationTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#employment-location-type-table');
+    initializeExportFeature('employment_location_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-employment-location-type')) return;

@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#departure-reason-table');
-    initializeExportFeature('departure_reason');
-
     initializeDatatable({
         selector: '#departure-reason-table',
         ajaxUrl: './app/Controllers/DepartureReasonController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#departure-reason-table');
+    initializeExportFeature('departure_reason');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-departure-reason')) return;

@@ -10,14 +10,14 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function saveMenuItem(
-        int $p_menu_item_id,
+        null|int $p_menu_item_id,
         string $p_menu_item_name,
         string $p_menu_item_url,
         string $p_menu_item_icon,
         int $p_app_module_id,
         string $p_app_module_name,
-        int $p_parent_id,
-        string $p_parent_name,
+        null|string|int $p_parent_id,
+        null|string $p_parent_name,
         string $p_table_name,
         int $p_order_sequence,
         int $p_last_log_by
@@ -66,7 +66,7 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function fetchMenuItem(
-        int $p_menu_item_id
+        null|string|int $p_menu_item_id
     ) {
         $sql = 'CALL fetchMenuItem(
             :p_menu_item_id
@@ -141,8 +141,8 @@ class MenuItem extends Model {
     ============================================================================================= */
 
     public function generateMenuItemTable(
-        string $p_filter_by_app_module,
-        string $p_filter_by_parent_id
+        null|string $p_filter_by_app_module,
+        null|string $p_filter_by_parent_id
     ) {
         $sql = 'CALL generateMenuItemTable(
             :p_filter_by_app_module,
@@ -156,7 +156,7 @@ class MenuItem extends Model {
     }
 
     public function generateMenuItemOptions(
-        int $p_menu_item_id
+        null|int $p_menu_item_id
     ) {
         $sql = 'CALL generateMenuItemOptions(
             :p_menu_item_id

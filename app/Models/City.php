@@ -10,7 +10,7 @@ class City extends Model {
     ============================================================================================= */
 
     public function saveCity(
-        int $p_city_id,
+        null|int $p_city_id,
         string $p_city_name,
         int $p_state_id,
         string $p_state_name,
@@ -102,8 +102,8 @@ class City extends Model {
     ============================================================================================= */
 
     public function generateCityTable(
-        string $p_filter_by_state,
-        string $p_filter_by_country
+        null|string $p_filter_by_state,
+        null|string $p_filter_by_country
     ) {
         $sql = 'CALL generateCityTable(
             :p_filter_by_state,

@@ -10,7 +10,7 @@ class Bank extends Model {
     ============================================================================================= */
 
     public function saveBank(
-        int $p_bank_id,
+        null|int $p_bank_id,
         string $p_bank_name,
         string $p_bank_identifier_code,
         int $p_last_log_by

@@ -10,7 +10,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function saveUnit(
-        int $p_unit_id,
+        null|int $p_unit_id,
         string $p_unit_name,
         string $p_unit_abbreviation,
         int $p_unit_type_id,
@@ -102,7 +102,7 @@ class Unit extends Model {
     ============================================================================================= */
 
     public function generateUnitTable(
-        string $p_filter_by_unit_type
+        null|string $p_filter_by_unit_type
     ) {
         $sql = 'CALL generateUnitTable(
             :p_filter_by_unit_type

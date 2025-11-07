@@ -10,7 +10,7 @@ class WarehouseType extends Model {
     ============================================================================================= */
 
     public function saveWarehouseType(
-        int $p_warehouse_type_id,
+        null|int $p_warehouse_type_id,
         string $p_warehouse_type_name,
         int $p_last_log_by
     )    {

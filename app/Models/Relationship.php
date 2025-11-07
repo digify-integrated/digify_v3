@@ -10,7 +10,7 @@ class Relationship extends Model {
     ============================================================================================= */
 
     public function saveRelationship(
-        int $p_relationship_id,
+        null|int $p_relationship_id,
         string $p_relationship_name,
         int $p_last_log_by
     )    {

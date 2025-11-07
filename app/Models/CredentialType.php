@@ -10,7 +10,7 @@ class CredentialType extends Model {
     ============================================================================================= */
 
     public function saveCredentialType(
-        int $p_credential_type_id,
+        null|int $p_credential_type_id,
         string $p_credential_type_name,
         int $p_last_log_by
     )    {

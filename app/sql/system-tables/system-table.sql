@@ -400,7 +400,7 @@ VALUES
 ('Configurations', '', '', 1, 'Settings', 0, '', '', 50),
 ('Localization', '', 'ki-outline ki-compass', 1, 'Settings', 11, 'Configurations', '', 12),
 ('Country', 'country.php', '', 1, 'Settings', 12, 'Localization', 'country', 3),
-('State', 'state.php', '', 1, 'Settings', 12, 'Localization', '', 19),
+('State', 'state.php', '', 1, 'Settings', 12, 'Localization', 'state', 19),
 ('City', 'city.php', '', 1, 'Settings', 12, 'Localization', 'city', 3),
 ('Currency', 'currency.php', '', 1, 'Settings', 12, 'Localization', 'currency', 3),
 ('Nationality', 'nationality.php', '', 1, 'Settings', 12, 'Localization', 'nationality', 20),

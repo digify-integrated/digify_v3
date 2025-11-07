@@ -6,8 +6,8 @@
         <form id="product_form" method="post" action="#">
             <?= $security->csrfInput('product_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="product_name">
-                    <span class="required">Product Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="product_name">
+                    Product Name
                 </label>
 
                 <input type="text" class="form-control" id="product_name" name="product_name" maxlength="200" autocomplete="off">

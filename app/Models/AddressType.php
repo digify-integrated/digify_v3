@@ -10,7 +10,7 @@ class AddressType extends Model {
     ============================================================================================= */
 
     public function saveAddressType(
-        int $p_address_type_id,
+        null|int $p_address_type_id,
         string $p_address_type_name,
         int $p_last_log_by
     )    {

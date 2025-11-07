@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#educational-stage-table');
-    initializeExportFeature('educational_stage');
-
     initializeDatatable({
         selector: '#educational-stage-table',
         ajaxUrl: './app/Controllers/EducationalStageController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#educational-stage-table');
+    initializeExportFeature('educational_stage');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-educational-stage')) return;

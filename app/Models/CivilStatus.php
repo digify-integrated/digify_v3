@@ -10,7 +10,7 @@ class CivilStatus extends Model {
     ============================================================================================= */
 
     public function saveCivilStatus(
-        int $p_civil_status_id,
+        null|int $p_civil_status_id,
         string $p_civil_status_name,
         int $p_last_log_by
     )    {

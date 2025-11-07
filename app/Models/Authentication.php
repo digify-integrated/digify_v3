@@ -65,7 +65,7 @@ class Authentication extends Model {
     ============================================================================================= */
 
     public function insertLoginAttempt(
-        int $p_user_account_id,
+        null|int $p_user_account_id,
         string $p_email,
         string $p_ip_address,
         int $p_success

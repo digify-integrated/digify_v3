@@ -31,8 +31,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="product_category_name">
-                            <span class="required">Display Name</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="product_category_name">
+                            Display Name
                         </label>
 
                         <input type="text" class="form-control" id="product_category_name" name="product_category_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -67,8 +67,8 @@
                 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="display_order">
-                            <span class="required">Display Order</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="display_order">
+                            Display Order
                         </label>
 
                         <input type="number" id="display_order" name="display_order" class="form-control mb-2" min="0" step="1" <?php echo $disabled; ?>/>

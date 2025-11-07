@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#employment-type-table');
-    initializeExportFeature('employment_type');
-
     initializeDatatable({
         selector: '#employment-type-table',
         ajaxUrl: './app/Controllers/EmploymentTypeController.php',
@@ -22,14 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#employment-type-table');
+    initializeExportFeature('employment_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-employment-type')) return;
 
         const transaction           = 'delete multiple employment type';
         const employment_type_id    = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                            .filter(el => el.checked)
-                                            .map(el => el.value);
+                                        .filter(el => el.checked)
+                                        .map(el => el.value);
 
         if (employment_type_id.length === 0) {
             showNotification('Deletion Multiple Employment Types Error', 'Please select the employment types you wish to delete.', 'error');

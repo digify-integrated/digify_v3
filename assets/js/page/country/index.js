@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#country-table');
-    initializeExportFeature('country');
-
     initializeDatatable({
         selector: '#country-table',
         ajaxUrl: './app/Controllers/CountryController.php',
@@ -26,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#country-table');
+    initializeExportFeature('country');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-country')) return;

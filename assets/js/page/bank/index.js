@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#bank-table');
-    initializeExportFeature('bank');
-
     initializeDatatable({
         selector: '#bank-table',
         ajaxUrl: './app/Controllers/BankController.php',
@@ -24,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#bank-table');
+    initializeExportFeature('bank');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-bank')) return;

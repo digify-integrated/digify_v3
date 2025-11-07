@@ -10,7 +10,7 @@ class Language extends Model {
     ============================================================================================= */
 
     public function saveLanguage(
-        int $p_language_id,
+        null|int $p_language_id,
         string $p_language_name,
         int $p_last_log_by
     )    {

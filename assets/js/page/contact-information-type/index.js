@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#contact-information-type-table');
-    initializeExportFeature('contact_information_type');
-
     initializeDatatable({
         selector: '#contact-information-type-table',
         ajaxUrl: './app/Controllers/ContactInformationTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#contact-information-type-table');
+    initializeExportFeature('contact_information_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-contact-information-type')) return;

@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#user-account-table');
     initializeExportFeature('user_account');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

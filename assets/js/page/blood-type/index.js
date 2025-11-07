@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#blood-type-table');
-    initializeExportFeature('blood_type');
-
     initializeDatatable({
         selector: '#blood-type-table',
         ajaxUrl: './app/Controllers/BloodTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#blood-type-table');
+    initializeExportFeature('blood_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-blood-type')) return;

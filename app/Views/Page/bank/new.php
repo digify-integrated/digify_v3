@@ -6,15 +6,15 @@
         <form id="bank_form" method="post" action="#">
             <?= $security->csrfInput('bank_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="bank_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="bank_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="bank_name" name="bank_name" maxlength="100" autocomplete="off">
             </div>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="bank_identifier_code">
-                    <span class="required">Bank Identifier Code</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="bank_identifier_code">
+                    Bank Identifier Code
                 </label>
 
                 <input type="text" class="form-control" id="bank_identifier_code" name="bank_identifier_code" maxlength="100" autocomplete="off">

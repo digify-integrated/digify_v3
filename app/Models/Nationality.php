@@ -10,7 +10,7 @@ class Nationality extends Model {
     ============================================================================================= */
 
     public function saveNationality(
-        int $p_nationality_id,
+        null|int $p_nationality_id,
         string $p_nationality_name,
         int $p_last_log_by
     )    {

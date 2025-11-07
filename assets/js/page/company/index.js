@@ -42,9 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#company-table');
     initializeExportFeature('company');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

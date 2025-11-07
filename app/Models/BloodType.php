@@ -10,7 +10,7 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function saveBloodType(
-        int $p_blood_type_id,
+        null|int $p_blood_type_id,
         string $p_blood_type_name,
         int $p_last_log_by
     )    {
@@ -42,7 +42,7 @@ class BloodType extends Model {
     ============================================================================================= */
 
     public function fetchBloodType(
-        int $p_blood_type_id
+        null|string|int $p_blood_type_id
     ) {
         $sql = 'CALL fetchBloodType(
             :p_blood_type_id

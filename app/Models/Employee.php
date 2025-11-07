@@ -10,7 +10,7 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function saveEmployeeLanguage(
-        int $p_employee_id,
+        null|string|int $p_employee_id,
         int $p_language_id,
         string $p_language_name,
         int $p_language_proficiency_id,
@@ -37,7 +37,7 @@ class Employee extends Model {
     }
 
     public function saveEmployeeEducation(
-        int $p_employee_education_id,
+        null|string|int $p_employee_education_id,
         int $p_employee_id,
         string $p_school,
         string $p_degree,
@@ -82,7 +82,7 @@ class Employee extends Model {
     }
 
     public function saveEmployeeEmergencyContact(
-        int $p_employee_emergency_contact_id,
+        null|string|int $p_employee_emergency_contact_id,
         int $p_employee_id,
         string $p_emergency_contact_name,
         int $p_relationship_id,
@@ -118,13 +118,13 @@ class Employee extends Model {
     }
 
     public function saveEmployeeLicense(
-        int $p_employee_license_id,
+        null|string|int $p_employee_license_id,
         int $p_employee_id,
         string $p_licensed_profession,
         string $p_licensing_body,
         string $p_license_number,
         string $p_issue_date,
-        string $p_expiration_date,
+        null|string $p_expiration_date,
         int $p_last_log_by
     ) {
         $sql = 'CALL saveEmployeeLicense(
@@ -151,7 +151,7 @@ class Employee extends Model {
     }
 
     public function saveEmployeeExperience(
-        int $p_employee_experience_id,
+        null|string|int $p_employee_experience_id,
         int $p_employee_id,
         string $p_job_title,
         int $p_employment_type_id,
@@ -297,13 +297,13 @@ class Employee extends Model {
         int $p_civil_status_id,
         string $p_civil_status_name,
         int $p_dependents,
-        int $p_religion_id,
+        null|string|int $p_religion_id,
         string $p_religion_name,
-        int $p_blood_type_id,
+        null|string|int $p_blood_type_id,
         string $p_blood_type_name,
-        float $p_home_work_distance,
-        float $p_height,
-        float $p_weight,
+        string|float $p_home_work_distance,
+        string|float $p_height,
+        string|float $p_weight,
         int $p_last_log_by
     ) {
         $sql = 'CALL updateEmployeePersonalDetails(
@@ -836,7 +836,7 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function fetchEmployee(
-        int $p_employee_id
+        null|string|int $p_employee_id
     ) {
         $sql = 'CALL fetchEmployee(
             :p_employee_id
@@ -1028,14 +1028,14 @@ class Employee extends Model {
     ============================================================================================= */
 
     public function generateEmployeeCard(
-        string $p_search_value,
-        string $p_filter_by_company, 
-        string $p_filter_by_department, 
-        string $p_filter_by_job_position, 
-        string $p_filter_by_employee_status, 
-        string $p_filter_by_work_location, 
-        string $p_filter_by_employment_type, 
-        string $p_filter_by_gender, 
+        null|string $p_search_value,
+        null|string $p_filter_by_company, 
+        null|string $p_filter_by_department, 
+        null|string $p_filter_by_job_position, 
+        null|string $p_filter_by_employee_status, 
+        null|string $p_filter_by_work_location, 
+        null|string $p_filter_by_employment_type, 
+        null|string $p_filter_by_gender, 
         int $p_limit, 
         int $p_offset
     ) {
@@ -1067,13 +1067,13 @@ class Employee extends Model {
     }
 
     public function generateEmployeeTable(
-        string $p_filter_by_company, 
-        string $p_filter_by_department, 
-        string $p_filter_by_job_position, 
-        string $p_filter_by_employee_status, 
-        string $p_filter_by_work_location, 
-        string $p_filter_by_employment_type, 
-        string $p_filter_by_gender
+        null|string $p_filter_by_company, 
+        null|string $p_filter_by_department, 
+        null|string $p_filter_by_job_position, 
+        null|string $p_filter_by_employee_status, 
+        null|string $p_filter_by_work_location, 
+        null|string $p_filter_by_employment_type, 
+        null|string $p_filter_by_gender
     ) {
         $sql = 'CALL generateEmployeeTable(
             :p_filter_by_company,

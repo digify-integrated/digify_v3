@@ -10,7 +10,7 @@ class Gender extends Model {
     ============================================================================================= */
 
     public function saveGender(
-        int $p_gender_id,
+        null|int $p_gender_id,
         string $p_gender_name,
         int $p_last_log_by
     )    {

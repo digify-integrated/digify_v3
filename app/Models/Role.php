@@ -10,7 +10,7 @@ class Role extends Model {
     ============================================================================================= */
 
     public function saveRole(
-        int $p_role_id,
+        null|int $p_role_id,
         string $p_role_name,
         string $p_role_description,
         int $p_last_log_by

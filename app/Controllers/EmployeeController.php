@@ -613,9 +613,9 @@ class EmployeeController {
         $dependents             = $_POST['dependents'] ?? null;
         $religionId             = $_POST['religion_id'] ?? null;
         $bloodTypeId            = $_POST['blood_type_id'] ?? null;
-        $homeWorkDistance       = $_POST['home_work_distance'] ?? null;
-        $height                 = $_POST['height'] ?? null;
-        $weight                 = $_POST['weight'] ?? null;
+        $homeWorkDistance       = $_POST['home_work_distance'] ?? 0;
+        $height                 = $_POST['height'] ?? 0;
+        $weight                 = $_POST['weight'] ?? 0;
 
         $fullName = trim("{$firstName} {$middleName} {$lastName} {$suffix}");
 
@@ -630,10 +630,10 @@ class EmployeeController {
         $civilStatusName        = $civilStatusDetails['civil_status_name'] ?? null;
 
         $religionDetails    = $this->religion->fetchReligion($religionId);
-        $religionName       = $religionDetails['religion_name'] ?? null;
+        $religionName       = $religionDetails['religion_name'] ?? '';
 
-        $bloodTypeDetails   = $this->bloodType->fetchBloodType($bloodTypeId);
-        $bloodTypeName      = $bloodTypeDetails['blood_type_name'] ?? null;
+        $bloodTypeDetails   = $this->bloodType->fetchBloodType(p_blood_type_id: $bloodTypeId);
+        $bloodTypeName      = $bloodTypeDetails['blood_type_name'] ?? '';
 
         $this->employee->updateEmployeePersonalDetails(
             $employeeId,
@@ -1730,8 +1730,8 @@ class EmployeeController {
         $workLocationFilter     = $this->systemHelper->checkFilter($_POST['filter_by_work_location'] ?? null);
         $employmentTypeFilter   = $this->systemHelper->checkFilter($_POST['filter_by_employment_type'] ?? null);
         $genderFilter           = $this->systemHelper->checkFilter($_POST['filter_by_gender'] ?? null);
-        $limit                  = $_POST['limit'] ?? null;
-        $offset                 = $_POST['offset'] ?? null;
+        $limit                  = $_POST['limit'] ?? 16;
+        $offset                 = $_POST['offset'] ?? 0;
         $response               = [];
 
         $employees = $this->employee->generateEmployeeCard(

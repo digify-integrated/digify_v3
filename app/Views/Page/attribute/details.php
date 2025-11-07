@@ -29,8 +29,8 @@
         <form id="attribute_form" method="post" action="#">
             <?= $security->csrfInput('attribute_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="attribute_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="attribute_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="attribute_name" name="attribute_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -38,8 +38,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="variant_creation">
-                            <span class="required">Variant Creation</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="variant_creation">
+                            Variant Creation
                         </label>
 
                         <select id="variant_creation" name="variant_creation" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
@@ -52,8 +52,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="display_type">
-                            <span class="required">Display Type</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="display_type">
+                            Display Type
                         </label>
 
                         <select id="display_type" name="display_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>

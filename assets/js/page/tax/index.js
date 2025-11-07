@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#tax-table');
     initializeExportFeature('tax');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

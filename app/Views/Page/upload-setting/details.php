@@ -32,8 +32,8 @@
                 <?= $security->csrfInput('upload_setting_form'); ?>
                 <div class="card-body border-top p-9">
                     <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="upload_setting_name">
-                            <span class="required">Display Name</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="upload_setting_name">
+                            Display Name
                         </label>
 
                         <input type="text" class="form-control" id="upload_setting_name" name="upload_setting_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -41,8 +41,8 @@
                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                         <div class="col">
                             <div class="fv-row mb-7">
-                                <label class="fs-6 fw-semibold form-label mt-3" for="menu_item_id">
-                                    <span class="required">Description</span>
+                                <label class="fs-6 fw-semibold required form-label mt-3" for="menu_item_id">
+                                    Description
                                 </label>
 
                                 <input type="text" class="form-control" id="upload_setting_description" name="upload_setting_description" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
@@ -52,8 +52,8 @@
 
                         <div class="col">
                             <div class="fv-row mb-7">
-                                <label class="fs-6 fw-semibold form-label mt-3" for="max_file_size">
-                                    <span class="required">Max File Size</span>
+                                <label class="fs-6 fw-semibold required form-label mt-3" for="max_file_size">
+                                    Max File Size
                                 </label>
                                 
                                 <div class="input-group mb-5">

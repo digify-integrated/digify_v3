@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#job-position-table');
-    initializeExportFeature('job_position');
-
     initializeDatatable({
         selector: '#job-position-table',
         ajaxUrl: './app/Controllers/JobPositionController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#job-position-table');
+    initializeExportFeature('job_position');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-job-position')) return;

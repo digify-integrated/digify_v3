@@ -29,8 +29,8 @@
         <form id="unit_type_form" method="post" action="#">
             <?= $security->csrfInput('unit_type_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="unit_type_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="unit_type_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="unit_type_name" name="unit_type_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>

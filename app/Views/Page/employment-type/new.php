@@ -6,8 +6,8 @@
         <form id="employment_type_form" method="post" action="#">
             <?= $security->csrfInput('employment_type_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="employment_type_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="employment_type_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="employment_type_name" name="employment_type_name" maxlength="100" autocomplete="off">

@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#upload-setting-table');
-    initializeExportFeature('upload_setting');
-
     initializeDatatable({
         selector: '#upload-setting-table',
         ajaxUrl: './app/Controllers/UploadSettingController.php',
@@ -24,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#upload-setting-table');
+    initializeExportFeature('upload_setting');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-upload-setting')) return;

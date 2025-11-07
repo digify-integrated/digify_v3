@@ -10,7 +10,7 @@ class AppModule extends Model {
     ============================================================================================= */
 
     public function saveAppModule(
-        int $p_app_module_id,
+        null|int $p_app_module_id,
         string $p_app_module_name,
         string $p_app_module_description,
         int $p_menu_item_id,

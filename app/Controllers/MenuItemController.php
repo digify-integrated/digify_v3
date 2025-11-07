@@ -122,7 +122,7 @@ class MenuItemController {
         $appModuleName      = $appModuleDetails['app_module_name'] ?? '';
 
         $parentDetails  = $this->menuItem->fetchMenuItem($parentId);
-        $parentName     = $parentDetails['menu_item_name'] ?? '';
+        $parentName     = $parentDetails['menu_item_name'] ?? null;
 
         $menuItemId = $this->menuItem->saveMenuItem(
             $menuItemId,

@@ -10,7 +10,7 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function saveFileExtension(
-        int $p_file_extension_id,
+        null|int $p_file_extension_id,
         string $p_file_extension_name,
         string $p_file_extension,
         int $p_file_type_id,
@@ -99,7 +99,7 @@ class FileExtension extends Model {
     ============================================================================================= */
 
     public function generateFileExtensionTable(
-        string $p_filter_by_file_type
+        null|string $p_filter_by_file_type
     ) {
         $sql = 'CALL generateFileExtensionTable(
             :p_filter_by_file_type

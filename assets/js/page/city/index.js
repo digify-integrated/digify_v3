@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#city-table');
     initializeExportFeature('city');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
             data: { transaction: cfg.transaction, multiple : true }
         });
     });
-        
+
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#department-table');
     initializeExportFeature('department');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

@@ -10,7 +10,7 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function saveWorkLocation(
-        int $p_work_location_id,
+        null|int $p_work_location_id,
         string $p_work_location_name,
         string $p_address,
         int $p_city_id,
@@ -120,9 +120,9 @@ class WorkLocation extends Model {
     ============================================================================================= */
 
     public function generateWorkLocationTable(
-        string $p_filter_by_city,
-        string $p_filter_by_state,
-        string $p_filter_by_country
+        null|string $p_filter_by_city,
+        null|string $p_filter_by_state,
+        null|string $p_filter_by_country
     ) {
         $sql = 'CALL generateWorkLocationTable(
             :p_filter_by_city,

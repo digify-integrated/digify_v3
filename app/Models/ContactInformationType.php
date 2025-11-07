@@ -10,7 +10,7 @@ class ContactInformationType extends Model {
     ============================================================================================= */
 
     public function saveContactInformationType(
-        int $p_contact_information_type_id,
+        null|int $p_contact_information_type_id,
         string $p_contact_information_type_name,
         int $p_last_log_by
     )    {

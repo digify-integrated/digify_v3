@@ -159,7 +159,7 @@ class UserAccount extends Model {
     ============================================================================================= */
 
     public function generateUserAccountTable(
-        string $p_filter_by_active,
+        null|string $p_filter_by_active,
     ) {
         $sql = 'CALL generateUserAccountTable(
             :p_filter_by_active

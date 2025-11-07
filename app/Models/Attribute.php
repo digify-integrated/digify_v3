@@ -10,7 +10,7 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function saveAttribute(
-        int $p_attribute_id,
+        null|int $p_attribute_id,
         string $p_attribute_name,
         string $p_attribute_description,
         string $p_variant_creation,
@@ -39,7 +39,7 @@ class Attribute extends Model {
     }
 
     public function saveAttributeValue(
-        int $p_attribute_value_id,
+        null|string|int $p_attribute_value_id,
         string $p_attribute_value_name,
         int $p_attribute_id,
         string $p_attribute_name,
@@ -161,8 +161,8 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function generateAttributeTable(
-        string $p_filter_by_variant_creation,
-        string $p_filter_by_display_type
+        null|string $p_filter_by_variant_creation,
+        null|string $p_filter_by_display_type
     ) {
         $sql = 'CALL generateAttributeTable(
             :p_filter_by_variant_creation,

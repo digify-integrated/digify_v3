@@ -29,8 +29,8 @@
         <form id="file_extension_form" class="form" method="post" action="#">
             <?= $security->csrfInput('file_extension_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="file_extension_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="file_extension_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="file_extension_name" name="file_extension_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -39,8 +39,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                    <label class="fs-6 fw-semibold form-label mt-3" for="file_extension">
-                        <span class="required">File Extension</span>
+                    <label class="fs-6 fw-semibold required form-label mt-3" for="file_extension">
+                        File Extension
                     </label>
 
                         <input type="text" class="form-control" id="file_extension" name="file_extension" maxlength="10" autocomplete="off" <?php echo $disabled; ?>>
@@ -49,8 +49,8 @@
                     
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="file_type_id">
-                            <span class="required">File Type</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="file_type_id">
+                            File Type
                         </label>
 
                         <select id="file_type_id" name="file_type_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>

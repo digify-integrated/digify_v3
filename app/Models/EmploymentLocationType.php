@@ -10,7 +10,7 @@ class EmploymentLocationType extends Model {
     ============================================================================================= */
 
     public function saveEmploymentLocationType(
-        int $p_employment_location_type_id,
+        null|int $p_employment_location_type_id,
         string $p_employment_location_type_name,
         int $p_last_log_by
     )    {

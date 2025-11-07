@@ -10,7 +10,7 @@ class EducationalStage extends Model {
     ============================================================================================= */
 
     public function saveEducationalStage(
-        int $p_educational_stage_id,
+        null|int $p_educational_stage_id,
         string $p_educational_stage_name,
         int $p_last_log_by
     )    {

@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#address-type-table');
-    initializeExportFeature('address_type');
-
     initializeDatatable({
         selector: '#address-type-table',
         ajaxUrl: './app/Controllers/AddressTypeController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#address-type-table');
+    initializeExportFeature('address_type');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-address-type')) return;

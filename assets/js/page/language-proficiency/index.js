@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#language-proficiency-table');
-    initializeExportFeature('language_proficiency');
-
     initializeDatatable({
         selector: '#language-proficiency-table',
         ajaxUrl: './app/Controllers/LanguageProficiencyController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#language-proficiency-table');
+    initializeExportFeature('language_proficiency');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-language-proficiency')) return;

@@ -6,8 +6,8 @@
         <form id="country_form" method="post" action="#">
             <?= $security->csrfInput('country_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="country_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="country_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="country_name" name="country_name" maxlength="100" autocomplete="off">
@@ -17,7 +17,7 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="country_code">
-                            <span class="required">Country Code</span>
+                            Country Code
                         </label>
 
                         <input type="text" class="form-control" id="country_code" name="country_code" maxlength="10" autocomplete="off">
@@ -28,7 +28,7 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="phone_code">
-                            <span class="required">Phone Code</span>
+                           Phone Code
                         </label>
 
                         <input type="text" class="form-control" id="phone_code" name="phone_code" maxlength="10" autocomplete="off">

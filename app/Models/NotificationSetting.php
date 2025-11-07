@@ -10,7 +10,7 @@ class NotificationSetting extends Model {
     ============================================================================================= */
 
     public function saveNotificationSetting(
-        int $p_notification_setting_id,
+        null|int $p_notification_setting_id,
         string $p_notification_setting_name,
         string $p_notification_setting_description,
         int $p_last_log_by

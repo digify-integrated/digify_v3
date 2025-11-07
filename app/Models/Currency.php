@@ -10,7 +10,7 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function saveCurrency(
-        int $p_currency_id,
+        null|int $p_currency_id,
         string $p_currency_name,
         string $p_symbol,
         string $p_shorthand,
@@ -48,7 +48,7 @@ class Currency extends Model {
     ============================================================================================= */
 
     public function fetchCurrency(
-        int $p_currency_id
+        null|string|int $p_currency_id
     ) {
         $sql = 'CALL fetchCurrency(
             :p_currency_id

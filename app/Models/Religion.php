@@ -10,7 +10,7 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function saveReligion(
-        int $p_religion_id,
+        null|int $p_religion_id,
         string $p_religion_name,
         int $p_last_log_by
     )    {
@@ -42,7 +42,7 @@ class Religion extends Model {
     ============================================================================================= */
 
     public function fetchReligion(
-        int $p_religion_id
+        null|string|int $p_religion_id
     ) {
         $sql = 'CALL fetchReligion(
             :p_religion_id

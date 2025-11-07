@@ -10,7 +10,7 @@ class Company extends Model {
     ============================================================================================= */
 
     public function saveCompany(
-        int $p_company_id,
+        null|int $p_company_id,
         string $p_company_name,
         string $p_address,
         int $p_city_id,
@@ -20,9 +20,9 @@ class Company extends Model {
         int $p_country_id,
         string $p_country_name,
         string $p_tax_id,
-        int $p_currency_id,
-        string $p_currency_name,
-        int $p_phone,
+        null|string|int $p_currency_id,
+        null|string $p_currency_name,
+        string $p_phone,
         string $p_telephone,
         string $p_email,
         string $p_website,
@@ -150,10 +150,10 @@ class Company extends Model {
     ============================================================================================= */
 
     public function generateCompanyTable(
-        string $p_filter_by_city,
-        string $p_filter_by_state,
-        string $p_filter_by_country,
-        string $p_filter_by_currency
+        null|string $p_filter_by_city,
+        null|string $p_filter_by_state,
+        null|string $p_filter_by_country,
+        null|string $p_filter_by_currency
     ) {
         $sql = 'CALL generateCompanyTable(
             :p_filter_by_city,

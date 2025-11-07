@@ -7,7 +7,7 @@
             <?= $security->csrfInput('relationship_form'); ?>
             <div class="fv-row mb-4">
                 <label class="fs-6 fw-semibold form-label mt-3" for="relationship_name">
-                    <span class="required">Display Name</span>
+                    Display Name</span>
                 </label>
 
                 <input type="text" class="form-control" id="relationship_name" name="relationship_name" maxlength="100" autocomplete="off">

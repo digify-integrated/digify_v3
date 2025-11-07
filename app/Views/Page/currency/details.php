@@ -29,8 +29,8 @@
         <form id="currency_form" method="post" action="#">
             <?= $security->csrfInput('currency_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="currency_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="currency_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="currency_name" name="currency_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -39,8 +39,8 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="symbol">
-                            <span class="required">Symbol</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="symbol">
+                            Symbol
                         </label>
 
                         <input type="text" class="form-control" id="symbol" name="symbol" maxlength="5" autocomplete="off" <?php echo $disabled; ?>>
@@ -50,8 +50,8 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="shorthand">
-                            <span class="required">Shorthand</span>
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="shorthand">
+                            Shorthand
                         </label>
 
                         <input type="text" class="form-control" id="shorthand" name="shorthand" maxlength="10" autocomplete="off" <?php echo $disabled; ?>>

@@ -10,7 +10,7 @@ class UploadSetting extends Model {
     ============================================================================================= */
 
     public function saveUploadSetting(
-        int $p_upload_setting_id,
+        null|int $p_upload_setting_id,
         string $p_upload_setting_name,
         string $p_upload_setting_description,
         string $p_max_file_size,

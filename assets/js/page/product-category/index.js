@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownSelector: '#parent_category_filter',
         data: { transaction: 'generate product category options' , multiple : true }
     });
-        
+
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#product-category-table');
     initializeExportFeature('product_category');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

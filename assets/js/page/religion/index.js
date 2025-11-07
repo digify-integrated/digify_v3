@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#religion-table');
-    initializeExportFeature('religion');
-
     initializeDatatable({
         selector: '#religion-table',
         ajaxUrl: './app/Controllers/ReligionController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#religion-table');
+    initializeExportFeature('religion');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-religion')) return;

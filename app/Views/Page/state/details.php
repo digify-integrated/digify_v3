@@ -29,16 +29,16 @@
         <form id="state_form" method="post" action="#">
             <?= $security->csrfInput('state_form'); ?>
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="state_name">
-                    <span class="required">Display Name</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="state_name">
+                    Display Name
                 </label>
 
                 <input type="text" class="form-control" id="state_name" name="state_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
 
             <div class="fv-row mb-4">
-                <label class="fs-6 fw-semibold form-label mt-3" for="country_id">
-                    <span class="required">Country</span>
+                <label class="fs-6 fw-semibold required form-label mt-3" for="country_id">
+                    Country
                 </label>
 
                 <select id="country_id" name="country_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>

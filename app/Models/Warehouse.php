@@ -10,7 +10,7 @@ class Warehouse extends Model {
     ============================================================================================= */
 
     public function saveWarehouse(
-        int $p_warehouse_id,
+        null|int $p_warehouse_id,
         string $p_warehouse_name,
         string $p_short_name,
         string $p_contact_person,
@@ -162,11 +162,11 @@ class Warehouse extends Model {
     ============================================================================================= */
 
     public function generateWarehouseTable(
-        string $p_filter_by_warehouse_type,
-        string $p_filter_by_city,
-        string $p_filter_by_state,
-        string $p_filter_by_country,
-        string $p_filter_by_warehouse_status
+        null|string $p_filter_by_warehouse_type,
+        null|string $p_filter_by_city,
+        null|string $p_filter_by_state,
+        null|string $p_filter_by_country,
+        null|string $p_filter_by_warehouse_status
     ) {
         $sql = 'CALL generateWarehouseTable(
             :p_filter_by_warehouse_type,

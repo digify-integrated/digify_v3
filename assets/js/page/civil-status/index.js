@@ -3,9 +3,6 @@ import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDatatableControls('#civil-status-table');
-    initializeExportFeature('civil_status');
-
     initializeDatatable({
         selector: '#civil-status-table',
         ajaxUrl: './app/Controllers/CivilStatusController.php',
@@ -22,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
+    
+    initializeDatatableControls('#civil-status-table');
+    initializeExportFeature('civil_status');
 
     document.addEventListener('click', async (event) => {
         if (!event.target.closest('#delete-civil-status')) return;

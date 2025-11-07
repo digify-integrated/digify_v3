@@ -10,7 +10,7 @@ class Country extends Model {
     ============================================================================================= */
 
     public function saveCountry(
-        int $p_country_id,
+        null|int $p_country_id,
         string $p_country_name,
         string $p_country_code,
         string $p_phone_code,

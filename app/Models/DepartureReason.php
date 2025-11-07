@@ -10,7 +10,7 @@ class DepartureReason extends Model {
     ============================================================================================= */
 
     public function saveDepartureReason(
-        int $p_departure_reason_id,
+        null|int $p_departure_reason_id,
         string $p_departure_reason_name,
         int $p_last_log_by
     )    {

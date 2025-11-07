@@ -10,7 +10,7 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function saveSupplier(
-        int $p_supplier_id,
+        null|int $p_supplier_id,
         string $p_supplier_name,
         string $p_contact_person,
         string $p_phone,
@@ -156,10 +156,10 @@ class Supplier extends Model {
     ============================================================================================= */
 
     public function generateSupplierTable(
-        string $p_filter_by_city,
-        string $p_filter_by_state,
-        string $p_filter_by_country,
-        string $p_filter_by_supplier_status
+        null|string $p_filter_by_city,
+        null|string $p_filter_by_state,
+        null|string $p_filter_by_country,
+        null|string $p_filter_by_supplier_status
     ) {
         $sql = 'CALL generateSupplierTable(
             :p_filter_by_city,

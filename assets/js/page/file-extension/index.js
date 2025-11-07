@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#file-extension-table');
     initializeExportFeature('file_extension');
-    initializeDatatable(datatableConfig());
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {
