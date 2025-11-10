@@ -911,6 +911,14 @@ class ProductController {
 
         $this->systemHelper->deleteFileIfExist($productImage);
 
+        $subProduct = $this->product->fetchAllProductSubProduct(
+            $productId
+        );
+
+        foreach ($subProduct as $row) {
+            $this->product->deleteProduct($row['product_id']);
+        }
+
         $this->product->deleteProduct($productId);
 
         $this->systemHelper::sendSuccessResponse(
@@ -1281,26 +1289,24 @@ class ProductController {
 
     private function rebuildProductVariants(
         int $productId
-    ) {
+    ){
         $lastLogBy = $_SESSION['user_account_id'] ?? 1;
 
-        $this->product->updateAllSubProductsDeactivate(
-            $productId,
-            $lastLogBy
-        );
+        $this->product->updateAllSubProductsDeactivate($productId, $lastLogBy);
 
-        $productDetails     = $this->product->fetchProduct($productId);
-        $productName        = $productDetails['product_name'] ?? '';
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
 
-        $productAttributesInstantly     = $this->product->fetchAllProductAttributes($productId, 'Instantly');
-        $groupedAttributes              = [];
+        $productAttributesInstantly = $this->product->fetchAllProductAttributes($productId, 'Instantly');
+        $groupedAttributes = [];
 
         foreach ($productAttributesInstantly as $row) {
             $attributeName = $row['attribute_name'];
-            $attributeId = $row['attribute_id'];
+            $attributeId   = $row['attribute_id'];
+
             $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
             $groupedAttributes[$attributeName]['values'][] = [
-                'attribute_value_id' => $row['attribute_value_id'],
+                'attribute_value_id'   => $row['attribute_value_id'],
                 'attribute_value_name' => $row['attribute_value_name']
             ];
         }
@@ -1323,9 +1329,8 @@ class ProductController {
             );
 
             foreach ($combination as $attr) {
-                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
-
-                if ($checkProductVariantExists['total'] == 0) {
+                $exists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);
+                if ($exists['total'] == 0) {
                     $this->product->insertProductVariant(
                         $productId,
                         $productName,
@@ -1340,7 +1345,43 @@ class ProductController {
                 }
             }
         }
+
+        $productAttributesNever = $this->product->fetchAllProductAttributes($productId, 'Never');
+
+        foreach ($productAttributesNever as $row) {
+            $attributeId        = $row['attribute_id'];
+            $attributeName      = $row['attribute_name'];
+            $attributeValueId   = $row['attribute_value_id'];
+            $attributeValueName = $row['attribute_value_name'];
+
+            $variantSignature = sha1($productId . '-' . $attributeValueId);
+            $variantName = $productName . ' - ' . $attributeValueName;
+
+            $subproductId = $this->product->saveSubProductAndVariants(
+                $productId,
+                $productName,
+                $variantName,
+                $variantSignature,
+                $lastLogBy
+            );
+
+            $exists = $this->product->checkProductVariantExists($subproductId, $attributeValueId);
+            if ($exists['total'] == 0) {
+                $this->product->insertProductVariant(
+                    $productId,
+                    $productName,
+                    $subproductId,
+                    $variantName,
+                    $attributeId,
+                    $attributeName,
+                    $attributeValueId,
+                    $attributeValueName,
+                    $lastLogBy
+                );
+            }
+        }
     }
+
 
     /* =============================================================================================
         END OF METHODS

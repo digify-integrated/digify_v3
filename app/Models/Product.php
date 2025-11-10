@@ -424,6 +424,18 @@ class Product extends Model {
         ]);
     }
 
+    public function fetchAllProductSubProduct(
+        int $p_product_id
+    ) {
+        $sql = 'CALL fetchAllProductSubProduct(
+            :p_product_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
     public function fetchProductCategoryMap(
         int $p_product_id
     ) {

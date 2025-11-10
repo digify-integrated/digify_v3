@@ -691,7 +691,7 @@ VALUES
 (1, 'Super Admin', 60, 'Warehouse Type', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 61, 'Products', 1, 0, 0, 0, 0, 0, 0),
 (1, 'Super Admin', 62, 'Product', 1, 1, 1, 1, 1, 1, 1),
-(1, 'Super Admin', 63, 'Product Variant', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 63, 'Product Variant', 1, 1, 0, 1, 0, 1, 1),
 (1, 'Super Admin', 64, 'Pricelist', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 65, 'Inventory Operations', 1, 0, 0, 0, 0, 0, 0),
 (1, 'Super Admin', 66, 'Inventory Transfer', 1, 0, 0, 0, 0, 0, 0),

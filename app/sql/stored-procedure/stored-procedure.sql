@@ -11243,6 +11243,16 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchAllProductSubProduct//
+
+CREATE PROCEDURE fetchAllProductSubProduct(
+    IN p_product_id INT
+)
+BEGIN
+	SELECT * FROM product
+	WHERE parent_product_id = p_product_id;
+END //
+
 DROP PROCEDURE IF EXISTS fetchproductCategoryMap//
 
 CREATE PROCEDURE fetchproductCategoryMap(
@@ -11308,6 +11318,40 @@ END //
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProduct //
+
+CREATE PROCEDURE deleteProduct (
+    IN p_product_id INT UNSIGNED
+)
+BEGIN    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_pricelist
+    WHERE product_id = p_product_id;
+
+    DELETE FROM product_variant
+    WHERE product_id = p_product_id;
+
+    DELETE FROM product_attribute
+    WHERE product_id = p_product_id;
+
+    DELETE FROM product_category_map
+    WHERE product_id = p_product_id;
+
+    DELETE FROM product_tax
+    WHERE product_id = p_product_id;
+
+    DELETE FROM product
+    WHERE product_id = p_product_id;
+
+    COMMIT;
+END //
 
 DROP PROCEDURE IF EXISTS deleteproductCategoryMap//
 
