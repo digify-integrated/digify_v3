@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/DepartmentController.php',
         transaction: 'generate department table',
         ajaxData: {
-            parent_department_filter: $('#parent_department_filter').val(),
-            manager_filter: $('#manager_filter').val()
+            filter_by_parent_department: $('#filter_by_parent_department').val(),
+            filter_by_manager: $('#filter_by_manager').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/DepartmentController.php', selector: '#parent_department_filter', transaction: 'generate department options' },
-        { url: './app/Controllers/EmployeeController.php', selector: '#manager_filter', transaction: 'generate employee options' }
+        { url: './app/Controllers/DepartmentController.php', selector: '#filter_by_parent_department', transaction: 'generate department options' },
+        { url: './app/Controllers/EmployeeController.php', selector: '#filter_by_manager', transaction: 'generate employee options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#parent_department_filter').val(null).trigger('change');
-            $('#manager_filter').val(null).trigger('change');
+            $('#filter_by_parent_department').val(null).trigger('change');
+            $('#filter_by_manager').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

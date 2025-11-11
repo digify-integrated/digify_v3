@@ -236,10 +236,10 @@ class TaxController {
 
     public function generateTaxTable() {
         $pageLink               = $_POST['page_link'] ?? null;
-        $taxTypeFilter          = $this->systemHelper->checkFilter($_POST['tax_type_filter'] ?? null);
-        $taxComputationFilter   = $this->systemHelper->checkFilter($_POST['tax_computation_filter'] ?? null);
-        $taxScopeFilter         = $this->systemHelper->checkFilter($_POST['tax_scope_filter'] ?? null);
-        $taxStatusFilter        = $this->systemHelper->checkFilter($_POST['tax_status_filter'] ?? null);
+        $taxTypeFilter          = $this->systemHelper->checkFilter($_POST['filter_by_tax_type'] ?? null);
+        $taxComputationFilter   = $this->systemHelper->checkFilter($_POST['filter_by_tax_computation'] ?? null);
+        $taxScopeFilter         = $this->systemHelper->checkFilter($_POST['filter_by_tax_scope'] ?? null);
+        $taxStatusFilter        = $this->systemHelper->checkFilter($_POST['filter_by_tax_status'] ?? null);
         $response               = [];
 
         $taxs = $this->tax->generateTaxTable(

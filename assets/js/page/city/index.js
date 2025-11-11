@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/CityController.php',
         transaction: 'generate city table',
         ajaxData: {
-            state_filter: $('#state_filter').val(),
+            filter_by_state: $('#filter_by_state').val(),
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
-        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' }
+        { url: './app/Controllers/StateController.php', selector: '#filter_by_state', transaction: 'generate state options' },
+        { url: './app/Controllers/CountryController.php', selector: '#filter_by_country', transaction: 'generate country options' }
     ];
 
     dropdownConfigs.forEach(cfg => {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#state_filter').val(null).trigger('change');
+            $('#filter_by_state').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

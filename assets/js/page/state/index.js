@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/StateController.php',
         transaction: 'generate state table',
         ajaxData: {
-            country_filter: $('#country_filter').val(),
+            filter_by_country: $('#filter_by_country').val(),
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateDropdownOptions({
         url: './app/Controllers/CountryController.php',
-        dropdownSelector: '#country_filter',
+        dropdownSelector: '#filter_by_country',
         data: { 
             transaction: 'generate country options',
             multiple : true
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#country_filter').val(null).trigger('change');
+            $('#filter_by_country').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

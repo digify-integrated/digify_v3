@@ -58,42 +58,43 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5 mh-300px overflow-auto">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="product_type_filter">Product Type:</label>
-                                <select id="product_type_filter" name="product_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_product_type">Product Type:</label>
+                                <select id="filter_by_product_type" name="filter_by_product_type" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Goods">Goods</option>
                                     <option value="Services">Services</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="product_category_filter">Product Category:</label>
-                                <select id="product_category_filter" name="product_category_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_product_category">Product Category:</label>
+                                <select id="filter_by_product_category" name="filter_by_product_category" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="is_sellable_filter">Is Sellable:</label>
-                                <select id="is_sellable_filter" name="is_sellable_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_is_sellable">Is Sellable:</label>
+                                <select id="filter_by_is_sellable" name="filter_by_is_sellable" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="is_purchasable_filter">Is Purchasable:</label>
-                                <select id="is_purchasable_filter" name="is_purchasable_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_is_purchasable">Is Purchasable:</label>
+                                <select id="filter_by_is_purchasable" name="filter_by_is_purchasable" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="show_on_pos_filter">Show on POS:</label>
-                                <select id="show_on_pos_filter" name="show_on_pos_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_show_on_pos">Show on POS:</label>
+                                <select id="filter_by_show_on_pos" name="filter_by_show_on_pos" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="product_status_filter">Product Status:</label>
-                                <select id="product_status_filter" name="product_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_product_status">Product Status:</label>
+                                <select id="filter_by_product_status" name="filter_by_product_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Active" selected>Active</option>
                                     <option value="Archived">Archived</option>
+                                    <option value="Draft">Draft</option>
                                 </select>
                             </div>
                         </div>
@@ -128,6 +129,7 @@
                                     </div>
                                 </th>
                                 <th>Product</th>
+                                <th>SKU</th>
                                 <th>Barcode</th>
                                 <th>Product Type</th>
                                 <th>Categories</th>

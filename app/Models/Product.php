@@ -60,7 +60,7 @@ class Product extends Model {
             :p_last_log_by
         )';
 
-        return $this->query($sql, [
+        $row = $this->fetch($sql, [
             'p_product_pricelist_id'    => $p_product_pricelist_id,
             'p_product_id'              => $p_product_id,
             'p_product_name'            => $p_product_name,
@@ -72,6 +72,8 @@ class Product extends Model {
             'p_remarks'                 => $p_remarks,
             'p_last_log_by'             => $p_last_log_by
         ]);
+
+        return $row['new_product_pricelist_id'] ?? null;
     }
     
     /* =============================================================================================
@@ -761,6 +763,21 @@ class Product extends Model {
             'p_filter_by_is_purchasable'    => $p_filter_by_is_purchasable,
             'p_filter_by_show_on_pos'       => $p_filter_by_show_on_pos,
             'p_filter_by_product_status'    => $p_filter_by_product_status
+        ]);
+    }
+
+    public function generatePricelistTable(
+        null|string $p_filter_by_product, 
+        null|string $p_filter_by_discount_type
+    ) {
+        $sql = 'CALL generatePricelistTable(
+            :p_filter_by_product,
+            :p_filter_by_discount_type
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_filter_by_product'           => $p_filter_by_product,
+            'p_filter_by_discount_type'     => $p_filter_by_discount_type
         ]);
     }
 

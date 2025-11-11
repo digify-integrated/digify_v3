@@ -201,8 +201,8 @@ class ProductCategoryController {
     ============================================================================================= */
 
     public function generateProductCategoryTable() {
-        $filterParentCategory   = $this->systemHelper->checkFilter($_POST['parent_category_filter'] ?? null);
-        $filterCostingMethod    = $this->systemHelper->checkFilter($_POST['costing_method_filter'] ?? null);
+        $filterParentCategory   = $this->systemHelper->checkFilter($_POST['filter_by_parent_category'] ?? null);
+        $filterCostingMethod    = $this->systemHelper->checkFilter($_POST['filter_by_costing_method'] ?? null);
         $pageLink               = $_POST['page_link'] ?? null;
         $response               = [];
 

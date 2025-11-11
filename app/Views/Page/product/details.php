@@ -419,7 +419,7 @@
                                 </select>
                                 <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                     <?php
-                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" id="add-pricelist-attribute">Add Pricelist</button>' : '';
+                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-pricelist-modal" id="add-product-pricelist">Add Pricelist</button>' : '';
                                     ?> 
                                 </div>
                             </div>
@@ -567,7 +567,7 @@
                         <div class="col-lg-3">
                             <div class="row">
                                 <div class="col-lg-12 fv-row">
-                                    <input type="number" id="min_quantity" name="min_quantity" class="form-control" min="0" step="1" />
+                                    <input type="number" id="min_quantity" name="min_quantity" class="form-control" min="1" step="1" />
                                 </div>
                             </div>
                         </div>

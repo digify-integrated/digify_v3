@@ -10698,6 +10698,7 @@ CREATE PROCEDURE saveProductPricelist(
     IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_new_product_pricelist_id INT;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -10728,6 +10729,8 @@ BEGIN
             p_remarks,
             p_last_log_by
         );
+
+        SET v_new_product_pricelist_id = LAST_INSERT_ID();
     ELSE
         UPDATE product_pricelist
         SET product_id              = p_product_id,
@@ -10740,9 +10743,13 @@ BEGIN
             remarks                 = p_remarks,
             last_log_by             = p_last_log_by
         WHERE product_pricelist_id  = p_product_pricelist_id;
+
+        SET v_new_product_pricelist_id = p_product_pricelist_id;
     END IF;
 
     COMMIT;
+
+    SELECT v_new_product_pricelist_id AS new_product_pricelist_id;
 END //
 
 /* =============================================================================================
@@ -11485,7 +11492,7 @@ END //
 
 DROP PROCEDURE IF EXISTS checkProductPricelistExists //
 
-CREATE PROCEDURE checkProductPricelistExists (
+CREATE PROCEDURE checkProductgenerateProductOptionsExists (
 	IN p_product_pricelist_id INT
 )
 BEGIN
@@ -11750,6 +11757,42 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+DROP PROCEDURE IF EXISTS generatePricelistTable//
+
+CREATE PROCEDURE generatePricelistTable(
+    IN p_filter_by_product TEXT,
+    IN p_filter_by_discount_type TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT product_pricelist_id, product_name, discount_type, fixed_price, min_quantity, validity_start_date, validity_end_date, remarks
+                FROM product_pricelist ';
+
+    IF p_filter_by_product IS NOT NULL AND p_filter_by_product <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' product_id IN (', p_filter_by_product, ')');
+    END IF;
+
+    IF p_filter_by_discount_type IS NOT NULL AND p_filter_by_discount_type <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' discount_type IN (', p_filter_by_discount_type, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 DROP PROCEDURE IF EXISTS generateProductAttributeTable//
 
 CREATE PROCEDURE generateProductAttributeTable(
@@ -11783,6 +11826,15 @@ BEGIN
     SELECT product_pricelist_id, discount_type, fixed_price, min_quantity, validity_start_date, validity_end_date, remarks
     FROM product_pricelist
     WHERE product_id = p_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductOptions//
+
+CREATE PROCEDURE generateProductOptions()
+BEGIN
+	SELECT product_id, product_name 
+    FROM product 
+    ORDER BY product_name;
 END //
 
 /* =============================================================================================

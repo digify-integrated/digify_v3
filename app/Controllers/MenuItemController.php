@@ -311,8 +311,8 @@ class MenuItemController {
     ============================================================================================= */
 
     public function generateMenuItemTable() {
-        $filterAppModule    = $this->systemHelper->checkFilter($_POST['app_module_filter'] ?? null);
-        $filterParentId     = $this->systemHelper->checkFilter($_POST['parent_id_filter'] ?? null);
+        $filterAppModule    = $this->systemHelper->checkFilter($_POST['filter_by_app_module'] ?? null);
+        $filterParentId     = $this->systemHelper->checkFilter($_POST['filter_by_parent_menu'] ?? null);
         $pageLink           = $_POST['page_link'] ?? null;
         $response           = [];
 

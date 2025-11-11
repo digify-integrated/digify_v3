@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/WarehouseController.php',
         transaction: 'generate warehouse table',
         ajaxData: {
-            warehouse_type_filter: $('#warehouse_type_filter').val(),
-            city_filter: $('#city_filter').val(),
-            state_filter: $('#state_filter').val(),
-            country_filter: $('#country_filter').val(),
-            warehouse_status_filter: $('#warehouse_status_filter').val()
+            filter_by_warehouse_type: $('#filter_by_warehouse_type').val(),
+            filter_by_city: $('#filter_by_city').val(),
+            filter_by_state: $('#filter_by_state').val(),
+            filter_by_country: $('#filter_by_country').val(),
+            filter_by_warehouse_status: $('#filter_by_warehouse_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/WarehouseTypeController.php', selector: '#warehouse_type_filter', transaction: 'generate warehouse type options' },
-        { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
-        { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
-        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' }
+        { url: './app/Controllers/WarehouseTypeController.php', selector: '#filter_by_warehouse_type', transaction: 'generate warehouse type options' },
+        { url: './app/Controllers/CityController.php', selector: '#filter_by_city', transaction: 'generate filter city options' },
+        { url: './app/Controllers/StateController.php', selector: '#filter_by_state', transaction: 'generate state options' },
+        { url: './app/Controllers/CountryController.php', selector: '#filter_by_country', transaction: 'generate country options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#warehouse_type_filter').val(null).trigger('change');
-            $('#city_filter').val(null).trigger('change');
-            $('#state_filter').val(null).trigger('change');
-            $('#country_filter').val(null).trigger('change');
-            $('#warehouse_status_filter').val('Active').trigger('change');
+            $('#filter_by_warehouse_type').val(null).trigger('change');
+            $('#filter_by_city').val(null).trigger('change');
+            $('#filter_by_state').val(null).trigger('change');
+            $('#filter_by_country').val(null).trigger('change');
+            $('#filter_by_warehouse_status').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());
         }

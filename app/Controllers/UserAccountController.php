@@ -850,7 +850,7 @@ class UserAccountController {
     ============================================================================================= */
 
     public function generateUserAccountTable() {
-        $filterStatus   = $_POST['user_account_status_filter'] ?? null;
+        $filterStatus   = $_POST['filter_by_user_account_status'] ?? null;
         $pageLink       = $_POST['page_link'] ?? null;
         $response       = [];
 

@@ -58,35 +58,35 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5 mh-300px overflow-auto">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="company_filter">Company:</label>
-                                <select id="company_filter" name="company_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_company">Company:</label>
+                                <select id="filter_by_company" name="filter_by_company" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="department_filter">Department:</label>
-                                <select id="department_filter" name="department_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_department">Department:</label>
+                                <select id="filter_by_department" name="filter_by_department" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="department_filter">Job Position:</label>
-                                <select id="job_position_filter" name="job_position_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_job_position">Job Position:</label>
+                                <select id="filter_by_job_position" name="filter_by_job_position" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="employee_status_filter">Employee Status:</label>
-                                <select id="employee_status_filter" name="employee_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_employee_status">Employee Status:</label>
+                                <select id="filter_by_employee_status" name="filter_by_employee_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Active">Active</option>
                                     <option value="Archived">Archived</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="work_location_filter">Work Location:</label>
-                                <select id="work_location_filter" name="work_location_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_work_location">Work Location:</label>
+                                <select id="filter_by_work_location" name="filter_by_work_location" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="employment_type_filter">Employment Type:</label>
-                                <select id="employment_type_filter" name="employment_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_employment_type">Employment Type:</label>
+                                <select id="filter_by_employment_type" name="filter_by_employment_type" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-0">
-                                <label class="form-label fs-6 fw-semibold" for="gender_filter">Gender:</label>
-                                <select id="gender_filter" name="gender_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_gender">Gender:</label>
+                                <select id="filter_by_gender" name="filter_by_gender" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                         </div>
                         <div class="px-7 py-5">                            

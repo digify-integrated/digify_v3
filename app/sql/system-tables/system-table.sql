@@ -450,7 +450,7 @@ VALUES
 ('Products', '', '', 4, 'Inventory', 0, '', '', 1),
 ('Product', 'product.php', 'ki-outline ki-parcel', 4, 'Inventory', 61, 'Products', 'product', 1),
 ('Product Variant', 'product-variant.php', 'ki-outline ki-lots-shopping', 4, 'Inventory', 61, 'Products', 'product', 2),
-('Pricelist', 'pricelist.php', 'ki-outline ki-tablet-text-down', 4, 'Inventory', 61, 'Products', '', 3),
+('Pricelist', 'pricelist.php', 'ki-outline ki-tablet-text-down', 4, 'Inventory', 61, 'Products', 'product_pricelist', 3),
 ('Inventory Operations', '', '', 4, 'Inventory', 0, '', '', 2),
 ('Inventory Transfer', '', 'ki-outline ki-courier', 4, 'Inventory', 65, 'Inventory Operations', '', 1),
 ('Receipts', 'receipts.php', '', 4, 'Inventory', 66, 'Inventory Transfer', '', 18),
@@ -459,7 +459,8 @@ VALUES
 ('Physical Inventory', 'physical-inventory.php', '', 4, 'Inventory', 69, 'Inventory Adjustments', '', 16),
 ('Scrap', 'scrap.php', '', 4, 'Inventory', 69, 'Inventory Adjustments', '', 19),
 ('Inventory Procurement', '', 'ki-outline ki-cheque', 4, 'Inventory', 65, 'Inventory Operations', '', 3),
-('Replenishment', 'replenishment.php', '', 4, 'Inventory', 72, 'Inventory Procurement', '', 18);
+('Replenishment', 'replenishment.php', '', 4, 'Inventory', 72, 'Inventory Procurement', '', 18),
+('Scrap Reason', 'scrap-reason.php', 'ki-outline ki-trash-square', 4, 'Inventory', 49, 'Inventory Configuration', 'scrap_reason', 1);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -7422,6 +7423,143 @@ CREATE INDEX idx_product_pricelist_validity_end_date ON product_pricelist(validi
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT PRICELIST
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PHYSICAL INVENTORY
+============================================================================================= */
+
+DROP TABLE IF EXISTS physical_inventory;
+
+CREATE TABLE physical_inventory (
+  physical_inventory_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  physical_inventory_status ENUM('Pending','Applied') DEFAULT 'Pending',
+  quantity_on_hand DECIMAL(15,4) DEFAULT 0,
+  inventory_count DECIMAL(15,4) DEFAULT 0,
+  inventory_difference DECIMAL(15,4) DEFAULT 0,
+  inventory_date DATE NOT NULL,
+  inventory_by INT UNSIGNED DEFAULT 1,
+  remarks VARCHAR(1000),
+  applied_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (inventory_by) REFERENCES user_account(inventory_by),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PHYSICAL INVENTORY
+============================================================================================= */
+
+CREATE INDEX idx_physical_inventory_product_id ON physical_inventory(product_id);
+CREATE INDEX idx_physical_inventory_inventory_by ON physical_inventory(inventory_by);
+CREATE INDEX idx_physical_inventory_inventory_date ON physical_inventory(inventory_date);
+CREATE INDEX idx_physical_inventory_inventory_status ON physical_inventory(physical_inventory_status);
+
+/* =============================================================================================
+  INITIAL VALUES: PHYSICAL INVENTORY
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+
+/* =============================================================================================
+  TABLE: SCRAP REASON
+============================================================================================= */
+
+DROP TABLE IF EXISTS scrap_reason;
+
+CREATE TABLE scrap_reason (
+  scrap_reason_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  scrap_reason_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: DEPARTURE REASON
+============================================================================================= */
+
+/* =============================================================================================
+  INITIAL VALUES: DEPARTURE REASON
+============================================================================================= */
+
+INSERT INTO scrap_reason (scrap_reason_name)
+VALUES
+('Damaged During Handling'),
+('Expired Product'),
+('Quality Control Failure'),
+('Obsolete or Outdated'),
+('Incorrect Production'),
+('Contamination'),
+('Packaging Defect'),
+('Customer Return - Unsellable'),
+('Overproduction'),
+('Storage Damage (Moisture/Heat/Cold)'),
+('Inventory Count Adjustment'),
+('Lost or Missing'),
+('Sample or Testing Use'),
+('Product Recall'),
+('Theft or Pilferage');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: INVENTORY SCRAP
+============================================================================================= */
+
+DROP TABLE IF EXISTS inventory_scrap;
+
+CREATE TABLE inventory_scrap (
+  inventory_scrap_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  reference_number VARCHAR(500),
+  inventory_scrap_status ENUM('Draft','Completed') DEFAULT 'Draft',
+  quantity_on_hand DECIMAL(15,4) DEFAULT 0,
+  scrap_quantity DECIMAL(15,4) DEFAULT 0,
+  scrap_reason_id INT UNSIGNED NOT NULL,
+  scrap_reason_name VARCHAR(100) NOT NULL,
+  detailed_scrap_reason VARCHAR(5000),
+  completed_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (scrap_reason_id) REFERENCES scrap_reason(scrap_reason_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: INVENTORY SCRAP
+============================================================================================= */
+
+CREATE INDEX idx_inventory_scrap_product_id ON inventory_scrap(product_id);
+CREATE INDEX idx_inventory_scrap_scrap_reason_id ON inventory_scrap(scrap_reason_id);
+CREATE INDEX idx_inventory_scrap_status ON inventory_scrap(inventory_scrap_status);
+
+/* =============================================================================================
+  INITIAL VALUES: INVENTORY SCRAPs
 ============================================================================================= */
 
 /* =============================================================================================

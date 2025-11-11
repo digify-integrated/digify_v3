@@ -63,8 +63,8 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="user_account_status_filter">Status:</label>
-                                <select id="user_account_status_filter" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_user_account_status">Status:</label>
+                                <select id="filter_by_user_account_status" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="">--</option>
                                     <option value="Yes">Active</option>
                                     <option value="No">Inactive</option>

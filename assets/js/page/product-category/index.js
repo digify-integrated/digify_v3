@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/ProductCategoryController.php',
         transaction: 'generate product category table',
         ajaxData: {
-            parent_category_filter: $('#parent_category_filter').val(),
-            costing_method_filter: $('#costing_method_filter').val()
+            filter_by_parent_category: $('#filter_by_parent_category').val(),
+            filter_by_costing_method: $('#filter_by_costing_method').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateDropdownOptions({
         url: './app/Controllers/ProductCategoryController.php',
-        dropdownSelector: '#parent_category_filter',
+        dropdownSelector: '#filter_by_parent_category',
         data: { transaction: 'generate product category options' , multiple : true }
     });
 
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#parent_category_filter').val(null).trigger('change');
-            $('#costing_method_filter').val(null).trigger('change');
+            $('#filter_by_parent_category').val(null).trigger('change');
+            $('#filter_by_costing_method').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

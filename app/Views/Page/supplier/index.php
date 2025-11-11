@@ -43,20 +43,20 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="city_filter">City:</label>
-                            <select id="city_filter" name="city_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_city">City:</label>
+                            <select id="filter_by_city" name="filter_by_city" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                 </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="state_filter">State:</label>
-                                <select id="state_filter" name="state_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_state">State:</label>
+                                <select id="filter_by_state" name="filter_by_state" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="country_filter">Country:</label>
-                                <select id="country_filter" name="country_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_country">Country:</label>
+                                <select id="filter_by_country" name="filter_by_country" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="supplier_status_filter">Status:</label>
-                                <select id="supplier_status_filter" name="supplier_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_supplier_status">Status:</label>
+                                <select id="filter_by_supplier_status" name="filter_by_supplier_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Active" selected>Active</option>
                                     <option value="Archived">Archived</option>
                                 </select>

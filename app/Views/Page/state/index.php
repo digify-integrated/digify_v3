@@ -43,8 +43,8 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="country_filter">Country:</label>
-                                <select id="country_filter" name="country_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_country">Country:</label>
+                                <select id="filter_by_country" name="filter_by_country" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="reset" class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6" id="reset-filter" data-kt-menu-dismiss="true">Reset</button>

@@ -43,12 +43,12 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-5">
-                                <label class="form-label fs-6 fw-semibold" for="app_module_filter">App Module:</label>
-                                <select id="app_module_filter" name="app_module_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_app_module">App Module:</label>
+                                <select id="filter_by_app_module" name="filter_by_app_module" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-5">
-                                <label class="form-label fs-6 fw-semibold" for="parent_id_filter">Parent Menu:</label>
-                                <select id="parent_id_filter" name="parent_id_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_parent_menu">Parent Menu:</label>
+                                <select id="filter_by_parent_menu" name="filter_by_parent_menu" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="reset" class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6" id="reset-filter" data-kt-menu-dismiss="true">Reset</button>

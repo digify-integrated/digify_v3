@@ -43,30 +43,30 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="tax_type_filter">Tax Type:</label>
-                                <select id="tax_type_filter" name="tax_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_tax_type">Tax Type:</label>
+                                <select id="filter_by_tax_type" name="filter_by_tax_type" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="None">None</option>
                                     <option value="Purchases">Purchases</option>
                                     <option value="Sales">Sales</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="tax_computation_filter">Tax Computation:</label>
-                                <select id="tax_computation_filter" name="tax_computation_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_tax_computation">Tax Computation:</label>
+                                <select id="filter_by_tax_computation" name="filter_by_tax_computation" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Fixed">Fixed</option>
                                     <option value="Percentage">Percentage</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="tax_scope_filter">Tax Scope:</label>
-                                <select id="tax_scope_filter" name="tax_scope_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_tax_scope">Tax Scope:</label>
+                                <select id="filter_by_tax_scope" name="filter_by_tax_scope" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Goods">Goods</option>
                                     <option value="Services">Services</option>
                                 </select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="tax_status_filter">Status:</label>
-                                <select id="tax_status_filter" name="tax_status_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_tax_status">Status:</label>
+                                <select id="filter_by_tax_status" name="filter_by_tax_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Active" selected>Active</option>
                                     <option value="Archived">Archived</option>
                                 </select>

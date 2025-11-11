@@ -204,8 +204,8 @@ class CityController {
 
     public function generateCityTable() {
         $pageLink       = $_POST['page_link'] ?? null;
-        $stateFilter    = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter  = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
+        $stateFilter    = $this->systemHelper->checkFilter($_POST['filter_by_state'] ?? null);
+        $countryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_country'] ?? null);
         $response       = [];
 
         $citys = $this->city->generateCityTable(

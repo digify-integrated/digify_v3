@@ -5,39 +5,45 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
-        selector: '#file-extension-table',
-        ajaxUrl: './app/Controllers/FileExtensionController.php',
-        transaction: 'generate file extension table',
+        selector: '#pricelist-table',
+        ajaxUrl: './app/Controllers/ProductController.php',
+        transaction: 'generate pricelist table',
         ajaxData: {
-            filter_by_file_type: $('#filter_by_file_type').val(),
+            filter_by_product: $('#filter_by_product').val(),
+            filter_by_discount_type: $('#filter_by_discount_type').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'FILE_EXTENSION_NAME' },
-            { data: 'FILE_TYPE_NAME' }
+            { data: 'PRODUCT' },
+            { data: 'DISCOUNT_TYPE' },
+            { data: 'FIXED_PRICE' },
+            { data: 'MIN_QUANTITY' },
+            { data: 'VALIDITY' },
+            { data: 'REMARKS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 }
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 5, responsivePriority: 6 },
+            { width: 'auto', targets: 6, responsivePriority: 7 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
         }
     });
-
+    
     generateDropdownOptions({
-        url: './app/Controllers/FileTypeController.php',
-        dropdownSelector: '#filter_by_file_type',
-        data: { 
-            transaction: 'generate file type options',
-            multiple : true
-        }
+        url: './app/Controllers/ProductController.php',
+        dropdownSelector: '#filter_by_product',
+        data: { transaction: 'generate product options', multiple : true }
     });
 
     initializeDatatable(datatableConfig());
-    initializeDatatableControls('#file-extension-table');
-    initializeExportFeature('file_extension');
+    initializeDatatableControls('#pricelist-table');
+    initializeExportFeature('pricelist');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {
@@ -45,25 +51,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#filter_by_file_type').val(null).trigger('change');
+            $('#filter_by_product').val(null).trigger('change');
+            $('#filter_by_discount_type').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
-        if (event.target.closest('#delete-file-extension')){
-            const transaction           = 'delete multiple file extension';
-            const file_extension_id     = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                                .filter(checkbox => checkbox.checked)
-                                                .map(checkbox => checkbox.value);
+        if (event.target.closest('#delete-pricelist')){
+            const transaction   = 'delete multiple product pricelist';
+            const product_pricelist_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
 
-            if (file_extension_id.length === 0) {
-                showNotification('Deletion Multiple File Extensions Error', 'Please select the file extensions you wish to delete.', 'error');
+            if (product_pricelist_id.length === 0) {
+                showNotification('Deletion Multiple Pricelists Error', 'Please select the pricelists you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple File Extensions Deletion',
-                text: 'Are you sure you want to delete these file extensions?',
+                title: 'Confirm Multiple Pricelists Deletion',
+                text: 'Are you sure you want to delete these pricelists?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -80,9 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                file_extension_id.forEach(id => formData.append('file_extension_id[]', id));
+                product_pricelist_id.forEach(id => formData.append('product_pricelist_id[]', id));
 
-                const response = await fetch('./app/Controllers/FileExtensionController.php', {
+                const response = await fetch('./app/Controllers/ProductController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -93,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    reloadDatatable('#file-extension-table');
+                    reloadDatatable('#pricelist-table');
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -103,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to delete file extensions: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete pricelists: ${error.message}`);
             }
         }
     });

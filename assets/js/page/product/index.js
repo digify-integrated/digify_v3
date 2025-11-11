@@ -14,16 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/ProductController.php',
         transaction: 'generate product table',
         ajaxData: {
-            filter_by_product_type: $('#product_type_filter').val(),
-            filter_by_product_category: $('#product_category_filter').val(),
-            filter_by_is_sellable: $('#is_sellable_filter').val(),
-            filter_by_is_purchasable: $('#is_purchasable_filter').val(),
-            filter_by_show_on_pos: $('#show_on_pos_filter').val(),
-            filter_by_product_status: $('#product_status_filter').val()
+            filter_by_product_type: $('#filter_by_product_type').val(),
+            filter_by_product_category: $('#filter_by_product_category').val(),
+            filter_by_is_sellable: $('#filter_by_is_sellable').val(),
+            filter_by_is_purchasable: $('#filter_by_is_purchasable').val(),
+            filter_by_show_on_pos: $('#filter_by_show_on_pos').val(),
+            filter_by_product_status: $('#filter_by_product_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
             { data: 'PRODUCT' },
+            { data: 'SKU' },
             { data: 'BARCODE' },
             { data: 'PRODUCT_TYPE' },
             { data: 'PRODUCT_CATEGORY' },
@@ -41,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { width: 'auto', targets: 5, responsivePriority: 6 },
             { width: 'auto', targets: 6, responsivePriority: 7 },
             { width: 'auto', targets: 7, responsivePriority: 8 },
-            { width: 'auto', targets: 8, responsivePriority: 9 }
+            { width: 'auto', targets: 8, responsivePriority: 9 },
+            { width: 'auto', targets: 9, responsivePriority: 10 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -57,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateDropdownOptions({
         url: './app/Controllers/ProductCategoryController.php',
-        dropdownSelector: '#product_category_filter',
+        dropdownSelector: '#filter_by_product_category',
         data: { transaction: 'generate product category options', multiple: true }
     });
 
@@ -102,12 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 limit: LIMIT,
                 offset,
                 search_value: document.querySelector('#datatable-search')?.value || '',
-                filter_by_product_type: $('#product_type_filter').val(),
-                filter_by_product_category: $('#product_category_filter').val(),
-                filter_by_is_sellable: $('#is_sellable_filter').val(),
-                filter_by_is_purchasable: $('#is_purchasable_filter').val(),
-                filter_by_show_on_pos: $('#show_on_pos_filter').val(),
-                filter_by_product_status: $('#product_status_filter').val()
+                filter_by_product_type: $('#filter_by_product_type').val(),
+                filter_by_product_category: $('#filter_by_product_category').val(),
+                filter_by_is_sellable: $('#filter_by_is_sellable').val(),
+                filter_by_is_purchasable: $('#filter_by_is_purchasable').val(),
+                filter_by_show_on_pos: $('#filter_by_show_on_pos').val(),
+                filter_by_product_status: $('#filter_by_product_status').val()
             };
 
             const response = await fetch('./app/Controllers/ProductController.php', {
@@ -179,12 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#product_type_filter').val(null).trigger('change');
-            $('#product_category_filter').val(null).trigger('change');
-            $('#is_sellable_filter').val(null).trigger('change');
-            $('#is_purchasable_filter').val(null).trigger('change');
-            $('#show_on_pos_filter').val(null).trigger('change');
-            $('#product_status_filter').val('Active').trigger('change');
+            $('#filter_by_product_type').val(null).trigger('change');
+            $('#filter_by_product_category').val(null).trigger('change');
+            $('#filter_by_is_sellable').val(null).trigger('change');
+            $('#filter_by_is_purchasable').val(null).trigger('change');
+            $('#filter_by_show_on_pos').val(null).trigger('change');
+            $('#filter_by_product_status').val('Active').trigger('change');
 
             observer.observe(sentinel);
             fetchProductCards({ clearExisting: true });

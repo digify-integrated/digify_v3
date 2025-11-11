@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/UserAccountController.php',
         transaction: 'generate user account table',
         ajaxData: {
-            user_account_status_filter: $('#user_account_status_filter').val()
+            filter_by_user_account_status: $('#filter_by_user_account_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#user_account_status_filter').val(null).trigger('change');
+            $('#filter_by_user_account_status').val(null).trigger('change');
             initializeDatatable(datatableConfig());
         }
 

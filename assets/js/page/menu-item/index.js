@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/MenuItemController.php',
         transaction: 'generate menu item table',
         ajaxData: {
-            app_module_filter: $('#app_module_filter').val(),
-            parent_id_filter: $('#parent_id_filter').val()
+            filter_by_app_module: $('#filter_by_app_module').val(),
+            filter_by_parent_menu: $('#filter_by_parent_menu').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/MenuItemController.php', selector: '#parent_id_filter', transaction: 'generate menu item options' },
-        { url: './app/Controllers/AppModuleController.php', selector: '#app_module_filter', transaction: 'generate app module options' }
+        { url: './app/Controllers/MenuItemController.php', selector: '#filter_by_parent_menu', transaction: 'generate menu item options' },
+        { url: './app/Controllers/AppModuleController.php', selector: '#filter_by_app_module', transaction: 'generate app module options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#parent_id_filter').val(null).trigger('change');
-            $('#app_module_filter').val(null).trigger('change');
+            $('#filter_by_parent_menu').val(null).trigger('change');
+            $('#filter_by_app_module').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

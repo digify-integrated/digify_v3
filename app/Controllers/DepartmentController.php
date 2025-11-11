@@ -206,8 +206,8 @@ class DepartmentController {
     ============================================================================================= */
 
     public function generateDepartmentTable() {
-        $filterParentDepartment     = $this->systemHelper->checkFilter($_POST['parent_department_filter'] ?? null);
-        $filterManager              = $this->systemHelper->checkFilter($_POST['manager_filter'] ?? null);
+        $filterParentDepartment     = $this->systemHelper->checkFilter($_POST['filter_by_parent_department'] ?? null);
+        $filterManager              = $this->systemHelper->checkFilter($_POST['filter_by_manager'] ?? null);
         $pageLink                   = $_POST['page_link'] ?? null;
         $response                   = [];
 

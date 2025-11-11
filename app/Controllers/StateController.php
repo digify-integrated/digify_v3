@@ -199,7 +199,7 @@ class StateController {
 
     public function generateStateTable() {
         $pageLink       = $_POST['page_link'] ?? null;
-        $countryFilter  = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
+        $countryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_country'] ?? null);
         $response       = [];
 
         $states = $this->state->generateStateTable($countryFilter);

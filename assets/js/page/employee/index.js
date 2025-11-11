@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/EmployeeController.php',
         transaction: 'generate employee table',
         ajaxData: {
-            filter_by_company: document.querySelector('#company_filter')?.value || [],
-            filter_by_department: document.querySelector('#department_filter')?.value || [],
-            filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
-            filter_by_employee_status: document.querySelector('#employee_status_filter')?.value || [],
-            filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
-            filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
-            filter_by_gender: document.querySelector('#gender_filter')?.value || []
+            filter_by_company: document.querySelector('#filter_by_company')?.value || [],
+            filter_by_department: document.querySelector('#filter_by_department')?.value || [],
+            filter_by_job_position: document.querySelector('#filter_by_job_position')?.value || [],
+            filter_by_employee_status: document.querySelector('#filter_by_employee_status')?.value || [],
+            filter_by_work_location: document.querySelector('#filter_by_work_location')?.value || [],
+            filter_by_employment_type: document.querySelector('#filter_by_employment_type')?.value || [],
+            filter_by_gender: document.querySelector('#filter_by_gender')?.value || []
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector(`#${containerId}`);
 
     const dropdownConfigs = [
-        { url: './app/Controllers/CompanyController.php', selector: '#company_filter', transaction: 'generate company options' },
-        { url: './app/Controllers/DepartmentController.php', selector: '#department_filter', transaction: 'generate department options' },
-        { url: './app/Controllers/JobPositionController.php', selector: '#job_position_filter', transaction: 'generate job position options' },
-        { url: './app/Controllers/WorkLocationController.php', selector: '#work_location_filter', transaction: 'generate work location options' },
-        { url: './app/Controllers/EmploymentTypeController.php', selector: '#employment_type_filter', transaction: 'generate employment type options' },
-        { url: './app/Controllers/GenderController.php', selector: '#gender_filter', transaction: 'generate gender options' }
+        { url: './app/Controllers/CompanyController.php', selector: '#filter_by_company', transaction: 'generate company options' },
+        { url: './app/Controllers/DepartmentController.php', selector: '#filter_by_department', transaction: 'generate department options' },
+        { url: './app/Controllers/JobPositionController.php', selector: '#filter_by_job_position', transaction: 'generate job position options' },
+        { url: './app/Controllers/WorkLocationController.php', selector: '#filter_by_work_location', transaction: 'generate work location options' },
+        { url: './app/Controllers/EmploymentTypeController.php', selector: '#filter_by_employment_type', transaction: 'generate employment type options' },
+        { url: './app/Controllers/GenderController.php', selector: '#filter_by_gender', transaction: 'generate gender options' }
     ];
 
     dropdownConfigs.forEach(cfg => {
@@ -102,13 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 limit: LIMIT,
                 offset,
                 search_value: document.querySelector('#datatable-search')?.value || '',
-                filter_by_company: document.querySelector('#company_filter')?.value || [],
-                filter_by_department: document.querySelector('#department_filter')?.value || [],
-                filter_by_job_position: document.querySelector('#job_position_filter')?.value || [],
-                filter_by_employee_status: document.querySelector('#employee_status_filter')?.value || [],
-                filter_by_work_location: document.querySelector('#work_location_filter')?.value || [],
-                filter_by_employment_type: document.querySelector('#employment_type_filter')?.value || [],
-                filter_by_gender: document.querySelector('#gender_filter')?.value || []
+                filter_by_company: document.querySelector('#filter_by_company')?.value || [],
+                filter_by_department: document.querySelector('#filter_by_department')?.value || [],
+                filter_by_job_position: document.querySelector('#filter_by_job_position')?.value || [],
+                filter_by_employee_status: document.querySelector('#filter_by_employee_status')?.value || [],
+                filter_by_work_location: document.querySelector('#filter_by_work_location')?.value || [],
+                filter_by_employment_type: document.querySelector('#filter_by_employment_type')?.value || [],
+                filter_by_gender: document.querySelector('#filter_by_gender')?.value || []
             };
 
             const response = await fetch('./app/Controllers/EmployeeController.php', {
@@ -180,13 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#company_filter').val(null).trigger('change');
-            $('#department_filter').val(null).trigger('change');
-            $('#job_position_filter').val(null).trigger('change');
-            $('#job_position_filter').val(null).trigger('change');
-            $('#employee_status_filter').val(null).trigger('change');
-            $('#work_location_filter').val(null).trigger('change');
-            $('#employment_type_filter').val(null).trigger('change');
+            $('#filter_by_company').val(null).trigger('change');
+            $('#filter_by_department').val(null).trigger('change');
+            $('#filter_by_job_position').val(null).trigger('change');
+            $('#filter_by_job_position').val(null).trigger('change');
+            $('#filter_by_employee_status').val(null).trigger('change');
+            $('#filter_by_work_location').val(null).trigger('change');
+            $('#filter_by_employment_type').val(null).trigger('change');
 
             observer.observe(sentinel);
             fetchEmployeeCards({ clearExisting: true });

@@ -88,40 +88,43 @@ class ProductController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save product category'             => $this->saveProductCategory($lastLogBy),
-            'save product attribute'            => $this->saveProductAttribute($lastLogBy),
-            'save product pricelist'            => $this->saveProductPricelist($lastLogBy),
-            'insert product'                    => $this->insertProduct($lastLogBy),
-            'update product general'            => $this->updateProductGeneral($lastLogBy),
-            'update product inventory'          => $this->updateProductInventory($lastLogBy),
-            'update product shipping'           => $this->updateProductShipping($lastLogBy),
-            'update product pricing'            => $this->updateProductPricing($lastLogBy),
-            'update product is sellable'        => $this->updateProductIsSellable($lastLogBy),
-            'update product is purchasable'     => $this->updateProductIsPurchasable($lastLogBy),
-            'update product show on pos'        => $this->updateProductShowOnPos($lastLogBy),
-            'update product activate'           => $this->updateProductActivate($lastLogBy),
-            'update product archive'            => $this->updateProductArchive($lastLogBy),
-            'update product unarchive'          => $this->updateProductUnarchive($lastLogBy),
-            'update product image'              => $this->updateProductImage($lastLogBy),
-            'delete product'                    => $this->deleteProduct(),
-            'delete multiple product'           => $this->deleteMultipleProduct(),
-            'delete product attribute'          => $this->deleteProductAttribute(),
-            'delete product pricelist'          => $this->deleteProductPricelist(),
-            'fetch product details'             => $this->fetchProductDetails(),
-            'fetch product categories details'  => $this->fetchProductCategoryMapDetails(),
-            'fetch product tax details'         => $this->fetchProductTaxDetails(),
-            'fetch product pricelist details'   => $this->fetchProductPricelistDetails(),
-            'generate product card'             => $this->generateProductCard(),
-            'generate product table'            => $this->generateProductTable(),
-            'generate product variant card'     => $this->generateProductVariantCard(),
-            'generate product variant table'    => $this->generateProductVariantTable(),
-            'generate product attribute table'  => $this->generateProductAttributeTable($lastLogBy, $pageId),
-            'generate product variation table'  => $this->generateProductVariationTable(),
-            'generate product pricelist table'  => $this->generateProductPricelistTable($lastLogBy, $pageId),
-            default                             => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'save product category'                 => $this->saveProductCategory($lastLogBy),
+            'save product attribute'                => $this->saveProductAttribute($lastLogBy),
+            'save product pricelist'                => $this->saveProductPricelist($lastLogBy),
+            'insert product'                        => $this->insertProduct($lastLogBy),
+            'update product general'                => $this->updateProductGeneral($lastLogBy),
+            'update product inventory'              => $this->updateProductInventory($lastLogBy),
+            'update product shipping'               => $this->updateProductShipping($lastLogBy),
+            'update product pricing'                => $this->updateProductPricing($lastLogBy),
+            'update product is sellable'            => $this->updateProductIsSellable($lastLogBy),
+            'update product is purchasable'         => $this->updateProductIsPurchasable($lastLogBy),
+            'update product show on pos'            => $this->updateProductShowOnPos($lastLogBy),
+            'update product activate'               => $this->updateProductActivate($lastLogBy),
+            'update product archive'                => $this->updateProductArchive($lastLogBy),
+            'update product unarchive'              => $this->updateProductUnarchive($lastLogBy),
+            'update product image'                  => $this->updateProductImage($lastLogBy),
+            'delete product'                        => $this->deleteProduct(),
+            'delete multiple product'               => $this->deleteMultipleProduct(),
+            'delete product attribute'              => $this->deleteProductAttribute(),
+            'delete product pricelist'              => $this->deleteProductPricelist(),
+            'delete multiple product pricelist'     => $this->deleteMultipleProductPricelist(),
+            'fetch product details'                 => $this->fetchProductDetails(),
+            'fetch product categories details'      => $this->fetchProductCategoryMapDetails(),
+            'fetch product tax details'             => $this->fetchProductTaxDetails(),
+            'fetch product pricelist details'       => $this->fetchProductPricelistDetails(),
+            'generate product card'                 => $this->generateProductCard(),
+            'generate product table'                => $this->generateProductTable(),
+            'generate product variant card'         => $this->generateProductVariantCard(),
+            'generate product variant table'        => $this->generateProductVariantTable(),
+            'generate product attribute table'      => $this->generateProductAttributeTable($lastLogBy, $pageId),
+            'generate product variation table'      => $this->generateProductVariationTable(),
+            'generate product pricelist table'      => $this->generateProductPricelistTable($lastLogBy, $pageId),
+            'generate pricelist table'              => $this->generatePricelistTable(),
+            'generate product options'              => $this->generateProductOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
+                                                            'Transaction Failed',
+                                                            'We encountered an issue while processing your request.'
+                                                        )
         };
     }
 
@@ -335,10 +338,22 @@ class ProductController {
         $validityEndDate        = $this->systemHelper->checkDate('empty', $_POST['validity_end_date'], '', 'Y-m-d', '');
         $remarks                = $_POST['remarks'] ?? '';
 
+        if (!empty($validityStartDate) && !empty($validityEndDate)) {
+            $start = strtotime($validityStartDate);
+            $end   = strtotime($validityEndDate);
+
+            if ($start > $end) {
+               $this->systemHelper::sendErrorResponse(
+                    'Save Product Pricelist Error',
+                    'The validity end date must be greater than or equal to start date.'
+                );
+            }
+        }
+
         $productDetails = $this->product->fetchProduct($productId);
         $productName = $productDetails['product_name'] ?? '';
 
-        $this->product->saveProductPricelist(
+        $productPricelistId = $this->product->saveProductPricelist(
             $productPricelistId,
             $productId,
             $productName,
@@ -351,9 +366,12 @@ class ProductController {
             $lastLogBy
         );
 
+        $encryptedProductPricelistId = $this->security->encryptData($productPricelistId);
+
         $this->systemHelper::sendSuccessResponse(
             'Save Product Pricelist Success',
-            'The product pricelist has been saved successfully.'
+            'The product pricelist has been saved successfully.',
+            ['product_pricelist_id' => $encryptedProductPricelistId]
         );
     }
 
@@ -382,12 +400,12 @@ class ProductController {
             $lastLogBy
         );
 
-        $encryptedproductId = $this->security->encryptData($productId);
+        $encryptedProductId = $this->security->encryptData($productId);
 
         $this->systemHelper::sendSuccessResponse(
             'Save Product Success',
             'The product has been saved successfully.',
-            ['product_id' => $encryptedproductId]
+            ['product_id' => $encryptedProductId]
         );
     }
 
@@ -511,24 +529,29 @@ class ProductController {
         $unitName           = $unitIdDetails['unit_name'] ?? null;
         $unitAbbreviation   = $unitIdDetails['unit_abbreviation'] ?? null;
         
-        $checkProductSKUExist   = $this->product->checkProductSKUExist($productId, $sku);
-        $totalSKU               = $checkProductSKUExist['total'] ?? 0;
+        if(!empty($sku)){
+            $checkProductSKUExist   = $this->product->checkProductSKUExist($productId, $sku);
+            $totalSKU               = $checkProductSKUExist['total'] ?? 0;
 
-        $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
-        $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
-
-        if ($totalSKU > 0) {
-            $this->systemHelper::sendErrorResponse(
-                'Update Product Error',
-                'The SKU entered already exists.'
-            );
+            if ($totalSKU > 0) {
+                $this->systemHelper::sendErrorResponse(
+                    'Update Product Error',
+                    'The SKU entered already exists.'
+                );
+            }
         }
+       
 
-        if ($totalBarcode > 0) {
-            $this->systemHelper::sendErrorResponse(
-                'Update Product Error',
-                'The barcode entered already exists.'
-            );
+        if(!empty($barcode)){
+            $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
+            $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
+
+            if ($totalBarcode > 0) {
+                $this->systemHelper::sendErrorResponse(
+                    'Update Product Error',
+                    'The barcode entered already exists.'
+                );
+            }
         }
 
         $this->product->updateProductInventory(
@@ -921,6 +944,7 @@ class ProductController {
 
         $response = [
             'success'               => true,
+            'productId'             => $productPricelistDetails['product_id'] ?? '',
             'discountType'          => $productPricelistDetails['discount_type'] ?? 'Percentage',
             'fixedPrice'            => $productPricelistDetails['fixed_price'] ?? 0,
             'minQuantity'           => $productPricelistDetails['min_quantity'] ?? 0,
@@ -1001,6 +1025,19 @@ class ProductController {
         $this->systemHelper::sendSuccessResponse(
             'Product Pricelist Success',
             'The product pricelist has been deleted successfully.'
+        );
+    }
+
+    public function deleteMultipleProductPricelist() {
+        $productPricelistIds = $_POST['product_pricelist_id'] ?? null;
+
+        foreach($productPricelistIds as $productPricelistId){
+            $this->product->deleteProductPricelist($productPricelistId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Multiple Product Pricelists Success',
+            'The selected product pricelists have been deleted successfully.'
         );
     }
     
@@ -1127,9 +1164,11 @@ class ProductController {
                                                 </div>
                                             </div>
                                             <div class="d-flex flex-column">
-                                                <span class="text-gray-800">'. $productName .'</span>
+                                                <div class="fs-5 text-gray-900 fw-bold">'. $productName .'</div>
+                                                <div class="fs-7 text-gray-500">'. $productDescription .'</div>
                                             </div>
                                         </div>',
+                'SKU'           => $sku,
                 'BARCODE'           => $barcode,
                 'PRODUCT_TYPE'      => $productTypeName,
                 'PRODUCT_CATEGORY'  => $productCategories,
@@ -1259,9 +1298,11 @@ class ProductController {
                                                 </div>
                                             </div>
                                             <div class="d-flex flex-column">
-                                                <span class="text-gray-800">'. $productName .'</span>
+                                                <div class="fs-5 text-gray-900 fw-bold">'. $productName .'</div>
+                                                <div class="fs-7 text-gray-500">'. $productDescription .'</div>
                                             </div>
                                         </div>',
+                'SKU'           => $sku,
                 'BARCODE'           => $barcode,
                 'PRODUCT_TYPE'      => $productTypeName,
                 'PRODUCT_CATEGORY'  => $productCategories,
@@ -1397,6 +1438,50 @@ class ProductController {
                                             '. $logNotes .'
                                             '. $deleteButton .'
                                         </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generatePricelistTable() {
+        $pageLink               = $_POST['page_link'] ?? null;
+        $productFilter          = $this->systemHelper->checkFilter($_POST['filter_by_product'] ?? null);
+        $discountTypeFilter     = $this->systemHelper->checkFilter($_POST['filter_by_discount_type'] ?? null);
+        $response               = [];
+
+        $products = $this->product->generatePricelistTable(
+            $productFilter,
+            $discountTypeFilter
+        );
+
+        foreach ($products as $row) {
+            $productPricelistId     = $row['product_pricelist_id'];
+            $discountType           = $row['discount_type'];
+            $productName            = $row['product_name'];
+            $fixedPrice             = $row['fixed_price'];
+            $minQuantity            = $row['min_quantity'];
+            $validityStartDate      = $this->systemHelper->checkDate('empty', $row['validity_start_date'] ?? null, '', 'd M Y', '');
+            $validityEndDate        = $this->systemHelper->checkDate('empty', $row['validity_end_date'] ?? null, '', 'd M Y', '');
+            $remarks                = $row['remarks'];
+
+            $validity = empty($validityEndDate)
+            ? 'Effective from ' . $validityStartDate
+            : $validityStartDate . ' - ' . $validityEndDate;
+
+            $productPricelistIdEncrypted = $this->security->encryptData($productPricelistId);
+
+            $response[] = [
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $productPricelistId .'">
+                                        </div>',
+                'PRODUCT'           => $productName,
+                'DISCOUNT_TYPE'     => $discountType,
+                'FIXED_PRICE'       => number_format($fixedPrice, 2),
+                'MIN_QUANTITY'      => number_format($minQuantity, 0),
+                'VALIDITY'          => $validity,
+                'REMARKS'           => $remarks,
+                'LINK'              => $pageLink .'&id='. $productPricelistIdEncrypted
             ];
         }
 

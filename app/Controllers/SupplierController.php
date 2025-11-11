@@ -259,10 +259,10 @@ class SupplierController {
 
     public function generateSupplierTable() {
         $pageLink               = $_POST['page_link'] ?? null;
-        $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter          = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $supplierStatusFilter   = $this->systemHelper->checkFilter($_POST['supplier_status_filter'] ?? null);
+        $cityFilter             = $this->systemHelper->checkFilter($_POST['filter_by_city'] ?? null);
+        $stateFilter            = $this->systemHelper->checkFilter($_POST['filter_by_state'] ?? null);
+        $countryFilter          = $this->systemHelper->checkFilter($_POST['filter_by_country'] ?? null);
+        $supplierStatusFilter   = $this->systemHelper->checkFilter($_POST['filter_by_supplier_status'] ?? null);
         $response               = [];
 
         $suppliers = $this->supplier->generateSupplierTable(

@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/CompanyController.php',
         transaction: 'generate company table',
         ajaxData: {
-            city_filter: $('#city_filter').val(),
-            state_filter: $('#state_filter').val(),
-            country_filter: $('#country_filter').val(),
-            currency_filter: $('#currency_filter').val()
+            filter_by_city: $('#filter_by_city').val(),
+            filter_by_state: $('#filter_by_state').val(),
+            filter_by_country: $('#filter_by_country').val(),
+            filter_by_currency: $('#filter_by_currency').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/CityController.php', selector: '#city_filter', transaction: 'generate filter city options' },
-        { url: './app/Controllers/StateController.php', selector: '#state_filter', transaction: 'generate state options' },
-        { url: './app/Controllers/CountryController.php', selector: '#country_filter', transaction: 'generate country options' },
-        { url: './app/Controllers/CurrencyController.php', selector: '#currency_filter', transaction: 'generate currency options' }
+        { url: './app/Controllers/CityController.php', selector: '#filter_by_city', transaction: 'generate filter city options' },
+        { url: './app/Controllers/StateController.php', selector: '#filter_by_state', transaction: 'generate state options' },
+        { url: './app/Controllers/CountryController.php', selector: '#filter_by_country', transaction: 'generate country options' },
+        { url: './app/Controllers/CurrencyController.php', selector: '#filter_by_currency', transaction: 'generate currency options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#city_filter').val(null).trigger('change');
-            $('#state_filter').val(null).trigger('change');
-            $('#country_filter').val(null).trigger('change');
-            $('#currency_filter').val(null).trigger('change');
+            $('#filter_by_city').val(null).trigger('change');
+            $('#filter_by_state').val(null).trigger('change');
+            $('#filter_by_country').val(null).trigger('change');
+            $('#filter_by_currency').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

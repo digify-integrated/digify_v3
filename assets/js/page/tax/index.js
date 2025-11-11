@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/TaxController.php',
         transaction: 'generate tax table',
         ajaxData: {
-            tax_type_filter: $('#tax_type_filter').val(),
-            tax_computation_filter: $('#tax_computation_filter').val(),
-            tax_scope_filter: $('#tax_scope_filter').val(),
-            tax_status_filter: $('#tax_status_filter').val()
+            filter_by_tax_type: $('#filter_by_tax_type').val(),
+            filter_by_tax_computation: $('#filter_by_tax_computation').val(),
+            filter_by_tax_scope: $('#filter_by_tax_scope').val(),
+            filter_by_tax_status: $('#filter_by_tax_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -42,10 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#tax_type_filter').val(null).trigger('change');
-            $('#tax_computation_filter').val(null).trigger('change');
-            $('#tax_scope_filter').val(null).trigger('change');
-            $('#tax_status_filter').val('Active').trigger('change');
+            $('#filter_by_tax_type').val(null).trigger('change');
+            $('#filter_by_tax_computation').val(null).trigger('change');
+            $('#filter_by_tax_scope').val(null).trigger('change');
+            $('#filter_by_tax_status').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());
         }

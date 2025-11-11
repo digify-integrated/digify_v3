@@ -61,44 +61,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayPricelistDetails = async (product_pricelist_id) => {
-            const transaction = 'fetch product pricelist details';
+        const transaction = 'fetch product pricelist details';
     
-            try {
-                const formData = new URLSearchParams();
-                formData.append('transaction', transaction);
-                formData.append('product_id', product_id);
-                formData.append('product_pricelist_id', product_pricelist_id);
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+            formData.append('product_pricelist_id', product_pricelist_id);
     
-                const response = await fetch('./app/Controllers/ProductController.php', {
-                    method: 'POST',
-                    body: formData
-                });
+            const response = await fetch('./app/Controllers/ProductController.php', {
+                method: 'POST',
+                body: formData
+            });
     
-                if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
     
-                const data = await response.json();
+            const data = await response.json();
     
-                if (data.success) {
-                    $('#product_pricelist_id').val(product_pricelist_id);
-                    $('#fixed_price').val(data.fixedPrice || 0);
-                    $('#min_quantity').val(data.minQuantity || 0);
-                    $('#validity_start_date').val(data.validityStartDate || '');
-                    $('#validity_end_date').val(data.validityEndDate || '');
-                    $('#remarks').val(data.remarks || '');
+            if (data.success) {
+                $('#product_pricelist_id').val(product_pricelist_id);
+                $('#fixed_price').val(data.fixedPrice || 0);
+                $('#min_quantity').val(data.minQuantity || 0);
+                $('#validity_start_date').val(data.validityStartDate || '');
+                $('#validity_end_date').val(data.validityEndDate || '');
+                $('#remarks').val(data.remarks || '');
 
-                    $('#discount_type').val(data.discountType || 'Percentage').trigger('change');
-                } 
-                else if (data.notExist) {
-                    setNotification(data.title, data.message, data.message_type);
-                    window.location = page_link;
-                } 
-                else {
-                    showNotification(data.title, data.message, data.message_type);
-                }
-            } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to fetch product details: ${error.message}`);
+                $('#discount_type').val(data.discountType || 'Percentage').trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
             }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch product details: ${error.message}`);
         }
+    }
 
     const displayProductCategoriesDetails = async () => {
         const transaction = 'fetch product categories details';

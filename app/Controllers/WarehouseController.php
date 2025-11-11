@@ -270,11 +270,11 @@ class WarehouseController {
 
     public function generateWarehouseTable() {
         $pageLink               = $_POST['page_link'] ?? null;
-        $cityFilter             = $this->systemHelper->checkFilter($_POST['city_filter'] ?? null);
-        $stateFilter            = $this->systemHelper->checkFilter($_POST['state_filter'] ?? null);
-        $countryFilter          = $this->systemHelper->checkFilter($_POST['country_filter'] ?? null);
-        $warehouseTypeFilter    = $this->systemHelper->checkFilter($_POST['warehouse_type_filter'] ?? null);
-        $warehouseStatusFilter  = $this->systemHelper->checkFilter($_POST['warehouse_status_filter'] ?? null);
+        $cityFilter             = $this->systemHelper->checkFilter($_POST['filter_by_city'] ?? null);
+        $stateFilter            = $this->systemHelper->checkFilter($_POST['filter_by_state'] ?? null);
+        $countryFilter          = $this->systemHelper->checkFilter($_POST['filter_by_country'] ?? null);
+        $warehouseTypeFilter    = $this->systemHelper->checkFilter($_POST['filter_by_warehouse_type'] ?? null);
+        $warehouseStatusFilter  = $this->systemHelper->checkFilter($_POST['filter_by_warehouse_status'] ?? null);
         $response               = [];
 
         $warehouses = $this->warehouse->generateWarehouseTable(

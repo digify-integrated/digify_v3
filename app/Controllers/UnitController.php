@@ -205,7 +205,7 @@ class UnitController {
 
     public function generateUnitTable() {
         $pageLink           = $_POST['page_link'] ?? null;
-        $unitTypeFilter     = $this->systemHelper->checkFilter($_POST['unit_type_filter'] ?? null);
+        $unitTypeFilter     = $this->systemHelper->checkFilter($_POST['filter_by_unit_type'] ?? null);
         $response           = [];
 
         $units = $this->unit->generateUnitTable($unitTypeFilter);

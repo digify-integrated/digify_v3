@@ -202,7 +202,7 @@ class FileExtensionController {
 
     public function generateFileExtensionTable() {
         $pageLink           = $_POST['page_link'] ?? null;
-        $fileTypeFilter     = $this->systemHelper->checkFilter($_POST['file_type_filter'] ?? null);
+        $fileTypeFilter     = $this->systemHelper->checkFilter($_POST['filter_by_file_type'] ?? null);
         $response           = [];
 
         $states = $this->fileExtension->generateFileExtensionTable($fileTypeFilter);

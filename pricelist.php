@@ -30,14 +30,17 @@
                         <div class="d-flex flex-column flex-column-fluid">
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <?php 
-                                    if(!empty($detailID)){
-                                        require_once './app/Views/Page/product/details.php';
+                                    if($newRecord){
+                                        require_once './app/Views/Page/pricelist/new.php';
+                                    }
+                                    else if(!empty($detailID)){
+                                        require_once './app/Views/Page/pricelist/details.php';
                                     }
                                     else if(isset($_GET['import']) && !empty($_GET['import'])){
                                         require_once './app/Views/Page/import/import.php';
                                     }
                                     else{
-                                        require_once './app/Views/Page/product-variant/index.php';
+                                        require_once './app/Views/Page/pricelist/index.php';
                                     }
                                 ?>
                             </div>
@@ -55,16 +58,19 @@
 
     <?php
         $version = rand();
-        $scriptFile = './assets/js/page/product-variant/index.js';
+        $scriptFile = './assets/js/page/pricelist/index.js';
 
-        if (!empty($detailID)) {
-            $scriptFile = './assets/js/page/product/details.js';
+        if ($newRecord) {
+            $scriptFile = './assets/js/page/pricelist/new.js';
+        }
+        else if (!empty($detailID)) {
+            $scriptFile = './assets/js/page/pricelist/details.js';
         }
         else if (isset($_GET['import']) && !empty($_GET['import'])) {
             $scriptFile = './assets/js/page/import/import.js'; 
         }
     ?>
-
+    
     <script type="module" src="<?= $scriptFile ?>?v=<?= $version ?>"></script>
 
 </body>

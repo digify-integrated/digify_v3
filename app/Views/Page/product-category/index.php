@@ -43,12 +43,12 @@
                     <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="parent_category_filter">Parent Category:</label>
-                                <select id="parent_category_filter" name="parent_category_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_parent_category">Parent Category:</label>
+                                <select id="filter_by_parent_category" name="filter_by_parent_category" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="costing_method_filter">Costing Method:</label>
-                                <select id="costing_method_filter" name="costing_method_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_costing_method">Costing Method:</label>
+                                <select id="filter_by_costing_method" name="filter_by_costing_method" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Average Cost">Average Cost</option>
                                     <option value="First In First Out">First In First Out</option>
                                     <option value="Standard Price">Standard Price</option>

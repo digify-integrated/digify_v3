@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/UnitController.php',
         transaction: 'generate unit table',
         ajaxData: {
-            unit_type_filter: $('#unit_type_filter').val()
+            filter_by_unit_type: $('#filter_by_unit_type').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     generateDropdownOptions({
         url: './app/Controllers/UnitTypeController.php',
-        dropdownSelector: '#unit_type_filter',
+        dropdownSelector: '#filter_by_unit_type',
         data: { transaction: 'generate unit type options', multiple : true }
     });
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#unit_type_filter').val(null).trigger('change');
+            $('#filter_by_unit_type').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
