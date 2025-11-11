@@ -41,6 +41,7 @@
                 <?= $security->csrfInput('product_category_form'); ?>
                 <div class="card-body border-top p-9">
                     <div class="fv-row mb-0">
+                        <label class="required form-label" for="product_category_id">Product Categories</label>
                         <select id="product_category_id" name="product_category_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                     </div>
                 </div>
@@ -144,6 +145,14 @@
                                                     </div>';
                                     }
                             
+                                    if($unarchiveProduct['total'] > 0 && $productStatus === 'Draft'){
+                                        $action .= ' <div class="menu-item px-3">
+                                                        <a href="javascript:void(0);" class="menu-link px-3" id="activate-product">
+                                                            Activate
+                                                        </a>
+                                                    </div>';
+                                    }
+                            
                                     if($unarchiveProduct['total'] > 0 && $productStatus === 'Archived'){
                                         $action .= ' <div class="menu-item px-3">
                                                         <a href="javascript:void(0);" class="menu-link px-3" id="unarchive-product">
@@ -183,7 +192,6 @@
                             <div class="mb-10 fv-row">
                                 <label class="required form-label" for="product_name">Product Name</label>
                                 <input type="text" id="product_name" name="product_name" class="form-control mb-2" maxlength="100" autocomplete="off" <?php echo $disabled; ?>/>
-                                <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
                             </div>
                             
                             <div>
@@ -258,15 +266,15 @@
                                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="required form-label" for="sku">SKU</label>
-                                                <input type="text" id="sku" name="sku" class="form-control mb-2" maxlength="200" <?php echo $disabled; ?>>
+                                            <label class="form-label" for="sku">SKU</label>
+                                                <input type="text" id="sku" name="sku" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="required form-label" for="barcode">Barcode</label>
-                                                <input type="text" id="barcode" name="barcode" class="form-control mb-2"  maxlength="200" <?php echo $disabled; ?>>
+                                                <label class="form-label" for="barcode">Barcode</label>
+                                                <input type="text" id="barcode" name="barcode" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -337,7 +345,7 @@
                                 </select>
                                 <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                     <?php
-                                        echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-attributes-modal" id="add-product-attribute">Add Attribute</button>' : '';
+                                        echo $permissions['write'] > 0 && $productStatus == 'Active' ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-attributes-modal" id="add-product-attribute">Add Attribute</button>' : '';
                                     ?> 
                                 </div>
                             </div>
@@ -569,7 +577,7 @@
                         <div class="col-lg-3">
                             <div class="row">
                                 <div class="col-lg-12 fv-row">
-                                   <input class="form-control mb-3 mb-lg-0" id="validity_start_date" name="validity_start_date" type="text" />
+                                   <input class="form-control mb-3 mb-lg-0" id="validity_start_date" name="validity_start_date" type="text" autocomplete="off" />
                                 </div>
                             </div>
                         </div>
@@ -577,7 +585,7 @@
                         <div class="col-lg-3">
                             <div class="row">
                                 <div class="col-lg-12 fv-row">
-                                    <input class="form-control mb-3 mb-lg-0" id="validity_end_date" name="validity_end_date" type="text" />
+                                    <input class="form-control mb-3 mb-lg-0" id="validity_end_date" name="validity_end_date" type="text" autocomplete="off" />
                                 </div>
                             </div>
                         </div>

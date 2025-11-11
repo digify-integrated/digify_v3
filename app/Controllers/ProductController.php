@@ -99,6 +99,7 @@ class ProductController {
             'update product is sellable'        => $this->updateProductIsSellable($lastLogBy),
             'update product is purchasable'     => $this->updateProductIsPurchasable($lastLogBy),
             'update product show on pos'        => $this->updateProductShowOnPos($lastLogBy),
+            'update product activate'           => $this->updateProductActivate($lastLogBy),
             'update product archive'            => $this->updateProductArchive($lastLogBy),
             'update product unarchive'          => $this->updateProductUnarchive($lastLogBy),
             'update product image'              => $this->updateProductImage($lastLogBy),
@@ -112,6 +113,8 @@ class ProductController {
             'fetch product pricelist details'   => $this->fetchProductPricelistDetails(),
             'generate product card'             => $this->generateProductCard(),
             'generate product table'            => $this->generateProductTable(),
+            'generate product variant card'     => $this->generateProductVariantCard(),
+            'generate product variant table'    => $this->generateProductVariantTable(),
             'generate product attribute table'  => $this->generateProductAttributeTable($lastLogBy, $pageId),
             'generate product variation table'  => $this->generateProductVariationTable(),
             'generate product pricelist table'  => $this->generateProductPricelistTable($lastLogBy, $pageId),
@@ -231,38 +234,40 @@ class ProductController {
             ];
         }
 
-        $combinations = $this->generateCombinations($groupedAttributes);
+        if (!empty($groupedAttributes)) {
+            $combinations = $this->generateCombinations($groupedAttributes);
 
-        foreach ($combinations as $combination) {
-            $attributeValueIds = array_column($combination, 'attribute_value_id');
-            sort($attributeValueIds);
-            $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
+            foreach ($combinations as $combination) {
+                $attributeValueIds = array_column($combination, 'attribute_value_id');
+                sort($attributeValueIds);
+                $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
 
-            $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
+                $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
 
-            $subproductId = $this->product->saveSubProductAndVariants(
-                $productId,
-                $productName,
-                $variantName,
-                $variantSignature,
-                $lastLogBy
-            );
+                $subproductId = $this->product->saveSubProductAndVariants(
+                    $productId,
+                    $productName,
+                    $variantName,
+                    $variantSignature,
+                    $lastLogBy
+                );
 
-            foreach ($combination as $attr) {
-                $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
+                foreach ($combination as $attr) {
+                    $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
 
-                if ($checkProductVariantExists['total'] == 0) {
-                    $this->product->insertProductVariant(
-                        $productId,
-                        $productName,
-                        $subproductId,
-                        $variantName,
-                        $attr['attribute_id'],
-                        $attr['attribute_name'],
-                        $attr['attribute_value_id'],
-                        $attr['attribute_value_name'],
-                        $lastLogBy
-                    );
+                    if ($checkProductVariantExists['total'] == 0) {
+                        $this->product->insertProductVariant(
+                            $productId,
+                            $productName,
+                            $subproductId,
+                            $variantName,
+                            $attr['attribute_id'],
+                            $attr['attribute_name'],
+                            $attr['attribute_value_id'],
+                            $attr['attribute_value_name'],
+                            $lastLogBy
+                        );
+                    }
                 }
             }
         }
@@ -637,6 +642,34 @@ class ProductController {
         $this->systemHelper::sendSuccessResponse(
             'Update Point of Sale Success',
             'The point of sale has been updated successfully.'
+        );
+    }
+
+    public function updateProductActivate(
+        int $lastLogBy
+    ) {
+        $productId = $_POST['product_id'] ?? null;
+
+        $productDetails     = $this->product->fetchProduct($productId);
+        $unitId             = $productDetails['unit_id'] ?? null;
+
+        $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId) ?? [];
+
+        if(empty($unitId) || empty($productCategoriesDetails)){
+            $this->systemHelper::sendErrorResponse(
+                'Product Activation Error',
+                'Please fill-out all of the required fields before activating the product.'
+            );
+        }
+
+        $this->product->updateProductUnarchive(
+            $productId,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Product Activation Success',
+            'The product has been activated successfully.'
         );
     }
 
@@ -1111,6 +1144,138 @@ class ProductController {
         echo json_encode($response);
     }
 
+    public function generateProductVariantCard() {
+        $pageLink               = $_POST['page_link'] ?? null;
+        $searchValue            = $_POST['search_value'] ?? null;
+        $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
+        $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
+        $isSellableFilter       = $this->systemHelper->checkFilter($_POST['filter_by_is_sellable'] ?? null);
+        $isPurchasableFilter    = $this->systemHelper->checkFilter($_POST['filter_by_is_purchasable'] ?? null);
+        $showOnPosFilter        = $this->systemHelper->checkFilter($_POST['filter_by_show_on_pos'] ?? null);
+        $productStatusFilter    = $this->systemHelper->checkFilter($_POST['filter_by_product_status'] ?? null);
+        $limit                  = $_POST['limit'] ?? null;
+        $offset                 = $_POST['offset'] ?? null;
+        $response               = [];
+
+        $products = $this->product->generateProductVariantCard(
+            $searchValue,
+            $productTypeFilter,
+            $productCategoryFilter,
+            $isSellableFilter,
+            $isPurchasableFilter,
+            $showOnPosFilter,
+            $productStatusFilter,
+            $limit,
+            $offset
+        );
+
+        foreach ($products as $row) {
+            $productId              = $row['product_id'];
+            $productName            = $row['product_name'];
+            $productDescription     = $row['product_description'];
+            $sku                    = $row['sku'];
+            $barcode                = $row['barcode'];
+            $productTypeName        = $row['product_type'];
+            $quantityOnHand         = $row['quantity_on_hand'];
+            $salesPrice             = $row['sales_price'];
+            $cost                   = $row['cost'];
+            $productStatus          = $row['product_status'];
+            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'default');
+
+            $productIdEncrypted = $this->security->encryptData($productId);
+
+            $card = '<div class="col-md-3">
+                        <a href="'. $pageLink .'&id='. $productIdEncrypted .'" class="cursor-pointer" target="_blank">
+                            <div class="card">
+                                <div class="card-body d-flex flex-center flex-column pt-12 p-9">
+                                    <div class="symbol symbol-65px symbol-circle mb-5">
+                                        <img src="'. $productImage .'" class="rounded-3 mb-4 w-150px h-150px" alt="image">
+                                    </div>
+
+                                    <div class="fw-bold text-gray-800 fs-3 fs-xl-1">'. $productName .'</div>
+                                    <div class="text-gray-500 fw-semibold d-block fs-6 mt-n1">'. $productDescription .'</div>
+                                    <span class="text-success text-end fw-bold fs-1">'. number_format($salesPrice, 2) .' PHP</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>';
+
+            $response[] = ['EMPLOYEE_CARD' => $card];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateProductVariantTable() {
+        $pageLink               = $_POST['page_link'] ?? null;
+        $productTypeFilter      = $this->systemHelper->checkFilter($_POST['filter_by_product_type'] ?? null);
+        $productCategoryFilter  = $this->systemHelper->checkFilter($_POST['filter_by_product_category'] ?? null);
+        $isSellableFilter       = $this->systemHelper->checkFilter($_POST['filter_by_is_sellable'] ?? null);
+        $isPurchasableFilter    = $this->systemHelper->checkFilter($_POST['filter_by_is_purchasable'] ?? null);
+        $showOnPosFilter        = $this->systemHelper->checkFilter($_POST['filter_by_show_on_pos'] ?? null);
+        $productStatusFilter    = $this->systemHelper->checkFilter($_POST['filter_by_product_status'] ?? null);
+        $response               = [];
+
+        $products = $this->product->generateProductVariantTable(
+            $productTypeFilter,
+            $productCategoryFilter,
+            $isSellableFilter,
+            $isPurchasableFilter,
+            $showOnPosFilter,
+            $productStatusFilter
+        );
+
+        foreach ($products as $row) {
+            $productId              = $row['product_id'];
+            $productName            = $row['product_name'];
+            $productDescription     = $row['product_description'];
+            $sku                    = $row['sku'];
+            $barcode                = $row['barcode'];
+            $productTypeName        = $row['product_type'];
+            $quantityOnHand         = $row['quantity_on_hand'];
+            $salesPrice             = $row['sales_price'];
+            $cost                   = $row['cost'];
+            $productStatus          = $row['product_status'];
+            $productImage           = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'default');
+            $badgeClass             = $productStatus == 'Active' ? 'badge-light-success' : 'badge-light-danger';
+
+            $productIdEncrypted = $this->security->encryptData($productId);
+
+            $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId);
+
+            $productCategories = '';
+            foreach ($productCategoriesDetails as $row) {
+                $productCategories .= '<div class="badge badge-light-primary me-2">'. $row['product_category_name'] .'</div>';
+            }
+
+            $response[] = [
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $productId .'">
+                                        </div>',
+                'PRODUCT'           => '<div class="d-flex align-items-center">
+                                            <div class="me-4">
+                                                <div class="symbol symbol-50px">
+                                                    <img src="'. $productImage .'" alt="image">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <span class="text-gray-800">'. $productName .'</span>
+                                            </div>
+                                        </div>',
+                'BARCODE'           => $barcode,
+                'PRODUCT_TYPE'      => $productTypeName,
+                'PRODUCT_CATEGORY'  => $productCategories,
+                'QUANTITY'          => number_format($quantityOnHand),
+                'SALES_PRICE'       => number_format($salesPrice, 2) . ' PHP',
+                'COST'              => number_format($cost, 2) . ' PHP',
+                'STATUS'            => '<div class="badge '. $badgeClass .'">'. $productStatus .'</div>',
+                'LINK'              => $pageLink .'&id='. $productIdEncrypted
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
     public function generateProductAttributeTable(
         int $userId,
         int $pageId
@@ -1264,18 +1429,23 @@ class ProductController {
     private function generateCombinations(
         array $groups
     ) {
-        $result = [[]];
+        if (empty($groups)) {
+            return [];
+        }
 
+        $result = [[]];
         foreach ($groups as $attributeName => $attributeData) {
             $temp = [];
             foreach ($result as $combo) {
                 foreach ($attributeData['values'] as $value) {
-                    $temp[] = array_merge($combo, [[
-                        'attribute_id' => $attributeData['attribute_id'],
-                        'attribute_name' => $attributeName,
-                        'attribute_value_id' => $value['attribute_value_id'],
-                        'attribute_value_name' => $value['attribute_value_name']
-                    ]]);
+                    $temp[] = array_merge($combo, [
+                        [
+                            'attribute_id' => $attributeData['attribute_id'],
+                            'attribute_name' => $attributeName,
+                            'attribute_value_id' => $value['attribute_value_id'],
+                            'attribute_value_name' => $value['attribute_value_name']
+                        ]
+                    ]);
                 }
             }
             $result = $temp;

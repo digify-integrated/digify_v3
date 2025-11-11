@@ -11624,6 +11624,132 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+DROP PROCEDURE IF EXISTS generateProductVariantCard//
+
+CREATE PROCEDURE generateProductVariantCard(
+    IN p_search_value TEXT,
+    IN p_filter_by_product_type TEXT,
+    IN p_filter_by_product_category TEXT,
+    IN p_filter_by_is_sellable TEXT,
+    IN p_filter_by_is_purchasable TEXT,
+    IN p_filter_by_show_on_pos TEXT,
+    IN p_filter_by_product_status TEXT,
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    DECLARE query TEXT;
+
+    -- Base query
+    SET query = 'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
+                FROM product
+                WHERE is_variant = "Yes"';
+
+    -- Search filter
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET query = CONCAT(query, ' 
+            AND (
+                product_name LIKE ? OR
+                product_description LIKE ? OR
+                sku LIKE ? OR
+                barcode LIKE ?
+            )');
+    END IF;
+
+    -- Dynamic filters
+    IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_category_map WHERE product_category_id IN (', p_filter_by_product_category, '))');
+    END IF;
+
+    IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN
+        SET query = CONCAT(query, ' AND is_sellable IN (', p_filter_by_is_sellable, ')');
+    END IF;
+
+    IF p_filter_by_is_purchasable IS NOT NULL AND p_filter_by_is_purchasable <> '' THEN
+        SET query = CONCAT(query, ' AND is_purchasable IN (', p_filter_by_is_purchasable, ')');
+    END IF;
+
+    IF p_filter_by_show_on_pos IS NOT NULL AND p_filter_by_show_on_pos <> '' THEN
+        SET query = CONCAT(query, ' AND show_on_pos IN (', p_filter_by_show_on_pos, ')');
+    END IF;
+
+    IF p_filter_by_product_status IS NOT NULL AND p_filter_by_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_filter_by_product_status, ')');
+    END IF;
+
+    -- Final ordering + limit
+    SET query = CONCAT(query, ' ORDER BY product_name LIMIT ?, ?');
+
+    PREPARE stmt FROM query;
+
+    -- Bind parameters for search + pagination
+    IF p_search_value IS NOT NULL AND p_search_value <> '' THEN
+        SET @s1 = CONCAT('%', p_search_value, '%');
+        SET @s2 = @s1; SET @s3 = @s1; SET @s4 = @s1;
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @s1, @s2, @s3, @s4, @offset, @limit;
+    ELSE
+        SET @offset = p_offset;
+        SET @limit  = p_limit;
+
+        EXECUTE stmt USING @offset, @limit;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductVariantTable//
+
+CREATE PROCEDURE generateProductVariantTable(
+    IN p_filter_by_product_type TEXT,
+    IN p_filter_by_product_category TEXT,
+    IN p_filter_by_is_sellable TEXT,
+    IN p_filter_by_is_purchasable TEXT,
+    IN p_filter_by_show_on_pos TEXT,
+    IN p_filter_by_product_status TEXT
+)
+BEGIN
+    DECLARE query TEXT DEFAULT 
+        'SELECT product_id, product_image, product_name, product_description, product_type, sku, barcode, is_sellable, is_purchasable, show_on_pos, quantity_on_hand, sales_price, cost, product_status
+        FROM product WHERE is_variant = "Yes"';
+
+     IF p_filter_by_product_type IS NOT NULL AND p_filter_by_product_type <> '' THEN
+        SET query = CONCAT(query, ' AND product_type IN (', p_filter_by_product_type, ')');
+    END IF;
+
+    IF p_filter_by_product_category IS NOT NULL AND p_filter_by_product_category <> '' THEN
+        SET query = CONCAT(query, ' AND product_id IN (SELECT product_id FROM product_category_map WHERE product_category_id IN (', p_filter_by_product_category, '))');
+    END IF;
+
+    IF p_filter_by_is_sellable IS NOT NULL AND p_filter_by_is_sellable <> '' THEN
+        SET query = CONCAT(query, ' AND is_sellable IN (', p_filter_by_is_sellable, ')');
+    END IF;
+
+    IF p_filter_by_is_purchasable IS NOT NULL AND p_filter_by_is_purchasable <> '' THEN
+        SET query = CONCAT(query, ' AND is_purchasable IN (', p_filter_by_is_purchasable, ')');
+    END IF;
+
+    IF p_filter_by_show_on_pos IS NOT NULL AND p_filter_by_show_on_pos <> '' THEN
+        SET query = CONCAT(query, ' AND show_on_pos IN (', p_filter_by_show_on_pos, ')');
+    END IF;
+
+    IF p_filter_by_product_status IS NOT NULL AND p_filter_by_product_status <> '' THEN
+        SET query = CONCAT(query, ' AND product_status IN (', p_filter_by_product_status, ')');
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 DROP PROCEDURE IF EXISTS generateProductAttributeTable//
 
 CREATE PROCEDURE generateProductAttributeTable(

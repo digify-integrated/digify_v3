@@ -37,7 +37,7 @@
                                         require_once './app/Views/Page/import/import.php';
                                     }
                                     else{
-                                        require_once './app/Views/Page/product/index.php';
+                                        require_once './app/Views/Page/product-variant/index.php';
                                     }
                                 ?>
                             </div>
@@ -58,7 +58,7 @@
         $scriptFile = './assets/js/page/product/index.js';
 
         if ($newRecord) {
-            $scriptFile = './assets/js/page/product/new.js';
+            $scriptFile = './assets/js/page/product-variant/new.js';
         }
         else if (!empty($detailID)) {
             $scriptFile = './assets/js/page/product/details.js';

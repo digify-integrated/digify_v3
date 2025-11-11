@@ -701,6 +701,69 @@ class Product extends Model {
         ]);
     }
 
+    public function generateProductVariantCard(
+        null|string $p_search_value,
+        null|string $p_filter_by_product_type, 
+        null|string $p_filter_by_product_category, 
+        null|string $p_filter_by_is_sellable, 
+        null|string $p_filter_by_is_purchasable, 
+        null|string $p_filter_by_show_on_pos, 
+        null|string $p_filter_by_product_status, 
+        int $p_limit, 
+        int $p_offset
+    ) {
+        $sql = 'CALL generateProductVariantCard(
+            :p_search_value,
+            :p_filter_by_product_type,
+            :p_filter_by_product_category,
+            :p_filter_by_is_sellable,
+            :p_filter_by_is_purchasable,
+            :p_filter_by_show_on_pos,
+            :p_filter_by_product_status,
+            :p_limit,
+            :p_offset
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_search_value'                => $p_search_value,
+            'p_filter_by_product_type'      => $p_filter_by_product_type,
+            'p_filter_by_product_category'  => $p_filter_by_product_category,
+            'p_filter_by_is_sellable'       => $p_filter_by_is_sellable,
+            'p_filter_by_is_purchasable'    => $p_filter_by_is_purchasable,
+            'p_filter_by_show_on_pos'       => $p_filter_by_show_on_pos,
+            'p_filter_by_product_status'    => $p_filter_by_product_status,
+            'p_limit'                       => $p_limit,
+            'p_offset'                      => $p_offset
+        ]);
+    }
+
+    public function generateProductVariantTable(
+        null|string $p_filter_by_product_type, 
+        null|string $p_filter_by_product_category, 
+        null|string $p_filter_by_is_sellable, 
+        null|string $p_filter_by_is_purchasable, 
+        null|string $p_filter_by_show_on_pos, 
+        null|string $p_filter_by_product_status
+    ) {
+        $sql = 'CALL generateProductVariantTable(
+            :p_filter_by_product_type,
+            :p_filter_by_product_category,
+            :p_filter_by_is_sellable,
+            :p_filter_by_is_purchasable,
+            :p_filter_by_show_on_pos,
+            :p_filter_by_product_status
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_filter_by_product_type'      => $p_filter_by_product_type,
+            'p_filter_by_product_category'  => $p_filter_by_product_category,
+            'p_filter_by_is_sellable'       => $p_filter_by_is_sellable,
+            'p_filter_by_is_purchasable'    => $p_filter_by_is_purchasable,
+            'p_filter_by_show_on_pos'       => $p_filter_by_show_on_pos,
+            'p_filter_by_product_status'    => $p_filter_by_product_status
+        ]);
+    }
+
     public function generateProductAttributeTable(
         int $p_product_id
     ) {
