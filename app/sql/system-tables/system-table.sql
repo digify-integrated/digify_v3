@@ -460,7 +460,7 @@ VALUES
 ('Scrap', 'scrap.php', '', 4, 'Inventory', 69, 'Inventory Adjustments', '', 19),
 ('Inventory Procurement', '', 'ki-outline ki-cheque', 4, 'Inventory', 65, 'Inventory Operations', '', 3),
 ('Replenishment', 'replenishment.php', '', 4, 'Inventory', 72, 'Inventory Procurement', '', 18),
-('Scrap Reason', 'scrap-reason.php', 'ki-outline ki-trash-square', 4, 'Inventory', 49, 'Inventory Configuration', 'scrap_reason', 1);
+('Scrap Reason', 'scrap-reason.php', 'ki-outline ki-trash-square', 4, 'Inventory', 49, 'Inventory Configuration', 'scrap_reason', 12);
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -702,7 +702,8 @@ VALUES
 (1, 'Super Admin', 70, 'Physical Inventory', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 71, 'Scrap', 1, 1, 1, 1, 1, 1, 1),
 (1, 'Super Admin', 72, 'Inventory Procurement', 1, 0, 0, 0, 0, 0, 0),
-(1, 'Super Admin', 73, 'Replenishment', 1, 1, 1, 1, 1, 1, 1);
+(1, 'Super Admin', 73, 'Replenishment', 1, 1, 1, 1, 1, 1, 1),
+(1, 'Super Admin', 74, 'Scrap Reason', 1, 1, 1, 1, 1, 1, 1);
 
 /* =============================================================================================
   TABLE: ROLE SYSTEM ACTION PERMISSION
@@ -7446,14 +7447,12 @@ CREATE TABLE physical_inventory (
   inventory_count DECIMAL(15,4) DEFAULT 0,
   inventory_difference DECIMAL(15,4) DEFAULT 0,
   inventory_date DATE NOT NULL,
-  inventory_by INT UNSIGNED DEFAULT 1,
-  remarks VARCHAR(1000),
   applied_date DATETIME,
+  remarks VARCHAR(1000),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (inventory_by) REFERENCES user_account(inventory_by),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
@@ -7462,8 +7461,8 @@ CREATE TABLE physical_inventory (
 ============================================================================================= */
 
 CREATE INDEX idx_physical_inventory_product_id ON physical_inventory(product_id);
-CREATE INDEX idx_physical_inventory_inventory_by ON physical_inventory(inventory_by);
 CREATE INDEX idx_physical_inventory_inventory_date ON physical_inventory(inventory_date);
+CREATE INDEX idx_physical_inventory_applied_date ON physical_inventory(applied_date);
 CREATE INDEX idx_physical_inventory_inventory_status ON physical_inventory(physical_inventory_status);
 
 /* =============================================================================================

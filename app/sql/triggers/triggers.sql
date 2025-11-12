@@ -3778,6 +3778,206 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: PHYSICAL INVENTORY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_physical_inventory_update//
+
+CREATE TRIGGER trg_physical_inventory_update
+AFTER UPDATE ON physical_inventory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Physical inventory changed.<br/><br/>';
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+
+    IF NEW.physical_inventory_status <> OLD.physical_inventory_status THEN
+        SET audit_log = CONCAT(audit_log, "Physical Inventory Status: ", OLD.physical_inventory_status, " -> ", NEW.physical_inventory_status, "<br/>");
+    END IF;
+
+    IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
+        SET audit_log = CONCAT(audit_log, "Quantity On Hand: ", OLD.quantity_on_hand, " -> ", NEW.quantity_on_hand, "<br/>");
+    END IF;
+
+    IF NEW.inventory_count <> OLD.inventory_count THEN
+        SET audit_log = CONCAT(audit_log, "Inventory Count: ", OLD.inventory_count, " -> ", NEW.inventory_count, "<br/>");
+    END IF;
+
+    IF NEW.inventory_difference <> OLD.inventory_difference THEN
+        SET audit_log = CONCAT(audit_log, "Inventory Difference: ", OLD.inventory_difference, " -> ", NEW.inventory_difference, "<br/>");
+    END IF;
+
+    IF NEW.inventory_date <> OLD.inventory_date THEN
+        SET audit_log = CONCAT(audit_log, "Inventory Date: ", OLD.inventory_date, " -> ", NEW.inventory_date, "<br/>");
+    END IF;
+
+    IF NEW.applied_date <> OLD.applied_date THEN
+        SET audit_log = CONCAT(audit_log, "Applied Date: ", OLD.applied_date, " -> ", NEW.applied_date, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Physical inventory changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('physical_inventory', NEW.physical_inventory_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_physical_inventory_insert//
+
+CREATE TRIGGER trg_physical_inventory_insert
+AFTER INSERT ON physical_inventory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Physical inventory created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('physical_inventory', NEW.physical_inventory_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SCRAP REASON
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_scrap_reason_update//
+
+CREATE TRIGGER trg_scrap_reason_update
+AFTER UPDATE ON scrap_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Scrap reason changed.<br/><br/>';
+
+    IF NEW.scrap_reason_name <> OLD.scrap_reason_name THEN
+        SET audit_log = CONCAT(audit_log, "Scrap Reason Name: ", OLD.scrap_reason_name, " -> ", NEW.scrap_reason_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Scrap reason changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('scrap_reason', NEW.scrap_reason_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_scrap_reason_insert//
+
+CREATE TRIGGER trg_scrap_reason_insert
+AFTER INSERT ON scrap_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Scrap reason created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('scrap_reason', NEW.scrap_reason_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: INVENTORY SCRAP
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_inventory_scrap_update//
+
+CREATE TRIGGER trg_inventory_scrap_update
+AFTER UPDATE ON inventory_scrap
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Inventory scrap changed.<br/><br/>';
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
+    END IF;
+
+    IF NEW.inventory_scrap_status <> OLD.inventory_scrap_status THEN
+        SET audit_log = CONCAT(audit_log, "Inventory Scrap Status: ", OLD.inventory_scrap_status, " -> ", NEW.inventory_scrap_status, "<br/>");
+    END IF;
+
+    IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
+        SET audit_log = CONCAT(audit_log, "Quantity On Hand: ", OLD.quantity_on_hand, " -> ", NEW.quantity_on_hand, "<br/>");
+    END IF;
+
+    IF NEW.scrap_quantity <> OLD.scrap_quantity THEN
+        SET audit_log = CONCAT(audit_log, "Scrap Quantity: ", OLD.scrap_quantity, " -> ", NEW.scrap_quantity, "<br/>");
+    END IF;
+
+    IF NEW.scrap_reason_name <> OLD.scrap_reason_name THEN
+        SET audit_log = CONCAT(audit_log, "Scrap Reason: ", OLD.scrap_reason_name, " -> ", NEW.scrap_reason_name, "<br/>");
+    END IF;
+
+    IF NEW.detailed_scrap_reason <> OLD.detailed_scrap_reason THEN
+        SET audit_log = CONCAT(audit_log, "Detailed Scrap Reason: ", OLD.detailed_scrap_reason, " -> ", NEW.detailed_scrap_reason, "<br/>");
+    END IF;
+
+    IF NEW.completed_date <> OLD.completed_date THEN
+        SET audit_log = CONCAT(audit_log, "Completed Date: ", OLD.completed_date, " -> ", NEW.completed_date, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Inventory scrap changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('inventory_scrap', NEW.inventory_scrap_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_inventory_scrap_insert//
+
+CREATE TRIGGER trg_inventory_scrap_insert
+AFTER INSERT ON inventory_scrap
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Inventory scrap created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('inventory_scrap', NEW.inventory_scrap_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: 
 ============================================================================================= */
 

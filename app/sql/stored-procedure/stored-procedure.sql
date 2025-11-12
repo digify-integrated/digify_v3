@@ -11844,6 +11844,150 @@ END //
 
 
 /* =============================================================================================
+   STORED PROCEDURE: SCRAP REASON
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveScrapReason//
+
+CREATE PROCEDURE saveScrapReason(
+    IN p_scrap_reason_id INT, 
+    IN p_scrap_reason_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_scrap_reason_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_scrap_reason_id IS NULL OR NOT EXISTS (SELECT 1 FROM scrap_reason WHERE scrap_reason_id = p_scrap_reason_id) THEN
+        INSERT INTO scrap_reason (
+            scrap_reason_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_scrap_reason_name,
+            p_last_log_by
+        );
+        
+        SET v_new_scrap_reason_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE inventory_scrap
+        SET scrap_reason_name   = p_scrap_reason_name,
+            last_log_by         = p_last_log_by
+        WHERE scrap_reason_id   = p_scrap_reason_id;
+        
+        UPDATE scrap_reason
+        SET scrap_reason_name   = p_scrap_reason_name,
+            last_log_by         = p_last_log_by
+        WHERE scrap_reason_id   = p_scrap_reason_id;
+
+        SET v_new_scrap_reason_id = p_scrap_reason_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_scrap_reason_id AS new_scrap_reason_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchScrapReason//
+
+CREATE PROCEDURE fetchScrapReason(
+    IN p_scrap_reason_id INT
+)
+BEGIN
+	SELECT * FROM scrap_reason
+	WHERE scrap_reason_id = p_scrap_reason_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteScrapReason//
+
+CREATE PROCEDURE deleteScrapReason(
+    IN p_scrap_reason_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM scrap_reason
+    WHERE scrap_reason_id = p_scrap_reason_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkScrapReasonExist//
+
+CREATE PROCEDURE checkScrapReasonExist(
+    IN p_scrap_reason_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM scrap_reason
+    WHERE scrap_reason_id = p_scrap_reason_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateScrapReasonTable//
+
+CREATE PROCEDURE generateScrapReasonTable()
+BEGIN
+	SELECT scrap_reason_id, scrap_reason_name
+    FROM scrap_reason 
+    ORDER BY scrap_reason_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateScrapReasonOptions//
+
+CREATE PROCEDURE generateScrapReasonOptions()
+BEGIN
+	SELECT scrap_reason_id, scrap_reason_name 
+    FROM scrap_reason 
+    ORDER BY scrap_reason_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
    STORED PROCEDURE: 
 ============================================================================================= */
 
