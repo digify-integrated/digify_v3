@@ -823,6 +823,12 @@ class Product extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateActiveProductOptions() {
+        $sql = 'CALL generateActiveProductOptions()';
+        
+        return $this->fetchAll($sql);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

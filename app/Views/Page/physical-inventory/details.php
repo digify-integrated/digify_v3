@@ -28,51 +28,66 @@
     <div class="card-body">
         <form id="physical_inventory_form" method="post" action="#">
             <?= $security->csrfInput('physical_inventory_form'); ?>
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="physical_inventory_name">
-                            Display Name
-                        </label>
 
-                        <input type="text" class="form-control" id="physical_inventory_name" name="physical_inventory_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="parent_category_id">
-                            Parent Category
-                        </label>
-
-                        <select id="parent_category_id" name="parent_category_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="parent_category_id">
-                            Costing Method
+                            Product
+                        </label>
+                        
+                        <select id="product_id" name="product_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 required fw-semibold form-label mt-3" for="inventory_date">
+                            Inventory Date
                         </label>
 
-                        <select id="costing_method" name="costing_method" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
-                            <option value="">--</option>
-                            <option value="Average Cost">Average Cost</option>
-                            <option value="First In First Out">First In First Out</option>
-                            <option value="Standard Price">Standard Price</option>
-                        </select>
+                        <input class="form-control mb-3 mb-lg-0" id="inventory_date" name="inventory_date" type="text" autocomplete="off" <?php echo $disabled; ?>/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-1 row-cols-lg-3">
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="quantity_on_hand">
+                            Quantity On Hand
+                        </label>
+
+                        <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="0.0001" readonly/>
                     </div>
                 </div>
                 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="display_order">
-                            Display Order
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="inventory_count">
+                            Inventory Count
                         </label>
 
-                        <input type="number" id="display_order" name="display_order" class="form-control mb-2" min="0" step="1" <?php echo $disabled; ?>/>
+                        <input type="number" id="inventory_count" name="inventory_count" class="form-control mb-2" min="0" step="0.0001" <?php echo $disabled; ?>/>
                     </div>
+                </div>
+
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="inventory_difference">
+                            Difference
+                        </label>
+
+                        <input type="number" id="inventory_difference" name="inventory_difference" class="form-control mb-2" min="0" step="0.0001" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="fv-row mb-7">
+                    <label class="fs-6 fw-semibold form-label mt-3" for="remarks">
+                        Remarks
+                    </label>
+
+                    <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" rows="3" <?php echo $disabled; ?>></textarea>
                 </div>
             </div>
         </form>

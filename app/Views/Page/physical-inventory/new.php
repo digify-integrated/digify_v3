@@ -6,51 +6,35 @@
         <form id="physical_inventory_form" method="post" action="#">
             <?= $security->csrfInput('physical_inventory_form'); ?>
 
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="physical_inventory_name">
-                            Display Name
-                        </label>
-
-                        <input type="text" class="form-control" id="physical_inventory_name" name="physical_inventory_name" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="parent_category_id">
-                            Parent Category
-                        </label>
-
-                        <select id="parent_category_id" name="parent_category_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="parent_category_id">
-                            Costing Method
+                            Product
                         </label>
 
-                        <select id="costing_method" name="costing_method" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
-                            <option value="">--</option>
-                            <option value="Average Cost">Average Cost</option>
-                            <option value="First In First Out">First In First Out</option>
-                            <option value="Standard Price">Standard Price</option>
-                        </select>
+                        <select id="product_id" name="product_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
-                
+
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="display_order">
-                            Display Order
+                        <label class="fs-6 required fw-semibold form-label mt-3" for="inventory_date">
+                            Inventory Date
                         </label>
 
-                        <input type="number" id="display_order" name="display_order" class="form-control mb-2" min="0" step="1"/>
+                        <input class="form-control mb-3 mb-lg-0" id="inventory_date" name="inventory_date" type="text" autocomplete="off" />
                     </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="fv-row mb-7">
+                    <label class="fs-6 fw-semibold form-label mt-3" for="display_order">
+                        Remarks
+                    </label>
+
+                    <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" rows="3"></textarea>
                 </div>
             </div>
         </form>

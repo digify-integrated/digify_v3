@@ -121,6 +121,7 @@ class ProductController {
             'generate product pricelist table'      => $this->generateProductPricelistTable($lastLogBy, $pageId),
             'generate pricelist table'              => $this->generatePricelistTable(),
             'generate product options'              => $this->generateProductOptions(),
+            'generate active product options'       => $this->generateActiveProductOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                             'Transaction Failed',
                                                             'We encountered an issue while processing your request.'
@@ -1500,6 +1501,29 @@ class ProductController {
         }
 
         $products = $this->product->generateProductOptions();
+
+        foreach ($products as $row) {
+            $response[] = [
+                'id'    => $row['product_id'],
+                'text'  => $row['product_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateActiveProductOptions() {
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $products = $this->product->generateActiveProductOptions();
 
         foreach ($products as $row) {
             $response[] = [

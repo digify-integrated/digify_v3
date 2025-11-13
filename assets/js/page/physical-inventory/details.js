@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('physical_inventory_name').value = data.physicalInventoryName || '';
+                document.getElementById('inventory_date').value = data.inventoryDate || '';
+                document.getElementById('inventory_count').value = data.inventoryDate || '';
+                document.getElementById('remarks').value = data.inventoryDate || '';
 
-                $('#parent_category_id').val(data.parentCategoryId || '').trigger('change');
-                $('#costing_method').val(data.costingMethod || '').trigger('change');
-                $('#display_order').val(data.displayOrder || '').trigger('change');
+                $('#product_id').val(data.productId || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -49,18 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async () => {
         await generateDropdownOptions({
-            url: './app/Controllers/PhysicalInventoryController.php',
-            dropdownSelector: '#parent_category_id',
-            data: { 
-                transaction: 'generate parent category options', 
-                physical_inventory_id: physical_inventory_id
-            }
+            url: './app/Controllers/ProductController.php',
+            dropdownSelector: '#product_id',
+            data: { transaction: 'generate active product options' }
         });
     
         await displayDetails();
     })();
 
     attachLogNotesHandler('#log-notes-main', '#details-id', 'physical_inventory');
+    initializeDatePicker('#inventory_date');
     displayDetails();
 
     $('#physical_inventory_form').validate({

@@ -1,7 +1,7 @@
 import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
-import { generateDropdownOptions } from '../../utilities/form-utilities.js';
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({

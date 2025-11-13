@@ -8,46 +8,67 @@ class PhysicalInventory extends Model {
     /* =============================================================================================
         SECTION 1: SAVE METHODS
     ============================================================================================= */
-
-    public function savePhysicalInventory(
-        null|int $p_physical_inventory_id,
-        string $p_physical_inventory_name,
-        null|string|int $p_parent_category_id,
-        null|string $p_parent_category_name,
-        string $p_costing_method,
-        int $p_display_order,
-        int $p_last_log_by
-    )    {
-        $sql = 'CALL savePhysicalInventory(
-            :p_physical_inventory_id,
-            :p_physical_inventory_name,
-            :p_parent_category_id,
-            :p_parent_category_name,
-            :p_costing_method,
-            :p_display_order,
-            :p_last_log_by
-        )';
-
-        $row = $this->fetch($sql, [
-            'p_physical_inventory_id'     => $p_physical_inventory_id,
-            'p_physical_inventory_name'   => $p_physical_inventory_name,
-            'p_parent_category_id'      => $p_parent_category_id,
-            'p_parent_category_name'    => $p_parent_category_name,
-            'p_costing_method'          => $p_costing_method,
-            'p_display_order'           => $p_display_order,
-            'p_last_log_by'             => $p_last_log_by
-        ]);
-
-        return $row['new_physical_inventory_id'] ?? null;
-    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
     ============================================================================================= */
 
+    public function insertPhysicalInventory(
+        null|string|int $p_product_id,
+        null|string $p_product_name,
+        string $p_quantity_on_hand,
+        string $p_inventory_date,
+        string $p_remarks,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertPhysicalInventory(
+            :p_product_id,
+            :p_product_name,
+            :p_quantity_on_hand,
+            :p_inventory_date,
+            :p_remarks,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_product_id'          => $p_product_id,
+            'p_product_name'        => $p_product_name,
+            'p_quantity_on_hand'    => $p_quantity_on_hand,
+            'p_inventory_date'      => $p_inventory_date,
+            'p_remarks'             => $p_remarks,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+
+        return $row['new_physical_inventory_id'] ?? null;
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
+
+    public function updatePhysicalInventory(
+        string $p_inventory_count,
+        string $p_inventory_difference,
+        string $p_inventory_date,
+        string $p_remarks,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updatePhysicalInventory(
+            :p_inventory_count,
+            :p_inventory_difference,
+            :p_inventory_date,
+            :p_remarks,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_inventory_count'         => $p_inventory_count,
+            'p_inventory_difference'    => $p_inventory_difference,
+            'p_inventory_date'          => $p_inventory_date,
+            'p_remarks'                 => $p_remarks,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
 
     /* =============================================================================================
         SECTION 4: FETCH METHODS

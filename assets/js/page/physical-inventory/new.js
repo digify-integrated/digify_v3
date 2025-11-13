@@ -1,25 +1,24 @@
-import { disableButton, enableButton } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions, initializeDatePicker } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
-import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     generateDropdownOptions({
-        url: './app/Controllers/PhysicalInventoryController.php',
-        dropdownSelector: '#parent_category_id',
-        data: { transaction: 'generate physical inventory options' }
+        url: './app/Controllers/ProductController.php',
+        dropdownSelector: '#product_id',
+        data: { transaction: 'generate active product options' }
     });
+
+    initializeDatePicker('#inventory_date');
 
     $('#physical_inventory_form').validate({
         rules: {
-            physical_inventory_name: { required: true },
-            costing_method: { required: true },
-            display_order: { required: true }
+            product_id: { required: true },
+            inventory_date: { required: true }
         },
         messages: {
-            physical_inventory_name: { required: 'Enter the display name' },
-            costing_method: { required: 'Choose the costing method' },
-            display_order: { required: 'Enter the display order' }
+            product_id: { required: 'Choose the product' },
+            inventory_date: { required: 'Choose the inventory date' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save physical inventory';
+            const transaction   = 'insert physical inventory';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));

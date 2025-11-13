@@ -34,7 +34,7 @@
                             Costing Method
                         </label>
 
-                        <select id="costing_method" name="costing_method" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                        <select id="costing_method" name="costing_method" class="form-select" data-control="select2" data-allow-clear="false">
                             <option value="">--</option>
                             <option value="Average Cost">Average Cost</option>
                             <option value="First In First Out">First In First Out</option>

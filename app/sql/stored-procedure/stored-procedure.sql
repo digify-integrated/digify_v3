@@ -9094,9 +9094,9 @@ BEGIN
         SET v_new_product_category_id = LAST_INSERT_ID();
     ELSE
         UPDATE product_category_map
-        SET parent_category_name    = p_product_category_name,
+        SET product_category_name   = p_product_category_name,
             last_log_by             = p_last_log_by
-        WHERE parent_category_id    = p_product_category_id;
+        WHERE product_category_id   = p_product_category_id;
 
         UPDATE product_category
         SET product_category_name   = p_product_category_name,
@@ -11837,6 +11837,16 @@ BEGIN
     ORDER BY product_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateActiveProductOptions//
+
+CREATE PROCEDURE generateActiveProductOptions()
+BEGIN
+	SELECT product_id, product_name 
+    FROM product 
+    WHERE product_status = 'Active'
+    ORDER BY product_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -11979,6 +11989,213 @@ BEGIN
 	SELECT scrap_reason_id, scrap_reason_name 
     FROM scrap_reason 
     ORDER BY scrap_reason_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: PHYSICAL INVENTORY
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS insertPhysicalInventory//
+
+CREATE PROCEDURE insertPhysicalInventory(
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(200), 
+    IN p_quantity_on_hand DECIMAL(15,4), 
+    IN p_inventory_date DATE, 
+    IN p_remarks VARCHAR(1000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_physical_inventory_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO physical_inventory (
+        product_id,
+        product_name,
+        quantity_on_hand,
+        inventory_date,
+        remarks,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_quantity_on_hand,
+        p_inventory_date,
+        p_remarks,
+        p_last_log_by
+    );
+        
+    SET v_new_physical_inventory_id = LAST_INSERT_ID();
+
+    COMMIT;
+
+    SELECT v_new_physical_inventory_id AS new_physical_inventory_id;
+END //
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updatePhysicalInventory//
+
+CREATE PROCEDURE updatePhysicalInventory(
+    IN p_physical_inventory_id INT, 
+    IN p_inventory_count DECIMAL(15,4), 
+    IN p_inventory_difference DECIMAL(15,4), 
+    IN p_inventory_date DATE, 
+    IN p_remarks VARCHAR(1000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE physical_inventory
+    SET inventory_count             = p_inventory_count,
+        inventory_difference        = p_inventory_difference,
+        inventory_date              = p_inventory_date,
+        remarks                     = p_remarks
+    WHERE p_physical_inventory_id   = p_physical_inventory_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchProductCategory//
+
+CREATE PROCEDURE fetchProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT * FROM product_category
+	WHERE product_category_id = p_product_category_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteProductCategory//
+
+CREATE PROCEDURE deleteProductCategory(
+    IN p_product_category_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_category WHERE product_category_id = p_product_category_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkProductCategoryExist//
+
+CREATE PROCEDURE checkProductCategoryExist(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_category
+    WHERE product_category_id = p_product_category_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateProductCategoryTable//
+
+CREATE PROCEDURE generateProductCategoryTable(
+    IN p_filter_by_parent_category TEXT,
+    IN p_filter_by_costing_method TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT product_category_id, product_category_name, parent_category_name, costing_method, display_order
+                FROM product_category';
+
+    IF p_filter_by_parent_category IS NOT NULL AND p_filter_by_parent_category <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' parent_category_id IN (', p_filter_by_parent_category, ')');
+    END IF;
+
+    IF p_filter_by_costing_method IS NOT NULL AND p_filter_by_costing_method <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(filter_conditions, ' costing_method IN (', p_filter_by_costing_method, ')');
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_category_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateProductCategoryOptions//
+
+CREATE PROCEDURE generateProductCategoryOptions()
+BEGIN
+	SELECT product_category_id, product_category_name 
+    FROM product_category 
+    ORDER BY product_category_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateParentCategoryOptions//
+
+CREATE PROCEDURE generateParentCategoryOptions(
+    IN p_product_category_id INT
+)
+BEGIN
+	SELECT product_category_id, product_category_name
+    FROM product_category 
+    WHERE product_category_id != p_product_category_id
+    ORDER BY product_category_name;
 END //
 
 /* =============================================================================================

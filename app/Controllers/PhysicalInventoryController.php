@@ -4,6 +4,7 @@ namespace App\Controllers;
 session_start();
 
 use App\Models\PhysicalInventory;
+use App\Models\Product;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
@@ -12,17 +13,20 @@ require_once '../../config/config.php';
 
 class PhysicalInventoryController {
     protected PhysicalInventory $physicalInventory;
+    protected Product $product;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
 
     public function __construct(
         PhysicalInventory $physicalInventory,
+        Product $product,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
         $this->physicalInventory    = $physicalInventory;
+        $this->product              = $product;
         $this->authentication       = $authentication;
         $this->security             = $security;
         $this->systemHelper         = $systemHelper;
@@ -67,7 +71,8 @@ class PhysicalInventoryController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save physical inventory'               => $this->savePhysicalInventory($lastLogBy),
+            'insert physical inventory'             => $this->insertPhysicalInventory($lastLogBy),
+            'update physical inventory'             => $this->updatePhysicalInventory($lastLogBy),
             'delete physical inventory'             => $this->deletePhysicalInventory(),
             'delete multiple physical inventory'    => $this->deleteMultiplePhysicalInventory(),
             'fetch physical inventory details'      => $this->fetchPhysicalInventoryDetails(),
@@ -84,7 +89,11 @@ class PhysicalInventoryController {
         SECTION 1: SAVE METHOD
     ============================================================================================= */
 
-    public function savePhysicalInventory(
+    /* =============================================================================================
+        SECTION 2: INSERT METHOD
+    ============================================================================================= */
+
+    public function insertPhysicalInventory(
         int $lastLogBy
     ) {
         $csrfToken = $_POST['csrf_token'] ?? null;
@@ -96,22 +105,20 @@ class PhysicalInventoryController {
             );
         }
 
-        $physicalInventoryId      = $_POST['physical_inventory_id'] ?? null;
-        $physicalInventoryName    = $_POST['physical_inventory_name'] ?? null;
-        $parentCategoryId       = $_POST['parent_category_id'] ?? null;
-        $costingMethod          = $_POST['costing_method'] ?? null;
-        $displayOrder           = $_POST['display_order'] ?? 0;
+        $productId      = $_POST['product_id'] ?? null;
+        $inventoryDate  = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'd M Y', '');
+        $remarks        = $_POST['remarks'] ?? null;
 
-        $parentCategoryDetails  = $this->physicalInventory->fetchPhysicalInventory($parentCategoryId);
-        $parentCategoryName     = $parentCategoryDetails['physical_inventory_name'] ?? '';
+        $productDetails     = $this->product->fetchProduct($productId);
+        $productName        = $productDetails['product_name'] ?? '';
+        $quantityOnHand     = $productDetails['quantity_on_hand'] ?? 0;
 
-        $physicalInventoryId = $this->physicalInventory->savePhysicalInventory(
-            $physicalInventoryId,
-            $physicalInventoryName,
-            $parentCategoryId,
-            $parentCategoryName,
-            $costingMethod,
-            $displayOrder,
+        $physicalInventoryId = $this->physicalInventory->insertPhysicalInventory(
+            $productId,
+            $productName,
+            $quantityOnHand,
+            $inventoryDate,
+            $remarks,
             $lastLogBy
         );
         
@@ -124,9 +131,42 @@ class PhysicalInventoryController {
         );
     }
 
-    /* =============================================================================================
-        SECTION 2: INSERT METHOD
-    ============================================================================================= */
+    public function updatePhysicalInventory(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'physical_inventory_form')) {
+            $this->systemHelper::sendErrorResponse(
+                'Invalid Request',
+                'Security check failed. Please refresh and try again.'
+            );
+        }
+
+        $productId          = $_POST['product_id'] ?? null;
+        $inventoryDate      = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'd M Y', '');
+        $quantityOnHand     = $_POST['quantity_on_hand'] ?? 0;
+        $inventoryCount     = $_POST['inventory_count'] ?? 0;
+        $remarks            = $_POST['remarks'] ?? null;
+        
+        $inventoryDifference = $quantityOnHand - $quantityOnHand;
+
+        $physicalInventoryId = $this->physicalInventory->updatePhysicalInventory(
+            $inventoryCount,
+            $inventoryDifference,
+            $inventoryDate,
+            $remarks,
+            $lastLogBy
+        );
+        
+        $encryptedPhysicalInventoryId = $this->security->encryptData($physicalInventoryId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Physical Inventory Success',
+            'The physical inventory has been saved successfully.',
+            ['physical_inventory_id' => $encryptedPhysicalInventoryId]
+        );
+    }
 
     /* =============================================================================================
         SECTION 3: UPDATE METHOD
@@ -292,6 +332,7 @@ class PhysicalInventoryController {
 
 $controller = new PhysicalInventoryController(
     new PhysicalInventory(),
+    new Product(),
     new Authentication(),
     new Security(),
     new SystemHelper()

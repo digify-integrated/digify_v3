@@ -1,7 +1,6 @@
-import { disableButton, enableButton } from '../../utilities/form-utilities.js';
+import { disableButton, enableButton, generateDropdownOptions } from '../../utilities/form-utilities.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
-import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => { 
 
