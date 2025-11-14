@@ -2300,7 +2300,7 @@ class EmployeeController {
             $employeeDocumentTypeName   = $row['employee_document_type_name'];
             $createdDate                = $this->systemHelper->checkDate('summary', $row['created_date'] ?? null, '', 'M d, Y h:i:s a', '');
 
-            $documentFileDetails = $this->systemHelper->getFileDetails($documentFile, true);
+            $documentFileDetails = $this->systemHelper->fetchFileDetails($documentFile, true);
 
             $button = '';
             if($writeAccess > 0){

@@ -47,7 +47,7 @@
                                 <div class="row g-5 g-xl-8">
                                     <div class="col-xl-12">
                                         <div class="row mb-5 mb-xl-8 g-5 g-xl-8">
-                                             <?php
+                                            <?php
                                                 $apps = '';
                                                     
                                                 $appModules = $authentication->fetchAppModuleStack($userID);

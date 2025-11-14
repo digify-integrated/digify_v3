@@ -141,7 +141,7 @@ class SystemHelper extends Security {
      * @param string $type
      * @return string Image path
      */
-    public static function getDefaultImage(string $type) {
+    public static function fetchDefaultImage(string $type) {
         $defaults = [
             'profile'               => DEFAULT_AVATAR_IMAGE,
             'login background'      => DEFAULT_BG_IMAGE,
@@ -168,7 +168,7 @@ class SystemHelper extends Security {
      */
     public static function checkImageExist(?string $image, string $type) {
         if (empty($image)) {
-            return self::getDefaultImage($type);
+            return self::fetchDefaultImage($type);
         }
 
         // Normalize path (remove leading "./" if present)
@@ -182,7 +182,7 @@ class SystemHelper extends Security {
             return $normalizedPath;
         }
 
-        return self::getDefaultImage($type);
+        return self::fetchDefaultImage($type);
     }
 
     /**
@@ -210,7 +210,7 @@ class SystemHelper extends Security {
         return true;
     }
 
-    public static function getFileDetails(?string $filePath, bool $withIcon = false) {
+    public static function fetchFileDetails(?string $filePath, bool $withIcon = false) {
         if (empty($filePath)) {
             return null;
         }
@@ -228,7 +228,7 @@ class SystemHelper extends Security {
 
         // Get file size in bytes and format it
         $fileSizeBytes  = filesize($absolutePath);
-        $formattedSize  = self::getFormatBytes($fileSizeBytes);
+        $formattedSize  = self::fetchFormatBytes($fileSizeBytes);
 
         // Prepare the response
         $result = [
@@ -281,7 +281,7 @@ class SystemHelper extends Security {
      * @param int $precision
      * @return string
      */
-    public static function getFormatBytes(int $bytes, int $precision = 2) {
+    public static function fetchFormatBytes(int $bytes, int $precision = 2) {
         $units  = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
         $bytes  = max($bytes, 0);
         $pow    = (int) floor(log($bytes ?: 1, 1024));
@@ -435,22 +435,6 @@ class SystemHelper extends Security {
         return $html;
     }
 
-    public static function getScriptFile(string $folderName, bool $newRecord, ?int $detailID, ?string $import) {
-        if ($newRecord) {
-            return './assets/js/page/'. $folderName .'/new.js';
-        }
-
-        if (!empty($detailID)) {
-            return './assets/js/page/'. $folderName .'/details.js';
-        }
-
-        if (!empty($import)) {
-            return './components/import.js';
-        }
-
-        return './assets/js/page/'. $folderName .'/index.js';
-    }
-
     public static function checkFilter($values) {
         if ($values === null) {
             return null;
@@ -483,7 +467,7 @@ class SystemHelper extends Security {
         $systemTime     ??= date('H:i:s');
 
         if (empty($date)) {
-            return $this->getDefaultReturnValue($type, $systemDate, $systemTime);
+            return $this->fetchDefaultReturnValue($type, $systemDate, $systemTime);
         }
 
         $formattedDate = $this->formatDate($format, $date, $modify);
@@ -502,7 +486,7 @@ class SystemHelper extends Security {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    private static function getDefaultReturnValue($type, $systemDate, $systemTime) {
+    private static function fetchDefaultReturnValue($type, $systemDate, $systemTime) {
         $type = strtolower($type);
 
         return match ($type) {
@@ -513,5 +497,33 @@ class SystemHelper extends Security {
             'empty', 'attendance empty'                 => null,
             default                                     => null,
         };
+
+    }
+
+    public static function fetchPageFiles(
+        string $folder,
+        array $options = [],
+        array $overrides = []
+    ) {
+        $page = 'index';
+
+        if (!empty($options['newRecord'])) {
+            $page = 'new';
+        } elseif (!empty($options['detailID'])) {
+            $page = 'details';
+        }
+
+        $contentFile = "./app/Views/Page/$folder/$page.php";
+        $scriptFile  = "./assets/js/page/$folder/$page.js";
+
+        if (isset($_GET['import']) && !empty($_GET['import'])) {
+            $contentFile = "./app/Views/Page/import/import.php";
+            $scriptFile  = "./assets/js/page/import/import.js";
+        }
+
+        if (isset($overrides['content'])) $contentFile = $overrides['content'];
+        if (isset($overrides['script']))  $scriptFile  = $overrides['script'];
+
+        return compact('contentFile', 'scriptFile');
     }
 }
