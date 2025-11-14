@@ -47,10 +47,14 @@
                                 <select id="filter_by_product" name="filter_by_product" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="filter_by_physical_inventory_status">Costing Method:</label>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_inventory_date">Inventory Date:</label>
+                                <input class="form-control mb-3" id="filter_by_inventory_date" name="filter_by_inventory_date" type="text" autocomplete="off" />
+                            </div>
+                            <div class="mb-10">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_physical_inventory_status">Status:</label>
                                 <select id="filter_by_physical_inventory_status" name="filter_by_physical_inventory_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Pending">Pending</option>
-                                    <option value="Applied">Appliedt</option>
+                                    <option value="Applied">Applied</option>
                                 </select>
                             </div>
                             <div class="d-flex justify-content-end">
@@ -78,6 +82,7 @@
                         <th>On Hand</th>
                         <th>Counted</th>
                         <th>Difference</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-800"></tbody>

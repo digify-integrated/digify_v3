@@ -481,11 +481,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#product_inventory_form').validate({
         rules: {
+            sku: { required: true },
+            barcode: { required: true },
             product_type: { required: true },
             quantity_on_hand: { required: true },
             unit_id: { required: true }
         },
         messages: {
+            sku: { required: 'Enter the SKU' },
+            barcode: { required: 'Enter the barcode' },
             product_type: { required: 'Choose the product type' },
             quantity_on_hand: { required: 'Enter the quantity on hand' },
             unit_id: { required: 'Choose the unit of measurement' }

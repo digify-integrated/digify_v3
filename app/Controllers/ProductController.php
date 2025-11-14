@@ -676,10 +676,12 @@ class ProductController {
 
         $productDetails     = $this->product->fetchProduct($productId);
         $unitId             = $productDetails['unit_id'] ?? null;
+        $sku                = $productDetails['sku'] ?? null;
+        $barcode            = $productDetails['barcode'] ?? null;
 
         $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId) ?? [];
 
-        if(empty($unitId) || empty($productCategoriesDetails)){
+        if(empty($unitId) || empty($productCategoriesDetails) || empty($sku) || empty($barcode)){
             $this->systemHelper::sendErrorResponse(
                 'Product Activation Error',
                 'Please fill-out all of the required fields before activating the product.'

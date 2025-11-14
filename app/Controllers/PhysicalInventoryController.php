@@ -240,22 +240,28 @@ class PhysicalInventoryController {
     ============================================================================================= */
 
     public function generatePhysicalInventoryTable() {
-        $filterParentCategory   = $this->systemHelper->checkFilter($_POST['filter_by_parent_category'] ?? null);
-        $filterCostingMethod    = $this->systemHelper->checkFilter($_POST['filter_by_costing_method'] ?? null);
-        $pageLink               = $_POST['page_link'] ?? null;
-        $response               = [];
+        $filterProduct                  = $this->systemHelper->checkFilter($_POST['filter_by_product'] ?? null);
+        $filterInventoryStartDate       = $this->systemHelper->checkDate('empty', $_POST['filter_by_inventory_start_date'], '', 'Y-m-d', '');
+        $filterInventoryEndDate         = $this->systemHelper->checkDate('empty', $_POST['filter_by_inventory_end_date'], '', 'Y-m-d', '');
+        $filterPhysicalInventoryStatus  = $this->systemHelper->checkFilter($_POST['filter_by_physical_inventory_status'] ?? null);
+        $pageLink                       = $_POST['page_link'] ?? null;
+        $response                       = [];
 
         $departments = $this->physicalInventory->generatePhysicalInventoryTable(
-            $filterParentCategory,
-            $filterCostingMethod
+            $filterProduct,
+            $filterInventoryStartDate,
+            $filterInventoryEndDate,
+            $filterPhysicalInventoryStatus
         );
 
         foreach ($departments as $row) {
             $physicalInventoryId      = $row['physical_inventory_id'];
-            $physicalInventoryName    = $row['physical_inventory_name'];
-            $parentCategoryName     = $row['parent_category_name'];
-            $costingMethod          = $row['costing_method'];
-            $displayOrder           = $row['display_order'];
+            $productName    = $row['product_name'];
+            $physical_inventory_status     = $row['physical_inventory_status'];
+            $quantity_on_hand          = $row['quantity_on_hand'];
+            $inventory_count           = $row['inventory_count'];
+            $inventory_difference           = $row['inventory_difference'];
+            $inventory_date           = $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y', '');
 
             $physicalInventoryIdEncrypted = $this->security->encryptData($physicalInventoryId);
 

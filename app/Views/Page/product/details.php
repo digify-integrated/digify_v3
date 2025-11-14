@@ -266,14 +266,14 @@
                                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="form-label" for="sku">SKU</label>
+                                            <label class="form-label required" for="sku">SKU</label>
                                                 <input type="text" id="sku" name="sku" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="form-label" for="barcode">Barcode</label>
+                                                <label class="form-label required" for="barcode">Barcode</label>
                                                 <input type="text" id="barcode" name="barcode" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>

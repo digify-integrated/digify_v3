@@ -12089,14 +12089,14 @@ END //
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS fetchProductCategory//
+DROP PROCEDURE IF EXISTS fetchPhysicalInventory//
 
-CREATE PROCEDURE fetchProductCategory(
-    IN p_product_category_id INT
+CREATE PROCEDURE fetchPhysicalInventory(
+    IN p_physical_inventory_id INT
 )
 BEGIN
-	SELECT * FROM product_category
-	WHERE product_category_id = p_product_category_id
+	SELECT * FROM physical_inventory
+	WHERE physical_inventory_id = p_physical_inventory_id
     LIMIT 1;
 END //
 
@@ -12104,10 +12104,10 @@ END //
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS deleteProductCategory//
+DROP PROCEDURE IF EXISTS deletePhysicalInventory//
 
-CREATE PROCEDURE deleteProductCategory(
-    IN p_product_category_id INT
+CREATE PROCEDURE deletePhysicalInventory(
+    IN p_physical_inventory_id INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -12117,7 +12117,7 @@ BEGIN
 
     START TRANSACTION;
 
-    DELETE FROM product_category WHERE product_category_id = p_product_category_id;
+    DELETE FROM physical_inventory WHERE physical_inventory_id = p_physical_inventory_id;
 
     COMMIT;
 END //
@@ -12126,60 +12126,62 @@ END //
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS checkProductCategoryExist//
+DROP PROCEDURE IF EXISTS checkPhysicalInventoryExist//
 
-CREATE PROCEDURE checkProductCategoryExist(
-    IN p_product_category_id INT
+CREATE PROCEDURE checkPhysicalInventoryExist(
+    IN p_physical_inventory_id INT
 )
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM product_category
-    WHERE product_category_id = p_product_category_id;
+    FROM physical_inventory
+    WHERE physical_inventory_id = p_physical_inventory_id;
 END //
 
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
 
-DROP PROCEDURE IF EXISTS generateProductCategoryTable//
+DROP PROCEDURE IF EXISTS generatePhysicalInventoryTable//
 
-CREATE PROCEDURE generateProductCategoryTable(
-    IN p_filter_by_parent_category TEXT,
-    IN p_filter_by_costing_method TEXT
+CREATE PROCEDURE generatePhysicalInventoryTable(
+    IN p_product_id TEXT,
+    IN p_inventory_start_date DATE,
+    IN p_inventory_end_date DATE,
+    IN p_physical_inventory_status TEXT,
 )
 BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT product_category_id, product_category_name, parent_category_name, costing_method, display_order
-                FROM product_category';
+    SET query = 'SELECT physical_inventory_id, product_name, physical_inventory_status, quantity_on_hand, inventory_count, inventory_difference, inventory_date
+                FROM physical_inventory';
 
-    IF p_filter_by_parent_category IS NOT NULL AND p_filter_by_parent_category <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' parent_category_id IN (', p_filter_by_parent_category, ')');
+    IF p_product_id IS NOT NULL AND p_product_id <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' product_id IN (', p_product_id, ')');
     END IF;
 
-    IF p_filter_by_costing_method IS NOT NULL AND p_filter_by_costing_method <> '' THEN
+    IF physical_inventory_status IS NOT NULL AND physical_inventory_status <> '' THEN
         IF filter_conditions <> '' THEN
             SET filter_conditions = CONCAT(filter_conditions, ' AND ');
         END IF;
 
-        SET filter_conditions = CONCAT(filter_conditions, ' costing_method IN (', p_filter_by_costing_method, ')');
+        SET filter_conditions = CONCAT(filter_conditions, ' physical_inventory_status IN (', p_physical_inventory_status, ')');
     END IF;
 
     IF filter_conditions <> '' THEN
         SET query = CONCAT(query, ' WHERE ', filter_conditions);
     END IF;
 
-    SET query = CONCAT(query, ' ORDER BY product_category_name');
+    SET query = CONCAT(query, ' ORDER BY product_name');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
-DROP PROCEDURE IF EXISTS generateProductCategoryOptions//
+DROP PROCEDURE IF EXISTS generatePhysicalInventoryOptions//
 
-CREATE PROCEDURE generateProductCategoryOptions()
+CREATE PROCEDURE generatePhysicalInventoryOptions()
 BEGIN
 	SELECT product_category_id, product_category_name 
     FROM product_category 

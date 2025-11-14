@@ -1,6 +1,7 @@
-import { initializeDatatable, initializeDatatableControls, generateDropdownOptions, reloadDatatable } from '../../utilities/datatable.js';
+import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { initializeExportFeature } from '../../utilities/export.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
+import { generateDropdownOptions, initializeDateRangePicker } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
@@ -8,8 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/PhysicalInventoryController.php',
         transaction: 'generate physical inventory table',
         ajaxData: {
-            filter_by_parent_category: $('#filter_by_parent_category').val(),
-            filter_by_costing_method: $('#filter_by_costing_method').val()
+            filter_by_product: $('#filter_by_product').val(),
+            filter_by_inventory_start_date: $('#filter_by_inventory_start_date').val(),
+            filter_by_inventory_end_date: $('#filter_by_inventory_end_date').val(),
+            filter_by_physical_inventory_status: $('#filter_by_physical_inventory_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
@@ -36,9 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         data: { transaction: 'generate physical inventory options' , multiple : true }
     });
 
-    initializeDatatable(datatableConfig());
+    //initializeDatatable(datatableConfig());
     initializeDatatableControls('#physical-inventory-table');
     initializeExportFeature('physical_inventory');
+    initializeDateRangePicker("#filter_by_inventory_date");
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {

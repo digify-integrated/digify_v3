@@ -216,9 +216,46 @@ export const initializeTinyMCE = (tiny_mce_id, disabled = 0) => {
     }
 }
 
-export const initializeDatePicker = (selector, enableTime = false, dateFormat = "M d, Y") => {
-  $(selector).flatpickr({
-    enableTime: enableTime,
-    dateFormat: dateFormat
-  });
-}
+export const initializeDateRangePicker = (
+  selector,
+  {
+    startDate = moment().startOf("day"),
+    endDate = moment().endOf("day"),
+    ranges = {
+      "Today": [moment(), moment()],
+      "Yesterday": [
+        moment().subtract(1, "days"),
+        moment().subtract(1, "days")
+      ],
+      "Last 7 Days": [moment().subtract(6, "days"), moment()],
+      "Last 30 Days": [moment().subtract(29, "days"), moment()],
+      "This Month": [
+        moment().startOf("month"),
+        moment().endOf("month")
+      ],
+      "Last Month": [
+        moment().subtract(1, "month").startOf("month"),
+        moment().subtract(1, "month").endOf("month")
+      ]
+    },
+    callback = null
+  } = {}
+) => {
+
+  const cb = (start, end) => {
+    if (typeof callback === "function") {
+      callback(start, end);
+    }
+  };
+
+  $(selector).daterangepicker(
+    {
+      startDate,
+      endDate,
+      ranges
+    },
+    cb
+  );
+
+  cb(startDate, endDate);
+};
