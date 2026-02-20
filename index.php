@@ -20,45 +20,50 @@
 
 <?php require_once './app/Views/Partials/theme-script.php'; ?>
 
-<body id="kt_body" class="app-blank bgi-size-cover bgi-attachment-fixed bgi-position-center bgi-no-repeat" data-kt-app-page-loading-enabled="true" data-kt-app-page-loading="off">
-    <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
-            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
-                <div class="w-lg-600px p-10">
-                    <form class="form w-100" id="login_form" method="post" action="#">
-                        <?= Security::csrfInput('login_form'); ?>
-                        <img src="./assets/images/logos/logo-dark.svg" class="mb-5 system-logo" alt="Logo-Dark" />
-                        <h2 class="mb-2 mt-4 fs-1 fw-bolder">Login to your account</h2>
-                        <p class="mb-10 fs-5">Enter your email below to login to your account</p>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="text" class="form-control" id="email" name="email" autocomplete="off">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <div class="position-relative mb-3">
-                                <input class="form-control" type="password" id="password" name="password" autocomplete="off" />
+<body id="kt_body" class="app-blank bgi-size-cover bgi-attachment-fixed bgi-position-center bgi-no-repeat">
+    <div class="d-flex flex-column flex-root" id="kt_app_root">
+         <style>
+            body {
+                background-image: url('./assets/images/auth/bg4.jpg');
+            }
 
-                                <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2 password-addon">
-                                    <i class="ki-outline ki-eye-slash fs-2 p-0"></i>
-                                </span>
+            [data-bs-theme="dark"] body {
+                background-image: url('./assets/images/auth/bg4-dark.jpg');
+            }
+        </style>
+        
+        <div class="d-flex flex-center flex-column-fluid flex-lg-row">
+            <div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-12 p-lg-20">
+                <div class="bg-body d-flex flex-column align-items-stretch flex-center rounded-4 w-md-500px w-100 p-10">
+                    <div class="d-flex flex-center flex-column flex-column-fluid px-0 pb-lg-10 pt-lg-10">
+                       <form class="form w-100" id="login_form" method="post" action="#">
+                            <?= Security::csrfInput('login_form'); ?>
+                            <h2 class="mb-2 mt-4 fs-1 fw-bolder">Login to your account</h2>
+                            <p class="mb-10 fs-5">Enter your email below to login to your account</p>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="text" class="form-control" id="email" name="email" autocomplete="off">
                             </div>
-                        </div>
-                        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-                            <a href="forgot-password.php" class="link-primary">Forgot Password?</a>
-                        </div>
+                            <div class="mb-8">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="position-relative mb-3">
+                                    <input class="form-control" type="password" id="password" name="password" autocomplete="off" />
 
-                        <div class="d-grid">
-                            <button id="signin" type="submit" class="btn btn-primary">Sign In</button>
-                        </div>
-                    </form>
+                                    <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2 password-addon">
+                                        <i class="ki-outline ki-eye-slash fs-2 p-0"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button id="signin" type="submit" class="btn btn-primary">Sign In</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2" style="background-image: url(./assets/images/background/login-bg.jpg);">
-        </div>
     </div>
+
     <?php 
         require_once './app/Views/Partials/error-modal.php';
         require_once './app/Views/Partials/required-js.php';        

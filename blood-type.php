@@ -1,4 +1,15 @@
 <?php
-$folder = 'blood-type';
+$view = [
+    'folder'  => 'blood-type',
+    'bodyData' => [
+        'app-id' => $appId ?? '',
+        'table'  => $databaseTable ?? '',
+    ],
+    'styles'  => [],
+    'scripts' => [],
+    'data' => [
+        'pageTitle' => 'Blood Type',
+    ],
+];
 
-require_once './app/Views/Partials/layout.php';
+require './app/Views/Partials/layout.php';

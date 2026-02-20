@@ -8,8 +8,8 @@
 
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0 me-lg-18">
             <a href="apps.php">
-                <img alt="Logo" src="./assets/images/logos/logo-light.svg" class="h-25px d-sm-none" />
-                <img alt="Logo" src="./assets/images/logos/logo-light.svg" class="h-40px d-none d-sm-block" />
+                <img alt="Logo" src="./assets/images/logos/logo-light.svg" class="h-30px d-sm-none" />
+                <img alt="Logo" src="./assets/images/logos/logo-light.svg" class="h-30px d-none d-sm-block" />
             </a>
         </div>
 

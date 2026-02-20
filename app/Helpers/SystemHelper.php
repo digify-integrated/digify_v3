@@ -504,7 +504,7 @@ class SystemHelper extends Security {
         string $folder,
         array $options = [],
         array $overrides = []
-    ) {
+    ): array {
         $page = 'index';
 
         if (!empty($options['newRecord'])) {
@@ -513,16 +513,17 @@ class SystemHelper extends Security {
             $page = 'details';
         }
 
-        $contentFile = "./app/Views/Page/$folder/$page.php";
-        $scriptFile  = "./assets/js/page/$folder/$page.js";
-
-        if (isset($_GET['import']) && !empty($_GET['import'])) {
-            $contentFile = "./app/Views/Page/import/import.php";
-            $scriptFile  = "./assets/js/page/import/import.js";
+        // Import override
+        if (!empty($_GET['import'])) {
+            $folder = 'import';
+            $page   = 'import';
         }
 
-        if (isset($overrides['content'])) $contentFile = $overrides['content'];
-        if (isset($overrides['script']))  $scriptFile  = $overrides['script'];
+        $contentFile = "./app/Views/Page/{$folder}/{$page}.php";
+        $scriptFile  = "./assets/js/page/{$folder}/{$page}.js";
+
+        if (!empty($overrides['content'])) $contentFile = $overrides['content'];
+        if (!empty($overrides['script']))  $scriptFile  = $overrides['script'];
 
         return compact('contentFile', 'scriptFile');
     }

@@ -1,4 +1,15 @@
 <?php
-$folder = 'product-variant';
+$view = [
+    'folder'  => 'product-variant',
+    'bodyData' => [
+        'app-id' => $appId ?? '',
+        'table'  => $databaseTable ?? '',
+    ],
+    'styles'  => [],
+    'scripts' => [],
+    'data' => [
+        'pageTitle' => 'Product Variant',
+    ],
+];
 
-require_once './app/Views/Partials/layout.php';
+require './app/Views/Partials/layout.php';

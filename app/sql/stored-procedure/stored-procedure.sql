@@ -11490,7 +11490,7 @@ BEGIN
     AND attribute_value_id = p_attribute_value_id;
 END //
 
-DROP PROCEDURE IF EXISTS checkProductPricelistExists //
+DROP PROCEDURE IF EXISTS checkProductgenerateProductOptionsExists //
 
 CREATE PROCEDURE checkProductgenerateProductOptionsExists (
 	IN p_product_pricelist_id INT
@@ -12147,7 +12147,7 @@ CREATE PROCEDURE generatePhysicalInventoryTable(
     IN p_product_id TEXT,
     IN p_inventory_start_date DATE,
     IN p_inventory_end_date DATE,
-    IN p_physical_inventory_status TEXT,
+    IN p_physical_inventory_status TEXT
 )
 BEGIN
     DECLARE query TEXT;
@@ -12160,7 +12160,7 @@ BEGIN
         SET filter_conditions = CONCAT(filter_conditions, ' product_id IN (', p_product_id, ')');
     END IF;
 
-    IF physical_inventory_status IS NOT NULL AND physical_inventory_status <> '' THEN
+    IF p_physical_inventory_status IS NOT NULL AND p_physical_inventory_status <> '' THEN
         IF filter_conditions <> '' THEN
             SET filter_conditions = CONCAT(filter_conditions, ' AND ');
         END IF;
