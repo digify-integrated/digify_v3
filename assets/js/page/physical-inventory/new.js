@@ -11,6 +11,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeDatePicker('#inventory_date');
 
+    const displayDetails = async () => {
+        const product_id = document.querySelector("#product_id").value;
+        const inventoryCount = document.querySelector("#inventory_count").value;
+        const transaction = 'fetch product details';
+
+        if (!product_id) {
+            $('#quantity_on_hand').val(0);
+            return;
+        }
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+
+            const response = await fetch('./app/Controllers/ProductController.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                $('#quantity_on_hand').val(data.quantityOnHand || 0);
+
+                calculateInventoryDifference(data.quantityOnHand, inventoryCount);
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch product details: ${error.message}`);
+        }
+    }
+
     $('#physical_inventory_form').validate({
         rules: {
             product_id: { required: true },
@@ -79,5 +120,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return false;
         }
+    });
+
+    $(document).on('select2:select select2:clear', '#product_id', function () {
+        displayDetails();
+    });
+
+    const calculateInventoryDifference = (quantityOnHand, inventoryCount, decimals = 4) => {
+        // Convert safely: treat null/undefined/"" as 0; treat non-numeric as NaN
+        const toNumber = (v) => {
+            if (v === null || v === undefined || v === "") return 0;
+            const n = typeof v === "number" ? v : Number(v);
+            return Number.isFinite(n) ? n : NaN;
+        };
+
+        const qoh = toNumber(quantityOnHand);
+        const ic = toNumber(inventoryCount);
+
+        // If either is invalid (e.g., "abc"), return 0 (or throw, depending on your preference)
+        if (!Number.isFinite(qoh) || !Number.isFinite(ic)) return 0;
+
+        const diff = ic - qoh;
+
+        // Robust rounding to N decimals
+        const factor = 10 ** decimals;
+
+        const inventoryDiffEl = document.querySelector("#inventory_difference");
+
+        inventoryDiffEl.value = Math.round((diff + Number.EPSILON) * factor) / factor;
+    };
+
+    document.addEventListener("change", async (event) => {
+        if (!event.target.matches("#inventory_count, #quantity_on_hand")) return;
+
+        const quantityOnHandEl = document.querySelector("#quantity_on_hand");
+        const inventoryCountEl = document.querySelector("#inventory_count");
+
+        const quantityOnHand = quantityOnHandEl?.value ?? 0;
+        const inventoryCount = inventoryCountEl?.value ?? 0;
+
+        calculateInventoryDifference(quantityOnHand, inventoryCount);        
     });
 });

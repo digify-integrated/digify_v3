@@ -97,7 +97,7 @@ class ProductCategoryController {
             );
         }
 
-        $productCategoryId      = $_POST['product_category_id'];
+        $productCategoryId      = $_POST['product_category_id'] ?? null;
         $productCategoryName    = $_POST['product_category_name'] ?? null;
         $parentCategoryId       = $_POST['parent_category_id'] ?? null;
         $costingMethod          = $_POST['costing_method'] ?? null;

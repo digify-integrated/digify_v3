@@ -226,8 +226,8 @@ export const initializeDatePicker = (selector, enableTime = false, dateFormat = 
 export const initializeDateRangePicker = (
   selector,
   {
-    startDate = moment().startOf("day"),
-    endDate = moment().endOf("day"),
+    startDate = moment().startOf("month"),
+    endDate = moment().endOf("month"),
     ranges = {
       "Today": [moment(), moment()],
       "Yesterday": [

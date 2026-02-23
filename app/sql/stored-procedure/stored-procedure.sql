@@ -12015,6 +12015,8 @@ CREATE PROCEDURE insertPhysicalInventory(
     IN p_product_id INT, 
     IN p_product_name VARCHAR(200), 
     IN p_quantity_on_hand DECIMAL(15,4), 
+    IN p_inventory_count DECIMAL(15,4), 
+    IN p_inventory_difference DECIMAL(15,4), 
     IN p_inventory_date DATE, 
     IN p_remarks VARCHAR(1000), 
     IN p_last_log_by INT
@@ -12033,6 +12035,8 @@ BEGIN
         product_id,
         product_name,
         quantity_on_hand,
+        inventory_count,
+        inventory_difference,
         inventory_date,
         remarks,
         last_log_by
@@ -12041,6 +12045,8 @@ BEGIN
         p_product_id,
         p_product_name,
         p_quantity_on_hand,
+        p_inventory_count,
+        p_inventory_difference,
         p_inventory_date,
         p_remarks,
         p_last_log_by
@@ -12153,10 +12159,11 @@ BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT physical_inventory_id, product_name, physical_inventory_status, quantity_on_hand, inventory_count, inventory_difference, inventory_date
-                FROM physical_inventory';
+    SET query = 'SELECT physical_inventory_id, product_name, physical_inventory_status,
+                        quantity_on_hand, inventory_count, inventory_difference, inventory_date
+                 FROM physical_inventory';
 
-    IF p_product_id IS NOT NULL AND p_product_id <> '' THEN
+   IF p_product_id IS NOT NULL AND p_product_id <> '' THEN
         SET filter_conditions = CONCAT(filter_conditions, ' product_id IN (', p_product_id, ')');
     END IF;
 
@@ -12165,7 +12172,24 @@ BEGIN
             SET filter_conditions = CONCAT(filter_conditions, ' AND ');
         END IF;
 
-        SET filter_conditions = CONCAT(filter_conditions, ' physical_inventory_status IN (', p_physical_inventory_status, ')');
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' physical_inventory_status IN (', p_physical_inventory_status, ')'
+        );
+    END IF;
+
+    IF p_inventory_start_date IS NOT NULL AND p_inventory_end_date IS NOT NULL THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' inventory_date BETWEEN ',
+            QUOTE(p_inventory_start_date),
+            ' AND ',
+            QUOTE(p_inventory_end_date)
+        );
     END IF;
 
     IF filter_conditions <> '' THEN

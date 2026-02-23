@@ -10,23 +10,26 @@ document.addEventListener('DOMContentLoaded', () => {
         transaction: 'generate physical inventory table',
         ajaxData: {
             filter_by_product: $('#filter_by_product').val(),
-            filter_by_inventory_start_date: $('#filter_by_inventory_start_date').val(),
-            filter_by_inventory_end_date: $('#filter_by_inventory_end_date').val(),
+            filter_by_inventory_date: $('#filter_by_inventory_date').val(),
             filter_by_physical_inventory_status: $('#filter_by_physical_inventory_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'PRODUCT_CATEGORY_NAME' },
-            { data: 'PARENT_CATEGORY_NAME' },
-            { data: 'COSTING_METHOD' },
-            { data: 'DISPLAY_ORDER' }
+            { data: 'PRODUCT' },
+            { data: 'INVENTORY_DATE' },
+            { data: 'QUANTITY_ON_HAND' },
+            { data: 'COUNTED' },
+            { data: 'DIFFERENCE' },
+            { data: 'STATUS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 2, type: 'date', responsivePriority: 3 },
             { width: 'auto', targets: 3, responsivePriority: 4 },
-            { width: 'auto', targets: 4, responsivePriority: 5 }
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 5, responsivePriority: 6 },
+            { width: 'auto', targets: 6, responsivePriority: 7 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -34,15 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     generateDropdownOptions({
-        url: './app/Controllers/PhysicalInventoryController.php',
-        dropdownSelector: '#filter_by_parent_category',
-        data: { transaction: 'generate physical inventory options' , multiple : true }
+        url: './app/Controllers/ProductController.php',
+        dropdownSelector: '#filter_by_product',
+        data: { transaction: 'generate product options' , multiple : true }
     });
 
-    //initializeDatatable(datatableConfig());
+    initializeDateRangePicker("#filter_by_inventory_date");
+    initializeDatatable(datatableConfig());
     initializeDatatableControls('#physical-inventory-table');
     initializeExportFeature('physical_inventory');
-    initializeDateRangePicker("#filter_by_inventory_date");
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {
@@ -50,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#filter_by_parent_category').val(null).trigger('change');
-            $('#filter_by_costing_method').val(null).trigger('change');
+            $('#filter_by_product').val(null).trigger('change');
+            $('#filter_by_physical_inventory_status').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }

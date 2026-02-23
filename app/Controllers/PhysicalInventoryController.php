@@ -105,18 +105,22 @@ class PhysicalInventoryController {
             );
         }
 
-        $productId      = $_POST['product_id'] ?? null;
-        $inventoryDate  = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'd M Y', '');
-        $remarks        = $_POST['remarks'] ?? null;
+        $productId              = $_POST['product_id'] ?? null;
+        $inventoryDate          = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'Y-m-d', '');
+        $quantityOnHand         = $_POST['quantity_on_hand'] ?? 0;
+        $inventoryCount         = $_POST['inventory_count'] ?? 0;
+        $inventoryDifference    = $_POST['inventory_difference'] ?? 0;
+        $remarks                = $_POST['remarks'] ?? null;
 
         $productDetails     = $this->product->fetchProduct($productId);
         $productName        = $productDetails['product_name'] ?? '';
-        $quantityOnHand     = $productDetails['quantity_on_hand'] ?? 0;
 
         $physicalInventoryId = $this->physicalInventory->insertPhysicalInventory(
             $productId,
             $productName,
             $quantityOnHand,
+            $inventoryCount,
+            $inventoryDifference,
             $inventoryDate,
             $remarks,
             $lastLogBy
@@ -143,15 +147,16 @@ class PhysicalInventoryController {
             );
         }
 
-        $productId          = $_POST['product_id'] ?? null;
-        $inventoryDate      = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'd M Y', '');
-        $quantityOnHand     = $_POST['quantity_on_hand'] ?? 0;
-        $inventoryCount     = $_POST['inventory_count'] ?? 0;
-        $remarks            = $_POST['remarks'] ?? null;
+        $physicalInventoryId    = $_POST['physical_inventory_id'] ?? null;
+        $inventoryDate          = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'Y-m-d', '');
+        $quantityOnHand         = $_POST['quantity_on_hand'] ?? 0;
+        $inventoryCount         = $_POST['inventory_count'] ?? 0;
+        $remarks                = $_POST['remarks'] ?? null;
         
-        $inventoryDifference = $quantityOnHand - $quantityOnHand;
+        $inventoryDifference = $inventoryCount - $quantityOnHand;
 
         $physicalInventoryId = $this->physicalInventory->updatePhysicalInventory(
+            $physicalInventoryId,
             $inventoryCount,
             $inventoryDifference,
             $inventoryDate,
@@ -193,7 +198,7 @@ class PhysicalInventoryController {
 
         $response = [
             'success'               => true,
-            'physicalInventoryName'   => $physicalInventoryDetails['physical_inventory_name'] ?? null,
+            'physicalInventoryName' => $physicalInventoryDetails['physical_inventory_name'] ?? null,
             'parentCategoryId'      => $physicalInventoryDetails['parent_category_id'] ?? null,
             'costingMethod'         => $physicalInventoryDetails['costing_method'] ?? null,
             'displayOrder'          => $physicalInventoryDetails['display_order'] ?? 0
@@ -241,27 +246,40 @@ class PhysicalInventoryController {
 
     public function generatePhysicalInventoryTable() {
         $filterProduct                  = $this->systemHelper->checkFilter($_POST['filter_by_product'] ?? null);
-        $filterInventoryStartDate       = $this->systemHelper->checkDate('empty', $_POST['filter_by_inventory_start_date'], '', 'Y-m-d', '');
-        $filterInventoryEndDate         = $this->systemHelper->checkDate('empty', $_POST['filter_by_inventory_end_date'], '', 'Y-m-d', '');
         $filterPhysicalInventoryStatus  = $this->systemHelper->checkFilter($_POST['filter_by_physical_inventory_status'] ?? null);
+        $filterByInventoryDate          = $_POST['filter_by_inventory_date'] ?? null;
+        $filterInventoryStartDate       = null;
+        $filterInventoryEndDate         = null;
         $pageLink                       = $_POST['page_link'] ?? null;
-        $response                       = [];
+        $response                       = [];        
 
-        $departments = $this->physicalInventory->generatePhysicalInventoryTable(
+        if (!empty($filterByInventoryDate)) {
+            $parts = array_map('trim', explode('-', $filterByInventoryDate, 2));
+
+            $startRaw = $parts[0] ?? '';
+            $endRaw   = $parts[1] ?? '';
+
+            $filterInventoryStartDate   = $this->systemHelper->checkDate('empty', $startRaw, '', 'Y-m-d', '');
+            $filterInventoryEndDate     = $this->systemHelper->checkDate('empty', $endRaw, '', 'Y-m-d', '');
+        }
+
+        $physicalInventories = $this->physicalInventory->generatePhysicalInventoryTable(
             $filterProduct,
             $filterInventoryStartDate,
             $filterInventoryEndDate,
             $filterPhysicalInventoryStatus
         );
 
-        foreach ($departments as $row) {
-            $physicalInventoryId      = $row['physical_inventory_id'];
-            $productName    = $row['product_name'];
-            $physical_inventory_status     = $row['physical_inventory_status'];
-            $quantity_on_hand          = $row['quantity_on_hand'];
-            $inventory_count           = $row['inventory_count'];
-            $inventory_difference           = $row['inventory_difference'];
-            $inventory_date           = $this->systemHelper->checkDate('summary', $employeeDetails['birthday'] ?? null, '', 'd M Y', '');
+        foreach ($physicalInventories as $row) {
+            $physicalInventoryId        = $row['physical_inventory_id'];
+            $productName                = $row['product_name'];
+            $physicalInventoryStatus    = $row['physical_inventory_status'];
+            $quantityOnHand             = $row['quantity_on_hand'];
+            $inventoryCount             = $row['inventory_count'];
+            $inventoryDifference        = $row['inventory_difference'];
+            $inventoryDate              = $this->systemHelper->checkDate('summary', $row['inventory_date'] ?? null, '', 'd M Y', '');
+            $badgeClass                 = $physicalInventoryStatus == 'Applied' ? 'badge-light-success' : 'badge-light-warning';
+            $textClass                  = $inventoryDifference >= 0 ? 'text-success' : 'text-danger';
 
             $physicalInventoryIdEncrypted = $this->security->encryptData($physicalInventoryId);
 
@@ -269,11 +287,13 @@ class PhysicalInventoryController {
                 'CHECK_BOX'                 => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
                                                     <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $physicalInventoryId .'">
                                                 </div>',
-                'PRODUCT_CATEGORY_NAME'     => $physicalInventoryName,
-                'PARENT_CATEGORY_NAME'      => $parentCategoryName,
-                'COSTING_METHOD'            => $costingMethod,
-                'DISPLAY_ORDER'             => $displayOrder,
-                'LINK'                      => $pageLink .'&id='. $physicalInventoryIdEncrypted
+                'PRODUCT'           => $productName,
+                'INVENTORY_DATE'    => $inventoryDate,
+                'QUANTITY_ON_HAND'  => number_format($quantityOnHand, 4),
+                'COUNTED'           => number_format($inventoryCount, 4),
+                'DIFFERENCE'        => '<span class="'. $textClass .'">' . number_format($inventoryDifference, 4) . '</span>',
+                'STATUS'            => '<div class="badge '. $badgeClass .'">'. $physicalInventoryStatus .'</div>',
+                'LINK'              => $pageLink .'&id='. $physicalInventoryIdEncrypted
             ];
         }
 

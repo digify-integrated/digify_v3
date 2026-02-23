@@ -297,7 +297,7 @@
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="required form-label" for="quantity_on_hand">Quantity On Hand</label>
+                                                <label class="required form-label" for="quantity_on_hand">Quantity On Hand</label>
                                                 <div class="d-flex gap-3">
                                                     <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="0.0001" <?php echo $disabled; ?>>
                                                 </div>

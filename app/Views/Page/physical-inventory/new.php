@@ -28,6 +28,37 @@
                 </div>
             </div>
 
+            <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-3 row-cols-lg-3">
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="quantity_on_hand">
+                            Quantity On-Hand
+                        </label>
+                        
+                        <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="0.0001" readonly>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 required fw-semibold form-label mt-3" for="inventory_date">
+                            Inventory Count
+                        </label>
+                        <input type="number" id="inventory_count" name="inventory_count" class="form-control mb-2" min="0" step="0.0001" value="0.0000">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="inventory_difference">
+                            Difference
+                        </label>
+                        
+                        <input type="number" id="inventory_difference" name="inventory_difference" class="form-control mb-2" step="0.0001" value="0.0000" readonly>
+                    </div>
+                </div>
+            </div>
+
             <div class="col">
                 <div class="fv-row mb-7">
                     <label class="fs-6 fw-semibold form-label mt-3" for="display_order">
