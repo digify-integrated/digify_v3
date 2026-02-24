@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const calculateInventoryDifference = (quantityOnHand, inventoryCount, decimals = 4) => {
-        // Convert safely: treat null/undefined/"" as 0; treat non-numeric as NaN
         const toNumber = (v) => {
             if (v === null || v === undefined || v === "") return 0;
             const n = typeof v === "number" ? v : Number(v);
@@ -137,12 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const qoh = toNumber(quantityOnHand);
         const ic = toNumber(inventoryCount);
 
-        // If either is invalid (e.g., "abc"), return 0 (or throw, depending on your preference)
         if (!Number.isFinite(qoh) || !Number.isFinite(ic)) return 0;
 
         const diff = ic - qoh;
 
-        // Robust rounding to N decimals
         const factor = 10 ** decimals;
 
         const inventoryDiffEl = document.querySelector("#inventory_difference");

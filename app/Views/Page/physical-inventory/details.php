@@ -1,15 +1,35 @@
+<?php
+    use App\Models\PhysicalInventory;
+
+    $physicalInventory = new PhysicalInventory();
+
+    $applyAdjustment = $authentication->checkUserSystemActionPermission($userID, 21);
+
+    $physicalInventoryDetails   = $physicalInventory->fetchPhysicalInventory($detailID);
+    $physicalInventoryStatus    = $physicalInventoryDetails['physical_inventory_status'] ?? 'Pending';
+
+    $disabled = ($physicalInventoryStatus === 'Applied') ? 'disabled' : $disabled;
+?>
 <div class="card mb-10">
     <div class="card-header border-0">
         <div class="card-title m-0">
             <h3 class="fw-bold m-0">Physical Inventory Details</h3>
         </div>
         <?php
-            if ($permissions['delete'] > 0) {
+            if ($permissions['delete'] > 0 || ($applyAdjustment['total'] > 0 && $physicalInventoryStatus === 'Pending')) {
                 $action = '<a href="#" class="btn btn-light-primary btn-flex btn-center btn-active-light-primary show menu-dropdown align-self-center" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                                         Actions
                                         <i class="ki-outline ki-down fs-5 ms-1"></i>
                                     </a>
-                                    <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true" style="z-index: 107; position: fixed; inset: 0px 0px auto auto; margin: 0px; transform: translate(-60px, 539px);" data-popper-placement="bottom-end">';
+                                    <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-150px py-4" data-kt-menu="true" style="z-index: 107; position: fixed; inset: 0px 0px auto auto; margin: 0px; transform: translate(-60px, 539px);" data-popper-placement="bottom-end">';
+                    
+                if ($applyAdjustment['total'] > 0 && $physicalInventoryStatus === 'Pending') {
+                    $action .= '<div class="menu-item px-3">
+                                    <a href="javascript:void(0);" class="menu-link px-3" id="apply-adjustment">
+                                        Apply Adjustment
+                                    </a>
+                                </div>';
+                }
                     
                 if ($permissions['delete'] > 0) {
                     $action .= '<div class="menu-item px-3">
@@ -32,11 +52,11 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="parent_category_id">
+                        <label class="fs-6 fw-semibold form-label mt-3" for="parent_category_id">
                             Product
                         </label>
                         
-                        <select id="product_id" name="product_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                        <input type="text" id="product_name" name="product_name" class="form-control mb-2" readonly/>
                     </div>
                 </div>
                 <div class="col">

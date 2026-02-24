@@ -169,6 +169,25 @@ class PhysicalInventory extends Model {
     }
 
     /* =============================================================================================
+        SECTION 8: CUSTOM METHODS
+    ============================================================================================= */
+
+    public function applyPhysicalInventoryAdjustment(
+        int $p_physical_inventory_id,
+        int $p_last_log_by
+    ) {
+        $sql = 'CALL applyPhysicalInventoryAdjustment(
+            :p_physical_inventory_id,
+            :p_last_log_by
+        )';
+        
+        return $this->query($sql, [
+            'p_physical_inventory_id' => $p_physical_inventory_id,
+            'p_last_log_by' => $p_last_log_by
+        ]);
+    }
+
+    /* =============================================================================================
         END OF METHODS
     ============================================================================================= */
     

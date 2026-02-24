@@ -12086,7 +12086,7 @@ BEGIN
         inventory_difference        = p_inventory_difference,
         inventory_date              = p_inventory_date,
         remarks                     = p_remarks
-    WHERE p_physical_inventory_id   = p_physical_inventory_id;
+    WHERE physical_inventory_id     = p_physical_inventory_id;
 
     COMMIT;
 END //
@@ -12225,6 +12225,44 @@ BEGIN
 END //
 
 /* =============================================================================================
+   SECTION 7: CUSTOM PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS applyPhysicalInventoryAdjustment//
+
+CREATE PROCEDURE applyPhysicalInventoryAdjustment(
+    IN p_physical_inventory_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product p
+    JOIN physical_inventory pi
+        ON pi.product_id = p.product_id
+    SET
+        p.quantity_on_hand = pi.inventory_count,
+        p.last_log_by      = p_last_log_by
+    WHERE pi.physical_inventory_id = p_physical_inventory_id;
+
+    UPDATE physical_inventory
+    SET
+        physical_inventory_status = 'Applied',
+        applied_date              = NOW(),
+        last_log_by               = p_last_log_by
+    WHERE physical_inventory_id = p_physical_inventory_id;
+
+    COMMIT;
+END //
+
+
+/* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
 
@@ -12260,6 +12298,10 @@ END //
 
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 8: CUSTOM PROCEDURES
 ============================================================================================= */
 
 /* =============================================================================================

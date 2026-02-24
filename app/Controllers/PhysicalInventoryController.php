@@ -73,6 +73,8 @@ class PhysicalInventoryController {
         match ($transaction) {
             'insert physical inventory'             => $this->insertPhysicalInventory($lastLogBy),
             'update physical inventory'             => $this->updatePhysicalInventory($lastLogBy),
+            'apply adjustment'                      => $this->applyPhysicalInventory($lastLogBy),
+            'apply multiple adjustment'             => $this->applyMultiplePhysicalInventory($lastLogBy),
             'delete physical inventory'             => $this->deletePhysicalInventory(),
             'delete multiple physical inventory'    => $this->deleteMultiplePhysicalInventory(),
             'fetch physical inventory details'      => $this->fetchPhysicalInventoryDetails(),
@@ -149,13 +151,11 @@ class PhysicalInventoryController {
 
         $physicalInventoryId    = $_POST['physical_inventory_id'] ?? null;
         $inventoryDate          = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'Y-m-d', '');
-        $quantityOnHand         = $_POST['quantity_on_hand'] ?? 0;
         $inventoryCount         = $_POST['inventory_count'] ?? 0;
+        $inventoryDifference    = $_POST['inventory_difference'] ?? 0;
         $remarks                = $_POST['remarks'] ?? null;
-        
-        $inventoryDifference = $inventoryCount - $quantityOnHand;
-
-        $physicalInventoryId = $this->physicalInventory->updatePhysicalInventory(
+    
+        $this->physicalInventory->updatePhysicalInventory(
             $physicalInventoryId,
             $inventoryCount,
             $inventoryDifference,
@@ -198,10 +198,12 @@ class PhysicalInventoryController {
 
         $response = [
             'success'               => true,
-            'physicalInventoryName' => $physicalInventoryDetails['physical_inventory_name'] ?? null,
-            'parentCategoryId'      => $physicalInventoryDetails['parent_category_id'] ?? null,
-            'costingMethod'         => $physicalInventoryDetails['costing_method'] ?? null,
-            'displayOrder'          => $physicalInventoryDetails['display_order'] ?? 0
+            'productName'           => $physicalInventoryDetails['product_name'] ?? null,
+            'quantityOnHand'        => $physicalInventoryDetails['quantity_on_hand'] ?? null,
+            'inventoryCount'        => $physicalInventoryDetails['inventory_count'] ?? null,
+            'inventoryDifference'   => $physicalInventoryDetails['inventory_difference'] ?? null,
+            'inventoryDate'         => $this->systemHelper->checkDate('summary', $physicalInventoryDetails['inventory_date'] ?? null, '', 'M d, Y', ''),
+            'remarks'               => $physicalInventoryDetails['remarks'] ?? 0
         ];
 
         echo json_encode($response);
@@ -350,6 +352,36 @@ class PhysicalInventoryController {
     /* =============================================================================================
         SECTION 8: CUSTOM METHOD
     ============================================================================================= */
+
+    public function applyPhysicalInventory(int $lastLogBy) {
+        $physicalInventoryId = $_POST['physical_inventory_id'] ?? null;
+
+        $this->physicalInventory->applyPhysicalInventoryAdjustment(
+            $physicalInventoryId,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Apply Adjustment Success',
+            'The adjustment has been applied successfully.'
+        );
+    }
+
+    public function applyMultiplePhysicalInventory(int $lastLogBy) {
+        $physicalInventoryIds = $_POST['physical_inventory_id'] ?? null;
+
+        foreach($physicalInventoryIds as $physicalInventoryId){
+            $this->physicalInventory->applyPhysicalInventoryAdjustment(
+                $physicalInventoryId,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Apply Multiple Adjustments Success',
+            'The selected adjustments have been applied successfully.'
+        );
+    }
 
     /* =============================================================================================
         END OF METHODS

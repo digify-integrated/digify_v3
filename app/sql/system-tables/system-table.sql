@@ -512,7 +512,8 @@ INSERT INTO system_action (system_action_name, system_action_description) VALUES
 ('Archive Warehouse', 'Access to archive a warehouse.'),
 ('Unarchive Warehouse', 'Access to unarchive a warehouse.'),
 ('Archive Product', 'Access to archive a product.'),
-('Unarchive Product', 'Access to unarchive a product.');
+('Unarchive Product', 'Access to unarchive a product.'),
+('Apply Physical Inventory Adjustment', 'Access to apply physical inventory adjustment.');
 
 /* =============================================================================================
   END OF TABLE DEFINITIONS
@@ -759,7 +760,8 @@ INSERT INTO role_system_action_permission (role_id, role_name, system_action_id,
 (1, 'Super Admin', 17, 'Archive Warehouse', 1),
 (1, 'Super Admin', 18, 'Unarchive Warehouse', 1),
 (1, 'Super Admin', 19, 'Archive Product', 1),
-(1, 'Super Admin', 20, 'Unarchive Product', 1);
+(1, 'Super Admin', 20, 'Unarchive Product', 1),
+(1, 'Super Admin', 21, 'Apply Physical Inventory Adjustment', 1);
 
 /* =============================================================================================
   TABLE: ROLE USER ACCOUNT

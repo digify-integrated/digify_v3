@@ -328,6 +328,46 @@
                     <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
                         <div class="card-header">
                             <div class="card-title">
+                                <h2 class="me-4">Bill of Materials</h2>
+                            </div>
+                            <div class="card-toolbar">
+                                <div class="d-flex align-items-center position-relative my-1 me-3">
+                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-bill-of-materials-datatable-search" placeholder="Search..." autocomplete="off" />
+                                </div>
+                                <select id="product-bill-of-materials-datatable-length" class="form-select w-auto me-4">
+                                    <option value="-1">All</option>
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                    <?php
+                                        echo $permissions['write'] > 0 && $productStatus == 'Active' ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-bill-of-materials-modal" id="add-product-bill-of-materials">Add Bill of Materials</button>' : '';
+                                    ?> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body pt-0">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-bill-of-materials-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800">
+                                        <th>Component</th>
+                                        <th>Qty. Required</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
+                        <div class="card-header">
+                            <div class="card-title">
                                 <h2 class="me-4">Attributes</h2>
                             </div>
                             <div class="card-toolbar">
