@@ -3393,12 +3393,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Barcode: ", OLD.barcode, " -> ", NEW.barcode, "<br/>");
     END IF;
 
-    IF NEW.unit_name <> OLD.unit_name THEN
-        SET audit_log = CONCAT(audit_log, "Unit: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
-    END IF;
-
-    IF NEW.unit_abbreviation <> OLD.unit_abbreviation THEN
-        SET audit_log = CONCAT(audit_log, "Unit Abbreviation: ", OLD.unit_abbreviation, " -> ", NEW.unit_abbreviation, "<br/>");
+    IF NEW.track_inventory <> OLD.track_inventory THEN
+        SET audit_log = CONCAT(audit_log, "Track Inventory: ", OLD.track_inventory, " -> ", NEW.track_inventory, "<br/>");
     END IF;
 
     IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN

@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#length').val(data.length || 0);
 
                 $('#product_type').val(data.productType || '').trigger('change');
-                $('#unit_id').val(data.unitId || '').trigger('change');
 
+                document.getElementById('track-inventory').checked = data.trackInventory === 'Yes';
                 document.getElementById('is-sellable').checked = data.isSellable === 'Yes';
                 document.getElementById('is-purchasable').checked = data.isPurchasable === 'Yes';
                 document.getElementById('show-on-pos').checked = data.showOnPos === 'Yes';
@@ -481,18 +481,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#product_inventory_form').validate({
         rules: {
-            sku: { required: true },
-            barcode: { required: true },
             product_type: { required: true },
-            quantity_on_hand: { required: true },
-            unit_id: { required: true }
+            quantity_on_hand: { required: true }
         },
         messages: {
-            sku: { required: 'Enter the SKU' },
-            barcode: { required: 'Enter the barcode' },
             product_type: { required: 'Choose the product type' },
-            quantity_on_hand: { required: 'Enter the quantity on hand' },
-            unit_id: { required: 'Choose the unit of measurement' }
+            quantity_on_hand: { required: 'Enter the quantity on hand' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -953,6 +947,37 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        if (event.target.closest('#track-inventory')){
+            const transaction = 'update product track inventory';
+    
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+    
+            try {
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+    
+                const data = await response.json();
+    
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        showNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+
         if (event.target.closest('#is-sellable')){
             const transaction = 'update product is sellable';
     
@@ -972,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
                 if (!data.success) {
                     if (data.invalid_session) {
-                        setNotification(data.title, data.message, data.message_type);
+                        showNotification(data.title, data.message, data.message_type);
                         window.location.href = data.redirect_link;
                     }
                     else {

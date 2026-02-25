@@ -65,6 +65,24 @@
                     <div class="d-flex flex-stack">
                         <div class="d-flex">
                             <div class="d-flex flex-column">
+                                <div class="fs-5 text-gray-900 fw-bold">Track Inventory</div>
+                                <div class="fs-7 fw-semibold text-muted">Check if you want this product's quantity to be tracked.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <label class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
+                                <input class="form-check-input" type="checkbox" id="track-inventory" <?php echo $disabled; ?>>
+                                <span class="form-check-label fw-semibold text-muted" for="track-inventory"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="separator separator-dashed my-5"></div>
+
+                    <div class="d-flex flex-stack">
+                        <div class="d-flex">
+                            <div class="d-flex flex-column">
                                 <div class="fs-5 text-gray-900 fw-bold">Sales</div>
                                 <div class="fs-7 fw-semibold text-muted">Check if you want this product to be sellable.</div>
                             </div>
@@ -122,6 +140,10 @@
         <ul class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-semibold mb-8" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#general_tab" aria-selected="false" role="tab" tabindex="-1">General</a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#bill_of_materials_tab" aria-selected="false" role="tab" tabindex="-1">Bill of Materials</a>
             </li>
 
             <li class="nav-item" role="presentation">
@@ -266,14 +288,14 @@
                                     <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                            <label class="form-label required" for="sku">SKU</label>
+                                            <label class="form-label" for="sku">SKU</label>
                                                 <input type="text" id="sku" name="sku" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="form-label required" for="barcode">Barcode</label>
+                                                <label class="form-label" for="barcode">Barcode</label>
                                                 <input type="text" id="barcode" name="barcode" class="form-control mb-2" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                             </div>
                                         </div>
@@ -297,21 +319,10 @@
 
                                         <div class="col">
                                             <div class="fv-row mb-7">
-                                                <label class="required form-label" for="quantity_on_hand">Quantity On Hand</label>
+                                                <label class="form-label" for="quantity_on_hand">Quantity On Hand</label>
                                                 <div class="d-flex gap-3">
                                                     <input type="number" id="quantity_on_hand" name="quantity_on_hand" class="form-control mb-2" min="0" step="0.0001" <?php echo $disabled; ?>>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="fv-row">
-                                    <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">                
-                                        <div class="col">
-                                            <div class="fv-row mb-7">
-                                            <label class="required form-label" for="unit_id">Unit of Measurement</label>
-                                                <select id="unit_id" name="unit_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -323,46 +334,6 @@
                                                                     <button type="submit" form="product_inventory_form" class="btn btn-primary" id="submit-inventory">Save</button>
                                                                 </div>' : '';
                         ?>
-                    </div>
-
-                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h2 class="me-4">Bill of Materials</h2>
-                            </div>
-                            <div class="card-toolbar">
-                                <div class="d-flex align-items-center position-relative my-1 me-3">
-                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-bill-of-materials-datatable-search" placeholder="Search..." autocomplete="off" />
-                                </div>
-                                <select id="product-bill-of-materials-datatable-length" class="form-select w-auto me-4">
-                                    <option value="-1">All</option>
-                                    <option value="5">5</option>
-                                    <option value="10" selected>10</option>
-                                    <option value="20">20</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                                <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                                    <?php
-                                        echo $permissions['write'] > 0 && $productStatus == 'Active' ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-bill-of-materials-modal" id="add-product-bill-of-materials">Add Bill of Materials</button>' : '';
-                                    ?> 
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-bill-of-materials-table">
-                                <thead>
-                                    <tr class="fw-semibold fs-6 text-gray-800">
-                                        <th>Component</th>
-                                        <th>Qty. Required</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="fw-semibold text-gray-600"></tbody>
-                            </table>
-                        </div>
                     </div>
 
                     <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">

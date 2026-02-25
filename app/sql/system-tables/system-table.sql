@@ -7180,9 +7180,7 @@ CREATE TABLE product (
   product_type ENUM('Goods','Services','Combo') DEFAULT 'Goods',
   sku VARCHAR(200) UNIQUE,
   barcode VARCHAR(200) UNIQUE,
-  unit_id INT UNSIGNED,
-  unit_name VARCHAR(100) NOT NULL,
-  unit_abbreviation VARCHAR(20),
+  track_inventory ENUM('Yes','No') DEFAULT 'No',
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   cost DECIMAL(15,4) DEFAULT 0,
   sales_price DECIMAL(15,4) DEFAULT 0,
@@ -7200,7 +7198,6 @@ CREATE TABLE product (
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
-  FOREIGN KEY (unit_id) REFERENCES unit(unit_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id),
   UNIQUE KEY uq_parent_signature (parent_product_id, variant_signature)
 );
@@ -7214,7 +7211,7 @@ CREATE INDEX idx_product_signature ON product(variant_signature);
 CREATE INDEX idx_product_type ON product(product_type);
 CREATE INDEX idx_product_barcode ON product(barcode);
 CREATE INDEX idx_product_sku ON product(sku);
-CREATE INDEX idx_product_unit_id ON product(unit_id);
+CREATE INDEX idx_product_track_inventory ON product(track_inventory);
 CREATE INDEX idx_product_is_variant ON product(is_variant);
 CREATE INDEX idx_product_is_sellable ON product(is_sellable);
 CREATE INDEX idx_product_is_purchasable ON product(is_purchasable);

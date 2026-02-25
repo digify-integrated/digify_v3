@@ -244,13 +244,10 @@ class Product extends Model {
 
     public function updateProductInventory(
         int $p_product_id,
-        string $p_sku,
-        string $p_barcode,
+        null|string $p_sku,
+        null|string $p_barcode,
         string $p_product_type,
         float $p_quantity_on_hand,
-        int $p_unit_id,
-        string $p_unit_name,
-        string $p_unit_abbreviation,
         int $p_last_log_by
     ) {
         $sql = 'CALL updateProductInventory(
@@ -259,9 +256,6 @@ class Product extends Model {
             :p_barcode,
             :p_product_type,
             :p_quantity_on_hand,
-            :p_unit_id,
-            :p_unit_name,
-            :p_unit_abbreviation,
             :p_last_log_by
         )';
         
@@ -271,9 +265,6 @@ class Product extends Model {
             'p_barcode'             => $p_barcode,
             'p_product_type'        => $p_product_type,
             'p_quantity_on_hand'    => $p_quantity_on_hand,
-            'p_unit_id'             => $p_unit_id,
-            'p_unit_name'           => $p_unit_name,
-            'p_unit_abbreviation'   => $p_unit_abbreviation,
             'p_last_log_by'         => $p_last_log_by
         ]);
     }

@@ -10411,13 +10411,7 @@ BEGIN
         ); 
         
         SET v_new_unit_id = LAST_INSERT_ID();
-    ELSE        
-        UPDATE product
-        SET unit_name           = p_unit_name,
-            unit_abbreviation   = p_unit_abbreviation,
-            last_log_by         = p_last_log_by
-        WHERE unit_id           = p_unit_id;
-
+    ELSE
         UPDATE unit
         SET unit_name           = p_unit_name,
             unit_abbreviation   = p_unit_abbreviation,
@@ -11023,10 +11017,7 @@ CREATE PROCEDURE updateProductInventory(
 	IN p_sku VARCHAR(200), 
 	IN p_barcode VARCHAR(200), 
 	IN p_product_type ENUM('Goods','Services', 'Combo'), 
-	IN p_quantity_on_hand DECIMAL(15,4), 
-	IN p_unit_id INT, 
-	IN p_unit_name VARCHAR(100), 
-	IN p_unit_abbreviation VARCHAR(20), 
+	IN p_quantity_on_hand DECIMAL(15,4),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -11042,9 +11033,6 @@ BEGIN
         barcode             = p_barcode,
         product_type        = p_product_type,
         quantity_on_hand    = p_quantity_on_hand,
-        unit_id             = p_unit_id,
-        unit_name           = p_unit_name,
-        unit_abbreviation   = p_unit_abbreviation,
         last_log_by         = p_last_log_by
     WHERE product_id        = p_product_id;
 
@@ -11216,6 +11204,12 @@ BEGIN
         WHEN 'is sellable' THEN
             UPDATE product
             SET is_sellable     = p_value,
+                last_log_by     = p_last_log_by
+            WHERE product_id    = p_product_id;
+
+        WHEN 'track inventory' THEN
+            UPDATE product
+            SET track_inventory = p_value,
                 last_log_by     = p_last_log_by
             WHERE product_id    = p_product_id;
 

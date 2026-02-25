@@ -96,6 +96,7 @@ class ProductController {
             'update product inventory'              => $this->updateProductInventory($lastLogBy),
             'update product shipping'               => $this->updateProductShipping($lastLogBy),
             'update product pricing'                => $this->updateProductPricing($lastLogBy),
+            'update product track inventory'        => $this->updateProductTrackInventory($lastLogBy),
             'update product is sellable'            => $this->updateProductIsSellable($lastLogBy),
             'update product is purchasable'         => $this->updateProductIsPurchasable($lastLogBy),
             'update product show on pos'            => $this->updateProductShowOnPos($lastLogBy),
@@ -524,11 +525,6 @@ class ProductController {
         $barcode            = $_POST['barcode'] ?? null;
         $productType        = $_POST['product_type'] ?? null;
         $quantityOnHand     = $_POST['quantity_on_hand'] ?? 0;
-        $unitId             = $_POST['unit_id'] ?? null;
-
-        $unitIdDetails      = $this->unit->fetchUnit($unitId);
-        $unitName           = $unitIdDetails['unit_name'] ?? null;
-        $unitAbbreviation   = $unitIdDetails['unit_abbreviation'] ?? null;
         
         if(!empty($sku)){
             $checkProductSKUExist   = $this->product->checkProductSKUExist($productId, $sku);
@@ -542,7 +538,6 @@ class ProductController {
             }
         }
        
-
         if(!empty($barcode)){
             $checkProductBarcodeExist   = $this->product->checkProductBarcodeExist($productId, $barcode);
             $totalBarcode               = $checkProductBarcodeExist['total'] ?? 0;
@@ -561,9 +556,6 @@ class ProductController {
             $barcode,
             $productType,
             $quantityOnHand,
-            $unitId,
-            $unitName,
-            $unitAbbreviation,
             $lastLogBy
         );
 
@@ -603,6 +595,27 @@ class ProductController {
         $this->systemHelper::sendSuccessResponse(
             'Update Product Success',
             'The product has been updated successfully.'
+        );
+    }
+
+    public function updateProductTrackInventory(
+        int $lastLogBy
+    ) {
+        $productId          = $_POST['product_id'] ?? null;
+        $productDetails     = $this->product->fetchProduct($productId);
+        $trackInventory     = $productDetails['track_inventory'] ?? 'Yes';
+        $trackInventory     = ($trackInventory === 'Yes') ? 'No' : 'Yes';
+
+        $this->product->updateProductSettings(
+            $productId,
+            $trackInventory,
+            'track inventory',
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Update Track Inventory Success',
+            'The track inventory has been updated successfully.'
         );
     }
 
@@ -674,14 +687,9 @@ class ProductController {
     ) {
         $productId = $_POST['product_id'] ?? null;
 
-        $productDetails     = $this->product->fetchProduct($productId);
-        $unitId             = $productDetails['unit_id'] ?? null;
-        $sku                = $productDetails['sku'] ?? null;
-        $barcode            = $productDetails['barcode'] ?? null;
-
         $productCategoriesDetails = $this->product->fetchProductCategoryMap($productId) ?? [];
 
-        if(empty($unitId) || empty($productCategoriesDetails) || empty($sku) || empty($barcode)){
+        if(empty($productCategoriesDetails)){
             $this->systemHelper::sendErrorResponse(
                 'Product Activation Error',
                 'Please fill-out all of the required fields before activating the product.'
@@ -851,7 +859,7 @@ class ProductController {
             'productType'           => $productDetails['product_type'] ?? null,
             'sku'                   => $productDetails['sku'] ?? null,
             'barcode'               => $productDetails['barcode'] ?? null,
-            'unitId'                => $productDetails['unit_id'] ?? null,
+            'trackInventory'        => $productDetails['track_inventory'] ?? 'Yes',
             'isSellable'            => $productDetails['is_sellable'] ?? 'Yes',
             'isPurchasable'         => $productDetails['is_purchasable'] ?? 'Yes',
             'showOnPos'             => $productDetails['show_on_pos'] ?? 'Yes',
