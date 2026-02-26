@@ -79,7 +79,6 @@ class PhysicalInventoryController {
             'delete multiple physical inventory'    => $this->deleteMultiplePhysicalInventory(),
             'fetch physical inventory details'      => $this->fetchPhysicalInventoryDetails(),
             'generate physical inventory table'     => $this->generatePhysicalInventoryTable(),
-            'generate physical inventory options'   => $this->generatePhysicalInventoryOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                             'Transaction Failed',
                                                             'We encountered an issue while processing your request.'
@@ -296,53 +295,6 @@ class PhysicalInventoryController {
                 'DIFFERENCE'        => '<span class="'. $textClass .'">' . number_format($inventoryDifference, 4) . '</span>',
                 'STATUS'            => '<div class="badge '. $badgeClass .'">'. $physicalInventoryStatus .'</div>',
                 'LINK'              => $pageLink .'&id='. $physicalInventoryIdEncrypted
-            ];
-        }
-
-        echo json_encode($response);
-    }
-    
-    public function generatePhysicalInventoryOptions() {
-        $multiple   = $_POST['multiple'] ?? false;
-        $response   = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $physicalInventories = $this->physicalInventory->generatePhysicalInventoryOptions();
-
-        foreach ($physicalInventories as $row) {
-            $response[] = [
-                'id'    => $row['physical_inventory_id'],
-                'text'  => $row['physical_inventory_name']
-            ];
-        }
-
-        echo json_encode($response);
-    }
-
-    public function generateParentCategoryOptions() {
-        $physicalInventoryId  = $_POST['physical_inventory_id'] ?? null;
-        $multiple           = $_POST['multiple'] ?? false;
-        $response           = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $physicalInventories = $this->physicalInventory->generateParentCategoryOptions($physicalInventoryId);
-
-        foreach ($physicalInventories as $row) {
-            $response[] = [
-                'id'    => $row['physical_inventory_id'],
-                'text'  => $row['physical_inventory_name']
             ];
         }
 

@@ -16,32 +16,35 @@ class Scrap extends Model {
     public function insertScrap(
         null|string|int $p_product_id,
         null|string $p_product_name,
+        string $p_reference_number,
         string $p_quantity_on_hand,
-        string $p_inventory_count,
-        string $p_inventory_difference,
-        string $p_inventory_date,
-        string $p_remarks,
+        string $p_scrap_quantity,
+        int $p_scrap_reason_id,
+        string $p_scrap_reason_name,
+        string $p_detailed_scrap_reason,
         int $p_last_log_by
     )    {
         $sql = 'CALL insertScrap(
             :p_product_id,
             :p_product_name,
+            :p_reference_number,
             :p_quantity_on_hand,
-            :p_inventory_count,
-            :p_inventory_difference,
-            :p_inventory_date,
-            :p_remarks,
+            :p_scrap_quantity,
+            :p_scrap_reason_id,
+            :p_scrap_reason_name,
+            :p_detailed_scrap_reason,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
             'p_product_id'              => $p_product_id,
             'p_product_name'            => $p_product_name,
+            'p_reference_number'        => $p_reference_number,
             'p_quantity_on_hand'        => $p_quantity_on_hand,
-            'p_inventory_count'         => $p_inventory_count,
-            'p_inventory_date'          => $p_inventory_date,
-            'p_inventory_difference'    => $p_inventory_difference,
-            'p_remarks'                 => $p_remarks,
+            'p_scrap_quantity'          => $p_scrap_quantity,
+            'p_scrap_reason_id'         => $p_scrap_reason_id,
+            'p_scrap_reason_name'       => $p_scrap_reason_name,
+            'p_detailed_scrap_reason'   => $p_detailed_scrap_reason,
             'p_last_log_by'             => $p_last_log_by
         ]);
 
@@ -54,27 +57,30 @@ class Scrap extends Model {
 
     public function updateScrap(
         int $p_scrap_id,
-        string $p_inventory_count,
-        string $p_inventory_difference,
-        string $p_inventory_date,
-        string $p_remarks,
+        string $p_reference_number,
+        string $p_scrap_quantity,
+        int $p_scrap_reason_id,
+        string $p_scrap_reason_name,
+        string $p_detailed_scrap_reason,
         int $p_last_log_by
     )    {
         $sql = 'CALL updateScrap(
             :p_scrap_id,
-            :p_inventory_count,
-            :p_inventory_difference,
-            :p_inventory_date,
-            :p_remarks,
+            :p_reference_number,
+            :p_scrap_quantity,
+            :p_scrap_reason_id,
+            :p_scrap_reason_name,
+            :p_detailed_scrap_reason,
             :p_last_log_by
         )';
 
         return $this->query($sql, [
-            'p_scrap_id'   => $p_scrap_id,
-            'p_inventory_count'         => $p_inventory_count,
-            'p_inventory_difference'    => $p_inventory_difference,
-            'p_inventory_date'          => $p_inventory_date,
-            'p_remarks'                 => $p_remarks,
+            'p_scrap_id'                => $p_scrap_id,
+            'p_reference_number'        => $p_reference_number,
+            'p_scrap_quantity'          => $p_scrap_quantity,
+            'p_scrap_reason_id'         => $p_scrap_reason_id,
+            'p_scrap_reason_name'       => $p_scrap_reason_name,
+            'p_detailed_scrap_reason'   => $p_detailed_scrap_reason,
             'p_last_log_by'             => $p_last_log_by
         ]);
     }
@@ -133,38 +139,22 @@ class Scrap extends Model {
 
     public function generateScrapTable(
         null|string $p_filter_by_product,
-        null|string $p_inventory_start_date,
-        null|string $p_inventory_end_date,
+        null|string $p_completed_start_date,
+        null|string $p_completed_end_date,
         null|string $p_scrap_status,
     ) {
         $sql = 'CALL generateScrapTable(
             :p_filter_by_product,
-            :p_inventory_start_date,
-            :p_inventory_end_date,
+            :p_completed_start_date,
+            :p_completed_end_date,
             :p_scrap_status
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_product'           => $p_filter_by_product,
-            'p_inventory_start_date'        => $p_inventory_start_date,
-            'p_inventory_end_date'          => $p_inventory_end_date,
-            'p_scrap_status'   => $p_scrap_status
-        ]);
-    }
-
-    public function generateScrapOptions() {
-        $sql = 'CALL generateScrapOptions()';
-        
-        return $this->fetchAll($sql);
-    }
-
-     public function generateParentCategoryOptions(
-        int $p_scrap_id
-    ) {
-        $sql = 'CALL generateParentCategoryOptions(:p_scrap_id)';
-        
-        return $this->fetchAll($sql, [
-            'p_scrap_id' => $p_scrap_id
+            'p_filter_by_product'       => $p_filter_by_product,
+            'p_completed_start_date'    => $p_completed_start_date,
+            'p_completed_end_date'      => $p_completed_end_date,
+            'p_scrap_status'            => $p_scrap_status
         ]);
     }
 

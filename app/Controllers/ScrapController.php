@@ -5,6 +5,7 @@ session_start();
 
 use App\Models\Scrap;
 use App\Models\Product;
+use App\Models\ScrapReason;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
@@ -14,6 +15,7 @@ require_once '../../config/config.php';
 class ScrapController {
     protected Scrap $scrap;
     protected Product $product;
+    protected ScrapReason $scrapReason;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
@@ -21,15 +23,17 @@ class ScrapController {
     public function __construct(
         Scrap $scrap,
         Product $product,
+        ScrapReason $scrapReason,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
     ) {
-        $this->scrap    = $scrap;
-        $this->product              = $product;
-        $this->authentication       = $authentication;
-        $this->security             = $security;
-        $this->systemHelper         = $systemHelper;
+        $this->scrap            = $scrap;
+        $this->product          = $product;
+        $this->scrapReason      = $scrapReason;
+        $this->authentication   = $authentication;
+        $this->security         = $security;
+        $this->systemHelper     = $systemHelper;
     }
 
     public function handleRequest() {
@@ -71,19 +75,18 @@ class ScrapController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'insert scrap'             => $this->insertScrap($lastLogBy),
-            'update scrap'             => $this->updateScrap($lastLogBy),
-            'apply adjustment'                      => $this->applyScrap($lastLogBy),
-            'apply multiple adjustment'             => $this->applyMultipleScrap($lastLogBy),
-            'delete scrap'             => $this->deleteScrap(),
-            'delete multiple scrap'    => $this->deleteMultipleScrap(),
-            'fetch scrap details'      => $this->fetchScrapDetails(),
-            'generate scrap table'     => $this->generateScrapTable(),
-            'generate scrap options'   => $this->generateScrapOptions(),
-            default                                 => $this->systemHelper::sendErrorResponse(
-                                                            'Transaction Failed',
-                                                            'We encountered an issue while processing your request.'
-                                                        )
+            'insert scrap'              => $this->insertScrap($lastLogBy),
+            'update scrap'              => $this->updateScrap($lastLogBy),
+            'apply adjustment'          => $this->applyScrap($lastLogBy),
+            'apply multiple adjustment' => $this->applyMultipleScrap($lastLogBy),
+            'delete scrap'              => $this->deleteScrap(),
+            'delete multiple scrap'     => $this->deleteMultipleScrap(),
+            'fetch scrap details'       => $this->fetchScrapDetails(),
+            'generate scrap table'      => $this->generateScrapTable(),
+            default                     => $this->systemHelper::sendErrorResponse(
+                                                'Transaction Failed',
+                                                'We encountered an issue while processing your request.'
+                                            )
         };
     }
 
@@ -108,23 +111,34 @@ class ScrapController {
         }
 
         $productId              = $_POST['product_id'] ?? null;
-        $inventoryDate          = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'Y-m-d', '');
+        $referenceNumber        = $_POST['reference_number'] ?? null;
         $quantityOnHand         = $_POST['quantity_on_hand'] ?? 0;
-        $inventoryCount         = $_POST['inventory_count'] ?? 0;
-        $inventoryDifference    = $_POST['inventory_difference'] ?? 0;
-        $remarks                = $_POST['remarks'] ?? null;
+        $scrapQuantity          = $_POST['scrap_quantity'] ?? 0;
+        $scrapReasonId          = $_POST['scrap_reason_id'] ?? 0;
+        $detailedScrapReason    = $_POST['detailed_scrap_reason'] ?? null;
 
-        $productDetails     = $this->product->fetchProduct($productId);
-        $productName        = $productDetails['product_name'] ?? '';
+        if($scrapQuantity > $quantityOnHand){
+            $this->systemHelper::sendErrorResponse(
+                'Save Scrap  Error',
+                'Scrap quantity cannot exceed quantity on hand.'
+            );
+        }
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName    = $productDetails['product_name'] ?? '';
+
+        $scrapReasonDetails = $this->scrapReason->fetchScrapReason($scrapReasonId);
+        $scrapReasonName    = $scrapReasonDetails['scrap_reason_name'] ?? '';
 
         $scrapId = $this->scrap->insertScrap(
             $productId,
             $productName,
+            $referenceNumber,
             $quantityOnHand,
-            $inventoryCount,
-            $inventoryDifference,
-            $inventoryDate,
-            $remarks,
+            $scrapQuantity,
+            $scrapReasonId,
+            $scrapReasonName,
+            $detailedScrapReason,
             $lastLogBy
         );
         
@@ -149,18 +163,22 @@ class ScrapController {
             );
         }
 
-        $scrapId    = $_POST['scrap_id'] ?? null;
-        $inventoryDate          = $this->systemHelper->checkDate('empty', $_POST['inventory_date'] ?? null, '', 'Y-m-d', '');
-        $inventoryCount         = $_POST['inventory_count'] ?? 0;
-        $inventoryDifference    = $_POST['inventory_difference'] ?? 0;
-        $remarks                = $_POST['remarks'] ?? null;
+        $scrapId                = $_POST['scrap_id'] ?? null;
+        $referenceNumber        = $_POST['reference_number'] ?? null;
+        $scrapQuantity          = $_POST['scrap_quantity'] ?? 0;
+        $scrapReasonId          = $_POST['scrap_reason_id'] ?? 0;
+        $detailedScrapReason    = $_POST['detailed_scrap_reason'] ?? null;
+
+        $scrapReasonDetails = $this->scrapReason->fetchScrapReason($scrapReasonId);
+        $scrapReasonName    = $scrapReasonDetails['scrap_reason_name'] ?? '';
     
         $this->scrap->updateScrap(
             $scrapId,
-            $inventoryCount,
-            $inventoryDifference,
-            $inventoryDate,
-            $remarks,
+            $referenceNumber,
+            $scrapQuantity,
+            $scrapReasonId,
+            $scrapReasonName,
+            $detailedScrapReason,
             $lastLogBy
         );
         
@@ -182,9 +200,9 @@ class ScrapController {
     ============================================================================================= */
 
     public function fetchScrapDetails() {
-        $scrapId          = $_POST['scrap_id'] ?? null;
-        $checkScrapExist  = $this->scrap->checkScrapExist($scrapId);
-        $total                      = $checkScrapExist['total'] ?? 0;
+        $scrapId            = $_POST['scrap_id'] ?? null;
+        $checkScrapExist    = $this->scrap->checkScrapExist($scrapId);
+        $total              = $checkScrapExist['total'] ?? 0;
 
         if($total === 0){
             $this->systemHelper::sendErrorResponse(
@@ -199,11 +217,11 @@ class ScrapController {
         $response = [
             'success'               => true,
             'productName'           => $scrapDetails['product_name'] ?? null,
+            'referenceNumber'       => $scrapDetails['reference_number'] ?? null,
             'quantityOnHand'        => $scrapDetails['quantity_on_hand'] ?? null,
-            'inventoryCount'        => $scrapDetails['inventory_count'] ?? null,
-            'inventoryDifference'   => $scrapDetails['inventory_difference'] ?? null,
-            'inventoryDate'         => $this->systemHelper->checkDate('summary', $scrapDetails['inventory_date'] ?? null, '', 'M d, Y', ''),
-            'remarks'               => $scrapDetails['remarks'] ?? 0
+            'scrapQuantity'         => $scrapDetails['scrap_quantity'] ?? 0,
+            'scrapReasonId'         => $scrapDetails['scrap_reason_id'] ?? null,
+            'detailedScrapReason'   => $scrapDetails['detailed_scrap_reason'] ?? null
         ];
 
         echo json_encode($response);
@@ -248,101 +266,51 @@ class ScrapController {
 
     public function generateScrapTable() {
         $filterProduct                  = $this->systemHelper->checkFilter($_POST['filter_by_product'] ?? null);
-        $filterScrapStatus  = $this->systemHelper->checkFilter($_POST['filter_by_scrap_status'] ?? null);
-        $filterByInventoryDate          = $_POST['filter_by_inventory_date'] ?? null;
-        $filterInventoryStartDate       = null;
-        $filterInventoryEndDate         = null;
+        $filterScrapStatus              = $this->systemHelper->checkFilter($_POST['filter_by_scrap_status'] ?? null);
+        $filterByCompletedDate          = $_POST['filter_by_completed_date'] ?? null;
+        $filterByCompletedStartDate     = null;
+        $filterByCompletedEndDate       = null;
         $pageLink                       = $_POST['page_link'] ?? null;
         $response                       = [];        
 
-        if (!empty($filterByInventoryDate)) {
-            $parts = array_map('trim', explode('-', $filterByInventoryDate, 2));
+        if (!empty($filterByCompletedDate)) {
+            $parts = array_map('trim', explode('-', $filterByCompletedDate, 2));
 
             $startRaw = $parts[0] ?? '';
             $endRaw   = $parts[1] ?? '';
 
-            $filterInventoryStartDate   = $this->systemHelper->checkDate('empty', $startRaw, '', 'Y-m-d', '');
-            $filterInventoryEndDate     = $this->systemHelper->checkDate('empty', $endRaw, '', 'Y-m-d', '');
+            $filterByCompletedStartDate   = $this->systemHelper->checkDate('empty', $startRaw, '', 'Y-m-d', '');
+            $filterByCompletedEndDate     = $this->systemHelper->checkDate('empty', $endRaw, '', 'Y-m-d', '');
         }
 
         $physicalInventories = $this->scrap->generateScrapTable(
             $filterProduct,
-            $filterInventoryStartDate,
-            $filterInventoryEndDate,
+            $filterByCompletedStartDate,
+            $filterByCompletedEndDate,
             $filterScrapStatus
         );
 
         foreach ($physicalInventories as $row) {
-            $scrapId        = $row['scrap_id'];
-            $productName                = $row['product_name'];
-            $scrapStatus    = $row['scrap_status'];
-            $quantityOnHand             = $row['quantity_on_hand'];
-            $inventoryCount             = $row['inventory_count'];
-            $inventoryDifference        = $row['inventory_difference'];
-            $inventoryDate              = $this->systemHelper->checkDate('summary', $row['inventory_date'] ?? null, '', 'd M Y', '');
-            $badgeClass                 = $scrapStatus == 'Applied' ? 'badge-light-success' : 'badge-light-warning';
-            $textClass                  = $inventoryDifference >= 0 ? 'text-success' : 'text-danger';
+            $scrapId            = $row['scrap_id'];
+            $productName        = $row['product_name'];
+            $referenceNumber    = $row['reference_number'];
+            $scrapStatus        = $row['scrap_status'];
+            $scrapQuantity      = $row['scrap_quantity'];
+            $scrapReasonName    = $row['scrap_reason_name'];
+            $badgeClass         = $scrapStatus == 'Completed' ? 'badge-light-success' : 'badge-light-warning';
 
             $scrapIdEncrypted = $this->security->encryptData($scrapId);
 
             $response[] = [
-                'CHECK_BOX'                 => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                                    <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $scrapId .'">
-                                                </div>',
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $scrapId .'">
+                                        </div>',
                 'PRODUCT'           => $productName,
-                'INVENTORY_DATE'    => $inventoryDate,
-                'QUANTITY_ON_HAND'  => number_format($quantityOnHand, 4),
-                'COUNTED'           => number_format($inventoryCount, 4),
-                'DIFFERENCE'        => '<span class="'. $textClass .'">' . number_format($inventoryDifference, 4) . '</span>',
+                'REFERENCE_NO'      => $referenceNumber,
+                'SCRAP_QUANTITY'    => number_format($scrapQuantity, 4),
+                'SCRAP_REASON'      => $scrapReasonName,
                 'STATUS'            => '<div class="badge '. $badgeClass .'">'. $scrapStatus .'</div>',
                 'LINK'              => $pageLink .'&id='. $scrapIdEncrypted
-            ];
-        }
-
-        echo json_encode($response);
-    }
-    
-    public function generateScrapOptions() {
-        $multiple   = $_POST['multiple'] ?? false;
-        $response   = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $physicalInventories = $this->scrap->generateScrapOptions();
-
-        foreach ($physicalInventories as $row) {
-            $response[] = [
-                'id'    => $row['scrap_id'],
-                'text'  => $row['scrap_name']
-            ];
-        }
-
-        echo json_encode($response);
-    }
-
-    public function generateParentCategoryOptions() {
-        $scrapId  = $_POST['scrap_id'] ?? null;
-        $multiple           = $_POST['multiple'] ?? false;
-        $response           = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $physicalInventories = $this->scrap->generateParentCategoryOptions($scrapId);
-
-        foreach ($physicalInventories as $row) {
-            $response[] = [
-                'id'    => $row['scrap_id'],
-                'text'  => $row['scrap_name']
             ];
         }
 
@@ -391,6 +359,7 @@ class ScrapController {
 $controller = new ScrapController(
     new Scrap(),
     new Product(),
+    new ScrapReason(),
     new Authentication(),
     new Security(),
     new SystemHelper()

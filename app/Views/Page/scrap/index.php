@@ -80,6 +80,7 @@
                         <th>Product</th>
                         <th>Reference No.</th>
                         <th>Scrap Quantity</th>
+                        <th>Scrap Reason</th>
                         <th>Status</th>
                     </tr>
                 </thead>

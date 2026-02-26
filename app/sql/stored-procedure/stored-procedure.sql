@@ -12328,27 +12328,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-DROP PROCEDURE IF EXISTS generatePhysicalInventoryOptions//
-
-CREATE PROCEDURE generatePhysicalInventoryOptions()
-BEGIN
-	SELECT product_category_id, product_category_name 
-    FROM product_category 
-    ORDER BY product_category_name;
-END //
-
-DROP PROCEDURE IF EXISTS generateParentCategoryOptions//
-
-CREATE PROCEDURE generateParentCategoryOptions(
-    IN p_product_category_id INT
-)
-BEGIN
-	SELECT product_category_id, product_category_name
-    FROM product_category 
-    WHERE product_category_id != p_product_category_id
-    ORDER BY product_category_name;
-END //
-
 /* =============================================================================================
    SECTION 7: CUSTOM PROCEDURES
 ============================================================================================= */
@@ -12382,6 +12361,261 @@ BEGIN
         applied_date              = NOW(),
         last_log_by               = p_last_log_by
     WHERE physical_inventory_id = p_physical_inventory_id;
+
+    COMMIT;
+END //
+
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: SCRAP
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS insertScrap//
+
+CREATE PROCEDURE insertScrap(
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(200), 
+    IN p_reference_number VARCHAR(500), 
+    IN p_quantity_on_hand DECIMAL(15,4), 
+    IN p_scrap_quantity DECIMAL(15,4), 
+    IN p_scrap_reason_id INT, 
+    IN p_scrap_reason_name VARCHAR(500),
+    IN p_detailed_scrap_reason VARCHAR(5000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_scrap_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO scrap (
+        product_id,
+        product_name,
+        reference_number,
+        quantity_on_hand,
+        scrap_quantity,
+        scrap_reason_id,
+        scrap_reason_name,
+        detailed_scrap_reason,
+        last_log_by
+    ) 
+    VALUES(
+        p_product_id,
+        p_product_name,
+        p_reference_number,
+        p_quantity_on_hand,
+        p_scrap_quantity,
+        p_scrap_reason_id,
+        p_scrap_reason_name,
+        p_detailed_scrap_reason,
+        p_last_log_by
+    );
+        
+    SET v_new_scrap_id = LAST_INSERT_ID();
+
+    COMMIT;
+
+    SELECT v_new_scrap_id AS new_scrap_id;
+END //
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateScrap//
+
+CREATE PROCEDURE updateScrap(
+    IN p_scrap_id INT, 
+    IN p_reference_number VARCHAR(500), 
+    IN p_scrap_quantity DECIMAL(15,4),
+    IN p_scrap_reason_id INT, 
+    IN p_scrap_reason_name VARCHAR(500), 
+    IN p_detailed_scrap_reason VARCHAR(5000), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE scrap
+    SET scrap_quantity          = p_scrap_quantity,
+        reference_number        = p_reference_number,
+        scrap_reason_id         = p_scrap_reason_id,
+        scrap_reason_name       = p_scrap_reason_name,
+        detailed_scrap_reason   = p_detailed_scrap_reason,
+        last_log_by             = p_last_log_by
+    WHERE scrap_id              = p_scrap_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchScrap//
+
+CREATE PROCEDURE fetchScrap(
+    IN p_scrap_id INT
+)
+BEGIN
+	SELECT * FROM scrap
+	WHERE scrap_id = p_scrap_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteScrap//
+
+CREATE PROCEDURE deleteScrap(
+    IN p_scrap_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM scrap WHERE scrap_id = p_scrap_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkScrapExist//
+
+CREATE PROCEDURE checkScrapExist(
+    IN p_scrap_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM scrap
+    WHERE scrap_id = p_scrap_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateScrapTable//
+
+CREATE PROCEDURE generateScrapTable(
+    IN p_product_id TEXT,
+    IN p_completed_start_date DATE,
+    IN p_completed_end_date DATE,
+    IN p_scrap_status TEXT
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT scrap_id, product_name, reference_number, scrap_status, scrap_quantity, scrap_reason_name, detailed_scrap_reason
+                FROM scrap';
+
+   IF p_product_id IS NOT NULL AND p_product_id <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' product_id IN (', p_product_id, ')');
+    END IF;
+
+    IF p_scrap_status IS NOT NULL AND p_scrap_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' scrap_status IN (', p_scrap_status, ')'
+        );
+    END IF;
+
+    IF p_completed_start_date IS NOT NULL AND p_completed_end_date IS NOT NULL THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' completed_date BETWEEN ',
+            QUOTE(p_completed_start_date),
+            ' AND ',
+            QUOTE(p_completed_end_date)
+        );
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY product_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* =============================================================================================
+   SECTION 7: CUSTOM PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS applyScrapAdjustment//
+
+CREATE PROCEDURE applyScrapAdjustment(
+    IN p_scrap_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE product p
+    JOIN scrap s
+        ON s.product_id = p.product_id
+    SET
+        p.quantity_on_hand = (p.quantity_on_hand - s.scrap_quantity),
+        p.last_log_by      = p_last_log_by
+    WHERE s.scrap_id       = p_scrap_id;
+
+    UPDATE scrap
+    SET
+        scrap_status    = 'Completed',
+        completed_date  = NOW(),
+        last_log_by     = p_last_log_by
+    WHERE scrap_id      = p_scrap_id;
 
     COMMIT;
 END //

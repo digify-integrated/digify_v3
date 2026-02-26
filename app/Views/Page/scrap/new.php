@@ -44,7 +44,7 @@
                         <label class="fs-6 required fw-semibold form-label mt-3" for="scrap_quantity">
                             Scrap Quantity
                         </label>
-                        <input type="number" id="scrap_quantity" name="scrap_quantity" class="form-control mb-2" min="0" step="0.0001" value="0.0000">
+                        <input type="number" id="scrap_quantity" name="scrap_quantity" class="form-control mb-2" min="0.0001" step="0.0001" value="0.0001">
                     </div>
                 </div>
             </div>

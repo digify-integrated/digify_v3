@@ -152,22 +152,6 @@ class PhysicalInventory extends Model {
         ]);
     }
 
-    public function generatePhysicalInventoryOptions() {
-        $sql = 'CALL generatePhysicalInventoryOptions()';
-        
-        return $this->fetchAll($sql);
-    }
-
-     public function generateParentCategoryOptions(
-        int $p_physical_inventory_id
-    ) {
-        $sql = 'CALL generateParentCategoryOptions(:p_physical_inventory_id)';
-        
-        return $this->fetchAll($sql, [
-            'p_physical_inventory_id' => $p_physical_inventory_id
-        ]);
-    }
-
     /* =============================================================================================
         SECTION 8: CUSTOM METHODS
     ============================================================================================= */

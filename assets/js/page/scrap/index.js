@@ -16,20 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
         columns: [
             { data: 'CHECK_BOX' },
             { data: 'PRODUCT' },
-            { data: 'INVENTORY_DATE' },
-            { data: 'QUANTITY_ON_HAND' },
-            { data: 'COUNTED' },
-            { data: 'DIFFERENCE' },
+            { data: 'REFERENCE_NO' },
+            { data: 'SCRAP_QUANTITY' },
+            { data: 'SCRAP_REASON' },
             { data: 'STATUS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, type: 'date', responsivePriority: 3 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
             { width: 'auto', targets: 3, responsivePriority: 4 },
             { width: 'auto', targets: 4, responsivePriority: 5 },
-            { width: 'auto', targets: 5, responsivePriority: 6 },
-            { width: 'auto', targets: 6, responsivePriority: 7 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -60,10 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#delete-scrap')){
-            const transaction           = 'delete multiple scrap';
-            const scrap_id   = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                                .filter(el => el.checked)
-                                                .map(el => el.value);
+            const transaction   = 'delete multiple scrap';
+            const scrap_id      = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(el => el.checked)
+                                    .map(el => el.value);
 
             if (scrap_id.length === 0) {
                 showNotification('Deletion Multiple Scraps Error', 'Please select the scraps you wish to delete.', 'error');

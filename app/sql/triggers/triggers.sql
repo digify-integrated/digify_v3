@@ -3973,13 +3973,13 @@ END //
    SECTION 1: UPDATE TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_product_scrap_update//
+DROP TRIGGER IF EXISTS trg_scrap_update//
 
-CREATE TRIGGER trg_product_scrap_update
-AFTER UPDATE ON product_scrap
+CREATE TRIGGER trg_scrap_update
+AFTER UPDATE ON scrap
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product scrap changed.<br/><br/>';
+    DECLARE audit_log TEXT DEFAULT 'Scrap changed.<br/><br/>';
 
     IF NEW.product_name <> OLD.product_name THEN
         SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
@@ -3989,8 +3989,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
     END IF;
 
-    IF NEW.product_scrap_status <> OLD.product_scrap_status THEN
-        SET audit_log = CONCAT(audit_log, "Product Scrap Status: ", OLD.product_scrap_status, " -> ", NEW.product_scrap_status, "<br/>");
+    IF NEW.scrap_status <> OLD.scrap_status THEN
+        SET audit_log = CONCAT(audit_log, "Scrap Status: ", OLD.scrap_status, " -> ", NEW.scrap_status, "<br/>");
     END IF;
 
     IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
@@ -4013,9 +4013,9 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Completed Date: ", OLD.completed_date, " -> ", NEW.completed_date, "<br/>");
     END IF;
     
-    IF audit_log <> 'Product scrap changed.<br/><br/>' THEN
+    IF audit_log <> 'Scrap changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('product_scrap', NEW.product_scrap_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('scrap', NEW.scrap_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -4023,16 +4023,16 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_product_scrap_insert//
+DROP TRIGGER IF EXISTS trg_scrap_insert//
 
-CREATE TRIGGER trg_product_scrap_insert
-AFTER INSERT ON product_scrap
+CREATE TRIGGER trg_scrap_insert
+AFTER INSERT ON scrap
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product scrap created.';
+    DECLARE audit_log TEXT DEFAULT 'Scrap created.';
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('product_scrap', NEW.product_scrap_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('scrap', NEW.scrap_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================

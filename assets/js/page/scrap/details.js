@@ -4,29 +4,8 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const page_link                 = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-    const scrap_id     = document.getElementById('details-id')?.textContent.trim();
-
-    const calculateInventoryDifference = (quantityOnHand, inventoryCount, decimals = 4) => {
-        const toNumber = (v) => {
-            if (v === null || v === undefined || v === "") return 0;
-            const n = typeof v === "number" ? v : Number(v);
-            return Number.isFinite(n) ? n : NaN;
-        };
-
-        const qoh = toNumber(quantityOnHand);
-        const ic = toNumber(inventoryCount);
-
-        if (!Number.isFinite(qoh) || !Number.isFinite(ic)) return 0;
-
-        const diff = ic - qoh;
-
-        const factor = 10 ** decimals;
-
-        const inventoryDiffEl = document.querySelector("#inventory_difference");
-
-        inventoryDiffEl.value = Math.round((diff + Number.EPSILON) * factor) / factor;
-    };
+    const page_link = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
+    const scrap_id  = document.getElementById('details-id')?.textContent.trim();
 
     const displayDetails = async () => {
         const transaction = 'fetch scrap details';
@@ -51,11 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 document.getElementById('product_name').value = data.productName || '';
-                document.getElementById('inventory_date').value = data.inventoryDate || '';
+                document.getElementById('reference_number').value = data.referenceNumber || '';
                 document.getElementById('quantity_on_hand').value = data.quantityOnHand || '';
-                document.getElementById('inventory_count').value = data.inventoryCount || '';
-                document.getElementById('inventory_difference').value = data.inventoryDifference || '';
-                document.getElementById('remarks').value = data.remarks || '';
+                document.getElementById('scrap_quantity').value = data.scrapQuantity || '';
+                document.getElementById('detailed_scrap_reason').value = data.detailedScrapReason || '';
+
+                $('#scrap_reason_id').val(data.scrapReasonId || '').trigger('change');
+
+                
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -71,9 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async () => {
         await generateDropdownOptions({
-            url: './app/Controllers/ProductController.php',
-            dropdownSelector: '#product_id',
-            data: { transaction: 'generate active product options' }
+            url: './app/Controllers/ScrapReasonController.php',
+            dropdownSelector: '#scrap_reason_id',
+            data: { transaction: 'generate scrap reason options' }
         });
     
         await displayDetails();
@@ -85,14 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#scrap_form').validate({
         rules: {
-            scrap_name: { required: true },
-            costing_method: { required: true },
-            display_order: { required: true }
+            reference_number: { required: true },
+            scrap_quantity: { required: true },
+            scrap_reason_id: { required: true },
         },
         messages: {
-            scrap_name: { required: 'Enter the display name' },
-            costing_method: { required: 'Choose the costing method' },
-            display_order: { required: 'Enter the display order' }
+            reference_number: { required: 'Enter the reference number' },
+            scrap_quantity: { required: 'Enter the scrap quantity' },
+            scrap_reason_id: { required: 'Choose the scrap reason' },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
@@ -253,17 +235,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-    });
-
-    document.addEventListener("change", async (event) => {
-        if (!event.target.matches("#inventory_count")) return;
-
-        const quantityOnHandEl = document.querySelector("#quantity_on_hand");
-        const inventoryCountEl = document.querySelector("#inventory_count");
-
-        const quantityOnHand = quantityOnHandEl?.value ?? 0;
-        const inventoryCount = inventoryCountEl?.value ?? 0;
-
-        calculateInventoryDifference(quantityOnHand, inventoryCount);        
     });
 });
