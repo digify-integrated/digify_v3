@@ -1,10 +1,10 @@
 <div class="card">
     <div class="card-header d-flex align-items-center">
-        <h5 class="card-title mb-0">Physical Inventory Details</h5>
+        <h5 class="card-title mb-0">Scrap Details</h5>
     </div>
     <div class="card-body">
-        <form id="physical_inventory_form" method="post" action="#">
-            <?= $security->csrfInput('physical_inventory_form'); ?>
+        <form id="scrap_form" method="post" action="#">
+            <?= $security->csrfInput('scrap_form'); ?>
 
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
@@ -19,16 +19,16 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 required fw-semibold form-label mt-3" for="inventory_date">
-                            Inventory Date
+                        <label class="fs-6 required fw-semibold form-label mt-3" for="reference_number">
+                            Reference Number
                         </label>
 
-                        <input class="form-control mb-3 mb-lg-0" id="inventory_date" name="inventory_date" type="text" autocomplete="off" />
+                        <input type="text" class="form-control mb-3 mb-lg-0" id="reference_number" name="reference_number" maxlength="500" autocomplete="off" />
                     </div>
                 </div>
             </div>
 
-            <div class="row row-cols-1 row-cols-sm-3 rol-cols-md-3 row-cols-lg-3">
+            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-2 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold form-label mt-3" for="quantity_on_hand">
@@ -41,37 +41,39 @@
 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 required fw-semibold form-label mt-3" for="inventory_count">
-                            Inventory Count
+                        <label class="fs-6 required fw-semibold form-label mt-3" for="scrap_quantity">
+                            Scrap Quantity
                         </label>
-                        <input type="number" id="inventory_count" name="inventory_count" class="form-control mb-2" min="0" step="0.0001" value="0.0000">
+                        <input type="number" id="scrap_quantity" name="scrap_quantity" class="form-control mb-2" min="0" step="0.0001" value="0.0000">
                     </div>
                 </div>
+            </div>
 
+            <div class="row">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="inventory_difference">
-                            Difference
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="scrap_reason_id">
+                            Scrap Reason
                         </label>
-                        
-                        <input type="number" id="inventory_difference" name="inventory_difference" class="form-control mb-2" step="0.0001" value="0.0000" readonly>
+
+                        <select id="scrap_reason_id" name="scrap_reason_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
                     </div>
                 </div>
             </div>
 
             <div class="col">
                 <div class="fv-row mb-7">
-                    <label class="fs-6 fw-semibold form-label mt-3" for="display_order">
-                        Remarks
+                    <label class="fs-6 fw-semibold form-label mt-3" for="detailed_scrap_reason">
+                        Detailed Scrap Reason
                     </label>
 
-                    <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" rows="3"></textarea>
+                    <textarea class="form-control" id="detailed_scrap_reason" name="detailed_scrap_reason" maxlength="5000" rows="3"></textarea>
                 </div>
             </div>
         </form>
     </div>
     <div class="card-footer d-flex justify-content-end py-6 px-9">
         <button type="button" id="discard-create" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-        <button type="submit" form="physical_inventory_form" class="btn btn-primary" id="submit-data">Save</button>
+        <button type="submit" form="scrap_form" class="btn btn-primary" id="submit-data">Save</button>
     </div>
 </div>

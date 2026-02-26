@@ -7228,6 +7228,50 @@ CREATE INDEX idx_product_show_on_pos ON product(show_on_pos);
 
 
 /* =============================================================================================
+  TABLE: PRODUCT BOM
+============================================================================================= */
+
+DROP TABLE IF EXISTS product_bom;
+
+CREATE TABLE product_bom (
+  product_bom_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  bom_product_id INT UNSIGNED NOT NULL,
+  bom_product_name VARCHAR(100) NOT NULL,
+  quantity_required DECIMAL(15,4) DEFAULT 0,
+  stock_policy ENUM('Strict','Non-Blocking','Allow Negative') DEFAULT 'Strict',
+  is_required ENUM('Yes','No') DEFAULT 'Yes',
+  can_be_omitted ENUM('Yes','No') DEFAULT 'No',
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (bom_product_id) REFERENCES product(product_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PRODUCT BOM
+============================================================================================= */
+
+CREATE INDEX idx_product_bom_product_id ON product_bom(product_id);
+CREATE INDEX idx_product_bom_bom_product_id ON product_bom(bom_product_id);
+CREATE INDEX idx_product_bom_stock_policy ON product_bom(stock_policy);
+CREATE INDEX idx_product_bom_is_required ON product_bom(is_required);
+CREATE INDEX idx_product_bom_can_be_omitted ON product_bom(can_be_omitted);
+
+/* =============================================================================================
+  INITIAL VALUES: PRODUCT BOM
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
   TABLE: PRODUCT TAX
 ============================================================================================= */
 
@@ -7527,14 +7571,14 @@ VALUES
   TABLE: INVENTORY SCRAP
 ============================================================================================= */
 
-DROP TABLE IF EXISTS inventory_scrap;
+DROP TABLE IF EXISTS scrap;
 
-CREATE TABLE inventory_scrap (
-  inventory_scrap_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+CREATE TABLE scrap (
+  scrap_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
   reference_number VARCHAR(500),
-  inventory_scrap_status ENUM('Draft','Completed') DEFAULT 'Draft',
+  scrap_status ENUM('Draft','Completed') DEFAULT 'Draft',
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   scrap_quantity DECIMAL(15,4) DEFAULT 0,
   scrap_reason_id INT UNSIGNED NOT NULL,
@@ -7553,9 +7597,9 @@ CREATE TABLE inventory_scrap (
   INDEX: INVENTORY SCRAP
 ============================================================================================= */
 
-CREATE INDEX idx_inventory_scrap_product_id ON inventory_scrap(product_id);
-CREATE INDEX idx_inventory_scrap_scrap_reason_id ON inventory_scrap(scrap_reason_id);
-CREATE INDEX idx_inventory_scrap_status ON inventory_scrap(inventory_scrap_status);
+CREATE INDEX idx_scrap_product_id ON scrap(product_id);
+CREATE INDEX idx_scrap_scrap_reason_id ON scrap(scrap_reason_id);
+CREATE INDEX idx_scrap_status ON scrap(scrap_status);
 
 /* =============================================================================================
   INITIAL VALUES: INVENTORY SCRAPs

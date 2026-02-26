@@ -143,10 +143,6 @@
             </li>
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#bill_of_materials_tab" aria-selected="false" role="tab" tabindex="-1">Bill of Materials</a>
-            </li>
-
-            <li class="nav-item" role="presentation">
                 <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#advanced_tab" aria-selected="false" role="tab" tabindex="-1">Advanced</a>
             </li>
             
@@ -336,7 +332,50 @@
                         ?>
                     </div>
 
-                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
+                    <div class="card card-flush py-4 <?php echo ($productStatus == 'Draft') ? 'd-none' : ''; ?>">
+                        <div class="card-header">
+                            <div class="card-title">
+                            <h2 class="me-4">Bill of Materials</h2>
+                            </div>
+                            <div class="card-toolbar">
+                                <div class="d-flex align-items-center position-relative my-1 me-3">
+                                    <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="product-bom-datatable-search" placeholder="Search..." autocomplete="off" />
+                                </div>
+                                <select id="product-bom-datatable-length" class="form-select w-auto me-4">
+                                    <option value="-1">All</option>
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                    <?php
+                                        echo $permissions['write'] > 0 && $productStatus == 'Active' ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-bom-modal" id="add-product-bom">Add Component</button>' : '';
+                                    ?> 
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <div class="card-body pt-0">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="product-bom-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800">
+                                        <th>Component</th>
+                                        <th>Required Qty.</th>
+                                        <th>Stock Policy</th>
+                                        <th>Is Required?</th>
+                                        <th>Can Be Omitted?</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes'|| $productStatus == 'Draft') ? 'd-none' : ''; ?>">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Attributes</h2>
@@ -376,7 +415,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes') ? 'd-none' : ''; ?>">
+                    <div class="card card-flush py-4 <?php echo ($isVariant === 'Yes' || $productStatus == 'Draft') ? 'd-none' : ''; ?>">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Variation</h2>
@@ -410,7 +449,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4">
+                    <div class="card card-flush py-4" <?php echo ($productStatus == 'Draft') ? 'd-none' : ''; ?>>
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Pricelist</h2>
@@ -532,6 +571,94 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="product_attribute_form" class="btn btn-primary" id="submit-product-attribute">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="product-bom-modal" class="modal fade" tabindex="-1" aria-labelledby="product-bom-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Bill of Material Component</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="product_bom_form" method="post" action="#">
+                    <?= $security->csrfInput('product_bom_form'); ?>
+                    <input type="hidden" id="product_bom_id" name="product_bom_id">
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="bom_product_id">Component</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="bom_product_id" name="bom_product_id" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="quantity_required">Qty. Required</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input type="number" id="quantity_required" name="quantity_required" class="form-control mb-2" min="0" step="0.0001">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="stock_policy">Stock Policy</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="stock_policy" name="stock_policy" class="form-select" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <option value="Strict">Strict</option>
+                                        <option value="Non-Blocking">Non-Blocking</option>
+                                        <option value="Allow Negative">Allow Negative</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="is_required">Is Required?</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="is_required" name="is_required" class="form-select" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="can_be_omitted">Can Be Omitted?</label>
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="can_be_omitted" name="can_be_omitted" class="form-select" data-control="select2" data-allow-clear="false">
+                                        <option value="">--</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="product_bom_form" class="btn btn-primary" id="submit-product-bom">Save</button>
             </div>
         </div>
     </div>

@@ -10580,9 +10580,7 @@ BEGIN
             product_type,
             sku,
             barcode,
-            unit_id,
-            unit_name,
-            unit_abbreviation,
+            track_inventory,
             cost,
             sales_price,
             is_variant,
@@ -10606,9 +10604,7 @@ BEGIN
             p.product_type,
             NULL,
             NULL,
-            p.unit_id,
-            p.unit_name,
-            p.unit_abbreviation,
+            p.track_inventory,
             p.cost,
             p.sales_price,
             'Yes',
@@ -10744,6 +10740,75 @@ BEGIN
     COMMIT;
 
     SELECT v_new_product_pricelist_id AS new_product_pricelist_id;
+END //
+
+DROP PROCEDURE IF EXISTS saveProductBom//
+
+CREATE PROCEDURE saveProductBom(
+    IN p_product_bom_id INT, 
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(200), 
+    IN p_bom_product_id INT, 
+    IN p_bom_product_name VARCHAR(200), 
+    IN p_quantity_required DECIMAL(15,4), 
+    IN p_stock_policy ENUM('Strict','Non-Blocking','Allow Negative'), 
+    IN p_is_required ENUM('Yes','No'), 
+    IN p_can_be_omitted ENUM('Yes','No'), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_product_bom_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_product_bom_id IS NULL OR NOT EXISTS (SELECT 1 FROM product_bom WHERE product_bom_id = p_product_bom_id) THEN
+        INSERT INTO product_bom (
+            product_id,
+            product_name,
+            bom_product_id,
+            bom_product_name,
+            quantity_required,
+            stock_policy,
+            is_required,
+            can_be_omitted,
+            last_log_by
+        ) 
+        VALUES(
+            p_product_id,
+            p_product_name,
+            p_bom_product_id,
+            p_bom_product_name,
+            p_quantity_required,
+            p_stock_policy,
+            p_is_required,
+            p_can_be_omitted,
+            p_last_log_by
+        );
+
+        SET v_new_product_bom_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE product_bom
+        SET product_id          = p_product_id,
+            product_name        = p_product_name,
+            bom_product_id      = p_bom_product_id,
+            bom_product_name    = p_bom_product_name,
+            quantity_required   = p_quantity_required,
+            stock_policy        = p_stock_policy,
+            is_required         = p_is_required,
+            can_be_omitted      = p_can_be_omitted,
+            last_log_by         = p_last_log_by
+        WHERE product_bom_id    = p_product_bom_id;
+
+        SET v_new_product_bom_id = p_product_bom_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_product_bom_id AS new_product_bom_id;
 END //
 
 /* =============================================================================================
@@ -11000,6 +11065,16 @@ BEGIN
     SET product_name            = p_product_name,
         last_log_by             = p_last_log_by
     WHERE product_id            = p_product_id;
+    
+    UPDATE product_bom
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
+    
+    UPDATE product_bom
+    SET bom_product_name        = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE bom_product_id        = p_product_id;
 
     UPDATE product
     SET product_name            = p_product_name,
@@ -11316,6 +11391,17 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchProductBom//
+
+CREATE PROCEDURE fetchProductBom(
+	IN p_product_bom_id INT
+)
+BEGIN
+	SELECT * FROM product_bom
+    WHERE product_bom_id = p_product_bom_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -11426,6 +11512,25 @@ BEGIN
 
     DELETE FROM product_pricelist 
     WHERE product_pricelist_id = p_product_pricelist_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteProductBom//
+
+CREATE PROCEDURE deleteProductBom(
+    IN p_product_bom_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM product_bom 
+    WHERE product_bom_id = p_product_bom_id;
 
     COMMIT;
 END //
@@ -11822,6 +11927,17 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+DROP PROCEDURE IF EXISTS generateProductBomTable//
+
+CREATE PROCEDURE generateProductBomTable(
+    IN p_product_id INT
+)
+BEGIN
+    SELECT product_bom_id, bom_product_name, quantity_required, stock_policy, is_required, can_be_omitted
+    FROM product_bom
+    WHERE product_id = p_product_id;
+END //
+
 DROP PROCEDURE IF EXISTS generateProductOptions//
 
 CREATE PROCEDURE generateProductOptions()
@@ -11838,6 +11954,21 @@ BEGIN
 	SELECT product_id, product_name 
     FROM product 
     WHERE product_status = 'Active'
+    ORDER BY product_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateBomProductOptions//
+
+CREATE PROCEDURE generateBomProductOptions(
+    IN p_product_id INT
+)
+BEGIN
+	SELECT product_id, product_name 
+    FROM product 
+    WHERE product_status = 'Active'
+            AND track_inventory = 'Yes'
+            AND is_variant = 'No'
+            AND product_id != p_product_id
     ORDER BY product_name;
 END //
 
@@ -11884,7 +12015,7 @@ BEGIN
         
         SET v_new_scrap_reason_id = LAST_INSERT_ID();
     ELSE
-        UPDATE inventory_scrap
+        UPDATE scrap
         SET scrap_reason_name   = p_scrap_reason_name,
             last_log_by         = p_last_log_by
         WHERE scrap_reason_id   = p_scrap_reason_id;

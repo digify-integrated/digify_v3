@@ -91,6 +91,7 @@ class ProductController {
             'save product category'                 => $this->saveProductCategory($lastLogBy),
             'save product attribute'                => $this->saveProductAttribute($lastLogBy),
             'save product pricelist'                => $this->saveProductPricelist($lastLogBy),
+            'save product bom'                      => $this->saveProductBom($lastLogBy),
             'insert product'                        => $this->insertProduct($lastLogBy),
             'update product general'                => $this->updateProductGeneral($lastLogBy),
             'update product inventory'              => $this->updateProductInventory($lastLogBy),
@@ -108,11 +109,13 @@ class ProductController {
             'delete multiple product'               => $this->deleteMultipleProduct(),
             'delete product attribute'              => $this->deleteProductAttribute(),
             'delete product pricelist'              => $this->deleteProductPricelist(),
+            'delete product bom'                    => $this->deleteProductBom(),
             'delete multiple product pricelist'     => $this->deleteMultipleProductPricelist(),
             'fetch product details'                 => $this->fetchProductDetails(),
             'fetch product categories details'      => $this->fetchProductCategoryMapDetails(),
             'fetch product tax details'             => $this->fetchProductTaxDetails(),
             'fetch product pricelist details'       => $this->fetchProductPricelistDetails(),
+            'fetch product bom details'             => $this->fetchProductBomDetails(),
             'generate product card'                 => $this->generateProductCard(),
             'generate product table'                => $this->generateProductTable(),
             'generate product variant card'         => $this->generateProductVariantCard(),
@@ -120,9 +123,11 @@ class ProductController {
             'generate product attribute table'      => $this->generateProductAttributeTable($lastLogBy, $pageId),
             'generate product variation table'      => $this->generateProductVariationTable(),
             'generate product pricelist table'      => $this->generateProductPricelistTable($lastLogBy, $pageId),
+            'generate product bom table'            => $this->generateProductBomTable($lastLogBy, $pageId),
             'generate pricelist table'              => $this->generatePricelistTable(),
             'generate product options'              => $this->generateProductOptions(),
             'generate active product options'       => $this->generateActiveProductOptions(),
+            'generate bom product options'          => $this->generateBomProductOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                             'Transaction Failed',
                                                             'We encountered an issue while processing your request.'
@@ -374,6 +379,51 @@ class ProductController {
             'Save Product Pricelist Success',
             'The product pricelist has been saved successfully.',
             ['product_pricelist_id' => $encryptedProductPricelistId]
+        );
+    }
+
+    public function saveProductBom(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'product_bom_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $productBomId       = $_POST['product_bom_id'] ?? null;
+        $productId          = $_POST['product_id'] ?? null;
+        $bomProductId       = $_POST['bom_product_id'] ?? null;
+        $quantityRequired   = $_POST['quantity_required'] ?? 0;
+        $stockPolicy        = $_POST['stock_policy'] ?? 'Strict';
+        $isRequired         = $_POST['is_required'] ?? 'Yes';
+        $canBeOmitted       = $_POST['can_be_omitted'] ?? 'No';
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName = $productDetails['product_name'] ?? '';
+
+        $bomProductDetails = $this->product->fetchProduct($bomProductId);
+        $bomProductName = $bomProductDetails['product_name'] ?? '';
+
+        $productBomId = $this->product->saveProductBom(
+            $productBomId,
+            $productId,
+            $productName,
+            $bomProductId,
+            $bomProductName,
+            $quantityRequired,
+            $stockPolicy,
+            $isRequired,
+            $canBeOmitted,
+            $lastLogBy
+        );
+
+        $encryptedProductBomId = $this->security->encryptData($productBomId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Component Success',
+            'The component has been saved successfully.',
+            ['product_bom_id' => $encryptedProductBomId]
         );
     }
 
@@ -968,6 +1018,24 @@ class ProductController {
         exit;
     }
 
+    public function fetchProductBomDetails() {
+        $productBomId       = $_POST['product_bom_id'] ?? null;
+        $productBomDetails  = $this->product->fetchProductBom($productBomId);
+
+        $response = [
+            'success'               => true,
+            'productId'             => $productBomDetails['product_id'] ?? '',
+            'bomProductId'          => $productBomDetails['bom_product_id'] ?? '',
+            'quantityRequired'      => $productBomDetails['quantity_required'] ?? 0,
+            'stockPolicy'           => $productBomDetails['stock_policy'] ?? 'Strict',
+            'isRequired'            => $productBomDetails['is_required'] ?? 'Yes',
+            'canBeOmitted'          => $productBomDetails['can_be_omitted'] ?? 'No'
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
     /* =============================================================================================
         SECTION 5: DELETE METHOD
     ============================================================================================= */
@@ -1049,6 +1117,17 @@ class ProductController {
         $this->systemHelper::sendSuccessResponse(
             'Delete Multiple Product Pricelists Success',
             'The selected product pricelists have been deleted successfully.'
+        );
+    }
+
+    public function deleteProductBom() {
+        $productBomId = $_POST['product_bom_id'] ?? null;
+
+        $this->product->deleteProductBom($productBomId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Product Component Success',
+            'The component has been deleted successfully.'
         );
     }
     
@@ -1455,6 +1534,59 @@ class ProductController {
         echo json_encode($response);
     }
 
+    public function generateProductBomTable(
+        int $userId,
+        int $pageId
+    ) {
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        
+        $productBoms = $this->product->generateProductBomTable($productId);
+
+        foreach ($productBoms as $row) {
+            $productBomId       = $row['product_bom_id'];
+            $bomProductName     = $row['bom_product_name'];
+            $quantityRequired   = $row['quantity_required'];
+            $stockPolicy        = $row['stock_policy'];
+            $isRequired         = $row['is_required'];
+            $canBeOmitted       = $row['can_be_omitted'];
+
+            $deleteButton = '';
+            if($writeAccess > 0){
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-product-bom" data-bs-toggle="modal" data-bs-target="#product-bom-modal" data-product-bom-id="' . $productBomId . '">
+                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
+                                </button>
+                                <button class="btn btn-icon btn-light btn-active-light-danger delete-product-bom" data-product-bom-id="' . $productBomId . '">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+            
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-product-bom-log-notes" data-product-bom-id="' . $productBomId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                    <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+
+            $response[] = [
+                'COMPONENT'         => $bomProductName,
+                'QUANTITY'          => number_format($quantityRequired, 2),
+                'STOCK_POLICY'      => $stockPolicy,
+                'IS_REQUIRED'       => $isRequired ? 'Yes' : 'No',
+                'CAN_BE_OMITTED'    => $canBeOmitted ? 'Yes' : 'No',
+                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
+                                            '. $logNotes .'
+                                            '. $deleteButton .'
+                                        </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
     public function generatePricelistTable() {
         $pageLink               = $_POST['page_link'] ?? null;
         $productFilter          = $this->systemHelper->checkFilter($_POST['filter_by_product'] ?? null);
@@ -1534,6 +1666,30 @@ class ProductController {
         }
 
         $products = $this->product->generateActiveProductOptions();
+
+        foreach ($products as $row) {
+            $response[] = [
+                'id'    => $row['product_id'],
+                'text'  => $row['product_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateBomProductOptions() {
+        $multiple   = $_POST['multiple'] ?? false;
+        $productId  = $_POST['product_id'] ?? null;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $products = $this->product->generateBomProductOptions($productId);
 
         foreach ($products as $row) {
             $response[] = [

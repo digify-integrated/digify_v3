@@ -100,6 +100,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const displayProductBomDetails = async (product_bom_id) => {
+        const transaction = 'fetch product bom details';
+    
+        try {
+            const formData = new URLSearchParams();
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+            formData.append('product_bom_id', product_bom_id);
+    
+            const response = await fetch('./app/Controllers/ProductController.php', {
+                method: 'POST',
+                body: formData
+            });
+    
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    
+            const data = await response.json();
+    
+            if (data.success) {
+                $('#product_bom_id').val(product_bom_id);
+                $('#quantity_required').val(data.quantityRequired || 0);
+
+                $('#bom_product_id').val(data.bomProductId || '').trigger('change');
+                $('#stock_policy').val(data.stockPolicy || '').trigger('change');
+                $('#is_required').val(data.isRequired || '').trigger('change');
+                $('#can_be_omitted').val(data.canBeOmitted || '').trigger('change');
+            } 
+            else if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location = page_link;
+            } 
+            else {
+                showNotification(data.title, data.message, data.message_type);
+            }
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Failed to fetch product details: ${error.message}`);
+        }
+    }
+
     const displayProductCategoriesDetails = async () => {
         const transaction = 'fetch product categories details';
 
@@ -188,7 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options', extraData: { multiple: true } },
             { url: './app/Controllers/TaxController.php', selector: '#sales_tax_id', transaction: 'generate sales tax options', extraData: { multiple: true } },
             { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options', extraData: { multiple: true } },
-            { url: './app/Controllers/UnitController.php', selector: '#unit_id', transaction: 'generate unit options' }
+            { url: './app/Controllers/UnitController.php', selector: '#unit_id', transaction: 'generate unit options' },
+            { url: './app/Controllers/ProductController.php', selector: '#bom_product_id', transaction: 'generate bom product options', extraData: { product_id: product_id } },
         ];
             
         for (const cfg of dropdownConfigs) {
@@ -277,8 +317,37 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
 
+    initializeDatatable({
+        selector: '#product-bom-table',
+        ajaxUrl: './app/Controllers/ProductController.php',
+        transaction: 'generate product bom table',
+        ajaxData: {
+            product_id: product_id,
+            page_link: page_link,
+            page_id: page_id
+        },
+        columns: [
+            { data: 'COMPONENT' },
+            { data: 'QUANTITY' },
+            { data: 'STOCK_POLICY' },
+            { data: 'IS_REQUIRED' },
+            { data: 'CAN_BE_OMITTED' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: '5%', bSortable: false, targets: 5, responsivePriority: 1 }
+        ],
+        order : [[0, 'asc']]
+    });
+
     initializeSubDatatableControls('#product-attribute-datatable-search', '#product-attribute-datatable-length', '#product-attribute-table');
     initializeSubDatatableControls('#product-variation-datatable-search', '#product-variation-datatable-length', '#product-variation-table');
+    initializeSubDatatableControls('#product-bom-datatable-search', '#product-bom-datatable-length', '#product-bom-table');
     initializeDatePicker('#validity_start_date');
     initializeDatePicker('#validity_end_date');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'product');
@@ -750,6 +819,85 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    $('#product_bom_form').validate({
+        rules: {
+            bom_product_id: { required: true },
+            quantity_required: { required: true },
+            stock_policy: { required: true },
+            is_required: { required: true },
+            can_be_omitted: { required: true }
+        },
+        messages: {
+            bom_product_id: { required: 'Choose the component' },
+            quantity_required: { required: 'Enter the quantity required' },
+            stock_policy: { required: 'Choose the stock policy' },
+            is_required: { required: 'Choose if is required' },
+            can_be_omitted: { required: 'Choose if can be omitted' }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save product bom';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+
+            disableButton('submit-product-bom');
+
+            try {
+                const response = await fetch('./app/Controllers/ProductController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save component failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-product-bom');
+                    reloadDatatable('#product-bom-table');
+                    $('#product-bom-modal').modal('hide');
+                    resetForm('product_bom_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-product-bom');
+                }
+            } catch (error) {
+                enableButton('submit-product-bom');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-product')){
             const transaction = 'delete product';
@@ -1188,6 +1336,75 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         reloadDatatable('#product-pricelist-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-product-bom')){
+            resetForm('product_bom_form');
+        }
+        
+        if (event.target.closest('.update-product-bom')){
+            const button            = event.target.closest('.update-product-bom');
+            const product_bom_id    = button.dataset.productBomId;
+        
+            displayProductBomDetails(product_bom_id);
+        }
+        
+        if (event.target.closest('.view-product-bom-log-notes')){
+            const button            = event.target.closest('.view-product-bom-log-notes');
+            const product_bom_id    = button.dataset.productBomId;
+        
+            attachLogNotesClassHandler('product_bom', product_bom_id);
+        }
+        
+        if (event.target.closest('.delete-product-bom')){
+            const transaction       = 'delete product bom';
+            const button            = event.target.closest('.delete-product-bom');
+            const product_bom_id    = button.dataset.productBomId;
+        
+            Swal.fire({
+                title: 'Confirm Component Deletion',
+                text: 'Are you sure you want to delete this component?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('product_bom_id', product_bom_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ProductController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#product-bom-table');
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

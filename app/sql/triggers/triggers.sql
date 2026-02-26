@@ -3702,6 +3702,74 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: PRODUCT BOM
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_bom_update//
+
+CREATE TRIGGER trg_product_bom_update
+AFTER UPDATE ON product_bom
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product bill of material changed.<br/><br/>';
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+
+    IF NEW.bom_product_name <> OLD.bom_product_name THEN
+        SET audit_log = CONCAT(audit_log, "Component: ", OLD.bom_product_name, " -> ", NEW.bom_product_name, "<br/>");
+    END IF;
+
+    IF NEW.quantity_required <> OLD.quantity_required THEN
+        SET audit_log = CONCAT(audit_log, "Quantity Required: ", OLD.quantity_required, " -> ", NEW.quantity_required, "<br/>");
+    END IF;
+
+    IF NEW.stock_policy <> OLD.stock_policy THEN
+        SET audit_log = CONCAT(audit_log, "Stock Policy: ", OLD.stock_policy, " -> ", NEW.stock_policy, "<br/>");
+    END IF;
+
+    IF NEW.is_required <> OLD.is_required THEN
+        SET audit_log = CONCAT(audit_log, "Is Required: ", OLD.is_required, " -> ", NEW.is_required, "<br/>");
+    END IF;
+
+    IF NEW.can_be_omitted <> OLD.can_be_omitted THEN
+        SET audit_log = CONCAT(audit_log, "Can Be Omitted: ", OLD.can_be_omitted, " -> ", NEW.can_be_omitted, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Product bill of material changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_bom', NEW.product_bom_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_product_bom_insert//
+
+CREATE TRIGGER trg_product_bom_insert
+AFTER INSERT ON product_bom
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product bill of material created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_bom', NEW.product_bom_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: PRODUCT PRICELIST
 ============================================================================================= */
 
@@ -3905,13 +3973,13 @@ END //
    SECTION 1: UPDATE TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_inventory_scrap_update//
+DROP TRIGGER IF EXISTS trg_product_scrap_update//
 
-CREATE TRIGGER trg_inventory_scrap_update
-AFTER UPDATE ON inventory_scrap
+CREATE TRIGGER trg_product_scrap_update
+AFTER UPDATE ON product_scrap
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Inventory scrap changed.<br/><br/>';
+    DECLARE audit_log TEXT DEFAULT 'Product scrap changed.<br/><br/>';
 
     IF NEW.product_name <> OLD.product_name THEN
         SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
@@ -3921,8 +3989,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
     END IF;
 
-    IF NEW.inventory_scrap_status <> OLD.inventory_scrap_status THEN
-        SET audit_log = CONCAT(audit_log, "Inventory Scrap Status: ", OLD.inventory_scrap_status, " -> ", NEW.inventory_scrap_status, "<br/>");
+    IF NEW.product_scrap_status <> OLD.product_scrap_status THEN
+        SET audit_log = CONCAT(audit_log, "Product Scrap Status: ", OLD.product_scrap_status, " -> ", NEW.product_scrap_status, "<br/>");
     END IF;
 
     IF NEW.quantity_on_hand <> OLD.quantity_on_hand THEN
@@ -3945,9 +4013,9 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Completed Date: ", OLD.completed_date, " -> ", NEW.completed_date, "<br/>");
     END IF;
     
-    IF audit_log <> 'Inventory scrap changed.<br/><br/>' THEN
+    IF audit_log <> 'Product scrap changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('inventory_scrap', NEW.inventory_scrap_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('product_scrap', NEW.product_scrap_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -3955,16 +4023,16 @@ END //
    SECTION 2: INSERT TRIGGERS
 ============================================================================================= */
 
-DROP TRIGGER IF EXISTS trg_inventory_scrap_insert//
+DROP TRIGGER IF EXISTS trg_product_scrap_insert//
 
-CREATE TRIGGER trg_inventory_scrap_insert
-AFTER INSERT ON inventory_scrap
+CREATE TRIGGER trg_product_scrap_insert
+AFTER INSERT ON product_scrap
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Inventory scrap created.';
+    DECLARE audit_log TEXT DEFAULT 'Product scrap created.';
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('inventory_scrap', NEW.inventory_scrap_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('product_scrap', NEW.product_scrap_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================

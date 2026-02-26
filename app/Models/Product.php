@@ -75,6 +75,47 @@ class Product extends Model {
 
         return $row['new_product_pricelist_id'] ?? null;
     }
+
+    public function saveProductBom(
+        null|string|int $p_product_bom_id,
+        int $p_product_id,
+        string $p_product_name,
+        int $p_bom_product_id,
+        string $p_bom_product_name,
+        string $p_quantity_required,
+        string $p_stock_policy,
+        string $p_is_required,
+        string $p_can_be_omitted,
+        int $p_last_log_by
+    ) {
+        $sql = 'CALL saveProductBom(
+            :p_product_bom_id,
+            :p_product_id,
+            :p_product_name,
+            :p_bom_product_id,
+            :p_bom_product_name,
+            :p_quantity_required,
+            :p_stock_policy,
+            :p_is_required,
+            :p_can_be_omitted,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_product_bom_id'          => $p_product_bom_id,
+            'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
+            'p_bom_product_id'          => $p_bom_product_id,
+            'p_bom_product_name'        => $p_bom_product_name,
+            'p_quantity_required'       => $p_quantity_required,
+            'p_stock_policy'            => $p_stock_policy,
+            'p_is_required'             => $p_is_required,
+            'p_can_be_omitted'          => $p_can_be_omitted,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+
+        return $row['new_product_bom_id'] ?? null;
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -494,6 +535,18 @@ class Product extends Model {
             'p_product_pricelist_id' => $p_product_pricelist_id
         ]);
     }
+
+    public function fetchProductBom(
+        int $p_product_bom_id
+    ) {
+        $sql = 'CALL fetchProductBom(
+            :p_product_bom_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_bom_id' => $p_product_bom_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -556,6 +609,18 @@ class Product extends Model {
         
         return $this->query($sql, [
             'p_product_pricelist_id' => $p_product_pricelist_id
+        ]);
+    }
+
+    public function deleteProductBom(
+        int $p_product_bom_id
+    ) {
+        $sql = 'CALL deleteProductBom(
+            :p_product_bom_id
+        )';
+        
+        return $this->query($sql, [
+            'p_product_bom_id' => $p_product_bom_id
         ]);
     }
 
@@ -800,6 +865,30 @@ class Product extends Model {
         int $p_product_id
     ) {
         $sql = 'CALL generateProductPricelistTable(
+            :p_product_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function generateProductBomTable(
+        int $p_product_id
+    ) {
+        $sql = 'CALL generateProductBomTable(
+            :p_product_id
+        )';
+
+        return $this->fetchAll($sql, [
+            'p_product_id' => $p_product_id
+        ]);
+    }
+
+    public function generateBomProductOptions(
+        int $p_product_id
+    ) {
+        $sql = 'CALL generateBomProductOptions(
             :p_product_id
         )';
 
