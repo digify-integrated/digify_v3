@@ -11075,6 +11075,11 @@ BEGIN
     SET bom_product_name        = p_product_name,
         last_log_by             = p_last_log_by
     WHERE bom_product_id        = p_product_id;
+    
+    UPDATE shop_product
+    SET product_name            = p_product_name,
+        last_log_by             = p_last_log_by
+    WHERE product_id            = p_product_id;
 
     UPDATE product
     SET product_name            = p_product_name,
@@ -12620,6 +12625,438 @@ BEGIN
     COMMIT;
 END //
 
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: FLOOR PLAN
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveFloorPlan//
+
+CREATE PROCEDURE saveFloorPlan(
+    IN p_floor_plan_id INT, 
+    IN p_floor_plan_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_floor_plan_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_floor_plan_id IS NULL OR NOT EXISTS (SELECT 1 FROM floor_plan WHERE floor_plan_id = p_floor_plan_id) THEN
+        INSERT INTO floor_plan (
+            floor_plan_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_floor_plan_name,
+            p_last_log_by
+        );
+        
+        SET v_new_floor_plan_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE shop_floor_plan
+        SET floor_plan_name = p_floor_plan_name,
+            last_log_by     = p_last_log_by
+        WHERE floor_plan_id = p_floor_plan_id;
+        
+        UPDATE floor_plan
+        SET floor_plan_name = p_floor_plan_name,
+            last_log_by     = p_last_log_by
+        WHERE floor_plan_id = p_floor_plan_id;
+
+        SET v_new_floor_plan_id = p_floor_plan_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_floor_plan_id AS new_floor_plan_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchFloorPlan//
+
+CREATE PROCEDURE fetchFloorPlan(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT * FROM floor_plan
+	WHERE floor_plan_id = p_floor_plan_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteFloorPlan//
+
+CREATE PROCEDURE deleteFloorPlan(
+    IN p_floor_plan_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM floor_plan
+    WHERE floor_plan_id = p_floor_plan_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkFloorPlanExist//
+
+CREATE PROCEDURE checkFloorPlanExist(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan
+    WHERE floor_plan_id = p_floor_plan_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateFloorPlanTable//
+
+CREATE PROCEDURE generateFloorPlanTable()
+BEGIN
+	SELECT floor_plan_id, floor_plan_name
+    FROM floor_plan 
+    ORDER BY floor_plan_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateFloorPlanOptions//
+
+CREATE PROCEDURE generateFloorPlanOptions()
+BEGIN
+	SELECT floor_plan_id, floor_plan_name 
+    FROM floor_plan 
+    ORDER BY floor_plan_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: PAYMENT METHOD
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS savePaymentMethod//
+
+CREATE PROCEDURE savePaymentMethod(
+    IN p_payment_method_id INT, 
+    IN p_payment_method_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_payment_method_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_payment_method_id IS NULL OR NOT EXISTS (SELECT 1 FROM payment_method WHERE payment_method_id = p_payment_method_id) THEN
+        INSERT INTO payment_method (
+            payment_method_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_payment_method_name,
+            p_last_log_by
+        );
+        
+        SET v_new_payment_method_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE shop_payment_method
+        SET payment_method_name = p_payment_method_name,
+            last_log_by         = p_last_log_by
+        WHERE payment_method_id = p_payment_method_id;
+        
+        UPDATE payment_method
+        SET payment_method_name = p_payment_method_name,
+            last_log_by         = p_last_log_by
+        WHERE payment_method_id = p_payment_method_id;
+
+        SET v_new_payment_method_id = p_payment_method_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_payment_method_id AS new_payment_method_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchPaymentMethod//
+
+CREATE PROCEDURE fetchPaymentMethod(
+    IN p_payment_method_id INT
+)
+BEGIN
+	SELECT * FROM payment_method
+	WHERE payment_method_id = p_payment_method_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deletePaymentMethod//
+
+CREATE PROCEDURE deletePaymentMethod(
+    IN p_payment_method_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM payment_method
+    WHERE payment_method_id = p_payment_method_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkPaymentMethodExist//
+
+CREATE PROCEDURE checkPaymentMethodExist(
+    IN p_payment_method_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM payment_method
+    WHERE payment_method_id = p_payment_method_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generatePaymentMethodTable//
+
+CREATE PROCEDURE generatePaymentMethodTable()
+BEGIN
+	SELECT payment_method_id, payment_method_name
+    FROM payment_method 
+    ORDER BY payment_method_id;
+END //
+
+DROP PROCEDURE IF EXISTS generatePaymentMethodOptions//
+
+CREATE PROCEDURE generatePaymentMethodOptions()
+BEGIN
+	SELECT payment_method_id, payment_method_name 
+    FROM payment_method 
+    ORDER BY payment_method_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: SHOP TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveShopType//
+
+CREATE PROCEDURE saveShopType(
+    IN p_shop_type_id INT, 
+    IN p_shop_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_shop_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_shop_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM shop_type WHERE shop_type_id = p_shop_type_id) THEN
+        INSERT INTO shop_type (
+            shop_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_shop_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_shop_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE shop
+        SET shop_type_name  = p_shop_type_name,
+            last_log_by     = p_last_log_by
+        WHERE shop_type_id  = p_shop_type_id;
+        
+        UPDATE shop_type
+        SET shop_type_name  = p_shop_type_name,
+            last_log_by     = p_last_log_by
+        WHERE shop_type_id  = p_shop_type_id;
+
+        SET v_new_shop_type_id = p_shop_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_shop_type_id AS new_shop_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchShopType//
+
+CREATE PROCEDURE fetchShopType(
+    IN p_shop_type_id INT
+)
+BEGIN
+	SELECT * FROM shop_type
+	WHERE shop_type_id = p_shop_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteShopType//
+
+CREATE PROCEDURE deleteShopType(
+    IN p_shop_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_type
+    WHERE shop_type_id = p_shop_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkShopTypeExist//
+
+CREATE PROCEDURE checkShopTypeExist(
+    IN p_shop_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop_type
+    WHERE shop_type_id = p_shop_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateShopTypeTable//
+
+CREATE PROCEDURE generateShopTypeTable()
+BEGIN
+	SELECT shop_type_id, shop_type_name
+    FROM shop_type 
+    ORDER BY shop_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopTypeOptions//
+
+CREATE PROCEDURE generateShopTypeOptions()
+BEGIN
+	SELECT shop_type_id, shop_type_name 
+    FROM shop_type 
+    ORDER BY shop_type_name;
+END //
 
 /* =============================================================================================
    END OF PROCEDURES

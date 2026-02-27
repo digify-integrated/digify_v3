@@ -4042,6 +4042,466 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: PAYMENT METHOD
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_payment_method_update//
+
+CREATE TRIGGER trg_payment_method_update
+AFTER UPDATE ON payment_method
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Payment method changed.<br/><br/>';
+
+    IF NEW.payment_method_name <> OLD.payment_method_name THEN
+        SET audit_log = CONCAT(audit_log, "Payment Method Name: ", OLD.payment_method_name, " -> ", NEW.payment_method_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Payment method changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('payment_method', NEW.payment_method_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_payment_method_insert//
+
+CREATE TRIGGER trg_payment_method_insert
+AFTER INSERT ON payment_method
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Payment method created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('payment_method', NEW.payment_method_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: FLOOR PLAN
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_floor_plan_update//
+
+CREATE TRIGGER trg_floor_plan_update
+AFTER UPDATE ON floor_plan
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Floor plan changed.<br/><br/>';
+
+    IF NEW.floor_plan_name <> OLD.floor_plan_name THEN
+        SET audit_log = CONCAT(audit_log, "Floor Plan Name: ", OLD.floor_plan_name, " -> ", NEW.floor_plan_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Floor plan changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('floor_plan', NEW.floor_plan_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_floor_plan_insert//
+
+CREATE TRIGGER trg_floor_plan_insert
+AFTER INSERT ON floor_plan
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Floor plan created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('floor_plan', NEW.floor_plan_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: FLOOR PLAN TABLE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_floor_plan_table_update//
+
+CREATE TRIGGER trg_floor_plan_table_update
+AFTER UPDATE ON floor_plan_table
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Floor plan table changed.<br/><br/>';
+
+    IF NEW.floor_plan_name <> OLD.floor_plan_name THEN
+        SET audit_log = CONCAT(audit_log, "Floor Plan Name: ", OLD.floor_plan_name, " -> ", NEW.floor_plan_name, "<br/>");
+    END IF;
+
+    IF NEW.table_number <> OLD.table_number THEN
+        SET audit_log = CONCAT(audit_log, "Table Number: ", OLD.table_number, " -> ", NEW.table_number, "<br/>");
+    END IF;
+
+    IF NEW.seats <> OLD.seats THEN
+        SET audit_log = CONCAT(audit_log, "Seats: ", OLD.seats, " -> ", NEW.seats, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Floor plan table changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('floor_plan_table', NEW.floor_plan_table_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_floor_plan_table_insert//
+
+CREATE TRIGGER trg_floor_plan_table_insert
+AFTER INSERT ON floor_plan_table
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Floor plan table created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('floor_plan_table', NEW.floor_plan_table_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_type_update//
+
+CREATE TRIGGER trg_shop_type_update
+AFTER UPDATE ON shop_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop type changed.<br/><br/>';
+
+    IF NEW.shop_type_name <> OLD.shop_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Type Name: ", OLD.shop_type_name, " -> ", NEW.shop_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_type', NEW.shop_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_type_insert//
+
+CREATE TRIGGER trg_shop_type_insert
+AFTER INSERT ON shop_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_type', NEW.shop_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_update//
+
+CREATE TRIGGER trg_shop_update
+AFTER UPDATE ON shop
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.shop_type_name <> OLD.shop_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Type: ", OLD.shop_type_name, " -> ", NEW.shop_type_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop', NEW.shop_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_insert//
+
+CREATE TRIGGER trg_shop_insert
+AFTER INSERT ON shop
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop', NEW.shop_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP ACCESS
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_access_update//
+
+CREATE TRIGGER trg_shop_access_update
+AFTER UPDATE ON shop_access
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop access changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.file_as <> OLD.file_as THEN
+        SET audit_log = CONCAT(audit_log, "User Account Name: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop access changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_access', NEW.shop_access_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_access_insert//
+
+CREATE TRIGGER trg_shop_access_insert
+AFTER INSERT ON shop_access
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop access created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_access', NEW.shop_access_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_product_update//
+
+CREATE TRIGGER trg_shop_product_update
+AFTER UPDATE ON shop_product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop product changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.product_name <> OLD.product_name THEN
+        SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop product changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_product', NEW.shop_product_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_product_insert//
+
+CREATE TRIGGER trg_shop_product_insert
+AFTER INSERT ON shop_product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop product created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_product', NEW.shop_product_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP PAYMENT METHOD
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_payment_method_update//
+
+CREATE TRIGGER trg_shop_payment_method_update
+AFTER UPDATE ON shop_payment_method
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop payment method changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.payment_method_name <> OLD.payment_method_name THEN
+        SET audit_log = CONCAT(audit_log, "Payment Method: ", OLD.payment_method_name, " -> ", NEW.payment_method_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop payment method changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_payment_method', NEW.shop_payment_method_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_payment_method_insert//
+
+CREATE TRIGGER trg_shop_payment_method_insert
+AFTER INSERT ON shop_payment_method
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop payment method created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_payment_method', NEW.shop_payment_method_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP FLOOR PLAN
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_floor_plan_update//
+
+CREATE TRIGGER trg_shop_floor_plan_update
+AFTER UPDATE ON shop_floor_plan
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop floor plan changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.floor_plan_name <> OLD.floor_plan_name THEN
+        SET audit_log = CONCAT(audit_log, "Floor Plan: ", OLD.floor_plan_name, " -> ", NEW.floor_plan_name, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop floor plan changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_floor_plan', NEW.shop_floor_plan_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_floor_plan_insert//
+
+CREATE TRIGGER trg_shop_floor_plan_insert
+AFTER INSERT ON shop_floor_plan
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop floor plan created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_floor_plan', NEW.shop_floor_plan_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: 
 ============================================================================================= */
 

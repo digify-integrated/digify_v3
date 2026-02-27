@@ -7570,7 +7570,7 @@ VALUES
 
 
 /* =============================================================================================
-  TABLE: INVENTORY SCRAP
+  TABLE: SCRAP
 ============================================================================================= */
 
 DROP TABLE IF EXISTS scrap;
@@ -7596,7 +7596,7 @@ CREATE TABLE scrap (
 );
 
 /* =============================================================================================
-  INDEX: INVENTORY SCRAP
+  INDEX: SCRAP
 ============================================================================================= */
 
 CREATE INDEX idx_scrap_product_id ON scrap(product_id);
@@ -7604,7 +7604,338 @@ CREATE INDEX idx_scrap_scrap_reason_id ON scrap(scrap_reason_id);
 CREATE INDEX idx_scrap_status ON scrap(scrap_status);
 
 /* =============================================================================================
-  INITIAL VALUES: INVENTORY SCRAPs
+  INITIAL VALUES: SCRAP
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: PAYMENT METHOD
+============================================================================================= */
+
+DROP TABLE IF EXISTS payment_method;
+
+CREATE TABLE payment_method (
+  payment_method_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  payment_method_name VARCHAR(200) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: PAYMENT METHOD
+============================================================================================= */
+
+CREATE INDEX idx_payment_method_id ON payment_method(payment_method_id);
+
+/* =============================================================================================
+  INITIAL VALUES: PAYMENT METHOD
+============================================================================================= */
+
+INSERT INTO payment_method (payment_method_name)
+VALUES
+('Cash'),
+('Credit Card'),
+('Debit Card'),
+('Bank Transfer'),
+('GCash'),
+('PayMaya'),
+('GrabPay'),
+('Check');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP TYPE
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_type;
+
+CREATE TABLE shop_type (
+  shop_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_type_name VARCHAR(200) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP TYPE
+============================================================================================= */
+
+CREATE INDEX idx_shop_type_id ON shop_type(shop_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP TYPE
+============================================================================================= */
+
+INSERT INTO shop_type (shop_type_name)
+VALUES
+('Restaurant'),
+('Grocery'),
+('Pharmacy'),
+('Cafe'),
+('Clothing Store'),
+('Electronics Store'),
+('Bookstore'),
+('Hardware Store'),
+('Bar'),
+('Online Store');
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: FLOOR PLAN
+============================================================================================= */
+
+DROP TABLE IF EXISTS floor_plan;
+
+CREATE TABLE floor_plan (
+  floor_plan_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  floor_plan_name VARCHAR(200) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP TYPE
+============================================================================================= */
+
+CREATE INDEX idx_floor_plan_id ON floor_plan(floor_plan_id);
+
+/* =============================================================================================
+  INITIAL VALUES: FLOOR PLAN
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: FLOOR PLAN TABLE
+============================================================================================= */
+
+DROP TABLE IF EXISTS floor_plan_table;
+
+CREATE TABLE floor_plan_table (
+  floor_plan_table_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  floor_plan_id INT UNSIGNED NOT NULL,
+  floor_plan_name VARCHAR(200) NOT NULL,
+  table_number INT NOT NULL,
+  seats INT NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (floor_plan_id) REFERENCES floor_plan(floor_plan_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: FLOOR PLAN TABLE
+============================================================================================= */
+
+CREATE INDEX idx_floor_plan_table_floor_plan_id ON floor_plan_table(floor_plan_id);
+CREATE INDEX idx_floor_plan_table_table_number ON floor_plan_table(table_number);
+
+/* =============================================================================================
+  INITIAL VALUES: FLOOR PLAN TABLE
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop;
+
+CREATE TABLE shop (
+  shop_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+  shop_type_id INT UNSIGNED NOT NULL,
+  shop_type_name VARCHAR(200) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_type_id) REFERENCES shop_type(shop_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP
+============================================================================================= */
+
+CREATE INDEX idx_shop_shop_type_id ON shop(shop_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP ACCESS
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_access;
+
+CREATE TABLE shop_access (
+  shop_access_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+	user_account_id INT UNSIGNED NOT NULL,
+	file_as VARCHAR(300) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (user_account_id) REFERENCES user_account(user_account_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ACCESS
+============================================================================================= */
+
+CREATE INDEX idx_shop_access_shop_id ON shop_access(shop_id);
+CREATE INDEX idx_shop_access_user_account_id ON shop_access(user_account_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ACCESS
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP PRODUCT
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_product;
+
+CREATE TABLE shop_product (
+  shop_product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	product_name VARCHAR(300) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP PRODUCT
+============================================================================================= */
+
+CREATE INDEX idx_shop_product_shop_id ON shop_product(shop_id);
+CREATE INDEX idx_shop_product_product_id ON shop_product(product_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP PRODUCT
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP PAYMENT METHOD
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_payment_method;
+
+CREATE TABLE shop_payment_method (
+  shop_payment_method_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+	payment_method_id INT UNSIGNED NOT NULL,
+	payment_method_name VARCHAR(300) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (payment_method_id) REFERENCES payment_method(payment_method_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP PAYMENT METHOD
+============================================================================================= */
+
+CREATE INDEX idx_shop_payment_method_shop_id ON shop_payment_method(shop_id);
+CREATE INDEX idx_shop_payment_method_payment_method_id ON shop_payment_method(payment_method_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP PAYMENT METHOD
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP FLOOR PLAN
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_floor_plan;
+
+CREATE TABLE shop_floor_plan (
+  shop_floor_plan_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+	floor_plan_id INT UNSIGNED NOT NULL,
+	floor_plan_name VARCHAR(300) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (floor_plan_id) REFERENCES floor_plan(floor_plan_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP FLOOR PLAN
+============================================================================================= */
+
+CREATE INDEX idx_shop_floor_plan_shop_id ON shop_floor_plan(shop_id);
+CREATE INDEX idx_shop_floor_plan_floor_plan_id ON shop_floor_plan(floor_plan_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP FLOOR PLAN
 ============================================================================================= */
 
 /* =============================================================================================
