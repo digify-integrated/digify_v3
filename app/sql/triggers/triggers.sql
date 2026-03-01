@@ -4261,8 +4261,28 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
     END IF;
 
+    IF NEW.company_name <> OLD.company_name THEN
+        SET audit_log = CONCAT(audit_log, "Company Name: ", OLD.company_name, " -> ", NEW.company_name, "<br/>");
+    END IF;
+
     IF NEW.shop_type_name <> OLD.shop_type_name THEN
         SET audit_log = CONCAT(audit_log, "Shop Type: ", OLD.shop_type_name, " -> ", NEW.shop_type_name, "<br/>");
+    END IF;
+
+    IF NEW.shop_status <> OLD.shop_status THEN
+        SET audit_log = CONCAT(audit_log, "Shop Status: ", OLD.shop_status, " -> ", NEW.shop_status, "<br/>");
+    END IF;
+
+    IF NEW.register_status <> OLD.register_status THEN
+        SET audit_log = CONCAT(audit_log, "Register Status: ", OLD.register_status, " -> ", NEW.register_status, "<br/>");
+    END IF;
+
+    IF NEW.open_date <> OLD.open_date THEN
+        SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
+    END IF;
+
+    IF NEW.close_date <> OLD.close_date THEN
+        SET audit_log = CONCAT(audit_log, "Close Date: ", OLD.close_date, " -> ", NEW.close_date, "<br/>");
     END IF;
     
     IF audit_log <> 'Shop changed.<br/><br/>' THEN

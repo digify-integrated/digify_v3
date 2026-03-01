@@ -7771,11 +7771,18 @@ DROP TABLE IF EXISTS shop;
 CREATE TABLE shop (
   shop_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   shop_name VARCHAR(200) NOT NULL,
+  company_id INT UNSIGNED NOT NULL,
+  company_name VARCHAR(200) NOT NULL,
   shop_type_id INT UNSIGNED NOT NULL,
   shop_type_name VARCHAR(200) NOT NULL,
+  shop_status ENUM('Active', 'Archived') DEFAULT 'Active',
+  register_status ENUM('Idle', 'Open', 'Closed') DEFAULT 'Idle',
+  open_date DATETIME,
+  close_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (company_id) REFERENCES company(company_id),
   FOREIGN KEY (shop_type_id) REFERENCES shop_type(shop_type_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
@@ -7785,6 +7792,8 @@ CREATE TABLE shop (
 ============================================================================================= */
 
 CREATE INDEX idx_shop_shop_type_id ON shop(shop_type_id);
+CREATE INDEX idx_shop_company_id ON shop(company_id);
+CREATE INDEX idx_shop_shop_status ON shop(shop_status);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP

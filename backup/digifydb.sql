@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2026 at 10:29 AM
+-- Generation Time: Mar 01, 2026 at 02:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -249,6 +249,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFloorPlanExist` (IN `p_floor_p
 	SELECT COUNT(*) AS total
     FROM floor_plan
     WHERE floor_plan_id = p_floor_plan_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkFloorPlanTableExist`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFloorPlanTableExist` (IN `p_floor_plan_table_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan_table
+    WHERE floor_plan_table_id = p_floor_plan_table_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkGenderExist`$$
@@ -1037,6 +1044,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFloorPlan` (IN `p_floor_plan_
 
     DELETE FROM floor_plan
     WHERE floor_plan_id = p_floor_plan_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteFloorPlanTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFloorPlanTable` (IN `p_floor_plan_table_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM floor_plan_table WHERE floor_plan_table_id = p_floor_plan_table_id;
 
     COMMIT;
 END$$
@@ -1950,6 +1971,13 @@ DROP PROCEDURE IF EXISTS `fetchFloorPlan`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchFloorPlan` (IN `p_floor_plan_id` INT)   BEGIN
 	SELECT * FROM floor_plan
 	WHERE floor_plan_id = p_floor_plan_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchFloorPlanTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchFloorPlanTable` (IN `p_floor_plan_table_id` INT)   BEGIN
+	SELECT * FROM floor_plan_table
+	WHERE floor_plan_table_id = p_floor_plan_table_id
     LIMIT 1;
 END$$
 
@@ -2978,6 +3006,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFloorPlanTable` ()   BEGIN
 	SELECT floor_plan_id, floor_plan_name
     FROM floor_plan 
     ORDER BY floor_plan_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateFloorPlanTablesTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFloorPlanTablesTable` (IN `p_floor_plan_id` INT)   BEGIN
+	SELECT floor_plan_table_id, table_number, seats
+    FROM floor_plan_table 
+    WHERE floor_plan_id = p_floor_plan_id
+    ORDER BY table_number;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateGenderOptions`$$
@@ -5050,6 +5086,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveCompany` (IN `p_company_id` INT
         SET company_name    = p_company_name,
             last_log_by     = p_last_log_by
         WHERE company_id    = p_company_id;
+
+        UPDATE shop
+        SET company_name    = p_company_name,
+            last_log_by     = p_last_log_by
+        WHERE company_id    = p_company_id;
         
         UPDATE company
         SET company_name    = p_company_name,
@@ -5937,6 +5978,43 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveFloorPlan` (IN `p_floor_plan_id
     COMMIT;
 
     SELECT v_new_floor_plan_id AS new_floor_plan_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `saveFloorPlanTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveFloorPlanTable` (IN `p_floor_plan_table_id` INT, IN `p_floor_plan_id` INT, IN `p_floor_plan_name` VARCHAR(200), IN `p_table_number` INT, IN `p_seats` INT, IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_floor_plan_table_id IS NULL OR NOT EXISTS (SELECT 1 FROM floor_plan_table WHERE floor_plan_table_id = p_floor_plan_table_id) THEN
+        INSERT INTO floor_plan_table (
+            floor_plan_id,
+            floor_plan_name,
+            table_number,
+            seats,
+            last_log_by
+        ) 
+        VALUES(
+            p_floor_plan_id,
+            p_floor_plan_name,
+            p_table_number,
+            p_seats,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE floor_plan_table
+        SET floor_plan_id           = p_floor_plan_id,
+            floor_plan_name         = p_floor_plan_name,
+            table_number            = p_table_number,
+            seats                   = p_seats,
+            last_log_by             = p_last_log_by
+        WHERE floor_plan_table_id   = p_floor_plan_table_id;
+    END IF;
+
+    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `saveGender`$$
@@ -8718,7 +8796,7 @@ CREATE TABLE `app_module` (
 INSERT INTO `app_module` (`app_module_id`, `app_module_name`, `app_module_description`, `app_logo`, `menu_item_id`, `menu_item_name`, `order_sequence`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Settings', 'Centralized management hub for comprehensive organizational oversight and control.', './storage/uploads/app_module/1/settings.png', 1, 'App Module', 100, '2026-02-27 14:51:40', '2026-02-27 14:51:40', 1),
 (2, 'Employee', 'Centralize employee information.', './storage/uploads/app_module/2/employees.png', 40, 'Employee', 5, '2026-02-27 14:51:40', '2026-02-27 14:51:40', 1),
-(3, 'Point of Sale', 'Handle checkouts and payments for shops and restaurants.', './storage/uploads/app_module/4/pos.png', 1, 'App Module', 10, '2026-02-27 14:51:40', '2026-02-27 14:51:40', 1),
+(3, 'Point of Sale', 'Handle checkouts and payments for shops and restaurants.', './storage/uploads/app_module/4/pos.png', 75, 'Point of Sale', 10, '2026-02-27 14:51:40', '2026-02-28 11:18:59', 2),
 (4, 'Inventory', 'Manage your stocks and logistics activities.', './storage/uploads/app_module/3/inventory.png', 62, 'Product', 15, '2026-02-27 14:51:40', '2026-02-27 14:51:40', 1);
 
 --
@@ -13018,6 +13096,13 @@ CREATE TABLE `company` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `company`
+--
+
+INSERT INTO `company` (`company_id`, `company_name`, `company_logo`, `address`, `city_id`, `city_name`, `state_id`, `state_name`, `country_id`, `country_name`, `tax_id`, `currency_id`, `currency_name`, `phone`, `telephone`, `email`, `website`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Jabs', NULL, 'Talavera', 2957, 'Talavera', 70, 'Nueva Ecija', 1, 'Philippines', '', 0, NULL, '', '', '', '', '2026-03-01 18:23:25', '2026-03-01 18:23:25', 2);
+
+--
 -- Triggers `company`
 --
 DROP TRIGGER IF EXISTS `trg_company_insert`;
@@ -13717,6 +13802,7 @@ CREATE TRIGGER `trg_employee_update` AFTER UPDATE ON `employee` FOR EACH ROW BEG
 
     IF NEW.height <> OLD.height THEN
         SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " cm -> ", NEW.height, " cm<br/>");
+
     END IF;
 
     IF NEW.weight <> OLD.weight THEN
@@ -14655,6 +14741,13 @@ CREATE TABLE `floor_plan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `floor_plan`
+--
+
+INSERT INTO `floor_plan` (`floor_plan_id`, `floor_plan_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(2, 'Patio', '2026-02-28 11:20:52', '2026-02-28 11:20:52', 2);
+
+--
 -- Triggers `floor_plan`
 --
 DROP TRIGGER IF EXISTS `trg_floor_plan_insert`;
@@ -14701,6 +14794,13 @@ CREATE TABLE `floor_plan_table` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `floor_plan_table`
+--
+
+INSERT INTO `floor_plan_table` (`floor_plan_table_id`, `floor_plan_id`, `floor_plan_name`, `table_number`, `seats`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(2, 2, 'Patio', 1, 12, '2026-02-28 20:41:44', '2026-02-28 20:41:44', 2);
 
 --
 -- Triggers `floor_plan_table`
@@ -15127,7 +15227,10 @@ CREATE TABLE `login_attempts` (
 
 INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `ip_address`, `attempt_time`, `success`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-27 14:52:10', 1, '2026-02-27 14:52:10', '2026-02-27 14:52:10', 1),
-(2, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-27 16:59:34', 1, '2026-02-27 16:59:34', '2026-02-27 16:59:34', 1);
+(2, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-27 16:59:34', 1, '2026-02-27 16:59:34', '2026-02-27 16:59:34', 1),
+(3, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-28 11:16:16', 1, '2026-02-28 11:16:16', '2026-02-28 11:16:16', 1),
+(4, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-28 16:31:18', 1, '2026-02-28 16:31:18', '2026-02-28 16:31:18', 1),
+(5, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-01 10:45:44', 1, '2026-03-01 10:45:44', '2026-03-01 10:45:44', 1);
 
 -- --------------------------------------------------------
 
@@ -17205,7 +17308,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$1flyuPIECf6YaNRfogjlkuLWbLcoIpPChB.appOEBywYvIOWrvWiG', '2026-02-27 14:52:10', '2026-02-27 16:59:34', 1);
+(1, 2, '$2y$10$WmfCV6ek49yeSWJ3xebqBeqWUF1GCJHdaajitt9oc3sX11anRORXu', '2026-02-27 14:52:10', '2026-03-01 10:45:44', 1);
 
 -- --------------------------------------------------------
 
@@ -17217,8 +17320,13 @@ DROP TABLE IF EXISTS `shop`;
 CREATE TABLE `shop` (
   `shop_id` int(10) UNSIGNED NOT NULL,
   `shop_name` varchar(200) NOT NULL,
+  `company_id` int(10) UNSIGNED NOT NULL,
+  `company_name` varchar(200) NOT NULL,
   `shop_type_id` int(10) UNSIGNED NOT NULL,
   `shop_type_name` varchar(200) NOT NULL,
+  `shop_status` enum('Idle','Open','Closed') DEFAULT 'Open',
+  `open_date` datetime DEFAULT NULL,
+  `close_date` datetime DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -17246,8 +17354,24 @@ CREATE TRIGGER `trg_shop_update` AFTER UPDATE ON `shop` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
     END IF;
 
+    IF NEW.company_name <> OLD.company_name THEN
+        SET audit_log = CONCAT(audit_log, "Company Name: ", OLD.company_name, " -> ", NEW.company_name, "<br/>");
+    END IF;
+
     IF NEW.shop_type_name <> OLD.shop_type_name THEN
         SET audit_log = CONCAT(audit_log, "Shop Type: ", OLD.shop_type_name, " -> ", NEW.shop_type_name, "<br/>");
+    END IF;
+
+    IF NEW.shop_status <> OLD.shop_status THEN
+        SET audit_log = CONCAT(audit_log, "Shop Status: ", OLD.shop_status, " -> ", NEW.shop_status, "<br/>");
+    END IF;
+
+    IF NEW.open_date <> OLD.open_date THEN
+        SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
+    END IF;
+
+    IF NEW.close_date <> OLD.close_date THEN
+        SET audit_log = CONCAT(audit_log, "Close Date: ", OLD.close_date, " -> ", NEW.close_date, "<br/>");
     END IF;
     
     IF audit_log <> 'Shop changed.<br/><br/>' THEN
@@ -18303,7 +18427,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-02-27 16:59:34', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 16:59:34', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-01 10:45:44', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-01 10:45:44', 1);
 
 --
 -- Triggers `user_account`
@@ -19175,7 +19299,9 @@ ALTER TABLE `sessions`
 ALTER TABLE `shop`
   ADD PRIMARY KEY (`shop_id`),
   ADD KEY `last_log_by` (`last_log_by`),
-  ADD KEY `idx_shop_shop_type_id` (`shop_type_id`);
+  ADD KEY `idx_shop_shop_type_id` (`shop_type_id`),
+  ADD KEY `idx_shop_company_id` (`company_id`),
+  ADD KEY `idx_shop_shop_status` (`shop_status`);
 
 --
 -- Indexes for table `shop_access`
@@ -19396,7 +19522,7 @@ ALTER TABLE `civil_status`
 -- AUTO_INCREMENT for table `company`
 --
 ALTER TABLE `company`
-  MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `contact_information_type`
@@ -19516,13 +19642,13 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `floor_plan`
 --
 ALTER TABLE `floor_plan`
-  MODIFY `floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `floor_plan_table`
 --
 ALTER TABLE `floor_plan_table`
-  MODIFY `floor_plan_table_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `floor_plan_table_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `gender`
@@ -19552,7 +19678,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20264,8 +20390,9 @@ ALTER TABLE `sessions`
 -- Constraints for table `shop`
 --
 ALTER TABLE `shop`
-  ADD CONSTRAINT `shop_ibfk_1` FOREIGN KEY (`shop_type_id`) REFERENCES `shop_type` (`shop_type_id`),
-  ADD CONSTRAINT `shop_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+  ADD CONSTRAINT `shop_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `company` (`company_id`),
+  ADD CONSTRAINT `shop_ibfk_2` FOREIGN KEY (`shop_type_id`) REFERENCES `shop_type` (`shop_type_id`),
+  ADD CONSTRAINT `shop_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `shop_access`

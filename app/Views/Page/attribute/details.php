@@ -134,7 +134,7 @@
                     <?= $security->csrfInput('attribute_value_form'); ?>
                     <input type="hidden" id="attribute_value_id" name="attribute_value_id">
                     <div class="row mb-6">
-                        <label class="col-lg-3 col-form-label required fw-semibold fs-6" for="departure_date">Attribute Value</label>
+                        <label class="col-lg-3 col-form-label required fw-semibold fs-6" for="attribute_value_name">Attribute Value</label>
                         <div class="col-lg-9">
                             <div class="row">
                                 <div class="col-lg-12">

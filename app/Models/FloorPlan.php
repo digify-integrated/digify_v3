@@ -28,6 +28,35 @@ class FloorPlan extends Model {
 
         return $row['new_floor_plan_id'] ?? null;
     }
+
+    public function saveFloorPlanTable(
+        null|string|int $p_floor_plan_table_id,
+        int $p_floor_plan_id,
+        string $p_floor_plan_name,
+        int $p_table_number,
+        int $p_seats,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL saveFloorPlanTable(
+            :p_floor_plan_table_id,
+            :p_floor_plan_id,
+            :p_floor_plan_name,
+            :p_table_number,
+            :p_seats,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_floor_plan_table_id'     => $p_floor_plan_table_id,
+            'p_floor_plan_id'           => $p_floor_plan_id,
+            'p_floor_plan_name'         => $p_floor_plan_name,
+            'p_table_number'            => $p_table_number,
+            'p_seats'                   => $p_seats,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+
+        return $row['new_floor_plan_table_id'] ?? null;
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -52,6 +81,18 @@ class FloorPlan extends Model {
             'p_floor_plan_id' => $p_floor_plan_id
         ]);
     }
+
+    public function fetchFloorPlanTable(
+        int $p_floor_plan_table_id
+    ) {
+        $sql = 'CALL fetchFloorPlanTable(
+            :p_floor_plan_table_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_table_id' => $p_floor_plan_table_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -66,6 +107,18 @@ class FloorPlan extends Model {
         
         return $this->query($sql, [
             'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
+
+    public function deleteFloorPlanTable(
+        int $p_floor_plan_table_id
+    ) {
+        $sql = 'CALL deleteFloorPlanTable(
+            :p_floor_plan_table_id
+        )';
+        
+        return $this->query($sql, [
+            'p_floor_plan_table_id' => $p_floor_plan_table_id
         ]);
     }
 
@@ -85,6 +138,18 @@ class FloorPlan extends Model {
         ]);
     }
 
+    public function checkFloorPlanTableExist(
+        int $p_floor_plan_table_id
+    ) {
+        $sql = 'CALL checkFloorPlanTableExist(
+            :p_floor_plan_table_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_table_id' => $p_floor_plan_table_id
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 7: GENERATE METHODS
     ============================================================================================= */
@@ -94,6 +159,19 @@ class FloorPlan extends Model {
         
         return $this->fetchAll($sql);
     }
+
+    public function generateFloorPlanTablesTable(
+        int $p_floor_plan_id
+    ) {
+        $sql = 'CALL generateFloorPlanTablesTable(
+            :p_floor_plan_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
+
 
     public function generateFloorPlanOptions() {
         $sql = 'CALL generateFloorPlanOptions()';

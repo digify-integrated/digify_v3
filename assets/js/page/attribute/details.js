@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification(data.title, data.message, data.message_type);
             }
         } catch (error) {
-            handleSystemError(error, 'fetch_failed', `Failed to fetch employee details: ${error.message}`);
+            handleSystemError(error, 'fetch_failed', `Failed to fetch attribute value details: ${error.message}`);
         }
     }
 
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
     
-        initializeDatatableControls('#attribute-value-table');
+    initializeDatatableControls('#attribute-value-table');
 
     $('#attribute_form').validate({
         rules: {

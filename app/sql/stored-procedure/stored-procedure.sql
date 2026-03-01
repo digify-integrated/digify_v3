@@ -3937,6 +3937,11 @@ BEGIN
         SET company_name    = p_company_name,
             last_log_by     = p_last_log_by
         WHERE company_id    = p_company_id;
+
+        UPDATE shop
+        SET company_name    = p_company_name,
+            last_log_by     = p_last_log_by
+        WHERE company_id    = p_company_id;
         
         UPDATE company
         SET company_name    = p_company_name,
@@ -12687,6 +12692,52 @@ BEGIN
     SELECT v_new_floor_plan_id AS new_floor_plan_id;
 END //
 
+DROP PROCEDURE IF EXISTS saveFloorPlanTable//
+
+CREATE PROCEDURE saveFloorPlanTable(
+    IN p_floor_plan_table_id INT, 
+    IN p_floor_plan_id INT, 
+    IN p_floor_plan_name VARCHAR(200), 
+    IN p_table_number INT, 
+    IN p_seats INT, 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_floor_plan_table_id IS NULL OR NOT EXISTS (SELECT 1 FROM floor_plan_table WHERE floor_plan_table_id = p_floor_plan_table_id) THEN
+        INSERT INTO floor_plan_table (
+            floor_plan_id,
+            floor_plan_name,
+            table_number,
+            seats,
+            last_log_by
+        ) 
+        VALUES(
+            p_floor_plan_id,
+            p_floor_plan_name,
+            p_table_number,
+            p_seats,
+            p_last_log_by
+        );
+    ELSE
+        UPDATE floor_plan_table
+        SET floor_plan_id           = p_floor_plan_id,
+            floor_plan_name         = p_floor_plan_name,
+            table_number            = p_table_number,
+            seats                   = p_seats,
+            last_log_by             = p_last_log_by
+        WHERE floor_plan_table_id   = p_floor_plan_table_id;
+    END IF;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
 ============================================================================================= */
@@ -12707,6 +12758,17 @@ CREATE PROCEDURE fetchFloorPlan(
 BEGIN
 	SELECT * FROM floor_plan
 	WHERE floor_plan_id = p_floor_plan_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchFloorPlanTable//
+
+CREATE PROCEDURE fetchFloorPlanTable(
+    IN p_floor_plan_table_id INT
+)
+BEGIN
+	SELECT * FROM floor_plan_table
+	WHERE floor_plan_table_id = p_floor_plan_table_id
     LIMIT 1;
 END //
 
@@ -12733,6 +12795,24 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteFloorPlanTable//
+
+CREATE PROCEDURE deleteFloorPlanTable(
+    IN p_floor_plan_table_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM floor_plan_table WHERE floor_plan_table_id = p_floor_plan_table_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
@@ -12748,6 +12828,17 @@ BEGIN
     WHERE floor_plan_id = p_floor_plan_id;
 END //
 
+DROP PROCEDURE IF EXISTS checkFloorPlanTableExist//
+
+CREATE PROCEDURE checkFloorPlanTableExist(
+    IN p_floor_plan_table_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan_table
+    WHERE floor_plan_table_id = p_floor_plan_table_id;
+END //
+
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
 ============================================================================================= */
@@ -12759,6 +12850,18 @@ BEGIN
 	SELECT floor_plan_id, floor_plan_name
     FROM floor_plan 
     ORDER BY floor_plan_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateFloorPlanTablesTable//
+
+CREATE PROCEDURE generateFloorPlanTablesTable(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT floor_plan_table_id, table_number, seats
+    FROM floor_plan_table 
+    WHERE floor_plan_id = p_floor_plan_id
+    ORDER BY table_number;
 END //
 
 DROP PROCEDURE IF EXISTS generateFloorPlanOptions//
