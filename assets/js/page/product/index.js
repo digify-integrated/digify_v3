@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const htmlString = data.map(card => card.EMPLOYEE_CARD).join('');
+            const htmlString = data.map(card => card.PRODUCT_CARD).join('');
             sentinel.insertAdjacentHTML('beforebegin', htmlString);
 
             offset += data.length;

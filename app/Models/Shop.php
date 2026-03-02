@@ -103,16 +103,58 @@ class Shop extends Model {
 
     public function generateShopTable(
         null|string $p_filter_by_company,
-        null|string $p_filter_by_shop_type
+        null|string $p_filter_by_shop_type,
+        null|string $p_filter_by_shop_status,
+        null|string $p_filter_by_register_status
     ) {
         $sql = 'CALL generateShopTable(
             :p_filter_by_company,
-            :p_filter_by_shop_type
+            :p_filter_by_shop_type,
+            :p_filter_by_shop_status,
+            :p_filter_by_register_status
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_company'   => $p_filter_by_company,
-            'p_filter_by_shop_type' => $p_filter_by_shop_type
+            'p_filter_by_company'           => $p_filter_by_company,
+            'p_filter_by_shop_type'         => $p_filter_by_shop_type,
+            'p_filter_by_shop_status'       => $p_filter_by_shop_status,
+            'p_filter_by_register_status'   => $p_filter_by_register_status
+        ]);
+    }
+
+    public function generateShopPaymentMethodTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopPaymentMethodTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function generateShopFloorPlanTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopFloorPlanTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function generateShopAccessTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopAccessTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
         ]);
     }
 

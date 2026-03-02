@@ -1195,7 +1195,7 @@ class ProductController {
                         </a>
                     </div>';
 
-            $response[] = ['EMPLOYEE_CARD' => $card];
+            $response[] = ['PRODUCT_CARD' => $card];
         }
 
         echo json_encode($response);

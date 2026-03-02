@@ -5,26 +5,30 @@ import { generateDropdownOptions } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const datatableConfig = () => ({
-        selector: '#menu-item-table',
-        ajaxUrl: './app/Controllers/MenuItemController.php',
-        transaction: 'generate menu item table',
+        selector: '#shop-table',
+        ajaxUrl: './app/Controllers/ShopController.php',
+        transaction: 'generate shop table',
         ajaxData: {
-            filter_by_app_module: $('#filter_by_app_module').val(),
-            filter_by_parent_menu: $('#filter_by_parent_menu').val()
+            filter_by_company: $('#filter_by_company').val(),
+            filter_by_shop_type: $('#filter_by_shop_type').val(),
+            filter_by_shop_status: $('#filter_by_shop_status').val(),
+            filter_by_register_status: $('#filter_by_register_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
-            { data: 'MENU_ITEM_NAME' },
-            { data: 'APP_MODULE_NAME' },
-            { data: 'PARENT_NAME' },
-            { data: 'ORDER_SEQUENCE' }
+            { data: 'SHOP_NAME' },
+            { data: 'COMPANY_NAME' },
+            { data: 'SHOP_TYPE_NAME' },
+            { data: 'SHOP_STATUS' },
+            { data: 'REGISTER_STATUS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
             { width: 'auto', targets: 2, responsivePriority: 3 },
             { width: 'auto', targets: 3, responsivePriority: 4 },
-            { width: 'auto', targets: 4, responsivePriority: 5 }
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 5, responsivePriority: 6 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -32,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const dropdownConfigs = [
-        { url: './app/Controllers/MenuItemController.php', selector: '#filter_by_parent_menu', transaction: 'generate menu item options' },
-        { url: './app/Controllers/AppModuleController.php', selector: '#filter_by_app_module', transaction: 'generate app module options' }
+        { url: './app/Controllers/CompanyController.php', selector: '#filter_by_company', transaction: 'generate company options' },
+        { url: './app/Controllers/ShopTypeController.php', selector: '#filter_by_shop_type', transaction: 'generate shop type options' }
     ];
     
     dropdownConfigs.forEach(cfg => {
@@ -45,8 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initializeDatatable(datatableConfig());
-    initializeDatatableControls('#menu-item-table');
-    initializeExportFeature('menu_item');
+    initializeDatatableControls('#shop-table');
+    initializeExportFeature('shop');
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#apply-filter')) {
@@ -54,26 +58,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#filter_by_parent_menu').val(null).trigger('change');
-            $('#filter_by_app_module').val(null).trigger('change');
+            $('#filter_by_company').val(null).trigger('change');
+            $('#filter_by_shop_type').val(null).trigger('change');
+            $('#filter_by_shop_status').val(null).trigger('change');
+            $('#filter_by_register_status').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());
         }
 
-        if (event.target.closest('#delete-menu-item')){
-            const transaction   = 'delete multiple menu item';
-            const menu_item_id  = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
-                                        .filter(checkbox => checkbox.checked)
-                                        .map(checkbox => checkbox.value);
+        if (event.target.closest('#delete-shop')){
+            const transaction   = 'delete multiple shop';
+            const shop_id       = Array.from(document.querySelectorAll('.datatable-checkbox-children'))
+                                    .filter(checkbox => checkbox.checked)
+                                    .map(checkbox => checkbox.value);
 
-            if (menu_item_id.length === 0) {
-                showNotification('Deletion Multiple Menu Items Error', 'Please select the menu items you wish to delete.', 'error');
+            if (shop_id.length === 0) {
+                showNotification('Deletion Multiple Shops Error', 'Please select the shops you wish to delete.', 'error');
                 return;
             }
 
             const result = await Swal.fire({
-                title: 'Confirm Multiple Menu Items Deletion',
-                text: 'Are you sure you want to delete these menu items?',
+                title: 'Confirm Multiple Shops Deletion',
+                text: 'Are you sure you want to delete these shops?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Delete',
@@ -90,9 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                menu_item_id.forEach(id => formData.append('menu_item_id[]', id));
+                shop_id.forEach(id => formData.append('shop_id[]', id));
 
-                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                const response = await fetch('./app/Controllers/ShopController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -103,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showNotification(data.title, data.message, data.message_type);
-                    reloadDatatable('#menu-item-table');
+                    reloadDatatable('#shop-table');
                 } 
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -113,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(data.title, data.message, data.message_type);
                 }
             } catch (error) {
-                handleSystemError(error, 'fetch_failed', `Failed to delete menu items: ${error.message}`);
+                handleSystemError(error, 'fetch_failed', `Failed to delete shops: ${error.message}`);
             }
         }
     });

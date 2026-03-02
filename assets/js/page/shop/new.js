@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/MenuItemController.php', {
+                const response = await fetch('./app/Controllers/ShopController.php', {
                     method: 'POST',
                     body: formData
                 });

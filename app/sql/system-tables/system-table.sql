@@ -7776,7 +7776,7 @@ CREATE TABLE shop (
   shop_type_id INT UNSIGNED NOT NULL,
   shop_type_name VARCHAR(200) NOT NULL,
   shop_status ENUM('Active', 'Archived') DEFAULT 'Active',
-  register_status ENUM('Idle', 'Open', 'Closed') DEFAULT 'Idle',
+  register_status ENUM('Open', 'Closed') DEFAULT 'Open',
   open_date DATETIME,
   close_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -7794,6 +7794,7 @@ CREATE TABLE shop (
 CREATE INDEX idx_shop_shop_type_id ON shop(shop_type_id);
 CREATE INDEX idx_shop_company_id ON shop(company_id);
 CREATE INDEX idx_shop_shop_status ON shop(shop_status);
+CREATE INDEX idx_shop_register_status ON shop(register_status);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP

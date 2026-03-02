@@ -93,6 +93,30 @@ class FloorPlan extends Model {
             'p_floor_plan_table_id' => $p_floor_plan_table_id
         ]);
     }
+
+    public function fetchFloorPlanTableCount(
+        int $p_floor_plan_id
+    ) {
+        $sql = 'CALL fetchFloorPlanTableCount(
+            :p_floor_plan_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
+
+     public function fetchFloorPlanSeatCount(
+        int $p_floor_plan_id
+    ) {
+        $sql = 'CALL fetchFloorPlanSeatCount(
+            :p_floor_plan_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -171,7 +195,6 @@ class FloorPlan extends Model {
             'p_floor_plan_id' => $p_floor_plan_id
         ]);
     }
-
 
     public function generateFloorPlanOptions() {
         $sql = 'CALL generateFloorPlanOptions()';

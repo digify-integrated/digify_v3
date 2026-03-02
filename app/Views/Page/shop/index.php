@@ -14,7 +14,7 @@
                                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true" style="z-index: 107; position: fixed; inset: 0px 0px auto auto; margin: 0px; transform: translate(-60px, 539px);" data-popper-placement="bottom-end">';
                     
                         if ($permissions['export'] > 0) {
-                            $action .= '<div class="menu-item px-3">
+                            $action .= '<div class="shop px-3">
                                             <a href="javascript:void(0);" class="menu-link px-3" data-bs-toggle="modal" id="export-data" data-bs-target="#export-modal">
                                                 Export
                                             </a>
@@ -22,8 +22,8 @@
                         }
                     
                         if ($permissions['delete'] > 0) {
-                            $action .= '<div class="menu-item px-3">
-                                            <a href="javascript:void(0);" class="menu-link px-3" id="delete-menu-item">
+                            $action .= '<div class="shop px-3">
+                                            <a href="javascript:void(0);" class="menu-link px-3" id="delete-shop">
                                                 Delete
                                             </a>
                                         </div>';
@@ -43,12 +43,26 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-5">
-                                <label class="form-label fs-6 fw-semibold" for="filter_by_app_module">App Module:</label>
-                                <select id="filter_by_app_module" name="filter_by_app_module" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_company">Company:</label>
+                                <select id="filter_by_company" name="filter_by_company" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
                             </div>
                             <div class="mb-5">
-                                <label class="form-label fs-6 fw-semibold" for="filter_by_parent_menu">Parent Menu:</label>
-                                <select id="filter_by_parent_menu" name="filter_by_parent_menu" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_shop_type">Shop Type:</label>
+                                <select id="filter_by_shop_type" name="filter_by_shop_type" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                            </div>
+                            <div class="mb-5">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_shop_status">Shop Status:</label>
+                                <select id="filter_by_shop_status" name="filter_by_shop_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                    <option value="Active">Active</option>
+                                    <option value="Archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="mb-5">
+                                <label class="form-label fs-6 fw-semibold" for="filter_by_register_status">Register Status:</label>
+                                <select id="filter_by_register_status" name="filter_by_register_status" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
+                                    <option value="Open">Open</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="reset" class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6" id="reset-filter" data-kt-menu-dismiss="true">Reset</button>
@@ -62,7 +76,7 @@
     </div>
     <div class="card-body pt-9">
         <div class="table-responsive">
-            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 text-nowrap" id="menu-item-table">
+            <table class="table align-middle cursor-pointer table-row-dashed fs-6 gy-5 text-nowrap" id="shop-table">
                 <thead>
                     <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                         <th>
@@ -70,10 +84,11 @@
                                 <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                             </div>
                         </th>
-                        <th>Menu Item</th>
-                        <th>App Module</th>
-                        <th>Parent Menu</th>
-                        <th>Order Sequence</th>
+                        <th>Shop</th>
+                        <th>Company</th>
+                        <th>Shop Type</th>
+                        <th>Status</th>
+                        <th>Register Status</th>
                     </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-800"></tbody>

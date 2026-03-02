@@ -12768,8 +12768,30 @@ CREATE PROCEDURE fetchFloorPlanTable(
 )
 BEGIN
 	SELECT * FROM floor_plan_table
-	WHERE floor_plan_table_id = p_floor_plan_table_id
+	WHERE floor_plan_table_id = p_floor_plan_table_id;
+END //
+
+DROP PROCEDURE IF EXISTS fetchFloorPlanTableCount//
+
+CREATE PROCEDURE fetchFloorPlanTableCount(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan_table
+	WHERE floor_plan_id = p_floor_plan_id
     LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchFloorPlanSeatCount//
+
+CREATE PROCEDURE fetchFloorPlanSeatCount(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT SUM(seats) AS total
+    FROM floor_plan_table
+	WHERE floor_plan_id = p_floor_plan_id;
 END //
 
 /* =============================================================================================
@@ -13159,6 +13181,261 @@ BEGIN
 	SELECT shop_type_id, shop_type_name 
     FROM shop_type 
     ORDER BY shop_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: SHOP
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveShop//
+
+CREATE PROCEDURE saveShop(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100), 
+    IN p_company_id INT,
+    IN p_company_name VARCHAR(100),
+    IN p_shop_type_id INT,
+    IN p_shop_type_name VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_shop_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_shop_id IS NULL OR NOT EXISTS (SELECT 1 FROM shop WHERE shop_id = p_shop_id) THEN
+        INSERT INTO shop (
+            shop_name,
+            company_id,
+            company_name,
+            shop_type_id,
+            shop_type_name,
+            last_log_by
+        ) 
+        VALUES(
+            p_shop_name,
+            p_company_id,
+            p_company_name,
+            p_shop_type_id,
+            p_shop_type_name,
+            p_last_log_by
+        );
+        
+        SET v_new_shop_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE shop
+        SET shop_name       = p_shop_name,
+            company_id      = p_company_id,
+            company_name    = p_company_name,
+            shop_type_id    = p_shop_type_id,
+            shop_type_name  = p_shop_type_name,
+            last_log_by     = p_last_log_by
+        WHERE shop_id       = p_shop_id;
+        
+        UPDATE shop_type
+        SET shop_type_name  = p_shop_type_name,
+            last_log_by     = p_last_log_by
+        WHERE shop_type_id  = p_shop_type_id;
+
+        SET v_new_shop_id = p_shop_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_shop_id AS new_shop_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchShop//
+
+CREATE PROCEDURE fetchShop(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT * FROM shop
+	WHERE shop_id = p_shop_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteShop//
+
+CREATE PROCEDURE deleteShop(
+    IN p_shop_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop
+    WHERE shop_id = p_shop_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkShopExist//
+
+CREATE PROCEDURE checkShopExist(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop
+    WHERE shop_id = p_shop_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateShopTable//
+
+CREATE PROCEDURE generateShopTable(
+    IN p_filter_by_company VARCHAR(100),
+    IN p_filter_by_shop_type VARCHAR(100),
+    IN p_filter_by_shop_status VARCHAR(100),
+    IN p_filter_by_register_status VARCHAR(100)
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE filter_conditions TEXT DEFAULT '';
+
+    SET query = 'SELECT shop_id, shop_name, company_name, shop_type_name, shop_status, register_status
+                FROM shop';
+
+    IF p_filter_by_company IS NOT NULL AND p_filter_by_company <> '' THEN
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' company_id IN (', p_filter_by_company, ')'
+        );
+    END IF;
+
+    IF p_filter_by_shop_type IS NOT NULL AND p_filter_by_shop_type <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' shop_type_id IN (', p_filter_by_shop_type, ')'
+        );
+    END IF;
+
+    IF p_filter_by_shop_status IS NOT NULL AND p_filter_by_shop_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' shop_status IN (', p_filter_by_shop_status, ')'
+        );
+    END IF;
+
+    IF p_filter_by_register_status IS NOT NULL AND p_filter_by_register_status <> '' THEN
+        IF filter_conditions <> '' THEN
+            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
+        END IF;
+
+        SET filter_conditions = CONCAT(
+            filter_conditions,
+            ' register_status IN (', p_filter_by_register_status, ')'
+        );
+    END IF;
+
+    IF filter_conditions <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', filter_conditions);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY shop_name');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopPaymentMethodTable//
+
+CREATE PROCEDURE generateShopPaymentMethodTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_payment_method_id, payment_method_name
+    FROM shop_payment_method 
+    WHERE shop_id = p_shop_id
+    ORDER BY payment_method_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopFloorPlanTable//
+
+CREATE PROCEDURE generateShopFloorPlanTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_floor_plan_id, floor_plan_id, floor_plan_name
+    FROM shop_floor_plan 
+    WHERE shop_id = p_shop_id
+    ORDER BY floor_plan_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopAccessTable//
+
+CREATE PROCEDURE generateShopAccessTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_access_id, file_as
+    FROM shop_access 
+    WHERE shop_id = p_shop_id
+    ORDER BY file_as;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopOptions//
+
+CREATE PROCEDURE generateShopOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_id, shop_name 
+    FROM shop 
+    ORDER BY shop_name;
 END //
 
 /* =============================================================================================
