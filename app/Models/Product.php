@@ -164,7 +164,7 @@ class Product extends Model {
             :p_last_log_by
         )';
 
-        $row = $this->query($sql, [
+        return $this->query($sql, [
             'p_parent_product_id'       => $p_parent_product_id,
             'p_parent_product_name'     => $p_parent_product_name,
             'p_product_id'              => $p_product_id,
@@ -192,7 +192,7 @@ class Product extends Model {
             :p_last_log_by
         )';
 
-        $row = $this->query($sql, [
+        return $this->query($sql, [
             'p_product_id'      => $p_product_id,
             'p_product_name'    => $p_product_name,
             'p_category_id'     => $p_category_id,
@@ -218,7 +218,7 @@ class Product extends Model {
             :p_last_log_by
         )';
 
-        $row = $this->query($sql, [
+        return $this->query($sql, [
             'p_product_id'      => $p_product_id,
             'p_product_name'    => $p_product_name,
             'p_tax_type'        => $p_tax_type,
@@ -247,7 +247,7 @@ class Product extends Model {
             :p_last_log_by
         )';
 
-        $row = $this->query($sql, [
+        return $this->query($sql, [
             'p_product_id'              => $p_product_id,
             'p_product_name'            => $p_product_name,
             'p_attribute_id'            => $p_attribute_id,
@@ -901,6 +901,14 @@ class Product extends Model {
         $sql = 'CALL generateProductOptions()';
         
         return $this->fetchAll($sql);
+    }
+
+    public function generateShopProductOptions(int $p_shop_id) {
+        $sql = 'CALL generateShopProductOptions(:p_shop_id)';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
     }
 
     public function generateActiveProductOptions() {

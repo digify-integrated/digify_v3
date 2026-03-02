@@ -126,6 +126,7 @@ class ProductController {
             'generate product bom table'            => $this->generateProductBomTable($lastLogBy, $pageId),
             'generate pricelist table'              => $this->generatePricelistTable(),
             'generate product options'              => $this->generateProductOptions(),
+            'generate shop product options'         => $this->generateShopProductOptions(),
             'generate active product options'       => $this->generateActiveProductOptions(),
             'generate bom product options'          => $this->generateBomProductOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
@@ -1643,6 +1644,30 @@ class ProductController {
         }
 
         $products = $this->product->generateProductOptions();
+
+        foreach ($products as $row) {
+            $response[] = [
+                'id'    => $row['product_id'],
+                'text'  => $row['product_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopProductOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $products = $this->product->generateShopProductOptions($shopId);
 
         foreach ($products as $row) {
             $response[] = [

@@ -305,4 +305,144 @@
     </div>
 </div>
 
+<div id="shop-payment-method-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-payment-method-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Payment Method</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_payment_method_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_payment_method_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="payment_method_id">Payment Method</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="payment_method_id" name="payment_method_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_payment_method_form" class="btn btn-primary" id="submit-shop-payment-method">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-floor-plan-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-floor-plan-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Floor Plan</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_floor_plan_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_floor_plan_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="floor_plan_id">Floor Plan</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="floor_plan_id" name="floor_plan_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_floor_plan_form" class="btn btn-primary" id="submit-shop-floor-plan">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-access-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-access-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Access</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_access_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_access_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="user_account_id">User Account</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="user_account_id" name="user_account_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_access_form" class="btn btn-primary" id="submit-shop-access">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-product-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-product-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Product</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_product_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_product_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="product_id">Product</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="product_id" name="product_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_product_form" class="btn btn-primary" id="submit-shop-product">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php require_once './app/Views/Partials/log-notes-modal.php'; ?>

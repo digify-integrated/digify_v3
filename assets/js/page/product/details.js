@@ -215,9 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
             url: './app/Controllers/AttributeController.php',
             dropdownSelector: '#attribute_value_id',
             data: { 
-            transaction: 'generate product attribute value options', 
-            multiple: true,
-            product_id: product_id
+                transaction: 'generate product attribute value options', 
+                multiple: true,
+                product_id: product_id
             }
         });
     };

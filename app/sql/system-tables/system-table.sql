@@ -7776,10 +7776,11 @@ CREATE TABLE shop (
   shop_type_id INT UNSIGNED NOT NULL,
   shop_type_name VARCHAR(200) NOT NULL,
   shop_status ENUM('Active', 'Archived') DEFAULT 'Active',
-  register_status ENUM('Open', 'Closed') DEFAULT 'Open',
+  register_status ENUM('Idle', 'Open', 'Closed') DEFAULT 'Idle',
+  archived_date DATETIME,
   open_date DATETIME,
   close_date DATETIME,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
   FOREIGN KEY (company_id) REFERENCES company(company_id),
@@ -7794,7 +7795,6 @@ CREATE TABLE shop (
 CREATE INDEX idx_shop_shop_type_id ON shop(shop_type_id);
 CREATE INDEX idx_shop_company_id ON shop(company_id);
 CREATE INDEX idx_shop_shop_status ON shop(shop_status);
-CREATE INDEX idx_shop_register_status ON shop(register_status);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP

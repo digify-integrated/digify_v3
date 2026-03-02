@@ -1,5 +1,5 @@
 import { disableButton, enableButton, generateDropdownOptions, generateDualListBox, resetForm } from '../../utilities/form-utilities.js';
-import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
+import { initializeDatatable, initializeSubDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { attachLogNotesHandler, attachLogNotesClassHandler  } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
@@ -47,10 +47,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const paymentMethodDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/PaymentMethodController.php',
+            dropdownSelector: '#payment_method_id',
+            data: { 
+                transaction: 'generate shop payment method options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
+    const floorPlanDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/FloorPlanController.php',
+            dropdownSelector: '#floor_plan_id',
+            data: { 
+                transaction: 'generate shop floor plan options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
+    const userAccountDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/UserAccountController.php',
+            dropdownSelector: '#user_account_id',
+            data: { 
+                transaction: 'generate shop user account options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
+    const productDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/ProductController.php',
+            dropdownSelector: '#product_id',
+            data: { 
+                transaction: 'generate shop product options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
     (async () => {
         const dropdownConfigs = [
             { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
-            { url: './app/Controllers/ShopTypeController.php', selector: '#shop_type_id', transaction: 'generate shop type options' }
+            { url: './app/Controllers/ShopTypeController.php', selector: '#shop_type_id', transaction: 'generate shop type options' },
         ];
         
         for (const cfg of dropdownConfigs) {
@@ -149,6 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
 
+    initializeSubDatatableControls('#shop-payment-method-datatable-search', '#shop-payment-method-datatable-length', '#shop-payment-method-table');
+    initializeSubDatatableControls('#shop-floor-plan-datatable-search', '#shop-floor-plan-datatable-length', '#shop-floor-plan-table');
+    initializeSubDatatableControls('#shop-access-datatable-search', '#shop-access-datatable-length', '#shop-access-table');
+    initializeSubDatatableControls('#shop-product-datatable-search', '#shop-product-datatable-length', '#shop-product-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'shop');
     
     $('#shop_form').validate({
@@ -222,6 +274,266 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     });
+
+    $('#shop_payment_method_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop payment method';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-payment-method');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop payment method failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-payment-method');
+                    reloadDatatable('#shop-payment-method-table');
+                    $('#shop-payment-method-modal').modal('hide');
+                    resetForm('shop_payment_method_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-payment-method');
+                }
+            } catch (error) {
+                enableButton('submit-shop-payment-method');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#shop_floor_plan_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop floor plan';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-floor-plan');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop floor plan failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-floor-plan');
+                    reloadDatatable('#shop-floor-plan-table');
+                    $('#shop-floor-plan-modal').modal('hide');
+                    resetForm('shop_floor_plan_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-floor-plan');
+                }
+            } catch (error) {
+                enableButton('submit-shop-floor-plan');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#shop_access_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop access';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-access');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop access failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-access');
+                    reloadDatatable('#shop-access-table');
+                    $('#shop-access-modal').modal('hide');
+                    resetForm('shop_access_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-access');
+                }
+            } catch (error) {
+                enableButton('submit-shop-access');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#shop_product_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop product';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-product');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop product failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-product');
+                    reloadDatatable('#shop-product-table');
+                    $('#shop-product-modal').modal('hide');
+                    resetForm('shop_product_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-product');
+                }
+            } catch (error) {
+                enableButton('submit-shop-product');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
     
     document.addEventListener('click', async (event) => {
         if (event.target.closest('#delete-shop')){
@@ -276,6 +588,352 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleSystemError(error, 'fetch_failed', `Failed to delete shop: ${error.message}`);
                 }
             }
+        }
+
+        if (event.target.closest('#archive-shop')){
+            const transaction = 'update shop archive';
+
+            Swal.fire({
+                title: 'Confirm Shop Archive',
+                text: 'Are you sure you want to archive this shop?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Archive',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_id', shop_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#unarchive-shop')){
+            const transaction = 'update shop unarchive';
+
+            Swal.fire({
+                title: 'Confirm Shop Unarchive',
+                text: 'Are you sure you want to unarchive this shop?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Unarchive',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_id', shop_id);
+
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.reload();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-payment-method')){
+            await paymentMethodDropdown();
+        }
+
+        if (event.target.closest('.view-shop-payment-method-log-notes')){
+            const button                    = event.target.closest('.view-shop-payment-method-log-notes');
+            const shop_payment_method_id    = button.dataset.shopPaymentMethodId;
+        
+            attachLogNotesClassHandler('shop_payment_method', shop_payment_method_id);
+        }
+        
+        if (event.target.closest('.delete-shop-payment-method')){
+            const transaction               = 'delete shop payment method';
+            const button                    = event.target.closest('.delete-shop-payment-method');
+            const shop_payment_method_id    = button.dataset.shopPaymentMethodId;
+        
+            Swal.fire({
+                title: 'Confirm Payment Method Deletion',
+                text: 'Are you sure you want to delete this payment method?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_payment_method_id', shop_payment_method_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-payment-method-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-floor-plan')){
+            await floorPlanDropdown();
+        }
+
+        if (event.target.closest('.view-shop-floor-plan-log-notes')){
+            const button                = event.target.closest('.view-shop-floor-plan-log-notes');
+            const shop_floor_plan_id    = button.dataset.shopFloorPlanId;
+        
+            attachLogNotesClassHandler('shop_floor_plan', shop_floor_plan_id);
+        }
+        
+        if (event.target.closest('.delete-shop-floor-plan')){
+            const transaction           = 'delete shop floor plan';
+            const button                = event.target.closest('.delete-shop-floor-plan');
+            const shop_floor_plan_id    = button.dataset.shopFloorPlanId;
+        
+            Swal.fire({
+                title: 'Confirm Floor Plan Deletion',
+                text: 'Are you sure you want to delete this floor plan?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_floor_plan_id', shop_floor_plan_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-floor-plan-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-access')){
+            await userAccountDropdown();
+        }
+
+        if (event.target.closest('.view-shop-access-log-notes')){
+            const button            = event.target.closest('.view-shop-access-log-notes');
+            const shop_access_id    = button.dataset.shopAccessId;
+        
+            attachLogNotesClassHandler('shop_access', shop_access_id);
+        }
+        
+        if (event.target.closest('.delete-shop-access')){
+            const transaction       = 'delete shop access';
+            const button            = event.target.closest('.delete-shop-access');
+            const shop_access_id    = button.dataset.shopAccessId;
+        
+            Swal.fire({
+                title: 'Confirm Access Deletion',
+                text: 'Are you sure you want to delete this access?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_access_id', shop_access_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-access-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-product')){
+            await productDropdown();
+        }
+
+        if (event.target.closest('.view-shop-product-log-notes')){
+            const button            = event.target.closest('.view-shop-product-log-notes');
+            const shop_product_id   = button.dataset.shopProductId;
+        
+            attachLogNotesClassHandler('shop_product', shop_product_id);
+        }
+        
+        if (event.target.closest('.delete-shop-product')){
+            const transaction       = 'delete shop product';
+            const button            = event.target.closest('.delete-shop-product');
+            const shop_product_id    = button.dataset.shopProductId;
+        
+            Swal.fire({
+                title: 'Confirm Product Deletion',
+                text: 'Are you sure you want to delete this product?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_product_id', shop_product_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-product-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
         }
     });
 });

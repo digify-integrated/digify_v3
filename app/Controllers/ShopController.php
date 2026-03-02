@@ -42,6 +42,10 @@ class ShopController {
         $this->shop             = $shop;
         $this->company          = $company;
         $this->shopType         = $shopType;
+        $this->paymentMethod    = $paymentMethod;
+        $this->floorPlan        = $floorPlan;
+        $this->userAccount      = $userAccount;
+        $this->product          = $product;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -88,13 +92,24 @@ class ShopController {
 
         match ($transaction) {
             'save shop'                             => $this->saveShop($lastLogBy),
+            'save shop payment method'              => $this->saveShopPaymentMethod($lastLogBy),
+            'save shop floor plan'                  => $this->saveShopFloorPlan($lastLogBy),
+            'save shop access'                      => $this->saveShopAccess($lastLogBy),
+            'save shop product'                     => $this->saveShopProduct($lastLogBy),
+            'update shop archive'                   => $this->updateShopArchive($lastLogBy),
+            'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
+            'delete shop payment method'            => $this->deleteShopPaymentMethod(),
+            'delete shop floor plan'                => $this->deleteShopFloorPlan(),
+            'delete shop access'                    => $this->deleteShopAccess(),
+            'delete shop product'                   => $this->deleteShopProduct(),
             'delete multiple shop'                  => $this->deleteMultipleShop(),
             'fetch shop details'                    => $this->fetchShopDetails(),
             'generate shop table'                   => $this->generateShopTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
             'generate shop access table'            => $this->generateShopAccessTable($lastLogBy, $pageId),
+            'generate shop product table'           => $this->generateShopProductTable($lastLogBy, $pageId),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -149,6 +164,158 @@ class ShopController {
         );
     }
 
+    public function saveShopPaymentMethod(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_payment_method_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId             = $_POST['shop_id'] ?? null;
+        $paymentMethodIds   = $_POST['payment_method_id'] ?? [];
+
+        if (empty($paymentMethodIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Payment Method Error', 'Please select the payment method.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        foreach ($paymentMethodIds as $paymentMethodId) {
+            $paymentMethodDetails  = $this->paymentMethod->fetchPaymentMethod($paymentMethodId);
+            $paymentMethodName     = $paymentMethodDetails['payment_method_name'] ?? null;
+
+            $this->shop->insertShopPaymentMethod(
+                $shopId,
+                $shopName,
+                $paymentMethodId,
+                $paymentMethodName,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Payment Method Success',
+            'The payment method has been saved successfully.'
+        );
+    }
+
+    public function saveShopFloorPlan(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_floor_plan_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId         = $_POST['shop_id'] ?? null;
+        $floorPlanIds   = $_POST['floor_plan_id'] ?? [];
+
+        if (empty($floorPlanIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Floor Plan Error', 'Please select the floor plan.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        foreach ($floorPlanIds as $floorPlanId) {
+            $floorPlanDetails  = $this->floorPlan->fetchFloorPlan($floorPlanId);
+            $floorPlanName     = $floorPlanDetails['floor_plan_name'] ?? null;
+
+            $this->shop->insertShopFloorPlan(
+                $shopId,
+                $shopName,
+                $floorPlanId,
+                $floorPlanName,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Floor Plan Success',
+            'The floor plan has been saved successfully.'
+        );
+    }
+
+    public function saveShopAccess(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_access_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId         = $_POST['shop_id'] ?? null;
+        $userAccountIds = $_POST['user_account_id'] ?? [];
+
+        if (empty($userAccountIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Access Error', 'Please select the user account.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        foreach ($userAccountIds as $userAccountId) {
+            $userAccountDetails     = $this->userAccount->fetchUserAccount($userAccountId);
+            $fileAs                 = $userAccountDetails['file_as'] ?? null;
+
+            $this->shop->insertShopUserAccount(
+                $shopId,
+                $shopName,
+                $userAccountId,
+                $fileAs,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Access Success',
+            'The access has been saved successfully.'
+        );
+    }
+
+    public function saveShopProduct(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_product_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId         = $_POST['shop_id'] ?? null;
+        $productIds     = $_POST['product_id'] ?? [];
+
+        if (empty($productIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Product Error', 'Please select the product.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        foreach ($productIds as $productId) {
+            $productDetails     = $this->product->fetchProduct($productId);
+            $productName        = $productDetails['product_name'] ?? null;
+
+            $this->shop->insertShopProduct(
+                $shopId,
+                $shopName,
+                $productId,
+                $productName,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Product Success',
+            'The product has been saved successfully.'
+        );
+    }
+
     /* =============================================================================================
         SECTION 2: INSERT METHOD
     ============================================================================================= */
@@ -156,6 +323,38 @@ class ShopController {
     /* =============================================================================================
         SECTION 3: UPDATE METHOD
     ============================================================================================= */
+
+    public function updateShopUnarchive(
+        int $lastLogBy
+    ) {
+        $shopId = $_POST['shop_id'] ?? null;
+
+        $this->shop->updateShopUnarchive(
+            $shopId,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Shop Unarchive Success',
+            'The shop has been unarchived successfully.'
+        );
+    }
+
+    public function updateShopArchive(
+        int $lastLogBy
+    ) {
+        $shopId = $_POST['shop_id'] ?? null;
+
+        $this->shop->updateShopArchive(
+            $shopId,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Shop Archive Success',
+            'The shop has been archived successfully.'
+        );
+    }
 
     /* =============================================================================================
         SECTION 4: FETCH METHOD
@@ -215,6 +414,50 @@ class ShopController {
         );
     }
 
+    public function deleteShopPaymentMethod() {
+        $shopPaymentMethodId = $_POST['shop_payment_method_id'] ?? null;
+
+        $this->shop->deleteShopPaymentMethod($shopPaymentMethodId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Payment Method Success',
+            'The payment method has been deleted successfully.'
+        );
+    }
+
+    public function deleteShopFloorPlan() {
+        $shopFloorPlanId = $_POST['shop_floor_plan_id'] ?? null;
+
+        $this->shop->deleteShopFloorPlan($shopFloorPlanId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Floor Plan Success',
+            'The floor plan has been deleted successfully.'
+        );
+    }
+
+    public function deleteShopAccess() {
+        $shopAccessId = $_POST['shop_access_id'] ?? null;
+
+        $this->shop->deleteShopAccess($shopAccessId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Access Success',
+            'The access has been deleted successfully.'
+        );
+    }
+
+    public function deleteShopProduct() {
+        $shopProductId = $_POST['shop_product_id'] ?? null;
+
+        $this->shop->deleteShopProduct($shopProductId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Product Success',
+            'The product has been deleted successfully.'
+        );
+    }
+
     /* =============================================================================================
         SECTION 6: CHECK METHOD
     ============================================================================================= */
@@ -239,12 +482,12 @@ class ShopController {
         );
 
         foreach ($shops as $row) {
-            $shopId     = $row['shop_id'];
-            $shopName   = $row['shop_name'];
-            $companyName  = $row['company_name'];
-            $shopTypeName  = $row['shop_type_name'];
-            $shopStatus  = $row['shop_status'];
-            $registerStatus  = $row['register_status'];
+            $shopId         = $row['shop_id'];
+            $shopName       = $row['shop_name'];
+            $companyName    = $row['company_name'];
+            $shopTypeName   = $row['shop_type_name'];
+            $shopStatus     = $row['shop_status'];
+            $registerStatus = $row['register_status'];
 
             $shopBadge = $shopStatus == 'Active' ? '<span class="badge badge-light-success">'. $shopStatus .'</span>' : '<span class="badge badge-light-danger">'. $shopStatus .'</span>';
             $registerBadge = $registerStatus == 'Open' ? '<span class="badge badge-light-success">'. $registerStatus .'</span>' : '<span class="badge badge-light-danger">'. $registerStatus .'</span>';
@@ -274,8 +517,8 @@ class ShopController {
         $shopId     = $_POST['shop_id'] ?? null;
         $response   = [];
 
-        $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
-        $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        $writeAccess    = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
         
         $shopPaymentMethods = $this->shop->generateShopPaymentMethodTable($shopId);
 
@@ -285,10 +528,7 @@ class ShopController {
 
             $deleteButton = '';
             if($writeAccess > 0){
-                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-shop-payment-method" data-bs-toggle="modal" data-bs-target="#shop-payment-method-modal" data-shop-payment-method-id="' . $shopPaymentMethodId . '">
-                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
-                                </button>
-                                <button class="btn btn-icon btn-light btn-active-light-danger delete-shop-payment-method" data-shop-payment-method-id="' . $shopPaymentMethodId . '">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-payment-method" data-shop-payment-method-id="' . $shopPaymentMethodId . '">
                                     <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                 </button>';
             }
@@ -301,7 +541,7 @@ class ShopController {
             }
 
             $response[] = [
-                'PAYMENT_METHOD_NAME'   => $paymentMethodName,
+                'PAYMENT_METHOD'   => $paymentMethodName,
                 'ACTION'                => '<div class="d-flex justify-content-end gap-3">
                                                 '. $logNotes .'
                                                 '. $deleteButton .'
@@ -334,10 +574,7 @@ class ShopController {
 
             $deleteButton = '';
             if($writeAccess > 0){
-                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-shop-floor-plan" data-bs-toggle="modal" data-bs-target="#shop-floor-plan-modal" data-shop-floor-plan-id="' . $shopFloorPlanId . '">
-                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
-                                </button>
-                                <button class="btn btn-icon btn-light btn-active-light-danger delete-shop-floor-plan" data-shop-floor-plan-id="' . $shopFloorPlanId . '">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-floor-plan" data-shop-floor-plan-id="' . $shopFloorPlanId . '">
                                     <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                 </button>';
             }
@@ -370,8 +607,8 @@ class ShopController {
         $shopId     = $_POST['shop_id'] ?? null;
         $response   = [];
 
-        $writeAccess        = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
-        $logNotesAccess     = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        $writeAccess    = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
         
         $shopFloorPlans = $this->shop->generateShopAccessTable($shopId);
 
@@ -381,10 +618,7 @@ class ShopController {
 
             $deleteButton = '';
             if($writeAccess > 0){
-                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-warning update-shop-access" data-bs-toggle="modal" data-bs-target="#shop-access-modal" data-shop-access-id="' . $shopAccessId . '">
-                                    <i class="ki-outline ki-pencil fs-3 m-0 fs-5"></i>
-                                </button>
-                                <button class="btn btn-icon btn-light btn-active-light-danger delete-shop-access" data-shop-access-id="' . $shopAccessId . '">
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-access" data-shop-access-id="' . $shopAccessId . '">
                                     <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
                                 </button>';
             }
@@ -392,8 +626,8 @@ class ShopController {
             $logNotes = '';
             if($logNotesAccess > 0){
                 $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-shop-access-log-notes" data-shop-access-id="' . $shopAccessId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
-                            <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
-                        </button>';
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                            </button>';
             }
 
             $response[] = [
@@ -408,10 +642,61 @@ class ShopController {
         echo json_encode($response);
     }
 
-    public function generateShopOptions() {
-        $multiple       = $_POST['multiple'] ?? false;
+    public function generateShopProductTable(
+        int $userId,
+        int $pageId
+    ) {
         $shopId     = $_POST['shop_id'] ?? null;
-        $response       = [];
+        $response   = [];
+
+        $writeAccess    = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        
+        $shopProducts = $this->shop->generateShopProductTable($shopId);
+
+        foreach ($shopProducts as $row) {
+            $shopProductId  = $row['shop_product_id'];
+            $productId      = $row['product_id'];
+            $productName    = $row['product_name'];
+
+            $productDetails = $this->product->fetchProduct($productId);
+            $quantityOnHand = $productDetails['quantity_on_hand'] ?? 0;
+            $cost           = $productDetails['cost'] ?? 0;
+            $salesPrice     = $productDetails['sales_price'] ?? 0;
+
+            $deleteButton = '';
+            if($writeAccess > 0){
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-product" data-shop-product-id="' . $shopProductId . '">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+            
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-shop-product-log-notes" data-shop-product-id="' . $shopProductId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $response[] = [
+                'PRODUCT'       => $productName,
+                'QUANTITY'      => number_format($quantityOnHand, 4),
+                'SALES_PRICE'   => number_format($salesPrice, 2),
+                'COST'          => number_format($cost, 2),
+                'ACTION'        => '<div class="d-flex justify-content-end gap-3">
+                                        '. $logNotes .'
+                                        '. $deleteButton .'
+                                    </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateShopOptions() {
+        $multiple   = $_POST['multiple'] ?? false;
+        $shopId     = $_POST['shop_id'] ?? null;
+        $response   = [];
 
         if(!$multiple){
             $response[] = [

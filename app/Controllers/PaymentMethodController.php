@@ -67,16 +67,17 @@ class PaymentMethodController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save payment method'               => $this->savePaymentMethod($lastLogBy),
-            'delete payment method'             => $this->deletePaymentMethod(),
-            'delete multiple payment method'    => $this->deleteMultiplePaymentMethod(),
-            'fetch payment method details'      => $this->fetchPaymentMethodDetails(),
-            'generate payment method table'     => $this->generatePaymentMethodTable(),
-            'generate payment method options'   => $this->generatePaymentMethodOptions(),
-            default                             => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'save payment method'                   => $this->savePaymentMethod($lastLogBy),
+            'delete payment method'                 => $this->deletePaymentMethod(),
+            'delete multiple payment method'        => $this->deleteMultiplePaymentMethod(),
+            'fetch payment method details'          => $this->fetchPaymentMethodDetails(),
+            'generate payment method table'         => $this->generatePaymentMethodTable(),
+            'generate payment method options'       => $this->generatePaymentMethodOptions(),
+            'generate shop payment method options'  => $this->generateShopPaymentMethodOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
+                                                            'Transaction Failed',
+                                                            'We encountered an issue while processing your request.'
+                                                        )
         };
     }
 
@@ -222,6 +223,30 @@ class PaymentMethodController {
         }
 
         $paymentMethods = $this->paymentMethod->generatePaymentMethodOptions();
+
+        foreach ($paymentMethods as $row) {
+            $response[] = [
+                'id'    => $row['payment_method_id'],
+                'text'  => $row['payment_method_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopPaymentMethodOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $paymentMethods = $this->paymentMethod->generateShopPaymentMethodOptions($shopId);
 
         foreach ($paymentMethods as $row) {
             $response[] = [

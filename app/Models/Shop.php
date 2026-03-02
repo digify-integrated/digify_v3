@@ -45,9 +45,135 @@ class Shop extends Model {
         SECTION 2: INSERT METHODS
     ============================================================================================= */
 
+    public function insertShopPaymentMethod(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_payment_method_id,
+        string $p_payment_method_name,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopPaymentMethod(
+            :p_shop_id,
+            :p_shop_name,
+            :p_payment_method_id,
+            :p_payment_method_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_shop_name'           => $p_shop_name,
+            'p_payment_method_id'   => $p_payment_method_id,
+            'p_payment_method_name' => $p_payment_method_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopFloorPlan(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_floor_plan_id,
+        string $p_floor_plan_name,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopFloorPlan(
+            :p_shop_id,
+            :p_shop_name,
+            :p_floor_plan_id,
+            :p_floor_plan_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_shop_name'           => $p_shop_name,
+            'p_floor_plan_id'       => $p_floor_plan_id,
+            'p_floor_plan_name'     => $p_floor_plan_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopUserAccount(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_user_account_id,
+        string $p_file_as,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopUserAccount(
+            :p_shop_id,
+            :p_shop_name,
+            :p_user_account_id,
+            :p_file_as,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_shop_name'       => $p_shop_name,
+            'p_user_account_id' => $p_user_account_id,
+            'p_file_as'         => $p_file_as,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopProduct(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_product_id,
+        string $p_product_name,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopProduct(
+            :p_shop_id,
+            :p_shop_name,
+            :p_product_id,
+            :p_product_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_shop_name'       => $p_shop_name,
+            'p_product_id'      => $p_product_id,
+            'p_product_name'    => $p_product_name,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
+
+    public function updateShopUnarchive(
+        int $p_shop_id,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopUnarchive(
+            :p_shop_id,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopArchive(
+        int $p_shop_id,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopArchive(
+            :p_shop_id,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
 
     /* =============================================================================================
         SECTION 4: FETCH METHODS
@@ -78,6 +204,54 @@ class Shop extends Model {
         
         return $this->query($sql, [
             'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function deleteShopPaymentMethod(
+        int $p_shop_payment_method_id
+    ) {
+        $sql = 'CALL deleteShopPaymentMethod(
+            :p_shop_payment_method_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_payment_method_id' => $p_shop_payment_method_id
+        ]);
+    }
+
+    public function deleteShopFloorPlan(
+        int $p_shop_floor_plan_id
+    ) {
+        $sql = 'CALL deleteShopFloorPlan(
+            :p_shop_floor_plan_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_floor_plan_id' => $p_shop_floor_plan_id
+        ]);
+    }
+
+    public function deleteShopAccess(
+        int $p_shop_access_id
+    ) {
+        $sql = 'CALL deleteShopAccess(
+            :p_shop_access_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_access_id' => $p_shop_access_id
+        ]);
+    }
+
+    public function deleteShopProduct(
+        int $p_shop_product_id
+    ) {
+        $sql = 'CALL deleteShopProduct(
+            :p_shop_product_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_product_id' => $p_shop_product_id
         ]);
     }
 
@@ -150,6 +324,18 @@ class Shop extends Model {
         null|string $p_shop_id
     ) {
         $sql = 'CALL generateShopAccessTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function generateShopProductTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopProductTable(
             :p_shop_id
         )';
         

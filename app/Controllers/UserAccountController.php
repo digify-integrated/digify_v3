@@ -101,6 +101,7 @@ class UserAccountController {
             'generate user account table'                       => $this->generateUserAccountTable(),
             'generate assigned user account role list'          => $this->generateAssignedUserAccountRoleList($lastLogBy),
             'generate user account role dual listbox options'   => $this->generateUserAccountRoleDualListBoxOptions(),
+            'generate shop user account options'                => $this->generateShopUserAccountOptions(),
             default                                             => $this->systemHelper::sendErrorResponse(
                                                                         'Transaction Failed',
                                                                         'We encountered an issue while processing your request.'
@@ -951,6 +952,21 @@ class UserAccountController {
             $response[] = [
                 'id'    => $row['role_id'],
                 'text'  => $row['role_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateShopUserAccountOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $response   = [];
+        $users      = $this->userAccount->generateShopUserAccountOptions($shopId);
+
+        foreach ($users as $row) {
+            $response[] = [
+                'id'    => $row['user_account_id'],
+                'text'  => $row['file_as']
             ];
         }
 

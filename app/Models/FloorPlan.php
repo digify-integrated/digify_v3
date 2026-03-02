@@ -202,6 +202,18 @@ class FloorPlan extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateShopFloorPlanOptions(
+        int $p_shop_id
+    ) {
+        $sql = 'CALL generateShopFloorPlanOptions(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

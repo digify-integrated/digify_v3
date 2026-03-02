@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 02, 2026 at 10:28 AM
+-- Generation Time: Mar 02, 2026 at 06:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1465,8 +1465,80 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShop` (IN `p_shop_id` INT)   
 
     START TRANSACTION;
 
+    DELETE FROM shop_access
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_product
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_payment_method
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_floor_plan
+    WHERE shop_id = p_shop_id;
+
     DELETE FROM shop
     WHERE shop_id = p_shop_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopAccess`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopAccess` (IN `p_shop_access_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_access
+    WHERE shop_access_id = p_shop_access_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopFloorPlan`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopFloorPlan` (IN `p_shop_floor_plan_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_floor_plan
+    WHERE shop_floor_plan_id = p_shop_floor_plan_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopPaymentMethod`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopPaymentMethod` (IN `p_shop_payment_method_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_payment_method
+    WHERE shop_payment_method_id = p_shop_payment_method_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopProduct` (IN `p_shop_product_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_product
+    WHERE shop_product_id = p_shop_product_id;
 
     COMMIT;
 END$$
@@ -3756,6 +3828,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateScrapTable` (IN `p_product_
         SET query = CONCAT(query, ' WHERE ', filter_conditions);
     END IF;
 
+
     SET query = CONCAT(query, ' ORDER BY product_name');
 
     PREPARE stmt FROM query;
@@ -3771,6 +3844,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopAccessTable` (IN `p_sho
     ORDER BY file_as;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateShopFloorPlanOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopFloorPlanOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT floor_plan_id, floor_plan_name 
+    FROM floor_plan 
+    WHERE floor_plan_id NOT IN (
+        SELECT floor_plan_id 
+        FROM shop_floor_plan 
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY floor_plan_name;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateShopFloorPlanTable`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopFloorPlanTable` (IN `p_shop_id` INT)   BEGIN
 	SELECT shop_floor_plan_id, floor_plan_id, floor_plan_name
@@ -3779,12 +3864,47 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopFloorPlanTable` (IN `p_
     ORDER BY floor_plan_name;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateShopPaymentMethodOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopPaymentMethodOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT payment_method_id, payment_method_name 
+    FROM payment_method 
+    WHERE payment_method_id NOT IN (
+        SELECT payment_method_id 
+        FROM shop_payment_method 
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY payment_method_name;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateShopPaymentMethodTable`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopPaymentMethodTable` (IN `p_shop_id` INT)   BEGIN
 	SELECT shop_payment_method_id, payment_method_name
     FROM shop_payment_method 
     WHERE shop_id = p_shop_id
     ORDER BY payment_method_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopProductOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopProductOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT product_id, product_name 
+    FROM product
+    WHERE show_on_pos = 'Yes'
+    AND product_status = 'Active'
+    AND is_variant = 'No'
+    AND product_id NOT IN (
+        SELECT product_id
+        FROM shop_product 
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY product_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopProductTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopProductTable` (IN `p_shop_id` INT)   BEGIN
+	SELECT shop_product_id, product_id, product_name
+    FROM shop_product 
+    WHERE shop_id = p_shop_id
+    ORDER BY product_name;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateShopTable`$$
@@ -3858,6 +3978,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopTypeTable` ()   BEGIN
 	SELECT shop_type_id, shop_type_name
     FROM shop_type 
     ORDER BY shop_type_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopUserAccountOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopUserAccountOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT user_account_id, file_as 
+    FROM user_account 
+    WHERE user_account_id NOT IN (
+        SELECT user_account_id 
+        FROM shop_access 
+        WHERE shop_id = p_shop_id
+    )
+    AND user_account_id != 1
+    ORDER BY file_as;
 END$$
 
 DROP PROCEDURE IF EXISTS `generateStateOptions`$$
@@ -4676,6 +4809,114 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertScrap` (IN `p_product_id` INT
     COMMIT;
 
     SELECT v_new_scrap_id AS new_scrap_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopFloorPlan`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopFloorPlan` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_floor_plan_id` INT, IN `p_floor_plan_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_floor_plan (
+        shop_id,
+        shop_name,
+        floor_plan_id,
+        floor_plan_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_floor_plan_id,
+        p_floor_plan_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopPaymentMethod`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopPaymentMethod` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_payment_method_id` INT, IN `p_payment_method_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_payment_method (
+        shop_id,
+        shop_name,
+        payment_method_id,
+        payment_method_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_payment_method_id,
+        p_payment_method_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopProduct`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopProduct` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_product (
+        shop_id,
+        shop_name,
+        product_id,
+        product_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_product_id,
+        p_product_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopUserAccount`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopUserAccount` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_user_account_id` INT, IN `p_file_as` VARCHAR(300), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_access (
+        shop_id,
+        shop_name,
+        user_account_id,
+        file_as,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_user_account_id,
+        p_file_as,
+        p_last_log_by
+    );
+
+    COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `insertUploadSettingFileExtension`$$
@@ -8705,6 +8946,41 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateScrap` (IN `p_scrap_id` INT, 
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `updateShopArchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopArchive` (IN `p_shop_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop
+    SET shop_status     = 'Archived',
+        archived_date   = NOW(),
+        last_log_by     = p_last_log_by
+    WHERE shop_id       = p_shop_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateShopUnarchive`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopUnarchive` (IN `p_shop_id` INT, IN `p_last_log_by` INT)   BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop
+    SET shop_status = 'Active',
+        last_log_by = p_last_log_by
+    WHERE shop_id   = p_shop_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateSupplierArchive`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateSupplierArchive` (IN `p_supplier_id` INT, IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -9168,7 +9444,40 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (12, 'role_system_action_permission', 24, 'Role system action permission changed.<br/><br/>System Action Access: 0 -> 1<br/>', 2, '2026-03-02 12:02:31'),
 (13, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 09:14:57 -> 2026-03-02 15:50:05<br/>', 1, '2026-03-02 15:50:05'),
 (14, 'shop', 2, 'Shop changed.<br/><br/>Shop Name: test -> testasdasd<br/>Shop Type: Bar -> Bookstore<br/>', 2, '2026-03-02 16:12:03'),
-(15, 'shop', 3, 'Shop created.', 2, '2026-03-02 16:16:24');
+(15, 'shop', 3, 'Shop created.', 2, '2026-03-02 16:16:24'),
+(16, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 15:50:05 -> 2026-03-02 21:21:08<br/>', 1, '2026-03-02 21:21:08'),
+(17, 'product_category', 1, 'Product category created.', 2, '2026-03-02 22:43:07'),
+(18, 'product_category_map', 1, 'Product category map created.', 2, '2026-03-02 22:43:14'),
+(19, 'product', 1, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-02 22:43:24'),
+(20, 'shop_payment_method', 1, 'Shop payment method created.', 2, '2026-03-02 23:35:25'),
+(21, 'shop_floor_plan', 1, 'Shop floor plan created.', 2, '2026-03-02 23:36:02'),
+(22, 'shop_access', 1, 'Shop access created.', 2, '2026-03-02 23:36:09'),
+(23, 'shop_product', 1, 'Shop product created.', 2, '2026-03-02 23:39:10'),
+(24, 'shop_payment_method', 2, 'Shop payment method created.', 2, '2026-03-02 23:49:56'),
+(25, 'shop_payment_method', 3, 'Shop payment method created.', 2, '2026-03-02 23:50:00'),
+(26, 'shop_floor_plan', 2, 'Shop floor plan created.', 2, '2026-03-02 23:50:15'),
+(27, 'shop_access', 2, 'Shop access created.', 2, '2026-03-02 23:50:24'),
+(28, 'shop_floor_plan', 3, 'Shop floor plan created.', 2, '2026-03-02 23:57:06'),
+(29, 'shop_floor_plan', 4, 'Shop floor plan created.', 2, '2026-03-02 23:57:14'),
+(30, 'shop_payment_method', 4, 'Shop payment method created.', 2, '2026-03-02 23:57:17'),
+(31, 'shop_access', 3, 'Shop access created.', 2, '2026-03-02 23:57:28'),
+(32, 'shop_product', 2, 'Shop product created.', 2, '2026-03-02 23:57:39'),
+(33, 'shop_product', 3, 'Shop product created.', 2, '2026-03-02 23:57:45'),
+(34, 'shop_product', 4, 'Shop product created.', 2, '2026-03-02 23:59:47'),
+(35, 'shop_access', 4, 'Shop access created.', 2, '2026-03-03 00:01:00'),
+(36, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Active -> Archived<br/>', 2, '2026-03-03 00:14:13'),
+(37, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Archived -> Active<br/>', 2, '2026-03-03 00:14:19'),
+(38, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Active -> Archived<br/>Archived Date: 2026-03-03 00:14:13 -> 2026-03-03 00:14:46<br/>', 2, '2026-03-03 00:14:46'),
+(39, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Archived -> Active<br/>', 2, '2026-03-03 00:14:50'),
+(40, 'shop_product', 5, 'Shop product created.', 2, '2026-03-03 00:15:17'),
+(41, 'shop', 4, 'Shop created.', 2, '2026-03-03 00:53:48'),
+(42, 'product', 2, 'Product created.', 2, '2026-03-03 00:55:25'),
+(43, 'product_category_map', 2, 'Product category map created.', 2, '2026-03-03 00:55:28'),
+(44, 'product', 2, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-03 00:55:36'),
+(45, 'shop_product', 6, 'Shop product created.', 2, '2026-03-03 00:55:43'),
+(46, 'shop_payment_method', 5, 'Shop payment method created.', 2, '2026-03-03 00:55:51'),
+(47, 'shop_floor_plan', 5, 'Shop floor plan created.', 2, '2026-03-03 00:55:54'),
+(48, 'shop_access', 5, 'Shop access created.', 2, '2026-03-03 00:55:59');
 
 -- --------------------------------------------------------
 
@@ -15434,7 +15743,11 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (4, 2, 'l.agulto@christianmotors.ph', '::1', '2026-02-28 16:31:18', 1, '2026-02-28 16:31:18', '2026-02-28 16:31:18', 1),
 (5, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-01 10:45:44', 1, '2026-03-01 10:45:44', '2026-03-01 10:45:44', 1),
 (6, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 09:14:57', 1, '2026-03-02 09:14:57', '2026-03-02 09:14:57', 1),
-(7, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 15:50:05', 1, '2026-03-02 15:50:05', '2026-03-02 15:50:05', 1);
+(7, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 15:50:05', 1, '2026-03-02 15:50:05', '2026-03-02 15:50:05', 1),
+(8, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:20:58', 0, '2026-03-02 21:20:58', '2026-03-02 21:20:58', 1),
+(9, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:21:01', 0, '2026-03-02 21:21:01', '2026-03-02 21:21:01', 1),
+(10, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:21:03', 0, '2026-03-02 21:21:03', '2026-03-02 21:21:03', 1),
+(11, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 21:21:08', 1, '2026-03-02 21:21:08', '2026-03-02 21:21:08', 1);
 
 -- --------------------------------------------------------
 
@@ -16268,7 +16581,7 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Test', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Draft', '2026-03-02 11:36:11', '2026-03-02 11:36:11', 2);
+(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2);
 
 --
 -- Triggers `product`
@@ -16526,6 +16839,13 @@ CREATE TABLE `product_category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `product_category`
+--
+
+INSERT INTO `product_category` (`product_category_id`, `product_category_name`, `parent_category_id`, `parent_category_name`, `costing_method`, `display_order`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Appetizer', 0, '', 'Average Cost', 1, '2026-03-02 22:43:07', '2026-03-02 22:43:07', 2);
+
+--
 -- Triggers `product_category`
 --
 DROP TRIGGER IF EXISTS `trg_product_category_insert`;
@@ -16584,6 +16904,13 @@ CREATE TABLE `product_category_map` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_category_map`
+--
+
+INSERT INTO `product_category_map` (`product_category_map_id`, `product_id`, `product_name`, `product_category_id`, `product_category_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(2, 2, 'Burger', 1, 'Appetizer', '2026-03-03 00:55:28', '2026-03-03 00:55:28', 2);
 
 --
 -- Triggers `product_category_map`
@@ -17521,7 +17848,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$RGKYvoN6IUYpfh19kP5aPOJmIiiJhGMiamab1kTjXSb3IBl8zFFz6', '2026-02-27 14:52:10', '2026-03-02 15:50:05', 1);
+(1, 2, '$2y$10$n7sqf9PRQ9s9ximKR7g/R.APe/pKAWE7b/z1Fe1wrSgTABRyk3sGq', '2026-02-27 14:52:10', '2026-03-02 21:21:08', 1);
 
 -- --------------------------------------------------------
 
@@ -17539,6 +17866,7 @@ CREATE TABLE `shop` (
   `shop_type_name` varchar(200) NOT NULL,
   `shop_status` enum('Active','Archived') DEFAULT 'Active',
   `register_status` enum('Open','Closed') DEFAULT 'Open',
+  `archived_date` datetime DEFAULT NULL,
   `open_date` datetime DEFAULT NULL,
   `close_date` datetime DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
@@ -17550,8 +17878,8 @@ CREATE TABLE `shop` (
 -- Dumping data for table `shop`
 --
 
-INSERT INTO `shop` (`shop_id`, `shop_name`, `company_id`, `company_name`, `shop_type_id`, `shop_type_name`, `shop_status`, `register_status`, `open_date`, `close_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(3, 'test', 1, 'Jabs', 5, 'Clothing Store', 'Active', 'Open', NULL, NULL, '2026-03-02 16:16:24', '2026-03-02 16:16:24', 2);
+INSERT INTO `shop` (`shop_id`, `shop_name`, `company_id`, `company_name`, `shop_type_id`, `shop_type_name`, `shop_status`, `register_status`, `archived_date`, `open_date`, `close_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(4, 'Test', 1, 'Jabs', 7, 'Bookstore', 'Active', 'Open', NULL, NULL, NULL, '2026-03-03 00:53:48', '2026-03-03 00:53:48', 2);
 
 --
 -- Triggers `shop`
@@ -17591,6 +17919,10 @@ CREATE TRIGGER `trg_shop_update` AFTER UPDATE ON `shop` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Register Status: ", OLD.register_status, " -> ", NEW.register_status, "<br/>");
     END IF;
 
+    IF NEW.archived_date <> OLD.archived_date THEN
+        SET audit_log = CONCAT(audit_log, "Archived Date: ", OLD.archived_date, " -> ", NEW.archived_date, "<br/>");
+    END IF;
+
     IF NEW.open_date <> OLD.open_date THEN
         SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
     END IF;
@@ -17624,6 +17956,13 @@ CREATE TABLE `shop_access` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop_access`
+--
+
+INSERT INTO `shop_access` (`shop_access_id`, `shop_id`, `shop_name`, `user_account_id`, `file_as`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(5, 4, 'Test', 2, 'Lawrence Agulto', '2026-03-03 00:55:59', '2026-03-03 00:55:59', 2);
 
 --
 -- Triggers `shop_access`
@@ -17678,6 +18017,13 @@ CREATE TABLE `shop_floor_plan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `shop_floor_plan`
+--
+
+INSERT INTO `shop_floor_plan` (`shop_floor_plan_id`, `shop_id`, `shop_name`, `floor_plan_id`, `floor_plan_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(5, 4, 'Test', 2, 'Patio', '2026-03-03 00:55:54', '2026-03-03 00:55:54', 2);
+
+--
 -- Triggers `shop_floor_plan`
 --
 DROP TRIGGER IF EXISTS `trg_shop_floor_plan_insert`;
@@ -17730,6 +18076,13 @@ CREATE TABLE `shop_payment_method` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `shop_payment_method`
+--
+
+INSERT INTO `shop_payment_method` (`shop_payment_method_id`, `shop_id`, `shop_name`, `payment_method_id`, `payment_method_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(5, 4, 'Test', 4, 'Bank Transfer', '2026-03-03 00:55:51', '2026-03-03 00:55:51', 2);
+
+--
 -- Triggers `shop_payment_method`
 --
 DROP TRIGGER IF EXISTS `trg_shop_payment_method_insert`;
@@ -17780,6 +18133,13 @@ CREATE TABLE `shop_product` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop_product`
+--
+
+INSERT INTO `shop_product` (`shop_product_id`, `shop_id`, `shop_name`, `product_id`, `product_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(6, 4, 'Test', 2, 'Burger', '2026-03-03 00:55:43', '2026-03-03 00:55:43', 2);
 
 --
 -- Triggers `shop_product`
@@ -18654,7 +19014,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-02 15:50:05', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-02 15:50:05', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-02 21:21:08', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-02 21:21:08', 1);
 
 --
 -- Triggers `user_account`
@@ -19714,7 +20074,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -19906,7 +20266,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -19966,7 +20326,7 @@ ALTER TABLE `physical_inventory`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product_attribute`
@@ -19984,13 +20344,13 @@ ALTER TABLE `product_bom`
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_category_map`
 --
 ALTER TABLE `product_category_map`
-  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product_pricelist`
@@ -20074,31 +20434,31 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT for table `shop`
 --
 ALTER TABLE `shop`
-  MODIFY `shop_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `shop_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `shop_access`
 --
 ALTER TABLE `shop_access`
-  MODIFY `shop_access_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `shop_access_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `shop_floor_plan`
 --
 ALTER TABLE `shop_floor_plan`
-  MODIFY `shop_floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `shop_floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`
 --
 ALTER TABLE `shop_payment_method`
-  MODIFY `shop_payment_method_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `shop_payment_method_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `shop_product`
 --
 ALTER TABLE `shop_product`
-  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `shop_type`

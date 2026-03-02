@@ -78,6 +78,7 @@ class FloorPlanController {
             'generate floor plan table'         => $this->generateFloorPlanTable(),
             'generate floor plan tables table'  => $this->generateFloorPlanTablesTable($lastLogBy, $pageId),
             'generate floor plan options'       => $this->generateFloorPlanOptions(),
+            'generate shop floor plan options'  => $this->generateShopFloorPlanOptions(),
             default                             => $this->systemHelper::sendErrorResponse(
                                                     'Transaction Failed',
                                                     'We encountered an issue while processing your request.'
@@ -345,6 +346,30 @@ class FloorPlanController {
         }
 
         $floorPlans = $this->floorPlan->generateFloorPlanOptions();
+
+        foreach ($floorPlans as $row) {
+            $response[] = [
+                'id'    => $row['floor_plan_id'],
+                'text'  => $row['floor_plan_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopFloorPlanOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $floorPlans = $this->floorPlan->generateShopFloorPlanOptions($shopId);
 
         foreach ($floorPlans as $row) {
             $response[] = [

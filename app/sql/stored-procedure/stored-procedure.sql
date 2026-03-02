@@ -1695,6 +1695,23 @@ BEGIN
     WHERE role_id = p_role_id;
 END //
 
+DROP PROCEDURE IF EXISTS generateShopUserAccountOptions//
+
+CREATE PROCEDURE generateShopUserAccountOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT user_account_id, file_as 
+    FROM user_account 
+    WHERE user_account_id NOT IN (
+        SELECT user_account_id 
+        FROM shop_access 
+        WHERE shop_id = p_shop_id
+    )
+    AND user_account_id != 1
+    ORDER BY file_as;
+END //
+
 DROP PROCEDURE IF EXISTS generateUserAccountRoleDualListBoxOptions//
 
 CREATE PROCEDURE generateUserAccountRoleDualListBoxOptions(
@@ -11957,6 +11974,25 @@ BEGIN
     ORDER BY product_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateShopProductOptions//
+
+CREATE PROCEDURE generateShopProductOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT product_id, product_name 
+    FROM product
+    WHERE show_on_pos = 'Yes'
+    AND product_status = 'Active'
+    AND is_variant = 'No'
+    AND product_id NOT IN (
+        SELECT product_id
+        FROM shop_product 
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY product_name;
+END //
+
 DROP PROCEDURE IF EXISTS generateActiveProductOptions//
 
 CREATE PROCEDURE generateActiveProductOptions()
@@ -12895,6 +12931,22 @@ BEGIN
     ORDER BY floor_plan_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateShopFloorPlanOptions//
+
+CREATE PROCEDURE generateShopFloorPlanOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT floor_plan_id, floor_plan_name 
+    FROM floor_plan 
+    WHERE floor_plan_id NOT IN (
+        SELECT floor_plan_id 
+        FROM shop_floor_plan 
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY floor_plan_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -13036,6 +13088,22 @@ CREATE PROCEDURE generatePaymentMethodOptions()
 BEGIN
 	SELECT payment_method_id, payment_method_name 
     FROM payment_method 
+    ORDER BY payment_method_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopPaymentMethodOptions//
+
+CREATE PROCEDURE generateShopPaymentMethodOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT payment_method_id, payment_method_name 
+    FROM payment_method 
+    WHERE payment_method_id NOT IN (
+        SELECT payment_method_id 
+        FROM shop_payment_method 
+        WHERE shop_id = p_shop_id
+    )
     ORDER BY payment_method_name;
 END //
 
@@ -13264,9 +13332,194 @@ END //
    SECTION 2: INSERT PROCEDURES
 ============================================================================================= */
 
+DROP PROCEDURE IF EXISTS insertShopPaymentMethod//
+
+CREATE PROCEDURE insertShopPaymentMethod(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_payment_method_id INT, 
+    IN p_payment_method_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_payment_method (
+        shop_id,
+        shop_name,
+        payment_method_id,
+        payment_method_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_payment_method_id,
+        p_payment_method_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopFloorPlan//
+
+CREATE PROCEDURE insertShopFloorPlan(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_floor_plan_id INT, 
+    IN p_floor_plan_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_floor_plan (
+        shop_id,
+        shop_name,
+        floor_plan_id,
+        floor_plan_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_floor_plan_id,
+        p_floor_plan_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopUserAccount//
+
+CREATE PROCEDURE insertShopUserAccount(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_user_account_id INT, 
+    IN p_file_as VARCHAR(300), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_access (
+        shop_id,
+        shop_name,
+        user_account_id,
+        file_as,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_user_account_id,
+        p_file_as,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopProduct//
+
+CREATE PROCEDURE insertShopProduct(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_product_id INT, 
+    IN p_product_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_product (
+        shop_id,
+        shop_name,
+        product_id,
+        product_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_product_id,
+        p_product_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateShopUnarchive//
+
+CREATE PROCEDURE updateShopUnarchive(
+	IN p_shop_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop
+    SET shop_status = 'Active',
+        last_log_by = p_last_log_by
+    WHERE shop_id   = p_shop_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopArchive//
+
+CREATE PROCEDURE updateShopArchive(
+	IN p_shop_id INT, 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop
+    SET shop_status     = 'Archived',
+        archived_date   = NOW(),
+        last_log_by     = p_last_log_by
+    WHERE shop_id       = p_shop_id;
+
+    COMMIT;
+END //
 
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
@@ -13300,8 +13553,96 @@ BEGIN
 
     START TRANSACTION;
 
+    DELETE FROM shop_access
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_product
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_payment_method
+    WHERE shop_id = p_shop_id;
+
+    DELETE FROM shop_floor_plan
+    WHERE shop_id = p_shop_id;
+
     DELETE FROM shop
     WHERE shop_id = p_shop_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteShopPaymentMethod//
+
+CREATE PROCEDURE deleteShopPaymentMethod(
+    IN p_shop_payment_method_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_payment_method
+    WHERE shop_payment_method_id = p_shop_payment_method_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteShopFloorPlan//
+
+CREATE PROCEDURE deleteShopFloorPlan(
+    IN p_shop_floor_plan_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_floor_plan
+    WHERE shop_floor_plan_id = p_shop_floor_plan_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteShopAccess//
+
+CREATE PROCEDURE deleteShopAccess(
+    IN p_shop_access_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_access
+    WHERE shop_access_id = p_shop_access_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteShopProduct//
+
+CREATE PROCEDURE deleteShopProduct(
+    IN p_shop_product_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_product
+    WHERE shop_product_id = p_shop_product_id;
 
     COMMIT;
 END //
@@ -13425,6 +13766,18 @@ BEGIN
     FROM shop_access 
     WHERE shop_id = p_shop_id
     ORDER BY file_as;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopProductTable//
+
+CREATE PROCEDURE generateShopProductTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_product_id, product_id, product_name
+    FROM shop_product 
+    WHERE shop_id = p_shop_id
+    ORDER BY product_name;
 END //
 
 DROP PROCEDURE IF EXISTS generateShopOptions//

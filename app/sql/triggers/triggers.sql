@@ -4277,6 +4277,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Register Status: ", OLD.register_status, " -> ", NEW.register_status, "<br/>");
     END IF;
 
+    IF NEW.archived_date <> OLD.archived_date THEN
+        SET audit_log = CONCAT(audit_log, "Archived Date: ", OLD.archived_date, " -> ", NEW.archived_date, "<br/>");
+    END IF;
+
     IF NEW.open_date <> OLD.open_date THEN
         SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
     END IF;

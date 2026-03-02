@@ -188,6 +188,18 @@ class UserAccount extends Model {
         ]);
     }
 
+    public function generateShopUserAccountOptions(
+        int $p_shop_id
+    ) {
+        $sql = 'CALL generateShopUserAccountOptions(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

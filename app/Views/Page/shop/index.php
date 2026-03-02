@@ -14,7 +14,7 @@
                                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true" style="z-index: 107; position: fixed; inset: 0px 0px auto auto; margin: 0px; transform: translate(-60px, 539px);" data-popper-placement="bottom-end">';
                     
                         if ($permissions['export'] > 0) {
-                            $action .= '<div class="shop px-3">
+                            $action .= '<div class="menu-item px-3">
                                             <a href="javascript:void(0);" class="menu-link px-3" data-bs-toggle="modal" id="export-data" data-bs-target="#export-modal">
                                                 Export
                                             </a>
@@ -22,7 +22,7 @@
                         }
                     
                         if ($permissions['delete'] > 0) {
-                            $action .= '<div class="shop px-3">
+                            $action .= '<div class="menu-item px-3">
                                             <a href="javascript:void(0);" class="menu-link px-3" id="delete-shop">
                                                 Delete
                                             </a>
