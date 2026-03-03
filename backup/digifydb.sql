@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 02, 2026 at 06:10 PM
+-- Generation Time: Mar 03, 2026 at 10:29 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -2197,6 +2197,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchPhysicalInventory` (IN `p_phys
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchPOSStack`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchPOSStack` (IN `p_user_account_id` INT)   BEGIN
+	SELECT * 
+    FROM shop
+	WHERE shop_status = 'Active' AND shop_id IN (
+        SELECT shop_id 
+        FROM shop_access 
+        WHERE user_account_id = p_user_account_id
+    );
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchProduct`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchProduct` (IN `p_product_id` INT)   BEGIN
 	SELECT * FROM product
@@ -2300,6 +2311,14 @@ DROP PROCEDURE IF EXISTS `fetchShop`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShop` (IN `p_shop_id` INT)   BEGIN
 	SELECT * FROM shop
 	WHERE shop_id = p_shop_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchShopSession`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopSession` (IN `p_shop_id` INT)   BEGIN
+	SELECT * FROM shop_session
+	WHERE shop_id = p_shop_id
+    ORDER BY created_date DESC
     LIMIT 1;
 END$$
 
@@ -9107,6 +9126,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserAccount` (IN `p_user_acco
             SET file_as             = p_value,
                 last_log_by         = p_last_log_by
             WHERE user_account_id   = p_user_account_id;
+            
+            UPDATE shop_access
+            SET file_as             = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
+            
+            UPDATE shop_session
+            SET open_file_as        = p_value,
+                last_log_by         = p_last_log_by
+            WHERE open_user_id      = p_user_account_id;
 
             UPDATE user_account
             SET file_as             = p_value,
@@ -9477,7 +9506,9 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (45, 'shop_product', 6, 'Shop product created.', 2, '2026-03-03 00:55:43'),
 (46, 'shop_payment_method', 5, 'Shop payment method created.', 2, '2026-03-03 00:55:51'),
 (47, 'shop_floor_plan', 5, 'Shop floor plan created.', 2, '2026-03-03 00:55:54'),
-(48, 'shop_access', 5, 'Shop access created.', 2, '2026-03-03 00:55:59');
+(48, 'shop_access', 5, 'Shop access created.', 2, '2026-03-03 00:55:59'),
+(49, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 21:21:08 -> 2026-03-03 08:30:23<br/>', 1, '2026-03-03 08:30:23'),
+(50, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-03 10:17:46');
 
 -- --------------------------------------------------------
 
@@ -15747,7 +15778,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (8, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:20:58', 0, '2026-03-02 21:20:58', '2026-03-02 21:20:58', 1),
 (9, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:21:01', 0, '2026-03-02 21:21:01', '2026-03-02 21:21:01', 1),
 (10, NULL, 'l.agulto@chirstianmotors.ph', '::1', '2026-03-02 21:21:03', 0, '2026-03-02 21:21:03', '2026-03-02 21:21:03', 1),
-(11, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 21:21:08', 1, '2026-03-02 21:21:08', '2026-03-02 21:21:08', 1);
+(11, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 21:21:08', 1, '2026-03-02 21:21:08', '2026-03-02 21:21:08', 1),
+(12, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-03 08:30:23', 1, '2026-03-03 08:30:23', '2026-03-03 08:30:23', 1);
 
 -- --------------------------------------------------------
 
@@ -17848,7 +17880,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$n7sqf9PRQ9s9ximKR7g/R.APe/pKAWE7b/z1Fe1wrSgTABRyk3sGq', '2026-02-27 14:52:10', '2026-03-02 21:21:08', 1);
+(1, 2, '$2y$10$VXLizhAwp15XvHj3WgYEW.zCEAGfkTsWjkOgS8k7HrjDTw2aK2cjO', '2026-02-27 14:52:10', '2026-03-03 08:30:23', 1);
 
 -- --------------------------------------------------------
 
@@ -17865,7 +17897,7 @@ CREATE TABLE `shop` (
   `shop_type_id` int(10) UNSIGNED NOT NULL,
   `shop_type_name` varchar(200) NOT NULL,
   `shop_status` enum('Active','Archived') DEFAULT 'Active',
-  `register_status` enum('Open','Closed') DEFAULT 'Open',
+  `register_status` enum('Open','Closed') DEFAULT 'Closed',
   `archived_date` datetime DEFAULT NULL,
   `open_date` datetime DEFAULT NULL,
   `close_date` datetime DEFAULT NULL,
@@ -17879,7 +17911,7 @@ CREATE TABLE `shop` (
 --
 
 INSERT INTO `shop` (`shop_id`, `shop_name`, `company_id`, `company_name`, `shop_type_id`, `shop_type_name`, `shop_status`, `register_status`, `archived_date`, `open_date`, `close_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(4, 'Test', 1, 'Jabs', 7, 'Bookstore', 'Active', 'Open', NULL, NULL, NULL, '2026-03-03 00:53:48', '2026-03-03 00:53:48', 2);
+(4, 'Test', 1, 'Jabs', 7, 'Bookstore', 'Active', 'Closed', NULL, NULL, NULL, '2026-03-03 00:53:48', '2026-03-03 10:17:46', 2);
 
 --
 -- Triggers `shop`
@@ -17921,14 +17953,6 @@ CREATE TRIGGER `trg_shop_update` AFTER UPDATE ON `shop` FOR EACH ROW BEGIN
 
     IF NEW.archived_date <> OLD.archived_date THEN
         SET audit_log = CONCAT(audit_log, "Archived Date: ", OLD.archived_date, " -> ", NEW.archived_date, "<br/>");
-    END IF;
-
-    IF NEW.open_date <> OLD.open_date THEN
-        SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
-    END IF;
-
-    IF NEW.close_date <> OLD.close_date THEN
-        SET audit_log = CONCAT(audit_log, "Close Date: ", OLD.close_date, " -> ", NEW.close_date, "<br/>");
     END IF;
     
     IF audit_log <> 'Shop changed.<br/><br/>' THEN
@@ -18174,6 +18198,52 @@ CREATE TRIGGER `trg_shop_product_update` AFTER UPDATE ON `shop_product` FOR EACH
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_session`
+--
+
+DROP TABLE IF EXISTS `shop_session`;
+CREATE TABLE `shop_session` (
+  `shop_session_id` int(10) UNSIGNED NOT NULL,
+  `shop_id` int(10) UNSIGNED NOT NULL,
+  `shop_name` varchar(200) NOT NULL,
+  `open_time` datetime DEFAULT current_timestamp(),
+  `open_amount` decimal(15,2) NOT NULL,
+  `open_remarks` varchar(5000) DEFAULT NULL,
+  `open_user_id` int(10) UNSIGNED NOT NULL,
+  `open_file_as` varchar(300) NOT NULL,
+  `close_time` datetime DEFAULT NULL,
+  `close_amount` decimal(15,2) DEFAULT NULL,
+  `close_remarks` varchar(5000) DEFAULT NULL,
+  `close_user_id` int(10) UNSIGNED DEFAULT NULL,
+  `close_file_as` varchar(300) NOT NULL,
+  `session_status` enum('Active','Completed') DEFAULT 'Active',
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_session_denomination`
+--
+
+DROP TABLE IF EXISTS `shop_session_denomination`;
+CREATE TABLE `shop_session_denomination` (
+  `session_denomination_id` int(10) UNSIGNED NOT NULL,
+  `shop_session_id` int(10) UNSIGNED NOT NULL,
+  `count_type` enum('Open','Close') NOT NULL,
+  `denomination_value` decimal(10,2) NOT NULL,
+  `quantity` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `line_total` decimal(15,2) GENERATED ALWAYS AS (`denomination_value` * `quantity`) STORED,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -19014,7 +19084,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-02 21:21:08', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-02 21:21:08', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-03 08:30:23', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-03 08:30:23', 1);
 
 --
 -- Triggers `user_account`
@@ -19928,6 +19998,26 @@ ALTER TABLE `shop_product`
   ADD KEY `idx_shop_product_product_id` (`product_id`);
 
 --
+-- Indexes for table `shop_session`
+--
+ALTER TABLE `shop_session`
+  ADD PRIMARY KEY (`shop_session_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_session_shop_id` (`shop_id`),
+  ADD KEY `idx_shop_session_open_user_id` (`open_user_id`),
+  ADD KEY `idx_shop_session_close_user_id` (`close_user_id`),
+  ADD KEY `idx_shop_session_session_status` (`session_status`);
+
+--
+-- Indexes for table `shop_session_denomination`
+--
+ALTER TABLE `shop_session_denomination`
+  ADD PRIMARY KEY (`session_denomination_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_session_denomination_shop_session_id` (`shop_session_id`),
+  ADD KEY `idx_shop_session_denomination_count_type` (`count_type`);
+
+--
 -- Indexes for table `shop_type`
 --
 ALTER TABLE `shop_type`
@@ -20074,7 +20164,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20266,7 +20356,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20459,6 +20549,18 @@ ALTER TABLE `shop_payment_method`
 --
 ALTER TABLE `shop_product`
   MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `shop_session`
+--
+ALTER TABLE `shop_session`
+  MODIFY `shop_session_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shop_session_denomination`
+--
+ALTER TABLE `shop_session_denomination`
+  MODIFY `session_denomination_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_type`
@@ -21013,6 +21115,22 @@ ALTER TABLE `shop_product`
   ADD CONSTRAINT `shop_product_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
   ADD CONSTRAINT `shop_product_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
   ADD CONSTRAINT `shop_product_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_session`
+--
+ALTER TABLE `shop_session`
+  ADD CONSTRAINT `shop_session_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
+  ADD CONSTRAINT `shop_session_ibfk_2` FOREIGN KEY (`open_user_id`) REFERENCES `user_account` (`user_account_id`),
+  ADD CONSTRAINT `shop_session_ibfk_3` FOREIGN KEY (`close_user_id`) REFERENCES `user_account` (`user_account_id`),
+  ADD CONSTRAINT `shop_session_ibfk_4` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_session_denomination`
+--
+ALTER TABLE `shop_session_denomination`
+  ADD CONSTRAINT `shop_session_denomination_ibfk_1` FOREIGN KEY (`shop_session_id`) REFERENCES `shop_session` (`shop_session_id`),
+  ADD CONSTRAINT `shop_session_denomination_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `shop_type`

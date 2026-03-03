@@ -96,6 +96,7 @@ class ShopController {
             'save shop floor plan'                  => $this->saveShopFloorPlan($lastLogBy),
             'save shop access'                      => $this->saveShopAccess($lastLogBy),
             'save shop product'                     => $this->saveShopProduct($lastLogBy),
+            'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
@@ -319,6 +320,53 @@ class ShopController {
     /* =============================================================================================
         SECTION 2: INSERT METHOD
     ============================================================================================= */
+   
+    public function insertShopSession(
+        int $lastLogBy
+    ) {
+        $shopId         = $_POST['shop_id'] ?? null;
+        $openRemarks    = $_POST['open_remarks'] ?? null;
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        $userAccountDetails = $this->userAccount->fetchUserAccount($lastLogBy);
+        $fileAs             = $userAccountDetails['file_as'] ?? null;
+        
+        $denoms = [
+            1000 => 'open_1000',
+            500  => 'open_500',
+            200  => 'open_200',
+            100  => 'open_100',
+            50   => 'open_50',
+            20   => 'open_20',
+            10   => 'open_10',
+            5    => 'open_5',
+            1    => 'open_1',
+            0.50 => 'open_0_50',
+            0.25 => 'open_0_25',
+            0.10 => 'open_0_10',
+            0.05 => 'open_0_05',
+            0.01 => 'open_0_01',
+        ];
+
+        $shopSessionId = $this->shop->insertShopSession($shopId, $shopName, $openRemarks, $fileAs, $lastLogBy);
+
+        foreach ($denoms as $value => $field) {
+            $count = filter_var($_POST[$field] ?? 0, FILTER_VALIDATE_INT, [
+                'options' => ['default' => 0, 'min_range' => 0],
+            ]);
+
+            if ($count > 0) {
+                $this->shop->insertShopSessionDenomination($shopSessionId, $value, $count, $lastLogBy);
+            }
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Open Register Success',
+            'The register has been openned successfully.'
+        );
+    }
 
     /* =============================================================================================
         SECTION 3: UPDATE METHOD

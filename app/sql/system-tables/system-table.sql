@@ -7776,10 +7776,8 @@ CREATE TABLE shop (
   shop_type_id INT UNSIGNED NOT NULL,
   shop_type_name VARCHAR(200) NOT NULL,
   shop_status ENUM('Active', 'Archived') DEFAULT 'Active',
-  register_status ENUM('Idle', 'Open', 'Closed') DEFAULT 'Idle',
+  register_status ENUM('Open', 'Closed') DEFAULT 'Closed',
   archived_date DATETIME,
-  open_date DATETIME,
-  close_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -7946,6 +7944,92 @@ CREATE INDEX idx_shop_floor_plan_floor_plan_id ON shop_floor_plan(floor_plan_id)
 
 /* =============================================================================================
   INITIAL VALUES: SHOP FLOOR PLAN
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP SESSION
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_session;
+
+CREATE TABLE shop_session (
+  shop_session_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+  open_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  open_amount DECIMAL(15,2) NOT NULL,
+  open_remarks VARCHAR(5000),
+  open_user_id INT UNSIGNED NOT NULL,
+  open_file_as VARCHAR(300) NOT NULL,
+  close_time DATETIME NULL,
+  close_amount DECIMAL(15,2) NULL,
+  close_remarks VARCHAR(5000),
+  close_user_id INT UNSIGNED,
+  close_file_as VARCHAR(300) NOT NULL,
+  session_status ENUM('Active', 'Completed') DEFAULT 'Active',
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (open_user_id) REFERENCES user_account(user_account_id),
+  FOREIGN KEY (close_user_id) REFERENCES user_account(user_account_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP SESSION
+============================================================================================= */
+
+CREATE INDEX idx_shop_session_shop_id ON shop_session(shop_id);
+CREATE INDEX idx_shop_session_open_user_id ON shop_session(open_user_id);
+CREATE INDEX idx_shop_session_close_user_id ON shop_session(close_user_id);
+CREATE INDEX idx_shop_session_session_status ON shop_session(session_status);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP SESSION
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP SESSION DENOMINATION
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_session_denomination;
+
+CREATE TABLE shop_session_denomination (
+  session_denomination_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_session_id INT UNSIGNED NOT NULL,
+  count_type ENUM('Open', 'Close') NOT NULL,
+  denomination_value DECIMAL(10, 2) NOT NULL,
+  quantity INT UNSIGNED NOT NULL DEFAULT 0,
+  line_total DECIMAL(15, 2) GENERATED ALWAYS AS (denomination_value * quantity) STORED,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_session_id) REFERENCES shop_session(shop_session_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP SESSION DENOMINATION
+============================================================================================= */
+
+CREATE INDEX idx_shop_session_denomination_shop_session_id ON shop_session_denomination(shop_session_id);
+CREATE INDEX idx_shop_session_denomination_count_type ON shop_session_denomination(count_type);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP SESSION DENOMINATION
 ============================================================================================= */
 
 /* =============================================================================================

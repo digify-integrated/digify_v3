@@ -552,6 +552,16 @@ BEGIN
             SET file_as             = p_value,
                 last_log_by         = p_last_log_by
             WHERE user_account_id   = p_user_account_id;
+            
+            UPDATE shop_access
+            SET file_as             = p_value,
+                last_log_by         = p_last_log_by
+            WHERE user_account_id   = p_user_account_id;
+            
+            UPDATE shop_session
+            SET open_file_as        = p_value,
+                last_log_by         = p_last_log_by
+            WHERE open_user_id      = p_user_account_id;
 
             UPDATE user_account
             SET file_as             = p_value,
@@ -13472,6 +13482,53 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS insertShopSession//
+
+CREATE PROCEDURE insertShopSession(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(5000),
+    IN p_open_remarks VARCHAR(5000),
+    IN p_file_as VARCHAR(300),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_shop_session_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_session (
+        shop_id,
+        shop_name,
+        open_time,
+        open_amount,
+        open_remarks,
+        open_user_id,
+        open_file_as,
+        last_log_by
+    ) 
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        NOW(),
+        0,
+        p_open_remarks,
+        p_last_log_by,
+        p_file_as,
+        p_last_log_by
+    );
+        
+    SET v_new_shop_session_id = LAST_INSERT_ID();
+
+    COMMIT;
+
+    SELECT v_new_shop_session_id AS new_shop_session_id;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -13534,6 +13591,33 @@ BEGIN
 	SELECT * FROM shop
 	WHERE shop_id = p_shop_id
     LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopSession//
+
+CREATE PROCEDURE fetchShopSession(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT * FROM shop_session
+	WHERE shop_id = p_shop_id
+    ORDER BY created_date DESC
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchPOSStack//
+
+CREATE PROCEDURE fetchPOSStack(
+    IN p_user_account_id INT
+)
+BEGIN
+	SELECT * 
+    FROM shop
+	WHERE shop_status = 'Active' AND shop_id IN (
+        SELECT shop_id 
+        FROM shop_access 
+        WHERE user_account_id = p_user_account_id
+    );
 END //
 
 /* =============================================================================================

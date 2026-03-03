@@ -4280,14 +4280,6 @@ BEGIN
     IF NEW.archived_date <> OLD.archived_date THEN
         SET audit_log = CONCAT(audit_log, "Archived Date: ", OLD.archived_date, " -> ", NEW.archived_date, "<br/>");
     END IF;
-
-    IF NEW.open_date <> OLD.open_date THEN
-        SET audit_log = CONCAT(audit_log, "Open Date: ", OLD.open_date, " -> ", NEW.open_date, "<br/>");
-    END IF;
-
-    IF NEW.close_date <> OLD.close_date THEN
-        SET audit_log = CONCAT(audit_log, "Close Date: ", OLD.close_date, " -> ", NEW.close_date, "<br/>");
-    END IF;
     
     IF audit_log <> 'Shop changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -4517,6 +4509,90 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('shop_floor_plan', NEW.shop_floor_plan_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: SHOP SESSION
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_session_update//
+
+CREATE TRIGGER trg_shop_session_update
+AFTER UPDATE ON shop_session
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop session changed.<br/><br/>';
+
+    IF NEW.shop_name <> OLD.shop_name THEN
+        SET audit_log = CONCAT(audit_log, "Shop Name: ", OLD.shop_name, " -> ", NEW.shop_name, "<br/>");
+    END IF;
+
+    IF NEW.open_time <> OLD.open_time THEN
+        SET audit_log = CONCAT(audit_log, "Open Time: ", OLD.open_time, " -> ", NEW.open_time, "<br/>");
+    END IF;
+
+    IF NEW.open_amount <> OLD.open_amount THEN
+        SET audit_log = CONCAT(audit_log, "Open Amount: ", OLD.open_amount, " -> ", NEW.open_amount, "<br/>");
+    END IF;
+
+    IF NEW.open_remarks <> OLD.open_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Open Remarks: ", OLD.open_remarks, " -> ", NEW.open_remarks, "<br/>");
+    END IF;
+
+    IF NEW.open_file_as <> OLD.open_file_as THEN
+        SET audit_log = CONCAT(audit_log, "Open By: ", OLD.open_file_as, " -> ", NEW.open_file_as, "<br/>");
+    END IF;
+
+    IF NEW.close_time <> OLD.close_time THEN
+        SET audit_log = CONCAT(audit_log, "Close Time: ", OLD.close_time, " -> ", NEW.close_time, "<br/>");
+    END IF;
+
+    IF NEW.close_amount <> OLD.close_amount THEN
+        SET audit_log = CONCAT(audit_log, "Close Amount: ", OLD.close_amount, " -> ", NEW.close_amount, "<br/>");
+    END IF;
+
+    IF NEW.close_remarks <> OLD.close_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Close Remarks: ", OLD.close_remarks, " -> ", NEW.close_remarks, "<br/>");
+    END IF;
+
+    IF NEW.close_file_as <> OLD.close_file_as THEN
+        SET audit_log = CONCAT(audit_log, "Close By: ", OLD.close_file_as, " -> ", NEW.close_file_as, "<br/>");
+    END IF;
+
+    IF NEW.session_status <> OLD.session_status THEN
+        SET audit_log = CONCAT(audit_log, "Session Status: ", OLD.session_status, " -> ", NEW.session_status, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Shop session changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('shop_session', NEW.shop_session_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_shop_session_insert//
+
+CREATE TRIGGER trg_shop_session_insert
+AFTER INSERT ON shop_session
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Shop session created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('shop_session', NEW.shop_session_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* =============================================================================================

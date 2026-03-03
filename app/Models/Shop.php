@@ -190,6 +190,30 @@ class Shop extends Model {
             'p_shop_id' => $p_shop_id
         ]);
     }
+
+    public function fetchShopSession(
+        null|string|int $p_shop_id
+    ) {
+        $sql = 'CALL fetchShopSession(
+            :p_shop_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function fetchPOSStack(
+        null|string|int $p_user_account_id
+    ) {
+        $sql = 'CALL fetchPOSStack(
+            :p_user_account_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_user_account_id' => $p_user_account_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
