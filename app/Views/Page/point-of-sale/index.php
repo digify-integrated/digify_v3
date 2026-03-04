@@ -12,7 +12,6 @@
         foreach ($posStack as $row) {
             $shopId = $row['shop_id'];
             $shopName = $row['shop_name'];
-            $shopStatus = $row['shop_status'];
             $registerStatus = $row['register_status'];
 
             $fetchShopSession = $shop->fetchShopSession($shopId);
@@ -23,9 +22,20 @@
 
             $registerBadge = $registerStatus == 'Open' ? '<span class="badge badge-light-success">'. $registerStatus .'</span>' : '<span class="badge badge-light-warning">'. $registerStatus .'</span>';
 
-            $button = $registerStatus == 'Closed' && $shopStatus == 'Active' ? '<button class="btn btn-success w-100 open-shop" data-bs-toggle="modal" data-bs-target="#open-shop-modal" data-shop-id="' . $shopId . '">
-                           Open Register
-                        </button>' : '';
+            $button = $registerStatus === 'Closed'
+                    ? '<button class="btn btn-success w-100 open-shop"
+                            data-bs-toggle="modal"
+                            data-bs-target="#open-shop-modal"
+                            data-shop-id="' . htmlspecialchars($shopId) . '">
+                            Open Register
+                    </button>'
+                    : ($registerStatus === 'Open'
+                        ? '<a href="shop-register.php?shop_id=' . urlencode($shopId) . '" 
+                            class="btn btn-warning w-100">
+                            View Register
+                        </a>'
+                        : ''
+                    );
                         
             $pos .= '<div class="col-md-6 col-xl-4">
                         <div class="card card-flush mb-0">
@@ -45,19 +55,22 @@
 
                                     <table class="table fs-6 fw-semibold gs-0 gy-2 gx-2">                                        
                                         <tr class="">
-                                            <td class="text-gray-500">Open Date:</td>
+                                            <td class="text-gray-500">Open Date</td>
+                                            <td class="text-gray-500">Starting Balance</td>
+                                        </tr>
+                                        <tr class="">
                                             <td class="text-gray-800">'. $openTime .'</td>
-                                            
-                                            <td class="text-gray-500">Starting Balance:</td>
-                                            <td class="text-gray-800">'. $openAmount .'</td>
+                                            <td class="text-gray-800">&#8369; '. $openAmount .'</td>
                                         </tr>
 
                                         <tr class="">
-                                            <td class="text-gray-500">Close Date:</td>
-                                            <td class="text-gray-800">'. $closeTime .'</td>
+                                            <td class="text-gray-500">Close Date</td>
+                                            <td class="text-gray-500">Ending Amount</td>
+                                        </tr>
 
-                                            <td class="text-gray-500">Ending Amount:</td>
-                                            <td class="text-gray-800">'. $closeAmount .'</td>
+                                        <tr class="">
+                                            <td class="text-gray-800">'. $closeTime .'</td>
+                                            <td class="text-gray-800">&#8369; '. $closeAmount .'</td>
                                         </tr>
                                     </table>
                                 </div>

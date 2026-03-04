@@ -1,4 +1,6 @@
+import { disableButton, enableButton } from '../../utilities/form-utilities.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
+import { handleSystemError } from '../../modules/system-errors.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const DENOMS_CENTAVOS = new Map([
@@ -84,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
             const transaction   = 'insert shop session';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
+            const shopId = $('#shop_id').val();
   
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
@@ -104,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.physical_inventory_id}`;
+                    window.location = `shop-register.php?id=${shopId}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);

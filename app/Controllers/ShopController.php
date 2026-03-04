@@ -334,31 +334,35 @@ class ShopController {
         $fileAs             = $userAccountDetails['file_as'] ?? null;
         
         $denoms = [
-            1000 => 'open_1000',
-            500  => 'open_500',
-            200  => 'open_200',
-            100  => 'open_100',
-            50   => 'open_50',
-            20   => 'open_20',
-            10   => 'open_10',
-            5    => 'open_5',
-            1    => 'open_1',
-            0.50 => 'open_0_50',
-            0.25 => 'open_0_25',
-            0.10 => 'open_0_10',
-            0.05 => 'open_0_05',
-            0.01 => 'open_0_01',
+            ['value' => 1000, 'field' => 'open_1000'],
+            ['value' => 500,  'field' => 'open_500'],
+            ['value' => 200,  'field' => 'open_200'],
+            ['value' => 100,  'field' => 'open_100'],
+            ['value' => 50,   'field' => 'open_50'],
+            ['value' => 20,   'field' => 'open_20'],
+            ['value' => 10,   'field' => 'open_10'],
+            ['value' => 5,    'field' => 'open_5'],
+            ['value' => 1,    'field' => 'open_1'],
+            ['value' => 0.50, 'field' => 'open_0_50'],
+            ['value' => 0.25, 'field' => 'open_0_25'],
+            ['value' => 0.10, 'field' => 'open_0_10'],
+            ['value' => 0.05, 'field' => 'open_0_05'],
+            ['value' => 0.01, 'field' => 'open_0_01'],
         ];
 
         $shopSessionId = $this->shop->insertShopSession($shopId, $shopName, $openRemarks, $fileAs, $lastLogBy);
 
-        foreach ($denoms as $value => $field) {
-            $count = filter_var($_POST[$field] ?? 0, FILTER_VALIDATE_INT, [
-                'options' => ['default' => 0, 'min_range' => 0],
-            ]);
+        foreach ($denoms as $denom) {
+            $count = (int)($_POST[$denom['field']] ?? 0);
 
             if ($count > 0) {
-                $this->shop->insertShopSessionDenomination($shopSessionId, $value, $count, $lastLogBy);
+                $this->shop->insertShopSessionDenomination(
+                    $shopSessionId,
+                    'Open',
+                    $denom['value'],
+                    $count,
+                    $lastLogBy
+                );
             }
         }
 

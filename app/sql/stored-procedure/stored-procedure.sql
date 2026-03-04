@@ -13521,12 +13521,66 @@ BEGIN
         p_file_as,
         p_last_log_by
     );
-        
+    
+    UPDATE shop
+    SET register_status = 'Open',
+        last_log_by = p_last_log_by
+    WHERE shop_id   = p_shop_id;
+
     SET v_new_shop_session_id = LAST_INSERT_ID();
 
     COMMIT;
 
     SELECT v_new_shop_session_id AS new_shop_session_id;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopSessionDenomination//
+
+CREATE PROCEDURE insertShopSessionDenomination(
+    IN p_shop_session_id INT, 
+    IN p_count_type VARCHAR(100),
+    IN p_denomination_value DECIMAL(10,2),
+    IN p_quantity INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_session_denomination (
+        shop_session_id,
+        count_type,
+        denomination_value,
+        quantity,
+        last_log_by
+    )
+    VALUES(
+        p_shop_session_id,
+        p_count_type,
+        p_denomination_value,
+        p_quantity,
+        p_last_log_by
+    );
+
+    IF p_count_type = 'Open' THEN
+        UPDATE shop_session
+        SET open_amount = (SELECT COALESCE(SUM(line_total), 0) FROM shop_session_denomination WHERE shop_session_id = p_shop_session_id AND count_type = 'Open'),
+            last_log_by = p_last_log_by
+        WHERE shop_session_id = p_shop_session_id;
+    END IF;
+
+    IF p_count_type = 'Close' THEN
+        UPDATE shop_session
+        SET close_amount = (SELECT COALESCE(SUM(line_total), 0) FROM shop_session_denomination WHERE shop_session_id = p_shop_session_id AND count_type = 'Close'),
+            last_log_by = p_last_log_by
+        WHERE shop_session_id = p_shop_session_id;
+    END IF;
+
+    COMMIT;
 END //
 
 /* =============================================================================================

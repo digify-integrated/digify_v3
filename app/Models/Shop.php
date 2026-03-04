@@ -141,6 +141,56 @@ class Shop extends Model {
         ]);
     }
 
+    public function insertShopSession(
+        int $p_shop_id,
+        string $p_shop_name,
+        string $p_open_remarks,
+        string $p_file_as,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopSession(
+            :p_shop_id,
+            :p_shop_name,
+            :p_open_remarks,
+            :p_file_as,
+            :p_last_log_by
+        )';
+
+         $row = $this->fetch($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_shop_name'       => $p_shop_name,
+            'p_open_remarks'    => $p_open_remarks,
+            'p_file_as'         => $p_file_as,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+
+        return $row['new_shop_session_id'] ?? null;
+    }
+
+    public function insertShopSessionDenomination(
+        int $p_shop_session_id,
+        string $p_count_type,
+        string $p_denomination_value,
+        int $p_quantity,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopSessionDenomination(
+            :p_shop_session_id,
+            :p_count_type,
+            :p_denomination_value,
+            :p_quantity,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_session_id' => $p_shop_session_id,
+            'p_count_type'      => $p_count_type,
+            'p_denomination_value' => $p_denomination_value,
+            'p_quantity'        => $p_quantity,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
