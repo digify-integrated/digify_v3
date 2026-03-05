@@ -117,6 +117,18 @@ class FloorPlan extends Model {
             'p_floor_plan_id' => $p_floor_plan_id
         ]);
     }
+
+     public function fetchFloorPlanTables(
+        int $p_floor_plan_id
+    ) {
+        $sql = 'CALL fetchFloorPlanTables(
+            :p_floor_plan_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS

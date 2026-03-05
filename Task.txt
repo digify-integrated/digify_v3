@@ -14,3 +14,113 @@ $this->product->insertProductVariant(
                     $attributeValueName,
                     $lastLogBy
                 );
+
+
+
+                <div class="col-md-6 col-xl-4">
+                <div class="card border-success">
+                    <div class="card-header border-0 pt-9">
+                        <div class="card-title m-0">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold">Table No. 1</span>
+                                <span class="text-gray-700 mt-1 fw-semibold fs-6">Seats: </span>
+                            </h3>
+                        </div>
+                        <div class="card-toolbar">
+                            <span class="badge badge-light-success fw-bold me-auto px-4 py-3">Available</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-9">
+                        <div class="separator separator-dashed mb-7"></div>
+                        <div class="mb-0">
+                            <button class="btn btn-success w-100 open-shop"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#open-shop-modal"
+                                    data-shop-id="' . htmlspecialchars($shopId) . '">
+                                    Add Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>                                                   
+            <div class="col-md-6 col-xl-4">
+                <div class="card border-danger">
+                    <div class="card-header border-0 pt-9">
+                        <div class="card-title m-0">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold">Table No. 2</span>
+                                <span class="text-gray-700 mt-1 fw-semibold fs-6">Seats: </span>
+                            </h3>
+                        </div>
+                        <div class="card-toolbar">
+                            <span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Occupied</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-9">
+                        <div class="separator separator-dashed mb-7"></div>
+
+                         <div class="mb-5">
+                            <div class="accordion accordion-icon-collapse" id="kt_accordion_1">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="kt_accordion_1_header_2">
+                                        <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_2" aria-expanded="false" aria-controls="kt_accordion_1_body_2">
+                                        Order Summary
+                                        </button>
+                                    </h2>
+                                    <div id="kt_accordion_1_body_2" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_2" data-bs-parent="#kt_accordion_1">
+                                        <div class="accordion-body">
+                                            <table class="table align-middle table-row-dashed fs-6 gy-3">
+                                                <thead>
+                                                    <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
+                                                        <td>Order</td>
+                                                        <td>Price</td>
+                                                        <td>Qty.</td>
+                                                        <td>Total</td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-center">
+                                                    <tr>
+                                                        <td>Burger Platter Ala mode</td>
+                                                        <td>$3,000.00</td>
+                                                        <td>2</td>
+                                                        <td>$6,000.00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Cappuccino</td>
+                                                        <td>$4.00</td>
+                                                        <td>1</td>
+                                                        <td>$4.00</td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
+                                                        <td colspan="2" class="text-end">Total</td>
+                                                        <td>3</td>
+                                                        <td>$10.00</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <button class="btn btn-success w-100 open-shop mb-5"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#open-shop-modal"
+                                    data-shop-id="' . htmlspecialchars($shopId) . '">
+                                    Release Table
+                            </button>
+                            <button class="btn btn-warning w-100 open-shop"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#open-shop-modal"
+                                    data-shop-id="' . htmlspecialchars($shopId) . '">
+                                    Transfer Table
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>          

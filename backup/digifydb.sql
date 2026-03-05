@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2026 at 10:28 AM
+-- Generation Time: Mar 05, 2026 at 06:31 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -2088,6 +2088,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchFloorPlanTableCount` (IN `p_fl
     FROM floor_plan_table
 	WHERE floor_plan_id = p_floor_plan_id
     LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchFloorPlanTables`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchFloorPlanTables` (IN `p_floor_plan_id` INT)   BEGIN
+	SELECT * FROM floor_plan_table
+    WHERE floor_plan_id = p_floor_plan_id
+    ORDER BY table_number;
 END$$
 
 DROP PROCEDURE IF EXISTS `fetchGender`$$
@@ -9553,81 +9560,6 @@ CREATE TABLE `audit_log` (
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `audit_log`
---
-
-INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
-(1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-01 10:45:44 -> 2026-03-02 09:14:57<br/>', 1, '2026-03-02 09:14:57'),
-(2, 'shop', 1, 'Shop created.', 2, '2026-03-02 09:55:58'),
-(3, 'shop', 1, 'Shop changed.<br/><br/>Register Status:  -> Open<br/>', 2, '2026-03-02 11:03:12'),
-(4, 'shop', 1, 'Shop changed.<br/><br/>Shop Name: asd -> asdasdasdasd<br/>', 2, '2026-03-02 11:23:52'),
-(5, 'shop', 2, 'Shop created.', 2, '2026-03-02 11:32:06'),
-(6, 'product', 1, 'Product created.', 2, '2026-03-02 11:36:11'),
-(7, 'system_action', 23, 'System action created.', 2, '2026-03-02 12:01:53'),
-(8, 'role_system_action_permission', 23, 'Role system action permission created.', 2, '2026-03-02 12:02:07'),
-(9, 'role_system_action_permission', 23, 'Role system action permission changed.<br/><br/>System Action Access: 0 -> 1<br/>', 2, '2026-03-02 12:02:08'),
-(10, 'system_action', 24, 'System action created.', 2, '2026-03-02 12:02:24'),
-(11, 'role_system_action_permission', 24, 'Role system action permission created.', 2, '2026-03-02 12:02:30'),
-(12, 'role_system_action_permission', 24, 'Role system action permission changed.<br/><br/>System Action Access: 0 -> 1<br/>', 2, '2026-03-02 12:02:31'),
-(13, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 09:14:57 -> 2026-03-02 15:50:05<br/>', 1, '2026-03-02 15:50:05'),
-(14, 'shop', 2, 'Shop changed.<br/><br/>Shop Name: test -> testasdasd<br/>Shop Type: Bar -> Bookstore<br/>', 2, '2026-03-02 16:12:03'),
-(15, 'shop', 3, 'Shop created.', 2, '2026-03-02 16:16:24'),
-(16, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 15:50:05 -> 2026-03-02 21:21:08<br/>', 1, '2026-03-02 21:21:08'),
-(17, 'product_category', 1, 'Product category created.', 2, '2026-03-02 22:43:07'),
-(18, 'product_category_map', 1, 'Product category map created.', 2, '2026-03-02 22:43:14'),
-(19, 'product', 1, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-02 22:43:24'),
-(20, 'shop_payment_method', 1, 'Shop payment method created.', 2, '2026-03-02 23:35:25'),
-(21, 'shop_floor_plan', 1, 'Shop floor plan created.', 2, '2026-03-02 23:36:02'),
-(22, 'shop_access', 1, 'Shop access created.', 2, '2026-03-02 23:36:09'),
-(23, 'shop_product', 1, 'Shop product created.', 2, '2026-03-02 23:39:10'),
-(24, 'shop_payment_method', 2, 'Shop payment method created.', 2, '2026-03-02 23:49:56'),
-(25, 'shop_payment_method', 3, 'Shop payment method created.', 2, '2026-03-02 23:50:00'),
-(26, 'shop_floor_plan', 2, 'Shop floor plan created.', 2, '2026-03-02 23:50:15'),
-(27, 'shop_access', 2, 'Shop access created.', 2, '2026-03-02 23:50:24'),
-(28, 'shop_floor_plan', 3, 'Shop floor plan created.', 2, '2026-03-02 23:57:06'),
-(29, 'shop_floor_plan', 4, 'Shop floor plan created.', 2, '2026-03-02 23:57:14'),
-(30, 'shop_payment_method', 4, 'Shop payment method created.', 2, '2026-03-02 23:57:17'),
-(31, 'shop_access', 3, 'Shop access created.', 2, '2026-03-02 23:57:28'),
-(32, 'shop_product', 2, 'Shop product created.', 2, '2026-03-02 23:57:39'),
-(33, 'shop_product', 3, 'Shop product created.', 2, '2026-03-02 23:57:45'),
-(34, 'shop_product', 4, 'Shop product created.', 2, '2026-03-02 23:59:47'),
-(35, 'shop_access', 4, 'Shop access created.', 2, '2026-03-03 00:01:00'),
-(36, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Active -> Archived<br/>', 2, '2026-03-03 00:14:13'),
-(37, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Archived -> Active<br/>', 2, '2026-03-03 00:14:19'),
-(38, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Active -> Archived<br/>Archived Date: 2026-03-03 00:14:13 -> 2026-03-03 00:14:46<br/>', 2, '2026-03-03 00:14:46'),
-(39, 'shop', 3, 'Shop changed.<br/><br/>Shop Status: Archived -> Active<br/>', 2, '2026-03-03 00:14:50'),
-(40, 'shop_product', 5, 'Shop product created.', 2, '2026-03-03 00:15:17'),
-(41, 'shop', 4, 'Shop created.', 2, '2026-03-03 00:53:48'),
-(42, 'product', 2, 'Product created.', 2, '2026-03-03 00:55:25'),
-(43, 'product_category_map', 2, 'Product category map created.', 2, '2026-03-03 00:55:28'),
-(44, 'product', 2, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-03 00:55:36'),
-(45, 'shop_product', 6, 'Shop product created.', 2, '2026-03-03 00:55:43'),
-(46, 'shop_payment_method', 5, 'Shop payment method created.', 2, '2026-03-03 00:55:51'),
-(47, 'shop_floor_plan', 5, 'Shop floor plan created.', 2, '2026-03-03 00:55:54'),
-(48, 'shop_access', 5, 'Shop access created.', 2, '2026-03-03 00:55:59'),
-(49, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-02 21:21:08 -> 2026-03-03 08:30:23<br/>', 1, '2026-03-03 08:30:23'),
-(50, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-03 10:17:46'),
-(51, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-03 08:30:23 -> 2026-03-04 10:40:34<br/>', 1, '2026-03-04 10:40:34'),
-(52, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 13:55:30'),
-(53, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 13:56:37'),
-(54, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 13:57:02'),
-(55, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 13:57:48'),
-(56, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 13:58:02'),
-(57, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:00:00'),
-(58, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:00:14'),
-(59, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:15:25'),
-(60, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:15:51'),
-(61, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:28:54'),
-(62, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:29:04'),
-(63, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:30:41'),
-(64, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:31:54'),
-(65, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:37:59'),
-(66, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:41:22'),
-(67, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Open -> Closed<br/>', 2, '2026-03-04 14:58:38'),
-(68, 'shop', 4, 'Shop changed.<br/><br/>Register Status: Closed -> Open<br/>', 2, '2026-03-04 14:58:53'),
-(69, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-04 10:40:34 -> 2026-03-05 08:43:15<br/>', 1, '2026-03-05 08:43:15');
-
 -- --------------------------------------------------------
 
 --
@@ -15405,7 +15337,8 @@ CREATE TABLE `floor_plan` (
 --
 
 INSERT INTO `floor_plan` (`floor_plan_id`, `floor_plan_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 'Patio', '2026-02-28 11:20:52', '2026-02-28 11:20:52', 2);
+(2, 'Patio', '2026-02-28 11:20:52', '2026-02-28 11:20:52', 2),
+(3, 'Mezzanine', '2026-03-06 00:29:26', '2026-03-06 00:29:26', 2);
 
 --
 -- Triggers `floor_plan`
@@ -15460,7 +15393,13 @@ CREATE TABLE `floor_plan_table` (
 --
 
 INSERT INTO `floor_plan_table` (`floor_plan_table_id`, `floor_plan_id`, `floor_plan_name`, `table_number`, `seats`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 2, 'Patio', 1, 12, '2026-02-28 20:41:44', '2026-02-28 20:41:44', 2);
+(2, 2, 'Patio', 1, 12, '2026-02-28 20:41:44', '2026-02-28 20:41:44', 2),
+(3, 2, 'Patio', 2, 1, '2026-03-06 00:29:35', '2026-03-06 00:29:35', 2),
+(4, 2, 'Patio', 3, 1, '2026-03-06 00:29:40', '2026-03-06 00:29:40', 2),
+(5, 2, 'Patio', 4, 12, '2026-03-06 00:29:43', '2026-03-06 00:29:43', 2),
+(6, 3, 'Mezzanine', 5, 12, '2026-03-06 00:29:55', '2026-03-06 00:29:55', 2),
+(7, 3, 'Mezzanine', 6, 12, '2026-03-06 00:29:57', '2026-03-06 00:29:57', 2),
+(8, 3, 'Mezzanine', 7, 12, '2026-03-06 00:30:06', '2026-03-06 00:30:06', 2);
 
 --
 -- Triggers `floor_plan_table`
@@ -15899,7 +15838,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (11, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-02 21:21:08', 1, '2026-03-02 21:21:08', '2026-03-02 21:21:08', 1),
 (12, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-03 08:30:23', 1, '2026-03-03 08:30:23', '2026-03-03 08:30:23', 1),
 (13, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-04 10:40:34', 1, '2026-03-04 10:40:34', '2026-03-04 10:40:34', 1),
-(14, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 08:43:15', 1, '2026-03-05 08:43:15', '2026-03-05 08:43:15', 1);
+(14, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 08:43:15', 1, '2026-03-05 08:43:15', '2026-03-05 08:43:15', 1),
+(15, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 22:59:04', 1, '2026-03-05 22:59:04', '2026-03-05 22:59:04', 1);
 
 -- --------------------------------------------------------
 
@@ -17019,6 +16959,7 @@ CREATE TRIGGER `trg_product_category_update` AFTER UPDATE ON `product_category` 
         SET audit_log = CONCAT(audit_log, "Product Category Name: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
     END IF;
 
+
     IF NEW.parent_category_name <> OLD.parent_category_name THEN
         SET audit_log = CONCAT(audit_log, "Parent Category: ", OLD.parent_category_name, " -> ", NEW.parent_category_name, "<br/>");
     END IF;
@@ -18000,7 +17941,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$auh1u7XpHE/XKTJFlq9sKeFSQT/W.1j6DA5.fI8QBZrZQOLHMh97m', '2026-02-27 14:52:10', '2026-03-05 08:43:15', 1);
+(1, 2, '$2y$10$/FaRc2Og0OpO505wd7YA0u2zhuPNNnPhM1lr6DuE/.Eipv1gjiBOe', '2026-02-27 14:52:10', '2026-03-05 22:59:04', 1);
 
 -- --------------------------------------------------------
 
@@ -18163,7 +18104,8 @@ CREATE TABLE `shop_floor_plan` (
 --
 
 INSERT INTO `shop_floor_plan` (`shop_floor_plan_id`, `shop_id`, `shop_name`, `floor_plan_id`, `floor_plan_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(5, 4, 'Test', 2, 'Patio', '2026-03-03 00:55:54', '2026-03-03 00:55:54', 2);
+(5, 4, 'Test', 2, 'Patio', '2026-03-03 00:55:54', '2026-03-03 00:55:54', 2),
+(6, 4, 'Test', 3, 'Mezzanine', '2026-03-06 00:30:20', '2026-03-06 00:30:20', 2);
 
 --
 -- Triggers `shop_floor_plan`
@@ -19229,7 +19171,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-05 08:43:15', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-05 08:43:15', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-05 22:59:04', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-05 22:59:04', 1);
 
 --
 -- Triggers `user_account`
@@ -20309,7 +20251,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20465,13 +20407,13 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `floor_plan`
 --
 ALTER TABLE `floor_plan`
-  MODIFY `floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `floor_plan_table`
 --
 ALTER TABLE `floor_plan_table`
-  MODIFY `floor_plan_table_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `floor_plan_table_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `gender`
@@ -20501,7 +20443,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20681,7 +20623,7 @@ ALTER TABLE `shop_access`
 -- AUTO_INCREMENT for table `shop_floor_plan`
 --
 ALTER TABLE `shop_floor_plan`
-  MODIFY `shop_floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `shop_floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`

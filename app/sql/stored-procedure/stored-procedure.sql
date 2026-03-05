@@ -13696,6 +13696,17 @@ BEGIN
     ORDER BY floor_plan_name;
 END //
 
+DROP PROCEDURE IF EXISTS fetchFloorPlanTables//
+
+CREATE PROCEDURE fetchFloorPlanTables(
+    IN p_floor_plan_id INT
+)
+BEGIN
+	SELECT * FROM floor_plan_table
+    WHERE floor_plan_id = p_floor_plan_id
+    ORDER BY table_number;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
