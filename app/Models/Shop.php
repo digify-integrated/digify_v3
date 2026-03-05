@@ -253,6 +253,30 @@ class Shop extends Model {
         ]);
     }
 
+    public function fetchShopFloorPlanCount(
+        null|string|int $p_shop_id
+    ) {
+        $sql = 'CALL fetchShopFloorPlanCount(
+            :p_shop_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function fetchShopFloorPlans(
+        null|string|int $p_shop_id
+    ) {
+        $sql = 'CALL fetchShopFloorPlans(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
     public function fetchPOSStack(
         null|string|int $p_user_account_id
     ) {

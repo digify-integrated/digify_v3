@@ -13674,6 +13674,38 @@ BEGIN
     );
 END //
 
+DROP PROCEDURE IF EXISTS fetchShopFloorPlanCount//
+
+CREATE PROCEDURE fetchShopFloorPlanCount(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop_floor_plan
+    WHERE shop_id = p_shop_id;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopFloorPlans//
+
+CREATE PROCEDURE fetchShopFloorPlans(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT * FROM shop_floor_plan
+    WHERE shop_id = p_shop_id
+    ORDER BY floor_plan_name;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+	WHERE shop_status = 'Active' AND shop_id IN (
+        SELECT shop_id 
+        FROM shop_access 
+        WHERE user_account_id = p_user_account_id
+    );
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
