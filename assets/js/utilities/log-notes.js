@@ -1,4 +1,5 @@
 import { handleSystemError } from '../modules/system-errors.js';
+import { showNotification, setNotification } from '../modules/notifications.js';
 
 export const attachLogNotesHandler = (triggerSelector, sourceSelector, type) => {
     $(document).on('click', triggerSelector, () => {
@@ -50,4 +51,46 @@ export const logNotes = async (database_table, reference_id) => {
   } catch (error) {
     handleSystemError(error, 'fetch_failed', `Log notes fetch failed: ${error.message}`);
   }
+};
+
+export const generateElements = async ({ container, controller, transaction, reference_id }) => {
+    try {
+        const formData = new URLSearchParams();
+        formData.append('transaction', transaction);
+
+        if (reference_id !== undefined && reference_id !== null) {
+            formData.append('reference_id', reference_id);
+        }
+
+        const response = await fetch(`./app/Controllers/${controller}.php`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to generate elements. HTTP status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            const elementContainer = document.getElementById(container);
+
+            if (elementContainer) {
+                elementContainer.innerHTML = data.ELEMENT;
+            } else {
+                console.warn(`${container} element not found.`);
+            }
+        } 
+        else if (data.invalid_session) {
+            setNotification(data.title, data.message, data.message_type);
+            window.location.href = data.redirect_link;
+        } 
+        else {
+            showNotification(data.title, data.message, data.message_type);
+        }
+
+    } catch (error) {
+        handleSystemError(error, 'fetch_failed', `Log notes fetch failed: ${error.message}`);
+    }
 };

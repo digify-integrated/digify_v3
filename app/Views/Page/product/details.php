@@ -242,13 +242,13 @@
                                     <input type="number" id="sales_price" name="sales_price" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
 
-                                <div class="fv-row w-100 flex-md-root mb-10">
+                                <div class="fv-row w-100 flex-md-root mb-2">
                                     <label class="required form-label" for="cost">Cost</label>
                                     <input type="number" id="cost" name="cost" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
                             </div>
 
-                            <div class="d-flex flex-wrap gap-5">
+                            <div class="d-flex flex-wrap gap-5 d-none">
                                 <div class="fv-row w-100 flex-md-root mb-2">
                                     <label class="form-label" for="sales_tax_id">Sales Tax</label>
                                     <select id="sales_tax_id" name="sales_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>

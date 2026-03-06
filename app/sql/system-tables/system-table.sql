@@ -8039,6 +8039,92 @@ CREATE INDEX idx_shop_session_denomination_count_type ON shop_session_denominati
 
 
 /* =============================================================================================
+  TABLE: SHOP ORDER
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_order;
+
+CREATE TABLE shop_order (
+  shop_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+  floor_plan_table_id INT UNSIGNED,
+  table_number INT,
+  shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded') DEFAULT 'Active',
+  paid_date DATETIME,
+  void_date DATETIME,
+  void_reason VARCHAR(500),
+  refund_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ORDER
+============================================================================================= */
+
+CREATE INDEX idx_shop_order_floor_plan_table_id ON shop_order(floor_plan_table_id);
+CREATE INDEX idx_shop_order_shop_order_status ON shop_order(shop_order_status);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ORDER
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP ORDER
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_order_details;
+
+CREATE TABLE shop_order_details (
+  shop_order_details_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_order_details INT UNSIGNED NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  quantity DECIMAL(15,4) DEFAULT 1,
+  order_status ENUM('Pending', 'Preparing', 'To Serve', 'Completed') DEFAULT 'Pending',
+  cost DECIMAL(15, 2) DEFAULT 0
+  price DECIMAL(15, 2) DEFAULT 0
+  total_cost DECIMAL(15, 2) GENERATED ALWAYS AS (cost * quantity) STORED,
+  total_price DECIMAL(15, 2) GENERATED ALWAYS AS (price * quantity) STORED,
+  preparing_date DATETIME,
+  to_serve_date DATETIME,
+  completed_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ORDER
+============================================================================================= */
+
+CREATE INDEX idx_shop_order_floor_plan_table_id ON shop_order(floor_plan_table_id);
+CREATE INDEX idx_shop_order_shop_order_status ON shop_order(shop_order_status);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ORDER
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
   TABLE: 
 ============================================================================================= */
 
