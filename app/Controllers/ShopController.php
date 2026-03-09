@@ -97,6 +97,7 @@ class ShopController {
             'save shop access'                      => $this->saveShopAccess($lastLogBy),
             'save shop product'                     => $this->saveShopProduct($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
+            'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
@@ -367,6 +368,26 @@ class ShopController {
                 );
             }
         }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Open Register Success',
+            'The register has been openned successfully.'
+        );
+    }
+   
+    public function insertShopOrder(
+        int $lastLogBy
+    ) {
+        $shopId             = $_POST['shop_id'] ?? null;
+        $floorPlanTableId   = $_POST['floor_plan_table_id'] ?? null;
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        $floorPlanTableDetails  = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
+        $tableNumber            = $floorPlanTableDetails['table_number'] ?? '';
+        
+        $this->shop->insertShopOrder($shopId, $shopName, $floorPlanTableId, $tableNumber, $lastLogBy);
 
         $this->systemHelper::sendSuccessResponse(
             'Open Register Success',
@@ -759,11 +780,7 @@ class ShopController {
             $floorPlanId   = $row['floor_plan_id'];
             $floorPlanName = $row['floor_plan_name'];
 
-            $tableCount = $this->floorPlan->fetchFloorPlanTableCount($floorPlanId)['total'] ?? 0;
-            $seatCount  = $this->floorPlan->fetchFloorPlanSeatCount($floorPlanId)['total'] ?? 0;
-
-            $tableLabel = $tableCount === 1 ? 'Table' : 'Tables';
-            $seatLabel  = $seatCount === 1 ? 'Seat' : 'Seats';
+            $tableCount = $this->floorPlan->fetchAvailableFloorPlanTableCount($floorPlanId, $shopId)['total'] ?? 0;
 
             $activeNav  = $isFirst ? 'active' : '';
 
@@ -778,11 +795,7 @@ class ShopController {
                                             </span>
 
                                             <span class="text-primary fw-semibold fs-7">
-                                                '.number_format($tableCount).' '.$tableLabel.'
-                                            </span>
-
-                                            <span class="text-primary fw-semibold fs-7">
-                                                '.number_format($seatCount).' '.$seatLabel.'
+                                                Available Tables: '.number_format($tableCount).'
                                             </span>
                                         </div>
                                     </a>
@@ -823,46 +836,135 @@ class ShopController {
                 $tableNumber      = $tableRow['table_number'] ?? 1;
                 $seats            = $tableRow['seats'] ?? 1;
 
-                $floorPlanTableHtml .= '
-                <div class="col-md-6 col-xl-4">
-                    <div class="card border-success">
-                        <div class="card-header border-0 pt-9">
-                            <div class="card-title m-0">
-                                <h3 class="card-title align-items-start flex-column">
-                                    <span class="card-label fw-bold">
-                                        Table No. '.number_format($tableNumber).'
-                                    </span>
+                $isAvailable = $this->floorPlan->checkFloorPlanTableAvailability($floorPlanTableId, $shopId)['total'] ?? 0;
 
-                                    <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                        Seats: '.number_format($seats).'
-                                    </span>
-                                </h3>
+                if($isAvailable == 0){
+                    $floorPlanTableHtml .= '
+                        <div class="col-md-6 col-xl-4">
+                            <div class="card border-success">
+                                <div class="card-header border-0 pt-9">
+                                    <div class="card-title m-0">
+                                        <h3 class="card-title align-items-start flex-column">
+                                            <span class="card-label fw-bold">
+                                                Table No. '.number_format($tableNumber).'
+                                            </span>
+
+                                            <span class="text-gray-700 mt-1 fw-semibold fs-6">
+                                                Seats: '.number_format($seats).'
+                                            </span>
+                                        </h3>
+                                    </div>
+
+                                    <div class="card-toolbar">
+                                        <span class="badge badge-light-success fw-bold me-auto px-4 py-3">
+                                            Available
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="card-body p-8">
+
+                                    <div class="separator separator-dashed mb-7"></div>
+
+                                    <button class="btn btn-success w-100 add-shop-order"
+                                        data-shop-id="'.htmlspecialchars($shopId).'"
+                                        data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                                        Add Order
+                                    </button>
+
+                                </div>
+
                             </div>
+                        </div>';
+                }
+                else{
+                    $floorPlanTableHtml .= '
+                        <div class="col-md-6 col-xl-4">
+                            <div class="card border-danger">
+                                <div class="card-header border-0 pt-9">
+                                    <div class="card-title m-0">
+                                        <h3 class="card-title align-items-start flex-column">
+                                            Table No. '.number_format($tableNumber).'
+                                            <span class="text-gray-700 mt-1 fw-semibold fs-6">
+                                                Seats: '.number_format($seats).'
+                                            </span>
+                                        </h3>
+                                    </div>
+                                    <div class="card-toolbar">
+                                        <span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Occupied</span>
+                                    </div>
+                                </div>
 
-                            <div class="card-toolbar">
-                                <span class="badge badge-light-success fw-bold me-auto px-4 py-3">
-                                    Available
-                                </span>
+                                <div class="card-body p-9">
+                                    <div class="separator separator-dashed mb-7"></div>
+
+                                    <div class="mb-5">
+                                        <div class="accordion accordion-icon-collapse" id="order_summary_accordion_'. $tableNumber .'">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="order_summary_accordion_'. $tableNumber .'_header">
+                                                    <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order_summary_table_'. $tableNumber .'" aria-expanded="false" aria-controls="order_summary_table_'. $tableNumber .'">
+                                                    Order Summary
+                                                    </button>
+                                                </h2>
+                                                <div id="order_summary_table_'. $tableNumber .'" class="accordion-collapse collapse" aria-labelledby="order_summary_accordion_'. $tableNumber .'_header" data-bs-parent="#order_summary_accordion_'. $tableNumber .'">
+                                                    <div class="accordion-body">
+                                                        <table class="table align-middle table-row-dashed fs-6 gy-3">
+                                                            <thead>
+                                                                <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
+                                                                    <td>Order</td>
+                                                                    <td>Price</td>
+                                                                    <td>Qty.</td>
+                                                                    <td>Total</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="text-start">
+                                                                <tr>
+                                                                    <td>Burger Platter Ala mode</td>
+                                                                    <td>$3,000.00</td>
+                                                                    <td>2</td>
+                                                                    <td>$6,000.00</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Cappuccino</td>
+                                                                    <td>$4.00</td>
+                                                                    <td>1</td>
+                                                                    <td>$4.00</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
+                                                                    <td colspan="2" class="text-end">Total</td>
+                                                                    <td>3</td>
+                                                                    <td>$10.00</td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <button class="btn btn-light w-100 view-shop-table-orders mb-5"
+                                            data-shop-id="'.htmlspecialchars($shopId).'"
+                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                                            View Orders
+                                        </button>
+                                        <button class="btn btn-success w-100 release-shop-table mb-5"
+                                            data-shop-id="'.htmlspecialchars($shopId).'"
+                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                                            Release Table
+                                        </button>
+                                        <button class="btn btn-warning w-100 transfer-shop-table"
+                                            data-shop-id="'.htmlspecialchars($shopId).'"
+                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                                            Transfer Table
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="card-body p-8">
-
-                            <div class="separator separator-dashed mb-7"></div>
-
-                            <button class="btn btn-success w-100 open-shop"
-                                data-bs-toggle="modal"
-                                data-bs-target="#open-shop-modal"
-                                data-shop-id="'.htmlspecialchars($shopId).'">
-
-                                Add Order
-
-                            </button>
-
-                        </div>
-
-                    </div>
-                </div>';
+                        </div> ';
+                }
             }
 
             $floorPlanTableHtml .= '</div></div>';

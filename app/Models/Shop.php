@@ -183,11 +183,35 @@ class Shop extends Model {
         )';
 
         return $this->query($sql, [
-            'p_shop_session_id' => $p_shop_session_id,
-            'p_count_type'      => $p_count_type,
-            'p_denomination_value' => $p_denomination_value,
-            'p_quantity'        => $p_quantity,
-            'p_last_log_by'     => $p_last_log_by
+            'p_shop_session_id'     => $p_shop_session_id,
+            'p_count_type'          => $p_count_type,
+            'p_denomination_value'  => $p_denomination_value,
+            'p_quantity'            => $p_quantity,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopOrder(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_floor_plan_table_id,
+        int $p_table_number,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopOrder(
+            :p_shop_id,
+            :p_shop_name,
+            :p_floor_plan_table_id,
+            :p_table_number,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_shop_name'           => $p_shop_name,
+            'p_floor_plan_table_id' => $p_floor_plan_table_id,
+            'p_table_number'        => $p_table_number,
+            'p_last_log_by'         => $p_last_log_by
         ]);
     }
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2026 at 10:18 AM
+-- Generation Time: Mar 09, 2026 at 10:29 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -249,6 +249,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFloorPlanExist` (IN `p_floor_p
 	SELECT COUNT(*) AS total
     FROM floor_plan
     WHERE floor_plan_id = p_floor_plan_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `checkFloorPlanTableAvailability`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFloorPlanTableAvailability` (IN `p_floor_plan_table_id` INT, IN `p_shop_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop_order
+    WHERE shop_id = p_shop_id
+    AND shop_order_status = 'Active'
+    AND floor_plan_table_id = p_floor_plan_table_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `checkFloorPlanTableExist`$$
@@ -1823,6 +1832,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAttributeValue` (IN `p_attribu
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchAvailableFloorPlanTableCount`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAvailableFloorPlanTableCount` (IN `p_floor_plan_id` INT, IN `p_shop_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan_table
+	WHERE floor_plan_table_id NOT IN (SELECT floor_plan_table_id FROM shop_order WHERE shop_id = p_shop_id AND shop_order_status = 'Active')
+    AND floor_plan_id = p_floor_plan_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchBank`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchBank` (IN `p_bank_id` INT)   BEGIN
 	SELECT * FROM bank
@@ -2086,8 +2103,7 @@ DROP PROCEDURE IF EXISTS `fetchFloorPlanTableCount`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchFloorPlanTableCount` (IN `p_floor_plan_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM floor_plan_table
-	WHERE floor_plan_id = p_floor_plan_id
-    LIMIT 1;
+	WHERE floor_plan_id = p_floor_plan_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `fetchFloorPlanTables`$$
@@ -4872,6 +4888,33 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopFloorPlan` (IN `p_shop_id
         p_shop_name,
         p_floor_plan_id,
         p_floor_plan_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopOrder`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrder` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_floor_plan_table_id` INT, IN `p_table_number` INT, IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_order (
+        shop_id,
+        shop_name,
+        floor_plan_table_id,
+        table_number,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_floor_plan_table_id,
+        p_table_number,
         p_last_log_by
     );
 
@@ -9559,6 +9602,14 @@ CREATE TABLE `audit_log` (
   `changed_by` int(10) UNSIGNED DEFAULT 1,
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_log`
+--
+
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-05 22:59:04 -> 2026-03-06 09:39:52<br/>', 1, '2026-03-06 09:39:52'),
+(2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-06 09:39:52 -> 2026-03-09 12:27:19<br/>', 1, '2026-03-09 12:27:19');
 
 -- --------------------------------------------------------
 
@@ -15840,7 +15891,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (13, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-04 10:40:34', 1, '2026-03-04 10:40:34', '2026-03-04 10:40:34', 1),
 (14, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 08:43:15', 1, '2026-03-05 08:43:15', '2026-03-05 08:43:15', 1),
 (15, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 22:59:04', 1, '2026-03-05 22:59:04', '2026-03-05 22:59:04', 1),
-(16, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-06 09:39:52', 1, '2026-03-06 09:39:52', '2026-03-06 09:39:52', 1);
+(16, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-06 09:39:52', 1, '2026-03-06 09:39:52', '2026-03-06 09:39:52', 1),
+(17, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-09 12:27:19', 1, '2026-03-09 12:27:19', '2026-03-09 12:27:19', 1);
 
 -- --------------------------------------------------------
 
@@ -17942,7 +17994,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$gb7dhDPbOM8xmZrbU1s1UOzFe1GvZqncbCJ8iq5rpt7dSrfHkR5Q.', '2026-02-27 14:52:10', '2026-03-06 09:39:52', 1);
+(1, 2, '$2y$10$1mnRD6SWPL5MI5O3azK85e7yoIYQyzof5s3.rbgGSf4sAdSFkIicO', '2026-02-27 14:52:10', '2026-03-09 12:27:19', 1);
 
 -- --------------------------------------------------------
 
@@ -18141,6 +18193,70 @@ CREATE TRIGGER `trg_shop_floor_plan_update` AFTER UPDATE ON `shop_floor_plan` FO
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_order`
+--
+
+DROP TABLE IF EXISTS `shop_order`;
+CREATE TABLE `shop_order` (
+  `shop_order_id` int(10) UNSIGNED NOT NULL,
+  `shop_id` int(10) UNSIGNED NOT NULL,
+  `shop_name` varchar(200) NOT NULL,
+  `floor_plan_table_id` int(10) UNSIGNED DEFAULT NULL,
+  `table_number` int(11) DEFAULT NULL,
+  `shop_order_status` enum('Active','Paid','Voided','Refunded','Cancelled') DEFAULT 'Active',
+  `paid_date` datetime DEFAULT NULL,
+  `void_date` datetime DEFAULT NULL,
+  `void_reason` varchar(500) DEFAULT NULL,
+  `cancelled_date` datetime DEFAULT NULL,
+  `cancelled_reason` varchar(500) DEFAULT NULL,
+  `refund_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop_order`
+--
+
+INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(14, 4, 'Test', 6, 5, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:08:14', '2026-03-09 17:08:14', 2),
+(15, 4, 'Test', 7, 6, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:10:24', '2026-03-09 17:10:24', 2),
+(16, 4, 'Test', 8, 7, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:10:32', '2026-03-09 17:10:32', 2),
+(17, 4, 'Test', 2, 1, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:39', '2026-03-09 17:17:39', 2),
+(18, 4, 'Test', 3, 2, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:42', '2026-03-09 17:17:42', 2),
+(19, 4, 'Test', 4, 3, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:46', '2026-03-09 17:17:46', 2),
+(20, 4, 'Test', 5, 4, 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:51', '2026-03-09 17:17:51', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_order_details`
+--
+
+DROP TABLE IF EXISTS `shop_order_details`;
+CREATE TABLE `shop_order_details` (
+  `shop_order_details_id` int(10) UNSIGNED NOT NULL,
+  `shop_order_details` int(10) UNSIGNED NOT NULL,
+  `product_id` int(10) UNSIGNED NOT NULL,
+  `product_name` varchar(200) NOT NULL,
+  `quantity` decimal(15,4) DEFAULT 1.0000,
+  `order_status` enum('Pending','Preparing','To Serve','Completed') DEFAULT 'Pending',
+  `cost` decimal(15,2) DEFAULT 0.00,
+  `price` decimal(15,2) DEFAULT 0.00,
+  `total_cost` decimal(15,2) GENERATED ALWAYS AS (`cost` * `quantity`) STORED,
+  `total_price` decimal(15,2) GENERATED ALWAYS AS (`price` * `quantity`) STORED,
+  `preparing_date` datetime DEFAULT NULL,
+  `to_serve_date` datetime DEFAULT NULL,
+  `completed_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -19172,7 +19288,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-06 09:39:52', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-06 09:39:52', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-09 12:27:19', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-09 12:27:19', 1);
 
 --
 -- Triggers `user_account`
@@ -20068,6 +20184,31 @@ ALTER TABLE `shop_floor_plan`
   ADD KEY `idx_shop_floor_plan_floor_plan_id` (`floor_plan_id`);
 
 --
+-- Indexes for table `shop_order`
+--
+ALTER TABLE `shop_order`
+  ADD PRIMARY KEY (`shop_order_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_order_shop_id` (`shop_id`),
+  ADD KEY `idx_shop_order_floor_plan_table_id` (`floor_plan_table_id`),
+  ADD KEY `idx_shop_order_shop_order_status` (`shop_order_status`),
+  ADD KEY `idx_shop_order_paid_date` (`paid_date`),
+  ADD KEY `idx_shop_order_void_date` (`void_date`),
+  ADD KEY `idx_shop_order_refund_date` (`refund_date`);
+
+--
+-- Indexes for table `shop_order_details`
+--
+ALTER TABLE `shop_order_details`
+  ADD PRIMARY KEY (`shop_order_details_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_order_details_product_id` (`product_id`),
+  ADD KEY `idx_shop_order_details_order_status` (`order_status`),
+  ADD KEY `idx_shop_order_details_preparing_date` (`preparing_date`),
+  ADD KEY `idx_shop_order_details_to_serve_date` (`to_serve_date`),
+  ADD KEY `idx_shop_order_details_completed_date` (`completed_date`);
+
+--
 -- Indexes for table `shop_payment_method`
 --
 ALTER TABLE `shop_payment_method`
@@ -20252,7 +20393,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20444,7 +20585,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20625,6 +20766,18 @@ ALTER TABLE `shop_access`
 --
 ALTER TABLE `shop_floor_plan`
   MODIFY `shop_floor_plan_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `shop_order`
+--
+ALTER TABLE `shop_order`
+  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `shop_order_details`
+--
+ALTER TABLE `shop_order_details`
+  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`
@@ -21187,6 +21340,20 @@ ALTER TABLE `shop_floor_plan`
   ADD CONSTRAINT `shop_floor_plan_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
   ADD CONSTRAINT `shop_floor_plan_ibfk_2` FOREIGN KEY (`floor_plan_id`) REFERENCES `floor_plan` (`floor_plan_id`),
   ADD CONSTRAINT `shop_floor_plan_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_order`
+--
+ALTER TABLE `shop_order`
+  ADD CONSTRAINT `shop_order_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
+  ADD CONSTRAINT `shop_order_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_order_details`
+--
+ALTER TABLE `shop_order_details`
+  ADD CONSTRAINT `shop_order_details_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `shop_order_details_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `shop_payment_method`

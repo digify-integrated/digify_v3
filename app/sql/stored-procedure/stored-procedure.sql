@@ -12825,8 +12825,20 @@ CREATE PROCEDURE fetchFloorPlanTableCount(
 BEGIN
 	SELECT COUNT(*) AS total
     FROM floor_plan_table
-	WHERE floor_plan_id = p_floor_plan_id
-    LIMIT 1;
+	WHERE floor_plan_id = p_floor_plan_id;
+END //
+
+DROP PROCEDURE IF EXISTS fetchAvailableFloorPlanTableCount//
+
+CREATE PROCEDURE fetchAvailableFloorPlanTableCount(
+    IN p_floor_plan_id INT,
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM floor_plan_table
+	WHERE floor_plan_table_id NOT IN (SELECT floor_plan_table_id FROM shop_order WHERE shop_id = p_shop_id AND shop_order_status = 'Active')
+    AND floor_plan_id = p_floor_plan_id;
 END //
 
 DROP PROCEDURE IF EXISTS fetchFloorPlanSeatCount//
@@ -12905,6 +12917,20 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM floor_plan_table
     WHERE floor_plan_table_id = p_floor_plan_table_id;
+END //
+
+DROP PROCEDURE IF EXISTS checkFloorPlanTableAvailability//
+
+CREATE PROCEDURE checkFloorPlanTableAvailability(
+    IN p_floor_plan_table_id INT,
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop_order
+    WHERE shop_id = p_shop_id
+    AND shop_order_status = 'Active'
+    AND floor_plan_table_id = p_floor_plan_table_id;
 END //
 
 /* =============================================================================================
@@ -13971,6 +13997,83 @@ BEGIN
     FROM shop 
     ORDER BY shop_name;
 END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   STORED PROCEDURE: SHOP ORDER
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS insertShopOrder//
+
+CREATE PROCEDURE insertShopOrder(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_floor_plan_table_id INT,
+    IN p_table_number INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_order (
+        shop_id,
+        shop_name,
+        floor_plan_table_id,
+        table_number,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_floor_plan_table_id,
+        p_table_number,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 8: CUSTOM PROCEDURES
+============================================================================================= */
 
 /* =============================================================================================
    END OF PROCEDURES

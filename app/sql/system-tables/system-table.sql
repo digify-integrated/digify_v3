@@ -8050,10 +8050,12 @@ CREATE TABLE shop_order (
   shop_name VARCHAR(200) NOT NULL,
   floor_plan_table_id INT UNSIGNED,
   table_number INT,
-  shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded') DEFAULT 'Active',
+  shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded', 'Cancelled') DEFAULT 'Active',
   paid_date DATETIME,
   void_date DATETIME,
   void_reason VARCHAR(500),
+  cancelled_date DATETIME,
+  cancelled_reason VARCHAR(500),
   refund_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -8066,8 +8068,12 @@ CREATE TABLE shop_order (
   INDEX: SHOP ORDER
 ============================================================================================= */
 
+CREATE INDEX idx_shop_order_shop_id ON shop_order(shop_id);
 CREATE INDEX idx_shop_order_floor_plan_table_id ON shop_order(floor_plan_table_id);
 CREATE INDEX idx_shop_order_shop_order_status ON shop_order(shop_order_status);
+CREATE INDEX idx_shop_order_paid_date ON shop_order(paid_date);
+CREATE INDEX idx_shop_order_void_date ON shop_order(void_date);
+CREATE INDEX idx_shop_order_refund_date ON shop_order(refund_date);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER
@@ -8092,8 +8098,8 @@ CREATE TABLE shop_order_details (
   product_name VARCHAR(200) NOT NULL,
   quantity DECIMAL(15,4) DEFAULT 1,
   order_status ENUM('Pending', 'Preparing', 'To Serve', 'Completed') DEFAULT 'Pending',
-  cost DECIMAL(15, 2) DEFAULT 0
-  price DECIMAL(15, 2) DEFAULT 0
+  cost DECIMAL(15, 2) DEFAULT 0,
+  price DECIMAL(15, 2) DEFAULT 0,
   total_cost DECIMAL(15, 2) GENERATED ALWAYS AS (cost * quantity) STORED,
   total_price DECIMAL(15, 2) GENERATED ALWAYS AS (price * quantity) STORED,
   preparing_date DATETIME,
@@ -8102,7 +8108,6 @@ CREATE TABLE shop_order_details (
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
@@ -8111,8 +8116,11 @@ CREATE TABLE shop_order_details (
   INDEX: SHOP ORDER
 ============================================================================================= */
 
-CREATE INDEX idx_shop_order_floor_plan_table_id ON shop_order(floor_plan_table_id);
-CREATE INDEX idx_shop_order_shop_order_status ON shop_order(shop_order_status);
+CREATE INDEX idx_shop_order_details_product_id ON shop_order_details(product_id);
+CREATE INDEX idx_shop_order_details_order_status ON shop_order_details(order_status);
+CREATE INDEX idx_shop_order_details_preparing_date ON shop_order_details(preparing_date);
+CREATE INDEX idx_shop_order_details_to_serve_date ON shop_order_details(to_serve_date);
+CREATE INDEX idx_shop_order_details_completed_date ON shop_order_details(completed_date);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER

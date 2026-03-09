@@ -106,7 +106,7 @@ class FloorPlan extends Model {
         ]);
     }
 
-     public function fetchFloorPlanSeatCount(
+    public function fetchFloorPlanSeatCount(
         int $p_floor_plan_id
     ) {
         $sql = 'CALL fetchFloorPlanSeatCount(
@@ -118,7 +118,7 @@ class FloorPlan extends Model {
         ]);
     }
 
-     public function fetchFloorPlanTables(
+    public function fetchFloorPlanTables(
         int $p_floor_plan_id
     ) {
         $sql = 'CALL fetchFloorPlanTables(
@@ -127,6 +127,21 @@ class FloorPlan extends Model {
         
         return $this->fetchAll($sql, [
             'p_floor_plan_id' => $p_floor_plan_id
+        ]);
+    }
+
+    public function fetchAvailableFloorPlanTableCount(
+        int $p_floor_plan_id,
+        int $p_shop_id
+    ) {
+        $sql = 'CALL fetchAvailableFloorPlanTableCount(
+            :p_floor_plan_id,
+            :p_shop_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_id' => $p_floor_plan_id,
+            'p_shop_id' => $p_shop_id
         ]);
     }
     
@@ -183,6 +198,21 @@ class FloorPlan extends Model {
         
         return $this->fetch($sql, [
             'p_floor_plan_table_id' => $p_floor_plan_table_id
+        ]);
+    }
+
+    public function checkFloorPlanTableAvailability(
+        int $p_floor_plan_table_id,
+        int $p_shop_id
+    ) {
+        $sql = 'CALL checkFloorPlanTableAvailability(
+            :p_floor_plan_table_id,
+            :p_shop_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_floor_plan_table_id' => $p_floor_plan_table_id,
+            'p_shop_id' => $p_shop_id
         ]);
     }
 

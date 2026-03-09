@@ -41,6 +41,7 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
 
 <body id="kt_body" class="app-default bgi-size-cover bgi-attachment-fixed bgi-position-center bgi-no-repeat" data-kt-app-page-loading-enabled="true" data-kt-app-page-loading="off">
     <input type="hidden" id="shop_id" value="<?= $shopId ?>">
+    <input type="hidden" id="floor_plan_table_id">
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
@@ -98,7 +99,7 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
 ?>
 <script src="./vendor/datatables/datatables.bundle.js"></script>
 
-<script type="module" src="./assets/js/page/shop-register/index.js"></script>
+<script type="module" src="./assets/js/page/shop-register/index.js?v=<?= rand(); ?>"></script>
 
 </body>
 </html>
