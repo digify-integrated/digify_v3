@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 09, 2026 at 10:29 AM
+-- Generation Time: Mar 10, 2026 at 10:30 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -9609,7 +9609,8 @@ CREATE TABLE `audit_log` (
 
 INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
 (1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-05 22:59:04 -> 2026-03-06 09:39:52<br/>', 1, '2026-03-06 09:39:52'),
-(2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-06 09:39:52 -> 2026-03-09 12:27:19<br/>', 1, '2026-03-09 12:27:19');
+(2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-06 09:39:52 -> 2026-03-09 12:27:19<br/>', 1, '2026-03-09 12:27:19'),
+(3, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-09 12:27:19 -> 2026-03-10 12:00:09<br/>', 1, '2026-03-10 12:00:09');
 
 -- --------------------------------------------------------
 
@@ -15892,7 +15893,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (14, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 08:43:15', 1, '2026-03-05 08:43:15', '2026-03-05 08:43:15', 1),
 (15, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-05 22:59:04', 1, '2026-03-05 22:59:04', '2026-03-05 22:59:04', 1),
 (16, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-06 09:39:52', 1, '2026-03-06 09:39:52', '2026-03-06 09:39:52', 1),
-(17, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-09 12:27:19', 1, '2026-03-09 12:27:19', '2026-03-09 12:27:19', 1);
+(17, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-09 12:27:19', 1, '2026-03-09 12:27:19', '2026-03-09 12:27:19', 1),
+(18, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-10 12:00:09', 1, '2026-03-10 12:00:09', '2026-03-10 12:00:09', 1);
 
 -- --------------------------------------------------------
 
@@ -17994,7 +17996,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$1mnRD6SWPL5MI5O3azK85e7yoIYQyzof5s3.rbgGSf4sAdSFkIicO', '2026-02-27 14:52:10', '2026-03-09 12:27:19', 1);
+(1, 2, '$2y$10$CnvG1TZx9jgf5N8xgwLnruPcFVcuzFIYue9Cm.0hSI1bBt22ZG41u', '2026-02-27 14:52:10', '2026-03-10 12:00:09', 1);
 
 -- --------------------------------------------------------
 
@@ -19288,7 +19290,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-09 12:27:19', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-09 12:27:19', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-10 12:00:09', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-10 12:00:09', 1);
 
 --
 -- Triggers `user_account`
@@ -20393,7 +20395,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20585,7 +20587,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
