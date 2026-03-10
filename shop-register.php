@@ -57,7 +57,7 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
                                             </ul>
                                         </div>
                                         <div class="card-toolbar mt-5 mb-5">
-                                             <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+                                            <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                                                 Actions
                                                 <i class="ki-outline ki-down fs-2 me-0"></i>
                                             </a>

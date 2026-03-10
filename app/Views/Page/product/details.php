@@ -449,7 +449,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4" <?php echo ($productStatus == 'Draft') ? 'd-none' : ''; ?>>
+                    <div class="card card-flush py-4 d-none">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Pricelist</h2>

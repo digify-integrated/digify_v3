@@ -784,7 +784,7 @@ class ShopController {
 
             $activeNav  = $isFirst ? 'active' : '';
 
-            $floorPlansHtml .= '<div class="col-lg-2 mb-7">
+            $floorPlansHtml .= '<div class="col-lg-2 mb-4">
                                     <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
                                     btn-active-color-primary flex-column flex-stack w-100 p-8 page-bg '. $activeNav .'"
                                     data-bs-toggle="pill"
@@ -879,81 +879,28 @@ class ShopController {
                 }
                 else{
                     $floorPlanTableHtml .= '
-                        <div class="col-md-6 col-xl-4">
+                        <div class="col-md-6 col-xl-3">
                             <div class="card border-danger">
                                 <div class="card-header border-0 pt-9">
-                                    <div class="card-title m-0">
-                                        <h3 class="card-title align-items-start flex-column">
-                                            Table No. '.number_format($tableNumber).'
-                                            <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                                Seats: '.number_format($seats).'
+                                    <h3 class="card-title align-items-start flex-column">
+                                        Table No. '.number_format($tableNumber).'
+                                        <span class="text-gray-700 mt-1 fw-semibold fs-6">
+                                            Seats: '.number_format($seats).'
                                             </span>
-                                        </h3>
-                                    </div>
+                                    </h3>
                                     <div class="card-toolbar">
                                         <span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Occupied</span>
                                     </div>
+                                    
                                 </div>
 
-                                <div class="card-body p-9">
-                                    <div class="separator separator-dashed mb-7"></div>
-
-                                    <div class="mb-5">
-                                        <div class="accordion accordion-icon-collapse" id="order_summary_accordion_'. $tableNumber .'">
-                                            <div class="accordion-item">
-                                                <h2 class="accordion-header" id="order_summary_accordion_'. $tableNumber .'_header">
-                                                    <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order_summary_table_'. $tableNumber .'" aria-expanded="false" aria-controls="order_summary_table_'. $tableNumber .'">
-                                                    Order Summary
-                                                    </button>
-                                                </h2>
-                                                <div id="order_summary_table_'. $tableNumber .'" class="accordion-collapse collapse" aria-labelledby="order_summary_accordion_'. $tableNumber .'_header" data-bs-parent="#order_summary_accordion_'. $tableNumber .'">
-                                                    <div class="accordion-body">
-                                                        <table class="table align-middle table-row-dashed fs-6 gy-3">
-                                                            <thead>
-                                                                <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
-                                                                    <td>Order</td>
-                                                                    <td>Price</td>
-                                                                    <td>Qty.</td>
-                                                                    <td>Total</td>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="text-start">
-                                                                <tr>
-                                                                    <td>Burger Platter Ala mode</td>
-                                                                    <td>$3,000.00</td>
-                                                                    <td>2</td>
-                                                                    <td>$6,000.00</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Cappuccino</td>
-                                                                    <td>$4.00</td>
-                                                                    <td>1</td>
-                                                                    <td>$4.00</td>
-                                                                </tr>
-                                                            </tbody>
-                                                            <tfoot>
-                                                                <tr class="text-center fw-bold fs-7 text-uppercase gs-0">
-                                                                    <td colspan="2" class="text-end">Total</td>
-                                                                    <td>3</td>
-                                                                    <td>$10.00</td>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-0">
-                                        <button class="btn btn-light w-100 view-shop-table-orders mb-5"
+                                <div class="card-body px-9 pt-3 pb-9">
+                                    <div class="separator separator-dashed mb-5"></div>
+                                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
+                                        <button class="btn btn-success w-100 view-shop-table-orders"
                                             data-shop-id="'.htmlspecialchars($shopId).'"
                                             data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
                                             View Orders
-                                        </button>
-                                        <button class="btn btn-success w-100 release-shop-table mb-5"
-                                            data-shop-id="'.htmlspecialchars($shopId).'"
-                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                                            Release Table
                                         </button>
                                         <button class="btn btn-warning w-100 transfer-shop-table"
                                             data-shop-id="'.htmlspecialchars($shopId).'"
