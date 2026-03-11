@@ -8050,6 +8050,8 @@ CREATE TABLE shop_order (
   shop_name VARCHAR(200) NOT NULL,
   floor_plan_table_id INT UNSIGNED,
   table_number INT,
+  order_for VARCHAR(500),
+  order_preset ENUM('Dine In', 'Takeout', 'Delivery') DEFAULT 'Dine In',
   shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded', 'Cancelled') DEFAULT 'Active',
   paid_date DATETIME,
   void_date DATETIME,

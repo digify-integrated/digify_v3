@@ -32,117 +32,13 @@
         </div>
 
         <div class="row mt-3">
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
+            <div class="col-6 col-lg-3 mb-5">
+                <div class="card card-flush flex-row-fluid p-0 w-100">
                     <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
+                        <img src="./assets/images/default/default-product.png" class="rounded-3 mb-4 w-100 h-120px" alt=""/>  
                         <div class="mb-2">
                             <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png"  class="rounded-3 mb-4 w-120px h-120px w-xxl-200px h-xxl-200px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Stake</span>
+                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Steak</span>
                             </div>
                         </div>
                         <span class="text-success text-end fw-bold fs-1">$16.50</span>
@@ -155,29 +51,30 @@
     <div class="col-lg-4">
         <div class="card card-flush bg-body"> 
             <div class="card-header pt-2">
-                <h3 class="card-title fw-bold text-gray-800 fs-1qx">Order Details (Table No. 5)</h3>
+                <h3 class="card-title fw-bold text-gray-800 fs-1qx" id="order-details-title">Order Details</h3>
 
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#product-bom-modal" id="add-product-bom">Actions</button> 
+                        <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#product-bom-modal" id="add-product-bom">Actions</button> 
                     </div>
                 </div>
             </div>
 
             <div class="card-body pt-0">
-                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 400px">
+                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px">
                     <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
                         <div class="row align-items-center">
                             <div class="col-6">
                                 <span class="fw-semibold d-block fs-4">Burger</span>
                             </div>
 
-                            <div class="col-2 text-center fw-bold">
+                            <div class="col-3 text-center fw-bold">
                                 3,000.00
                             </div>
 
-                            <div class="col-4 text-end fw-bold">
-                                <span class="text-decoration-line-through text-gray-500">P 1,300.00</span> P 1,200.00
+                            <div class="col-3 text-end fw-bold">
+                                <span class="text-decoration-line-through text-gray-500 d-block">P 1,300.00</span>
+                                P 1,200.00
                             </div>
                         </div>
 
@@ -199,11 +96,71 @@
                                 <span class="fw-semibold d-block fs-4">Burger</span>
                             </div>
 
-                            <div class="col-2 text-center fw-bold">
+                            <div class="col-3 text-center fw-bold">
                                 3,000.00
                             </div>
 
-                            <div class="col-4 text-end fw-bold">
+                            <div class="col-3 text-end fw-bold">
+                                 P 1,200.00
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <span class="fw-semibold d-block fs-4">Burger</span>
+                            </div>
+
+                            <div class="col-3 text-center fw-bold">
+                                3,000.00
+                            </div>
+
+                            <div class="col-3 text-end fw-bold">
+                                 P 1,200.00
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <span class="fw-semibold d-block fs-4">Burger</span>
+                            </div>
+
+                            <div class="col-3 text-center fw-bold">
+                                3,000.00
+                            </div>
+
+                            <div class="col-3 text-end fw-bold">
+                                 P 1,200.00
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <span class="fw-semibold d-block fs-4">Burger</span>
+                            </div>
+
+                            <div class="col-3 text-center fw-bold">
+                                3,000.00
+                            </div>
+
+                            <div class="col-3 text-end fw-bold">
+                                 P 1,200.00
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <span class="fw-semibold d-block fs-4">Burger</span>
+                            </div>
+
+                            <div class="col-3 text-center fw-bold">
+                                3,000.00
+                            </div>
+
+                            <div class="col-3 text-end fw-bold">
                                  P 1,200.00
                             </div>
                         </div>
@@ -211,24 +168,18 @@
                 </div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
-                        <div class="d-flex flex-stack p-6">  
-                            <!--begin::Content-->
+                        <div class="d-flex flex-stack p-6">
                             <div class="fs-6 fw-bold">
-                                <span class="d-block lh-1 mb-2">Subtotal</span> 
-                                <span class="d-block mb-2">Discounts</span> 
-                                <span class="d-block mb-3">Tax(12%)</span> 
+                                <span class="d-block lh-1 mb-2">Subtotal</span>
+                                <span class="d-block mb-2">Discounts</span>
                                 <span class="d-block fs-2 lh-1">Total</span>
                             </div> 
-                            <!--end::Content--> 
                             
-                            <!--begin::Content-->
                             <div class="fs-6 fw-bold text-end">
-                                <span class="d-block lh-1 mb-2" data-kt-pos-element="total">$100.50</span> 
-                                <span class="d-block mb-2" data-kt-pos-element="discount">-$8.00</span> 
-                                <span class="d-block mb-3" data-kt-pos-element="tax">$11.20</span> 
-                                <span class="d-block fs-2 lh-1" data-kt-pos-element="grant-total">$93.46</span>
-                            </div> 
-                            <!--end::Content--> 
+                                <span class="d-block lh-1 mb-2" data-kt-pos-element="total">&#8369; 100.50</span>
+                                <span class="d-block mb-2" data-kt-pos-element="discount">&#8369; 8.00</span>
+                                <span class="d-block fs-2 lh-1" data-kt-pos-element="grant-total">&#8369; 93.46</span>
+                            </div>
                         </div>
                     </div>
                     <div class="d-none">
@@ -271,15 +222,30 @@
                     </div>
                     
                     <div class="separator separator-dashed mb-4"></div>
+
+                    <div class="btn-group w-100 mb-4" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary active" data-kt-button="true">
+                            <input class="btn-check" type="radio" name="method" value="Dine In"/>
+                            Dine In
+                        </label>
+                        <label class="btn btn-outline btn-color-muted btn-active-primary" data-kt-button="true">
+                            <input class="btn-check" type="radio" name="method" checked="checked" value="Takeout"/>
+                            Takeout
+                        </label>
+                        <label class="btn btn-outline btn-color-muted btn-active-primary" data-kt-button="true">
+                            <input class="btn-check" type="radio" name="method" checked="checked" value="Delivery"/>
+                            Delivery
+                        </label>
+                    </div>
                     
                     <div class="d-flex flex-equal gap-3 px-0 mb-0">
-                        <button class="btn btn-light w-100 p-5">
+                        <button class="btn btn-light w-100 p-5" id="new-order">
                             New
                         </button>
                         <button class="btn btn-warning w-100 p-5">
                             Send
                         </button>
-                        <button class="btn btn-danger w-100 p-5">
+                        <button class="btn btn-success w-100 p-5">
                             Payment
                         </button>
                     </div>

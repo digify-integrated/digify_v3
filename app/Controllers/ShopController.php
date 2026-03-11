@@ -107,6 +107,7 @@ class ShopController {
             'delete shop product'                   => $this->deleteShopProduct(),
             'delete multiple shop'                  => $this->deleteMultipleShop(),
             'fetch shop details'                    => $this->fetchShopDetails(),
+            'fetch shop register table details'     => $this->fetchShopRegisterTableDetails(),
             'generate shop table'                   => $this->generateShopTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
@@ -461,6 +462,21 @@ class ShopController {
         exit;
     }
 
+    public function fetchShopRegisterTableDetails() {
+        $shopId             = $_POST['shop_id'] ?? null;
+        $floorPlanTableId   = $_POST['floor_plan_table_id'] ?? null;
+
+        $floorPlanTableDetails = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
+
+        $response = [
+            'success'       => true,
+            'tableNumber'   => $floorPlanTableDetails['table_number'] ?? 0,
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
     /* =============================================================================================
         SECTION 5: DELETE METHOD
     ============================================================================================= */
@@ -784,9 +800,9 @@ class ShopController {
 
             $activeNav  = $isFirst ? 'active' : '';
 
-            $floorPlansHtml .= '<div class="col-lg-2 mb-4">
+            $floorPlansHtml .= '<div class="col-lg-2 mb-7">
                                     <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
-                                    btn-active-color-primary flex-column flex-stack w-100 p-8 page-bg '. $activeNav .'"
+                                    btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg '. $activeNav .'"
                                     data-bs-toggle="pill"
                                     href="#floor_plan_'. $floorPlanId .'">
                                         <div>
@@ -795,7 +811,7 @@ class ShopController {
                                             </span>
 
                                             <span class="text-primary fw-semibold fs-7">
-                                                Available Tables: '.number_format($tableCount).'
+                                                Available Table: '.number_format($tableCount).'
                                             </span>
                                         </div>
                                     </a>
@@ -838,80 +854,51 @@ class ShopController {
 
                 $isAvailable = $this->floorPlan->checkFloorPlanTableAvailability($floorPlanTableId, $shopId)['total'] ?? 0;
 
-                if($isAvailable == 0){
-                    $floorPlanTableHtml .= '
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card border-success">
-                                <div class="card-header border-0 pt-9">
-                                    <div class="card-title m-0">
-                                        <h3 class="card-title align-items-start flex-column">
-                                            <span class="card-label fw-bold">
-                                                Table No. '.number_format($tableNumber).'
-                                            </span>
+                $statusText  = $isAvailable == 0 ? 'Available' : 'Occupied';
+                $borderClass = $isAvailable == 0 ? 'border-success' : 'border-danger';
+                $badgeClass  = $isAvailable == 0 ? 'badge-light-success' : 'badge-light-danger';
 
-                                            <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                                Seats: '.number_format($seats).'
-                                            </span>
-                                        </h3>
-                                    </div>
+                $buttonHtml = $isAvailable == 0
+                    ? '<button class="btn btn-success w-100 add-shop-order"
+                            data-shop-id="'.htmlspecialchars($shopId).'"
+                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                            Add Order
+                    </button>'
+                    : '<button class="btn btn-warning w-100 view-shop-table-orders"
+                            data-shop-id="'.htmlspecialchars($shopId).'"
+                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                            View Orders
+                    </button>';
 
-                                    <div class="card-toolbar">
-                                        <span class="badge badge-light-success fw-bold me-auto px-4 py-3">
-                                            Available
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="card-body p-8">
-
-                                    <div class="separator separator-dashed mb-7"></div>
-
-                                    <button class="btn btn-success w-100 add-shop-order"
-                                        data-shop-id="'.htmlspecialchars($shopId).'"
-                                        data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                                        Add Order
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>';
-                }
-                else{
-                    $floorPlanTableHtml .= '
-                        <div class="col-md-6 col-xl-3">
-                            <div class="card border-danger">
-                                <div class="card-header border-0 pt-9">
-                                    <h3 class="card-title align-items-start flex-column">
+                $floorPlanTableHtml .= '
+                <div class="col-6 col-xl-3">
+                    <div class="card '.$borderClass.'">
+                        <div class="card-header border-0 pt-9">
+                            <div class="card-title m-0">
+                                <h3 class="card-title align-items-start flex-column">
+                                    <span class="card-label fw-bold">
                                         Table No. '.number_format($tableNumber).'
-                                        <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                            Seats: '.number_format($seats).'
-                                            </span>
-                                    </h3>
-                                    <div class="card-toolbar">
-                                        <span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Occupied</span>
-                                    </div>
-                                    
-                                </div>
+                                    </span>
 
-                                <div class="card-body px-9 pt-3 pb-9">
-                                    <div class="separator separator-dashed mb-5"></div>
-                                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
-                                        <button class="btn btn-success w-100 view-shop-table-orders"
-                                            data-shop-id="'.htmlspecialchars($shopId).'"
-                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                                            View Orders
-                                        </button>
-                                        <button class="btn btn-warning w-100 transfer-shop-table"
-                                            data-shop-id="'.htmlspecialchars($shopId).'"
-                                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                                            Transfer Table
-                                        </button>
-                                    </div>
-                                </div>
+                                    <span class="text-gray-700 mt-1 fw-semibold fs-6">
+                                        Seats: '.number_format($seats).'
+                                    </span>
+                                </h3>
                             </div>
-                        </div> ';
-                }
+
+                            <div class="card-toolbar">
+                                <span class="badge '.$badgeClass.' fw-bold me-auto px-4 py-3">
+                                    '.$statusText.'
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body px-9 pt-3 pb-9">
+                            <div class="separator separator-dashed mb-7"></div>
+                            '.$buttonHtml.'
+                        </div>
+                    </div>
+                </div>';
             }
 
             $floorPlanTableHtml .= '</div></div>';
