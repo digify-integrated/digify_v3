@@ -1,50 +1,9 @@
 <div class="row">
     <div class="col-lg-8">
-        <div class="row nav nav-pills nav-pills-custom" id="floor-plan-tab">
-            <div class="col-lg-2 mb-4">
-                <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg active"  data-bs-toggle="pill">
-                    <div>
-                        <span class="text-gray-800 fw-bold fs-3 d-block">All</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-2 mb-4">
-                <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg " data-bs-toggle="pill">
-                    <div>
-                        <span class="text-gray-800 fw-bold fs-3 d-block">Appetizer</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-2 mb-4">
-                <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg " data-bs-toggle="pill">
-                    <div>
-                        <span class="text-gray-800 fw-bold fs-3 d-block">Main Course</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-2 mb-4">
-                <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg " data-bs-toggle="pill">
-                    <div>
-                        <span class="text-gray-800 fw-bold fs-3 d-block">Ala Carte</span>
-                    </div>
-                </a>
-            </div>
-        </div>
+        <div class="row nav nav-pills nav-pills-custom" id="shop-product-category-container"></div>
 
-        <div class="row mt-3">
-            <div class="col-6 col-lg-3 mb-5">
-                <div class="card card-flush flex-row-fluid p-0 w-100">
-                    <div class="card-body text-center">
-                        <img src="./assets/images/default/default-product.png" class="rounded-3 mb-4 w-100 h-120px" alt=""/>  
-                        <div class="mb-2">
-                            <div class="text-center">
-                                <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">T-Bone Steak</span>
-                            </div>
-                        </div>
-                        <span class="text-success text-end fw-bold fs-1">$16.50</span>
-                    </div>
-                </div>
-            </div>
+        <div class="row mt-3" id="shop-products-container">
+            
         </div>
     </div>
     

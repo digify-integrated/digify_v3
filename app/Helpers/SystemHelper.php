@@ -153,6 +153,7 @@ class SystemHelper extends Security {
             'id placeholder front'  => DEFAULT_ID_PLACEHOLDER_FRONT,
             'app module logo'       => DEFAULT_APP_MODULE_LOGO,
             'upload placeholder'    => DEFAULT_UPLOAD_PLACEHOLDER,
+            'product'               => DEFAULT_PRODUCT_IMAGE,
             'null'                  => null
         ];
 

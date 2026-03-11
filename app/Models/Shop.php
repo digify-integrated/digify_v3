@@ -301,6 +301,33 @@ class Shop extends Model {
         ]);
     }
 
+    public function fetchShopProductCategories(
+        null|string|int $p_shop_id
+    ) {
+        $sql = 'CALL fetchShopProductCategories(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function fetchShopProducts(
+        null|string|int $p_shop_id,
+        null|string|int $p_product_category_id,
+    ) {
+        $sql = 'CALL fetchShopProducts(
+            :p_shop_id,
+            :p_product_category_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_product_category_id' => $p_product_category_id
+        ]);
+    }
+
     public function fetchPOSStack(
         null|string|int $p_user_account_id
     ) {

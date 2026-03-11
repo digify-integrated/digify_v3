@@ -76,6 +76,7 @@ define('DEFAULT_APP_MODULE_LOGO', './assets/images/default/app-module-logo.png')
 define('DEFAULT_PLACEHOLDER_IMAGE', './assets/images/default/default-image-placeholder.jpeg');
 define('DEFAULT_ID_PLACEHOLDER_FRONT', './assets/images/default/id-placeholder-front.jpg');
 define('DEFAULT_UPLOAD_PLACEHOLDER', './assets/images/default/upload-placeholder.png');
+define('DEFAULT_PRODUCT_IMAGE', './assets/images/default/default-product.png');
 
 # -------------------------------------------------------------
 

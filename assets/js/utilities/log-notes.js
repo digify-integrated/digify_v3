@@ -53,7 +53,13 @@ export const logNotes = async (database_table, reference_id) => {
   }
 };
 
-export const generateElements = async ({ container, controller, transaction, reference_id }) => {
+export const generateElements = async ({ 
+    container, 
+    controller, 
+    transaction, 
+    reference_id, 
+    ...extraData 
+}) => {
     try {
         const formData = new URLSearchParams();
         formData.append('transaction', transaction);
@@ -61,6 +67,12 @@ export const generateElements = async ({ container, controller, transaction, ref
         if (reference_id !== undefined && reference_id !== null) {
             formData.append('reference_id', reference_id);
         }
+
+        Object.entries(extraData).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                formData.append(key, value);
+            }
+        });
 
         const response = await fetch(`./app/Controllers/${controller}.php`, {
             method: 'POST',

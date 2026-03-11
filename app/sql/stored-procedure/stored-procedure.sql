@@ -13722,6 +13722,60 @@ BEGIN
     ORDER BY floor_plan_name;
 END //
 
+DROP PROCEDURE IF EXISTS fetchShopProductCategories//
+
+CREATE PROCEDURE fetchShopProductCategories(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT DISTINCT 
+        pc.product_category_id AS product_category_id,
+        pc.product_category_name AS product_category_name
+    FROM shop_product sp
+    INNER JOIN product_category_map pcm 
+        ON sp.product_id = pcm.product_id
+    INNER JOIN product_category pc 
+        ON pcm.product_category_id = pc.product_category_id
+    WHERE sp.shop_id = p_shop_id
+    ORDER BY pc.display_order, pc.product_category_name;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopProducts//
+
+CREATE PROCEDURE fetchShopProducts(
+    IN p_shopId INT UNSIGNED,
+    IN p_product_category_id INT
+)
+BEGIN
+    SELECT 
+        p.product_id,
+        p.product_name,
+        p.product_description,
+        p.product_image,
+        p.product_type,
+        p.sku,
+        p.barcode,
+        p.sales_price,
+        p.show_on_pos,
+        p.product_status
+    FROM shop_product sp
+    INNER JOIN product p 
+        ON sp.product_id = p.product_id
+    WHERE sp.shop_id = p_shopId
+      AND p.show_on_pos = 'Yes'
+      AND p.product_status = 'Active'
+      AND (
+            p_product_category_id IS NULL
+            OR EXISTS (
+                SELECT 1
+                FROM product_category_map pcm
+                WHERE pcm.product_id = p.product_id
+                  AND pcm.product_category_id = p_product_category_id
+            )
+          )
+    ORDER BY p.product_name;
+END //
+
 DROP PROCEDURE IF EXISTS fetchFloorPlanTables//
 
 CREATE PROCEDURE fetchFloorPlanTables(

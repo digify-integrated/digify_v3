@@ -3,7 +3,54 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadShopFloorPlan();
+    const shop_id = $('#shop_id').val();
+
+    const loadShopFloorPlan = (shop_id) => {
+        const requests = [
+            ['floor-plan-tab', 'generate shop register tabs'],
+            ['floor-plan-tables', 'generate shop register tables']
+        ];
+
+        requests.forEach(([container, transaction]) => {
+            generateElements({
+                container,
+                controller: 'ShopController',
+                transaction,
+                reference_id: shop_id
+            });
+        });
+    }
+    
+    const loadShopProductCategories = (shop_id) => {
+        const requests = [
+            ['shop-product-category-container', 'generate shop product categories']
+        ];
+
+        requests.forEach(([container, transaction]) => {
+            generateElements({
+                container,
+                controller: 'ShopController',
+                transaction,
+                reference_id: shop_id
+            });
+        });
+    }
+    
+    const loadShopProducts = (shop_id, product_category_id = null) => {
+        const requests = [
+            ['shop-products-container', 'generate shop products']
+        ];
+
+        requests.forEach(([container, transaction]) => {
+            generateElements({
+                container,
+                controller: 'ShopController',
+                transaction,
+                reference_id: shop_id,
+                product_category_id : product_category_id
+            });
+        });
+    }
 
     const fetchRegisterDetails = async () => {
         const transaction = 'fetch shop register table details';
@@ -50,6 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const disableTab = () => {
         $('.nav-line-tabs .nav-link').addClass('disabled');
     }
+
+    loadShopFloorPlan(shop_id);
+    loadShopProductCategories(shop_id);
+    loadShopProducts(shop_id);
 
     document.addEventListener('click', async (event) => {
         if (event.target.closest('.add-shop-order')){
@@ -116,6 +167,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        if (event.target.closest('.product-category-filter')){
+            const button            = event.target.closest('.product-category-filter');
+            const product_filter    = button.dataset.productFilter;
+
+            loadShopProducts(shop_id, product_filter);
+        }
+
         if (event.target.closest('#new-order')){
             const button = event.target.closest('#new-order');
 
@@ -131,21 +189,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-function loadShopFloorPlan() {
-    const shop_id = $('#shop_id').val();
-
-    const requests = [
-        ['floor-plan-tab', 'generate shop register tabs'],
-        ['floor-plan-tables', 'generate shop register tables']
-    ];
-
-    requests.forEach(([container, transaction]) => {
-        generateElements({
-            container,
-            controller: 'ShopController',
-            transaction,
-            reference_id: shop_id
-        });
-    });
-}

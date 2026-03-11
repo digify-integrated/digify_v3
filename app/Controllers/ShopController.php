@@ -115,6 +115,8 @@ class ShopController {
             'generate shop product table'           => $this->generateShopProductTable($lastLogBy, $pageId),
             'generate shop register tabs'           => $this->generateShopRegisterTabs(),
             'generate shop register tables'         => $this->generateShopRegisterTables(),
+            'generate shop product categories'      => $this->generateShopProductCategories(),
+            'generate shop products'                => $this->generateShopProducts(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -819,12 +821,12 @@ class ShopController {
 
             $isFirst = false;
 
-             $response = [
-                'success'   => true,
-                'ELEMENT'   => $floorPlansHtml
-            ];
-
         }
+
+        $response = [
+            'success'   => true,
+            'ELEMENT'   => $floorPlansHtml
+        ];
 
         echo json_encode($response);
     }
@@ -906,13 +908,85 @@ class ShopController {
             $floorPlansContentHtml .= $floorPlanTableHtml;
 
             $isFirst = false;
+        }
 
-            $response = [
-                'success'   => true,
-                'ELEMENT'   => $floorPlansContentHtml
-            ];
+        $response = [
+            'success'   => true,
+            'ELEMENT'   => $floorPlansContentHtml
+        ];
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopProductCategories() {
+        $shopId         = $_POST['reference_id'] ?? null;
+        $response       = [];
+        $productCategoriesHtml = '<div class="col-lg-2 mb-4">
+                                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg active product-category-filter" data-bs-toggle="pill">
+                                        <div>
+                                            <span class="text-gray-800 fw-bold fs-3 d-block">All</span>
+                                        </div>
+                                    </a>
+                                </div>';
+
+        $productCategories = $this->shop->fetchShopProductCategories($shopId);
+
+        foreach ($productCategories as $row) {
+            $productCategoryId   = $row['product_category_id'];
+            $productCategoryName = $row['product_category_name'];
+
+            $productCategoriesHtml .= '<div class="col-lg-2 mb-4">
+                                        <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg product-category-filter" data-bs-toggle="pill" data-product-filter="'. $productCategoryId .'">
+                                            <div>
+                                                <span class="text-gray-800 fw-bold fs-3 d-block">'. $productCategoryName .'</span>
+                                            </div>
+                                        </a>
+                                    </div>';
 
         }
+
+        $response = [
+            'success'   => true,
+            'ELEMENT'   => $productCategoriesHtml
+        ];
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopProducts() {
+        $shopId             = $_POST['reference_id'] ?? null;
+        $productCategoryId  = $_POST['product_category_id'] ?? null;
+        $response           = [];
+        $productsHtml       = '';
+
+        $products = $this->shop->fetchShopProducts($shopId, $productCategoryId);
+
+        foreach ($products as $row) {
+            $productId   = $row['product_id'];
+            $productName = $row['product_name'];
+            $salesPrice = $row['sales_price'];
+            $productImage      = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'product');
+
+            $productsHtml .= '<div class="col-6 col-lg-3 mb-5">
+                                        <div class="card card-flush flex-row-fluid p-0 w-100">
+                                            <div class="card-body text-center">
+                                                <img src="'. $productImage .'" class="rounded-3 mb-4 w-100 h-120px" alt="'. $productName .'"/>  
+                                                <div class="mb-2">
+                                                    <div class="text-center">
+                                                        <span class="fw-bold text-gray-800 cursor-pointer text-hover-primary fs-3 fs-xl-1">'. $productName .'</span>
+                                                    </div>
+                                                </div>
+                                                <span class="text-success text-end fw-bold fs-2">&#8369; '. number_format($salesPrice, 2) .'</span>
+                                            </div>
+                                        </div>
+                                    </div>';
+
+        }
+
+        $response = [
+            'success'   => true,
+            'ELEMENT'   => $productsHtml
+        ];
 
         echo json_encode($response);
     }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 11, 2026 at 10:28 AM
+-- Generation Time: Mar 11, 2026 at 03:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -2349,6 +2349,51 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopFloorPlans` (IN `p_shop_id
 	SELECT * FROM shop_floor_plan
     WHERE shop_id = p_shop_id
     ORDER BY floor_plan_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchShopProductCategories`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopProductCategories` (IN `p_shop_id` INT)   BEGIN
+	SELECT DISTINCT 
+        pc.product_category_id AS product_category_id,
+        pc.product_category_name AS product_category_name
+    FROM shop_product sp
+    INNER JOIN product_category_map pcm 
+        ON sp.product_id = pcm.product_id
+    INNER JOIN product_category pc 
+        ON pcm.product_category_id = pc.product_category_id
+    WHERE sp.shop_id = p_shop_id
+    ORDER BY pc.display_order, pc.product_category_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchShopProducts`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopProducts` (IN `p_shopId` INT UNSIGNED, IN `p_product_category_id` INT)   BEGIN
+    SELECT 
+        p.product_id,
+        p.product_name,
+        p.product_description,
+        p.product_image,
+        p.product_type,
+        p.sku,
+        p.barcode,
+        p.sales_price,
+        p.show_on_pos,
+        p.product_status
+    FROM shop_product sp
+    INNER JOIN product p 
+        ON sp.product_id = p.product_id
+    WHERE sp.shop_id = p_shopId
+      AND p.show_on_pos = 'Yes'
+      AND p.product_status = 'Active'
+      AND (
+            p_product_category_id IS NULL
+            OR EXISTS (
+                SELECT 1
+                FROM product_category_map pcm
+                WHERE pcm.product_id = p.product_id
+                  AND pcm.product_category_id = p_product_category_id
+            )
+          )
+    ORDER BY p.product_name;
 END$$
 
 DROP PROCEDURE IF EXISTS `fetchShopSession`$$
@@ -9611,7 +9656,14 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-05 22:59:04 -> 2026-03-06 09:39:52<br/>', 1, '2026-03-06 09:39:52'),
 (2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-06 09:39:52 -> 2026-03-09 12:27:19<br/>', 1, '2026-03-09 12:27:19'),
 (3, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-09 12:27:19 -> 2026-03-10 12:00:09<br/>', 1, '2026-03-10 12:00:09'),
-(4, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-10 12:00:09 -> 2026-03-11 10:57:47<br/>', 1, '2026-03-11 10:57:47');
+(4, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-10 12:00:09 -> 2026-03-11 10:57:47<br/>', 1, '2026-03-11 10:57:47'),
+(5, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-11 10:57:47 -> 2026-03-11 22:19:04<br/>', 1, '2026-03-11 22:19:04'),
+(6, 'product', 3, 'Product created.', 2, '2026-03-11 22:41:59'),
+(7, 'product', 3, 'Product changed.<br/><br/>Cost: 0.0000 -> 12.0000<br/>Sales Price: 0.0000 -> 12.0000<br/>', 2, '2026-03-11 22:42:06'),
+(8, 'product_category', 2, 'Product category created.', 2, '2026-03-11 22:42:17'),
+(9, 'product_category_map', 3, 'Product category map created.', 2, '2026-03-11 22:42:28'),
+(10, 'product', 3, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-11 22:42:55'),
+(11, 'shop_product', 7, 'Shop product created.', 2, '2026-03-11 22:43:15');
 
 -- --------------------------------------------------------
 
@@ -15896,7 +15948,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (16, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-06 09:39:52', 1, '2026-03-06 09:39:52', '2026-03-06 09:39:52', 1),
 (17, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-09 12:27:19', 1, '2026-03-09 12:27:19', '2026-03-09 12:27:19', 1),
 (18, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-10 12:00:09', 1, '2026-03-10 12:00:09', '2026-03-10 12:00:09', 1),
-(19, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 10:57:47', 1, '2026-03-11 10:57:47', '2026-03-11 10:57:47', 1);
+(19, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 10:57:47', 1, '2026-03-11 10:57:47', '2026-03-11 10:57:47', 1),
+(20, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 22:19:04', 1, '2026-03-11 22:19:04', '2026-03-11 22:19:04', 1);
 
 -- --------------------------------------------------------
 
@@ -16730,7 +16783,8 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2);
+(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2),
+(3, 'Fries', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 12.0000, 12.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-11 22:41:59', '2026-03-11 22:42:55', 2);
 
 --
 -- Triggers `product`
@@ -16992,7 +17046,8 @@ CREATE TABLE `product_category` (
 --
 
 INSERT INTO `product_category` (`product_category_id`, `product_category_name`, `parent_category_id`, `parent_category_name`, `costing_method`, `display_order`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Appetizer', 0, '', 'Average Cost', 1, '2026-03-02 22:43:07', '2026-03-02 22:43:07', 2);
+(1, 'Appetizer', 0, '', 'Average Cost', 1, '2026-03-02 22:43:07', '2026-03-02 22:43:07', 2),
+(2, 'Fries', 0, '', 'Average Cost', 12, '2026-03-11 22:42:17', '2026-03-11 22:42:17', 2);
 
 --
 -- Triggers `product_category`
@@ -17060,7 +17115,8 @@ CREATE TABLE `product_category_map` (
 --
 
 INSERT INTO `product_category_map` (`product_category_map_id`, `product_id`, `product_name`, `product_category_id`, `product_category_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 2, 'Burger', 1, 'Appetizer', '2026-03-03 00:55:28', '2026-03-03 00:55:28', 2);
+(2, 2, 'Burger', 1, 'Appetizer', '2026-03-03 00:55:28', '2026-03-03 00:55:28', 2),
+(3, 3, 'Fries', 2, 'Fries', '2026-03-11 22:42:28', '2026-03-11 22:42:28', 2);
 
 --
 -- Triggers `product_category_map`
@@ -17998,7 +18054,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$iUC0yqaT2dhxtq./LvhXTueUssMlavNbMK.Lv/Avi19eb57J2QlsC', '2026-02-27 14:52:10', '2026-03-11 10:57:47', 1);
+(1, 2, '$2y$10$QDAScUWs2xYuG4fo4T1is.rKO2OYuSIF.WcETdPQXbv6hOmvSjx4C', '2026-02-27 14:52:10', '2026-03-11 22:19:04', 1);
 
 -- --------------------------------------------------------
 
@@ -18345,7 +18401,8 @@ CREATE TABLE `shop_product` (
 --
 
 INSERT INTO `shop_product` (`shop_product_id`, `shop_id`, `shop_name`, `product_id`, `product_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(6, 4, 'Test', 2, 'Burger', '2026-03-03 00:55:43', '2026-03-03 00:55:43', 2);
+(6, 4, 'Test', 2, 'Burger', '2026-03-03 00:55:43', '2026-03-03 00:55:43', 2),
+(7, 4, 'Test', 3, 'Fries', '2026-03-11 22:43:15', '2026-03-11 22:43:15', 2);
 
 --
 -- Triggers `shop_product`
@@ -19293,7 +19350,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-11 10:57:47', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-11 10:57:47', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-11 22:19:04', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-11 22:19:04', 1);
 
 --
 -- Triggers `user_account`
@@ -20398,7 +20455,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20590,7 +20647,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20650,7 +20707,7 @@ ALTER TABLE `physical_inventory`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `product_attribute`
@@ -20668,13 +20725,13 @@ ALTER TABLE `product_bom`
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product_category_map`
 --
 ALTER TABLE `product_category_map`
-  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `product_pricelist`
@@ -20794,7 +20851,7 @@ ALTER TABLE `shop_payment_method`
 -- AUTO_INCREMENT for table `shop_product`
 --
 ALTER TABLE `shop_product`
-  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `shop_session`
