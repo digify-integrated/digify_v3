@@ -5,6 +5,17 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 document.addEventListener('DOMContentLoaded', () => {
     const shop_id = $('#shop_id').val();
 
+    const setTab = () => {
+        const shopOrderId = sessionStorage.getItem('shop_order_id');
+        if (!shopOrderId) return;
+
+        const registerTab = document.querySelector('a[href="#register_tab"]');
+        if (!registerTab) return;
+
+        new bootstrap.Tab(registerTab).show();
+        disableTab();
+    };
+
     const loadShopFloorPlan = (shop_id) => {
         const requests = [
             ['floor-plan-tab', 'generate shop register tabs'],
@@ -98,14 +109,23 @@ document.addEventListener('DOMContentLoaded', () => {
         $('.nav-line-tabs .nav-link').addClass('disabled');
     }
 
+    const resetRegister = () => {
+        $('#shop-order-subtotal').html('&#8369; 0.00');
+        $('#shop-order-discounts').html('&#8369; 0.00');
+        $('#shop-order-total').html('&#8369; 0.00');
+
+        $('#shop-order-list').empty();
+    }
+
+    setTab();
     loadShopFloorPlan(shop_id);
     loadShopProductCategories(shop_id);
     loadShopProducts(shop_id);
 
     document.addEventListener('click', async (event) => {
-        if (event.target.closest('.add-shop-order')){
+        if (event.target.closest('.add-shop-table-order')){
             const transaction           = 'insert shop order';
-            const button                = event.target.closest('.add-shop-order');
+            const button                = event.target.closest('.add-shop-table-order');
             const shop_id               = button.dataset.shopId;
             const floor_plan_table_id   = button.dataset.floorPlanTableId;
    
@@ -129,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     loadShopFloorPlan();
                     disableTab();
-                    sessionStorage.setItem('floor_plan_table_id', floor_plan_table_id);
+                    sessionStorage.setItem('shop_order_id', data.shop_order_id);
 
                     const registerTab = document.querySelector('a[href="#register_tab"]');
 
@@ -177,14 +197,61 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.closest('#new-order')){
             const button = event.target.closest('#new-order');
 
-            sessionStorage.setItem('floor_plan_table_id', null);
+            sessionStorage.removeItem('shop_order_id');
             enableTab();
+            resetRegister();
 
             const tablesTab = document.querySelector('a[href="#tables_tab"]');
 
             if (tablesTab) {
                 const tab = new bootstrap.Tab(tablesTab);
                 tab.show();
+            }
+        }
+
+        if (event.target.closest('.add-product-order')){
+            const transaction   = 'insert shop product order';
+            const button        = event.target.closest('.add-product-order');
+            const product_id    = button.dataset.productId;
+   
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_id', shop_id);
+                formData.append('product_id', product_id);
+    
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) { 
+                    throw new Error(`Add order with status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    loadShopFloorPlan();
+                    disableTab();
+                    sessionStorage.setItem('floor_plan_table_id', floor_plan_table_id);
+
+                    const registerTab = document.querySelector('a[href="#register_tab"]');
+
+                    if (registerTab) {
+                        const tab = new bootstrap.Tab(registerTab);
+                        tab.show();
+                    }
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
         }
     });

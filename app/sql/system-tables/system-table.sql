@@ -8088,44 +8088,52 @@ CREATE INDEX idx_shop_order_refund_date ON shop_order(refund_date);
 
 
 /* =============================================================================================
-  TABLE: SHOP ORDER
+  TABLE: SHOP ORDER DETAILS
 ============================================================================================= */
 
 DROP TABLE IF EXISTS shop_order_details;
 
 CREATE TABLE shop_order_details (
   shop_order_details_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  shop_order_details INT UNSIGNED NOT NULL,
+  shop_order_id INT UNSIGNED NOT NULL,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
   quantity DECIMAL(15,4) DEFAULT 1,
-  order_status ENUM('Pending', 'Preparing', 'To Serve', 'Completed') DEFAULT 'Pending',
-  cost DECIMAL(15, 2) DEFAULT 0,
+  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed') DEFAULT 'Pending',
   price DECIMAL(15, 2) DEFAULT 0,
-  total_cost DECIMAL(15, 2) GENERATED ALWAYS AS (cost * quantity) STORED,
-  total_price DECIMAL(15, 2) GENERATED ALWAYS AS (price * quantity) STORED,
+  discount_type ENUM('Percentage','Fixed Amount') DEFAULT 'Percentage',
+  discount_value DECIMAL(3, 2) DEFAULT 0,
+  discount_amount DECIMAL(3, 2) DEFAULT 0,
+  subtotal DECIMAL(15, 2) GENERATED ALWAYS AS (price * quantity) STORED,
+  total_price DECIMAL(15, 2) GENERATED ALWAYS AS (subtotal - discount_amount) STORED,
+  note VARCHAR(500),
+  sent_to_kitchen DATETIME,
   preparing_date DATETIME,
   to_serve_date DATETIME,
   completed_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
 /* =============================================================================================
-  INDEX: SHOP ORDER
+  INDEX: SHOP ORDER DETAILS
 ============================================================================================= */
 
+CREATE INDEX idx_shop_order_details_shop_order_id ON shop_order_details(shop_order_id);
 CREATE INDEX idx_shop_order_details_product_id ON shop_order_details(product_id);
 CREATE INDEX idx_shop_order_details_order_status ON shop_order_details(order_status);
+CREATE INDEX idx_shop_order_details_discount_type ON shop_order_details(discount_type);
+CREATE INDEX idx_shop_order_details_sent_to_kitchen ON shop_order_details(sent_to_kitchen);
 CREATE INDEX idx_shop_order_details_preparing_date ON shop_order_details(preparing_date);
 CREATE INDEX idx_shop_order_details_to_serve_date ON shop_order_details(to_serve_date);
 CREATE INDEX idx_shop_order_details_completed_date ON shop_order_details(completed_date);
 
 /* =============================================================================================
-  INITIAL VALUES: SHOP ORDER
+  INITIAL VALUES: SHOP ORDER DETAILS
 ============================================================================================= */
 
 /* =============================================================================================

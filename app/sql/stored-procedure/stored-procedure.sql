@@ -14080,6 +14080,8 @@ CREATE PROCEDURE insertShopOrder(
     IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_new_shop_order_id INT;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -14102,7 +14104,11 @@ BEGIN
         p_last_log_by
     );
 
+    SET v_new_shop_order_id = LAST_INSERT_ID();
+
     COMMIT;
+
+    SELECT v_new_shop_order_id AS new_shop_order_id;
 END //
 
 /* =============================================================================================

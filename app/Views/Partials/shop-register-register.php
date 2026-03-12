@@ -14,13 +14,13 @@
 
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#product-bom-modal" id="add-product-bom">Actions</button> 
+                        
                     </div>
                 </div>
             </div>
 
             <div class="card-body pt-0">
-                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px">
+                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px" id="shop-order-list">
                     <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2">
                         <div class="row align-items-center">
                             <div class="col-6">
@@ -135,48 +135,10 @@
                             </div> 
                             
                             <div class="fs-6 fw-bold text-end">
-                                <span class="d-block lh-1 mb-2" data-kt-pos-element="total">&#8369; 100.50</span>
-                                <span class="d-block mb-2" data-kt-pos-element="discount">&#8369; 8.00</span>
-                                <span class="d-block fs-2 lh-1" data-kt-pos-element="grant-total">&#8369; 93.46</span>
+                                <span class="d-block lh-1 mb-2" id="shop-order-subtotal">&#8369; 100.50</span>
+                                <span class="d-block mb-2" id="shop-order-discounts">&#8369; 8.00</span>
+                                <span class="d-block fs-2 lh-1" id="shop-order-total">&#8369; 93.46</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="d-none">
-                        <div class="separator separator-dashed mb-4"></div>
-                        <div class="btn-group w-100 mb-4" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
-                            <label class="btn btn-outline btn-color-muted btn-active-primary active" data-kt-button="true">
-                                <input class="btn-check" type="radio" name="method" value="quantity"/>
-                                Quantity
-                            </label>
-                            <label class="btn btn-outline btn-color-muted btn-active-primary" data-kt-button="true">
-                                <input class="btn-check" type="radio" name="method" checked="checked" value="discount"/>
-                                Discount (%)
-                            </label>
-                        </div>
-                        <div class="row align-items-center">
-                            <div class="col-12">
-                                <input type="number" class="form-control mb-2">
-                            </div>
-                        </div>
-                        <div class="d-flex flex-equal gap-1 px-0 mb-1">
-                            <button class="btn btn-light w-100 rounded-0 p-5">1</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">2</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">3</button>
-                        </div>
-                        <div class="d-flex flex-equal gap-1 px-0 mb-1">
-                            <button class="btn btn-light w-100 rounded-0 p-5">4</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">5</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">6</button>
-                            </div>
-                        <div class="d-flex flex-equal gap-1 px-0 mb-1">
-                            <button class="btn btn-light w-100 rounded-0 p-5">7</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">8</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">9</button>
-                        </div>
-                        <div class="d-flex flex-equal gap-1 px-0 mb-5">
-                            <button class="btn btn-light w-100 rounded-0 p-5">.</button>
-                            <button class="btn btn-light w-100 rounded-0 p-5">0</button>
-                            <button class="btn btn-success w-100 rounded-0 p-5">Apply</button>
                         </div>
                     </div>
                     
@@ -202,7 +164,7 @@
                             New
                         </button>
                         <button class="btn btn-warning w-100 p-5">
-                            Send
+                            Kitchen
                         </button>
                         <button class="btn btn-success w-100 p-5">
                             Payment

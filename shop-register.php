@@ -54,21 +54,7 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
                     </div>
                     <div class="d-flex align-items-center justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
                         <div></div>
-                        <a href="#" class="btn btn-primary ps-7" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                            Actions
-                            <i class="ki-outline ki-down fs-2 me-0"></i>
-                        </a>
-                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
-                            <div class="menu-item px-3">
-                                <a href="javascript:void(0);" class="menu-link px-3">Go to Table</a>
-                            </div>
-                            <div class="menu-item px-3">
-                                <a href="apps.php" class="menu-link px-3">Backend</a>
-                            </div>
-                            <div class="menu-item px-3">
-                                <a href="javascript:void(0);" class="menu-link px-3">Close Register</a>
-                            </div>
-                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shop-register-actions-modal">Actions</button> 
                     </div>
                 </div>
             </div>

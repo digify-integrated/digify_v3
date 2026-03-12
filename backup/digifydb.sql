@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 11, 2026 at 03:58 PM
+-- Generation Time: Mar 12, 2026 at 10:21 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -4941,6 +4941,8 @@ END$$
 
 DROP PROCEDURE IF EXISTS `insertShopOrder`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrder` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_floor_plan_table_id` INT, IN `p_table_number` INT, IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_new_shop_order_id INT;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -4963,7 +4965,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrder` (IN `p_shop_id` IN
         p_last_log_by
     );
 
+    SET v_new_shop_order_id = LAST_INSERT_ID();
+
     COMMIT;
+
+    SELECT v_new_shop_order_id AS new_shop_order_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `insertShopPaymentMethod`$$
@@ -9663,7 +9669,9 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (8, 'product_category', 2, 'Product category created.', 2, '2026-03-11 22:42:17'),
 (9, 'product_category_map', 3, 'Product category map created.', 2, '2026-03-11 22:42:28'),
 (10, 'product', 3, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-03-11 22:42:55'),
-(11, 'shop_product', 7, 'Shop product created.', 2, '2026-03-11 22:43:15');
+(11, 'shop_product', 7, 'Shop product created.', 2, '2026-03-11 22:43:15'),
+(12, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-11 22:19:04 -> 2026-03-12 09:24:33<br/>', 1, '2026-03-12 09:24:33'),
+(13, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-12 09:24:33 -> 2026-03-12 17:09:06<br/>', 1, '2026-03-12 17:09:06');
 
 -- --------------------------------------------------------
 
@@ -15949,7 +15957,9 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (17, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-09 12:27:19', 1, '2026-03-09 12:27:19', '2026-03-09 12:27:19', 1),
 (18, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-10 12:00:09', 1, '2026-03-10 12:00:09', '2026-03-10 12:00:09', 1),
 (19, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 10:57:47', 1, '2026-03-11 10:57:47', '2026-03-11 10:57:47', 1),
-(20, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 22:19:04', 1, '2026-03-11 22:19:04', '2026-03-11 22:19:04', 1);
+(20, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-11 22:19:04', 1, '2026-03-11 22:19:04', '2026-03-11 22:19:04', 1),
+(21, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-12 09:24:33', 1, '2026-03-12 09:24:33', '2026-03-12 09:24:33', 1),
+(22, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-12 17:09:06', 1, '2026-03-12 17:09:06', '2026-03-12 17:09:06', 1);
 
 -- --------------------------------------------------------
 
@@ -18054,7 +18064,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$QDAScUWs2xYuG4fo4T1is.rKO2OYuSIF.WcETdPQXbv6hOmvSjx4C', '2026-02-27 14:52:10', '2026-03-11 22:19:04', 1);
+(1, 2, '$2y$10$roqGWVDkvzdBOWkm4P7yqeOxJ3qmarCJfM.o2gnMqjb72Gq6AdmBu', '2026-02-27 14:52:10', '2026-03-12 17:09:06', 1);
 
 -- --------------------------------------------------------
 
@@ -18267,7 +18277,8 @@ CREATE TABLE `shop_order` (
   `shop_name` varchar(200) NOT NULL,
   `floor_plan_table_id` int(10) UNSIGNED DEFAULT NULL,
   `table_number` int(11) DEFAULT NULL,
-  `order_preset` enum('Dine In','Takeout','Delivery') NOT NULL DEFAULT 'Dine In',
+  `order_for` varchar(500) DEFAULT NULL,
+  `order_preset` enum('Dine In','Takeout','Delivery') DEFAULT 'Dine In',
   `shop_order_status` enum('Active','Paid','Voided','Refunded','Cancelled') DEFAULT 'Active',
   `paid_date` datetime DEFAULT NULL,
   `void_date` datetime DEFAULT NULL,
@@ -18284,14 +18295,10 @@ CREATE TABLE `shop_order` (
 -- Dumping data for table `shop_order`
 --
 
-INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(16, 4, 'Test', 8, 7, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:10:32', '2026-03-09 17:10:32', 2),
-(17, 4, 'Test', 2, 1, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:39', '2026-03-09 17:17:39', 2),
-(18, 4, 'Test', 3, 2, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:42', '2026-03-09 17:17:42', 2),
-(19, 4, 'Test', 4, 3, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:46', '2026-03-09 17:17:46', 2),
-(20, 4, 'Test', 5, 4, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-09 17:17:51', '2026-03-09 17:17:51', 2),
-(21, 4, 'Test', 6, 5, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-11 17:23:26', '2026-03-11 17:23:26', 2),
-(22, 4, 'Test', 7, 6, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-11 17:25:04', '2026-03-11 17:25:04', 2);
+INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 4, 'Test', 6, 5, NULL, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 17:10:04', '2026-03-12 17:10:04', 2),
+(2, 4, 'Test', 7, 6, NULL, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 17:10:47', '2026-03-12 17:10:47', 2),
+(3, 4, 'Test', 8, 7, NULL, 'Dine In', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 17:11:10', '2026-03-12 17:11:10', 2);
 
 -- --------------------------------------------------------
 
@@ -18302,15 +18309,18 @@ INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_t
 DROP TABLE IF EXISTS `shop_order_details`;
 CREATE TABLE `shop_order_details` (
   `shop_order_details_id` int(10) UNSIGNED NOT NULL,
-  `shop_order_details` int(10) UNSIGNED NOT NULL,
+  `shop_order_id` int(10) UNSIGNED NOT NULL,
   `product_id` int(10) UNSIGNED NOT NULL,
   `product_name` varchar(200) NOT NULL,
   `quantity` decimal(15,4) DEFAULT 1.0000,
-  `order_status` enum('Pending','Preparing','To Serve','Completed') DEFAULT 'Pending',
-  `cost` decimal(15,2) DEFAULT 0.00,
+  `order_status` enum('Pending','Kitchen','Preparing','To Serve','Completed') DEFAULT 'Pending',
   `price` decimal(15,2) DEFAULT 0.00,
-  `total_cost` decimal(15,2) GENERATED ALWAYS AS (`cost` * `quantity`) STORED,
-  `total_price` decimal(15,2) GENERATED ALWAYS AS (`price` * `quantity`) STORED,
+  `discount_type` enum('Percentage','Fixed Amount') DEFAULT 'Percentage',
+  `discount_amount` decimal(3,2) DEFAULT 0.00,
+  `subtotal` decimal(15,2) GENERATED ALWAYS AS (`price` * `quantity`) STORED,
+  `total_price` decimal(15,2) DEFAULT 0.00,
+  `note` varchar(500) DEFAULT NULL,
+  `sent_to_kitchen` datetime DEFAULT NULL,
   `preparing_date` datetime DEFAULT NULL,
   `to_serve_date` datetime DEFAULT NULL,
   `completed_date` datetime DEFAULT NULL,
@@ -19350,7 +19360,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-11 22:19:04', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-11 22:19:04', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-12 17:09:06', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-12 17:09:06', 1);
 
 --
 -- Triggers `user_account`
@@ -20264,8 +20274,11 @@ ALTER TABLE `shop_order`
 ALTER TABLE `shop_order_details`
   ADD PRIMARY KEY (`shop_order_details_id`),
   ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_order_details_shop_order_id` (`shop_order_id`),
   ADD KEY `idx_shop_order_details_product_id` (`product_id`),
   ADD KEY `idx_shop_order_details_order_status` (`order_status`),
+  ADD KEY `idx_shop_order_details_discount_type` (`discount_type`),
+  ADD KEY `idx_shop_order_details_sent_to_kitchen` (`sent_to_kitchen`),
   ADD KEY `idx_shop_order_details_preparing_date` (`preparing_date`),
   ADD KEY `idx_shop_order_details_to_serve_date` (`to_serve_date`),
   ADD KEY `idx_shop_order_details_completed_date` (`completed_date`);
@@ -20455,7 +20468,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20647,7 +20660,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20833,7 +20846,7 @@ ALTER TABLE `shop_floor_plan`
 -- AUTO_INCREMENT for table `shop_order`
 --
 ALTER TABLE `shop_order`
-  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `shop_order_details`
@@ -21414,8 +21427,9 @@ ALTER TABLE `shop_order`
 -- Constraints for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  ADD CONSTRAINT `shop_order_details_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
-  ADD CONSTRAINT `shop_order_details_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+  ADD CONSTRAINT `shop_order_details_ibfk_1` FOREIGN KEY (`shop_order_id`) REFERENCES `shop_order` (`shop_order_id`),
+  ADD CONSTRAINT `shop_order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
+  ADD CONSTRAINT `shop_order_details_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `shop_payment_method`

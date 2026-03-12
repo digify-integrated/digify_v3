@@ -206,13 +206,15 @@ class Shop extends Model {
             :p_last_log_by
         )';
 
-        return $this->query($sql, [
+        $row = $this->fetch($sql, [
             'p_shop_id'             => $p_shop_id,
             'p_shop_name'           => $p_shop_name,
             'p_floor_plan_table_id' => $p_floor_plan_table_id,
             'p_table_number'        => $p_table_number,
             'p_last_log_by'         => $p_last_log_by
         ]);
+
+        return $row['new_shop_order_id'] ?? null;
     }
 
     /* =============================================================================================
