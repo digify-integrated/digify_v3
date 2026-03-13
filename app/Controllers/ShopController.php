@@ -855,7 +855,8 @@ class ShopController {
                 $tableNumber      = $tableRow['table_number'] ?? 1;
                 $seats            = $tableRow['seats'] ?? 1;
 
-                $isAvailable = $this->floorPlan->checkFloorPlanTableAvailability($floorPlanTableId, $shopId)['total'] ?? 0;
+                $isAvailable            = $this->floorPlan->checkFloorPlanTableAvailability($floorPlanTableId, $shopId)['total'] ?? 0;
+                $activeShopOrderDetails = $this->shop->fetchActiveShopOrder($shopId, $floorPlanTableId);
 
                 $statusText  = $isAvailable == 0 ? 'Available' : 'Occupied';
                 $borderClass = $isAvailable == 0 ? 'border-success' : 'border-danger';
@@ -869,39 +870,40 @@ class ShopController {
                     </button>'
                     : '<button class="btn btn-warning w-100 view-shop-table-orders"
                             data-shop-id="'.htmlspecialchars($shopId).'"
-                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'"
+                            data-shop-order-id="'.htmlspecialchars($activeShopOrderDetails['shop_order_id']).'">
                             View Orders
                     </button>';
 
                 $floorPlanTableHtml .= '
-                <div class="col-6 col-xl-3">
-                    <div class="card '.$borderClass.'">
-                        <div class="card-header border-0 pt-9">
-                            <div class="card-title m-0">
-                                <h3 class="card-title align-items-start flex-column">
-                                    <span class="card-label fw-bold">
-                                        Table No. '.number_format($tableNumber).'
-                                    </span>
+                    <div class="col-6 col-xl-3">
+                        <div class="card '.$borderClass.'">
+                            <div class="card-header border-0 pt-9">
+                                <div class="card-title m-0">
+                                    <h3 class="card-title align-items-start flex-column">
+                                        <span class="card-label fw-bold">
+                                            Table No. '.number_format($tableNumber).'
+                                        </span>
 
-                                    <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                        Seats: '.number_format($seats).'
+                                        <span class="text-gray-700 mt-1 fw-semibold fs-6">
+                                            Seats: '.number_format($seats).'
+                                        </span>
+                                    </h3>
+                                </div>
+
+                                <div class="card-toolbar">
+                                    <span class="badge '.$badgeClass.' fw-bold me-auto px-4 py-3">
+                                        '.$statusText.'
                                     </span>
-                                </h3>
+                                </div>
                             </div>
 
-                            <div class="card-toolbar">
-                                <span class="badge '.$badgeClass.' fw-bold me-auto px-4 py-3">
-                                    '.$statusText.'
-                                </span>
+                            <div class="card-body px-9 pt-3 pb-9">
+                                <div class="separator separator-dashed mb-7"></div>
+                                '.$buttonHtml.'
                             </div>
                         </div>
-
-                        <div class="card-body px-9 pt-3 pb-9">
-                            <div class="separator separator-dashed mb-7"></div>
-                            '.$buttonHtml.'
-                        </div>
-                    </div>
-                </div>';
+                    </div>';
             }
 
             $floorPlanTableHtml .= '</div></div>';

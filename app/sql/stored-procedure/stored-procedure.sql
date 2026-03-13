@@ -13790,16 +13790,6 @@ END //
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
-	WHERE shop_status = 'Active' AND shop_id IN (
-        SELECT shop_id 
-        FROM shop_access 
-        WHERE user_account_id = p_user_account_id
-    );
-END //
-
-/* =============================================================================================
-   SECTION 5: DELETE PROCEDURES
-============================================================================================= */
 
 DROP PROCEDURE IF EXISTS deleteShop//
 
@@ -14118,6 +14108,20 @@ END //
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchActiveShopOrder//
+
+CREATE PROCEDURE fetchActiveShopOrder(
+    IN p_shop_id INT,
+    IN p_floor_plan_table_id INT
+)
+BEGIN
+	SELECT * FROM shop_order
+    WHERE shop_id = p_shop_id
+    AND floor_plan_table_id = p_floor_plan_table_id
+    AND shop_order_status = 'Active'
+    LIMIT 1;
+END //
 
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES

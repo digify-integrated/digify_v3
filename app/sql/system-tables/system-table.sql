@@ -8051,7 +8051,7 @@ CREATE TABLE shop_order (
   floor_plan_table_id INT UNSIGNED,
   table_number INT,
   order_for VARCHAR(500),
-  order_preset ENUM('Dine In', 'Takeout', 'Delivery') DEFAULT 'Dine In',
+  order_preset ENUM('On-Site', 'Pickup', 'Delivery') DEFAULT 'On-Site',
   shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded', 'Cancelled') DEFAULT 'Active',
   paid_date DATETIME,
   void_date DATETIME,

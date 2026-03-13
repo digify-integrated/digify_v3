@@ -341,6 +341,21 @@ class Shop extends Model {
             'p_user_account_id' => $p_user_account_id
         ]);
     }
+
+    public function fetchActiveShopOrder(
+        null|string|int $p_shop_id,
+        null|string|int $p_floor_plan_table_id
+    ) {
+        $sql = 'CALL fetchActiveShopOrder(
+            :p_shop_id,
+            :p_floor_plan_table_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_floor_plan_table_id' => $p_floor_plan_table_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS

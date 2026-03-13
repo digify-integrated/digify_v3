@@ -100,12 +100,12 @@ class TaxController {
             );
         }
 
-        $taxId              = $_POST['tax_id'] ?? null;
-        $taxName            = $_POST['tax_name'] ?? null;
-        $taxComputation     = $_POST['tax_computation'] ?? 'Percentage';
-        $taxRate            = $_POST['tax_rate'] ?? 0;
-        $taxType            = $_POST['tax_type'] ?? 'Sales';
-        $taxCcope           = $_POST['tax_scope'] ?? null;
+        $taxId          = $_POST['tax_id'] ?? null;
+        $taxName        = $_POST['tax_name'] ?? null;
+        $taxComputation = $_POST['tax_computation'] ?? 'Percentage';
+        $taxRate        = $_POST['tax_rate'] ?? 0;
+        $taxType        = $_POST['tax_type'] ?? 'Sales';
+        $taxCcope       = $_POST['tax_scope'] ?? null;
 
         $taxId = $this->tax->saveTax(
             $taxId,
