@@ -100,6 +100,7 @@ class ShopController {
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
+            'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
@@ -390,11 +391,18 @@ class ShopController {
         $floorPlanTableDetails  = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
         $tableNumber            = $floorPlanTableDetails['table_number'] ?? '';
         
-        $shopOrderId = $this->shop->insertShopOrder($shopId, $shopName, $floorPlanTableId, $tableNumber, $lastLogBy);
+        $shopOrderId = $this->shop->insertShopOrder(
+            $shopId,
+            $shopName,
+            $floorPlanTableId,
+            $tableNumber,
+            null,
+            $lastLogBy
+        );
 
         $this->systemHelper::sendSuccessResponse(
             'Open Register Success',
-            'The register has been openned successfully.',
+            'The register has been opened successfully.',
             ['shop_order_id' => $shopOrderId]
         );
     }
@@ -432,6 +440,31 @@ class ShopController {
         $this->systemHelper::sendSuccessResponse(
             'Shop Archive Success',
             'The shop has been archived successfully.'
+        );
+    }
+
+    
+   
+    public function updateShopOrderTable(
+        int $lastLogBy
+    ) {
+        $floorPlanTableId   = $_POST['floor_plan_table_id'] ?? null;
+        $shopOrderId        = $_POST['shop_order_id'] ?? null;
+
+        $floorPlanTableDetails  = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
+        $tableNumber            = $floorPlanTableDetails['table_number'] ?? '';
+        
+        $this->shop->updateShopOrderTable(
+            $shopOrderId,
+            $floorPlanTableId,
+            $tableNumber,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            'Open Register Success',
+            'The register has been opened successfully.',
+            ['shop_order_id' => $shopOrderId]
         );
     }
 
@@ -867,6 +900,11 @@ class ShopController {
                             data-shop-id="'.htmlspecialchars($shopId).'"
                             data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
                             Add Order
+                    </button>
+                    <button class="btn btn-success w-100 d-none set-shop-table-order"
+                            data-shop-id="'.htmlspecialchars($shopId).'"
+                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
+                            Set Table
                     </button>'
                     : '<button class="btn btn-warning w-100 view-shop-table-orders"
                             data-shop-id="'.htmlspecialchars($shopId).'"

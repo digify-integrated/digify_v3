@@ -194,8 +194,9 @@ class Shop extends Model {
     public function insertShopOrder(
         int $p_shop_id,
         string $p_shop_name,
-        int $p_floor_plan_table_id,
-        int $p_table_number,
+        int|null $p_floor_plan_table_id,
+        int|null $p_table_number,
+        string|null $p_order_for,
         int $p_last_log_by
     )    {
         $sql = 'CALL insertShopOrder(
@@ -203,6 +204,7 @@ class Shop extends Model {
             :p_shop_name,
             :p_floor_plan_table_id,
             :p_table_number,
+            :p_order_for,
             :p_last_log_by
         )';
 
@@ -211,6 +213,7 @@ class Shop extends Model {
             'p_shop_name'           => $p_shop_name,
             'p_floor_plan_table_id' => $p_floor_plan_table_id,
             'p_table_number'        => $p_table_number,
+            'p_order_for'           => $p_order_for,
             'p_last_log_by'         => $p_last_log_by
         ]);
 
@@ -248,6 +251,27 @@ class Shop extends Model {
         return $this->query($sql, [
             'p_shop_id'         => $p_shop_id,
             'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopOrderTable(
+        int $p_shop_order_id,
+        int $p_floor_plan_table_id,
+        int $p_table_number,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderTable(
+            :p_shop_order_id,
+            :p_floor_plan_table_id,
+            :p_table_number,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_floor_plan_table_id' => $p_floor_plan_table_id,
+            'p_table_number'        => $p_table_number,
+            'p_last_log_by'         => $p_last_log_by
         ]);
     }
 

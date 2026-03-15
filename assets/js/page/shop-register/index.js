@@ -62,12 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const fetchRegisterDetails = async () => {
+    const fetchRegisterDetails = async (floor_plan_table_id) => {
         const transaction = 'fetch shop register table details';
         
         try {
             const shop_id               = $('#shop_id').val();
-            const floor_plan_table_id   = sessionStorage.getItem('floor_plan_table_id');
 
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
@@ -120,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#new-order-button').addClass('d-none');
         $('#send-kitchen-button').addClass('d-none');
         $('#payment-button').addClass('d-none');
-        $('.product-container').addClass('d-none');
 
         $('#set-table-button').removeClass('d-none');
         $('#set-tab-button').removeClass('d-none');
@@ -132,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#new-order-button').removeClass('d-none');
         $('#send-kitchen-button').removeClass('d-none');
         $('#payment-button').removeClass('d-none');
-        $('.product-container').removeClass('d-none');
 
         $('#set-table-button').addClass('d-none');
         $('#set-tab-button').addClass('d-none');
@@ -190,7 +187,52 @@ document.addEventListener('DOMContentLoaded', () => {
                     disableTab();
                     initializeRegister();
                     traverseToRegisterTab();
+                    
                     sessionStorage.setItem('shop_order_id', data.shop_order_id);
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('.set-shop-table-order')){
+            const transaction           = 'update shop order table';
+            const button                = event.target.closest('.set-shop-table-order');
+            const shop_id               = button.dataset.shopId;
+            const floor_plan_table_id   = button.dataset.floorPlanTableId;
+            const shop_order_id         = sessionStorage.getItem('shop_order_id');
+   
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_id', shop_id);
+                formData.append('floor_plan_table_id', floor_plan_table_id);
+                formData.append('shop_order_id', shop_order_id);
+    
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) { 
+                    throw new Error(`Add order with status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    loadShopFloorPlan(shop_id);
+                    disableTab();
+                    initializeRegister();
+                    traverseToRegisterTab();
+                    
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);
@@ -210,9 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const floor_plan_table_id   = button.dataset.floorPlanTableId;
             const shop_order_id         = button.dataset.shopOrderId;
 
+            $('.set-shop-table-order').addClass('d-none');
+            $('.add-shop-table-order').removeClass('d-none');
+
             sessionStorage.setItem('shop_order_id', shop_order_id);
             disableTab();
-            fetchRegisterDetails();
+            fetchRegisterDetails(floor_plan_table_id);
             initializeRegister();
             traverseToRegisterTab();
         }
@@ -232,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (event.target.closest('#set-table-button')){
             traverseToTablesTab();
+
+            $('.set-shop-table-order').removeClass('d-none');
+            $('.add-shop-table-order').addClass('d-none');
         }
     });
 });

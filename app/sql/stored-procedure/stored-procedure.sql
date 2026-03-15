@@ -14067,6 +14067,7 @@ CREATE PROCEDURE insertShopOrder(
     IN p_shop_name VARCHAR(100),
     IN p_floor_plan_table_id INT,
     IN p_table_number INT,
+    IN p_order_for VARCHAR(500),
     IN p_last_log_by INT
 )
 BEGIN
@@ -14084,6 +14085,7 @@ BEGIN
         shop_name,
         floor_plan_table_id,
         table_number,
+        order_for,
         last_log_by
     )
     VALUES(
@@ -14091,6 +14093,7 @@ BEGIN
         p_shop_name,
         p_floor_plan_table_id,
         p_table_number,
+        p_order_for,
         p_last_log_by
     );
 
@@ -14104,6 +14107,31 @@ END //
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
+
+DROP PROCEDURE IF EXISTS updateShopOrderTable//
+
+CREATE PROCEDURE updateShopOrderTable(
+	IN p_shop_order_id INT, 
+    IN p_floor_plan_table_id INT,
+    IN p_table_number INT,
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order
+    SET floor_plan_table_id = p_floor_plan_table_id,
+        table_number        = p_table_number,
+        last_log_by         = p_last_log_by
+    WHERE shop_order_id     = p_shop_order_id;
+
+    COMMIT;
+END //
 
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES

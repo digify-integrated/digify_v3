@@ -1,8 +1,8 @@
 <div class="row">
     <div class="col-lg-8" id="">
-        <div class="row nav nav-pills nav-pills-custom d-none product-container" id="shop-product-category-container"></div>
+        <div class="row nav nav-pills nav-pills-custom" id="shop-product-category-container"></div>
 
-        <div class="row mt-3 d-none product-container" id="shop-products-container"></div>
+        <div class="row mt-3" id="shop-products-container"></div>
     </div>
     
     <div class="col-lg-4">
@@ -36,7 +36,7 @@
                     
                     <div class="separator separator-dashed mb-4"></div>
 
-                    <div class="btn-group w-100 mb-4" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
+                    <div class="btn-group w-100 mb-4 d-none" id="order-preference" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
                         <label class="btn btn-outline btn-color-muted btn-active-primary active" data-kt-button="true">
                             <input class="btn-check" type="radio" name="method" value="On-Site"/>
                             On-Site
@@ -51,7 +51,7 @@
                         </label>
                     </div>
                     
-                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
+                    <div class="d-flex flex-equal gap-3 px-0 mb-0 d-none">
                         <?php if ($floorPlanCount > 0): ?>
                            <button class="btn btn-light w-100 p-5" id="set-table-button">
                                 Set Table
