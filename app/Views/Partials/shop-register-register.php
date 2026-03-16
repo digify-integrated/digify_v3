@@ -51,7 +51,7 @@
                         </label>
                     </div>
                     
-                    <div class="d-flex flex-equal gap-3 px-0 mb-0 d-none">
+                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
                         <?php if ($floorPlanCount > 0): ?>
                            <button class="btn btn-light w-100 p-5" id="set-table-button">
                                 Set Table

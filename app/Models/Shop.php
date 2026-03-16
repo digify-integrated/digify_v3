@@ -220,6 +220,30 @@ class Shop extends Model {
         return $row['new_shop_order_id'] ?? null;
     }
 
+    public function insertShopOrderDetail(
+        int $p_shop_order_id,
+        int $p_product_id,
+        string $p_product_name,
+        string $p_price,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopOrderDetail(
+            :p_shop_order_id,
+            :p_product_id,
+            :p_product_name,
+            :p_price,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_product_id'      => $p_product_id,
+            'p_product_name'    => $p_product_name,
+            'p_price'           => $p_price,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
@@ -272,6 +296,24 @@ class Shop extends Model {
             'p_floor_plan_table_id' => $p_floor_plan_table_id,
             'p_table_number'        => $p_table_number,
             'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopOrderDetail(
+        int $p_shop_order_id,
+        int $p_product_id,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderDetail(
+            :p_shop_order_id,
+            :p_product_id,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_product_id'      => $p_product_id,
+            'p_last_log_by'     => $p_last_log_by
         ]);
     }
 
@@ -458,6 +500,21 @@ class Shop extends Model {
         
         return $this->fetch($sql, [
             'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function checkShopOrderProductExist(
+        int $p_shop_id,
+        int $p_product_id
+    ) {
+        $sql = 'CALL checkShopOrderProductExist(
+            :p_shop_id,
+            :p_product_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_id'     => $p_shop_id,
+            'p_product_id'  => $p_product_id
         ]);
     }
 

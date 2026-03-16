@@ -62,11 +62,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const loadOrderList = (shop_id) => {
+        const requests = [
+            ['shop-order-list', 'generate shop order list']
+        ];
+
+        requests.forEach(([container, transaction]) => {
+            generateElements({
+                container,
+                controller: 'ShopController',
+                transaction,
+                reference_id: shop_id,
+                shop_order_id : shop_order_id
+            });
+        });
+    }
+
     const fetchRegisterDetails = async (floor_plan_table_id) => {
         const transaction = 'fetch shop register table details';
         
         try {
-            const shop_id               = $('#shop_id').val();
+            const shop_id = $('#shop_id').val();
 
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
@@ -111,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#shop-order-subtotal').html('&#8369; 0.00');
         $('#shop-order-discounts').html('&#8369; 0.00');
         $('#shop-order-total').html('&#8369; 0.00');
+        $('#order-details-title').text('');
 
         $('#shop-order-list').empty();
 
@@ -120,8 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#send-kitchen-button').addClass('d-none');
         $('#payment-button').addClass('d-none');
 
-        $('#set-table-button').removeClass('d-none');
-        $('#set-tab-button').removeClass('d-none');
+        $('#set-table-button').addClass('d-none');
+        $('#set-tab-button').addClass('d-none');
         
         enableTab();
     }
@@ -233,6 +250,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     initializeRegister();
                     traverseToRegisterTab();
                     
+                }
+                else if (data.invalid_session) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else {
+                    showNotification(data.title, data.message, data.message_type);
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('.add-shop-order')){
+            const transaction   = 'insert shop order product';
+            const button        = event.target.closest('.add-shop-order');
+            const shop_id       = button.dataset.shopId;
+            const product_id    = button.dataset.productId;
+            const shop_order_id = sessionStorage.getItem('shop_order_id');
+   
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_id', shop_id);
+                formData.append('product_id', product_id);
+                formData.append('shop_order_id', shop_order_id);
+    
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) { 
+                    throw new Error(`Add order with status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    sessionStorage.setItem('shop_order_id', data.shop_order_id);
                 }
                 else if (data.invalid_session) {
                     setNotification(data.title, data.message, data.message_type);

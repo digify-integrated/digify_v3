@@ -98,6 +98,7 @@ class ShopController {
             'save shop product'                     => $this->saveShopProduct($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
+            'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
@@ -401,8 +402,59 @@ class ShopController {
         );
 
         $this->systemHelper::sendSuccessResponse(
-            'Open Register Success',
-            'The register has been opened successfully.',
+            '',
+            '',
+            ['shop_order_id' => $shopOrderId]
+        );
+    }
+   
+    public function insertShopOrderProduct(
+        int $lastLogBy
+    ) {
+        $shopId         = $_POST['shop_id'] ?? null;
+        $productId      = $_POST['product_id'] ?? null;
+        $shopOrderId    = $_POST['shop_order_id'] ?? null;
+
+        if(empty($shopOrderId)){
+            $shopDetails    = $this->shop->fetchShop($shopId);
+            $shopName       = $shopDetails['shop_name'] ?? '';
+            
+            $shopOrderId = $this->shop->insertShopOrder(
+                $shopId,
+                $shopName,
+                null,
+                null,
+                null, 
+                $lastLogBy
+            );
+        }
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $productName    = $productDetails['product_name'] ?? '';
+        $salesPrice     = $productDetails['sales_price'] ?? 0;
+
+        $checkShopOrderProductExist = $this->shop->checkShopOrderProductExist($shopOrderId, $productId)['total'] ?? 0;
+
+        if($checkShopOrderProductExist > 0){
+            $this->shop->updateShopOrderDetail(
+                $shopOrderId,
+                $productId,
+                $lastLogBy
+            );
+        }
+        else {
+            $this->shop->insertShopOrderDetail(
+                $shopOrderId,
+                $productId,
+                $productName,
+                $salesPrice,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            '',
             ['shop_order_id' => $shopOrderId]
         );
     }
@@ -1009,7 +1061,7 @@ class ShopController {
             $productImage   = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'product');
 
             $productsHtml   .= '<div class="col-6 col-lg-3 mb-5">
-                                    <div class="card card-flush flex-row-fluid p-0 w-100 border border-hover-primary cursor-pointer" class="add-product-order" data-product-id="'. $productId .'">
+                                    <div class="card card-flush flex-row-fluid p-0 w-100 border border-hover-primary cursor-pointer add-shop-order" data-product-id="'. $productId .'" data-shop-id="'. $shopId .'">
                                         <div class="card-body text-center">
                                             <img src="'. $productImage .'" class="rounded-3 mb-4 w-100 h-120px" alt="'. $productName .'"/>  
                                             <div class="mb-2">

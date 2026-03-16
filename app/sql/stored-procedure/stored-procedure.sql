@@ -14104,6 +14104,41 @@ BEGIN
     SELECT v_new_shop_order_id AS new_shop_order_id;
 END //
 
+DROP PROCEDURE IF EXISTS insertShopOrderDetail//
+
+CREATE PROCEDURE insertShopOrderDetail(
+    IN p_shop_order_id INT, 
+    IN p_product_id INT,
+    IN p_product_name VARCHAR(100),
+    IN p_price DECIMAL(15, 2), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_order_details (
+        shop_order_id,
+        product_id,
+        product_name,
+        price,
+        last_log_by
+    )
+    VALUES(
+        p_shop_order_id,
+        p_product_id,
+        p_product_name,
+        p_price,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
@@ -14133,6 +14168,30 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateShopOrderDetail//
+
+CREATE PROCEDURE updateShopOrderDetail(
+	IN p_shop_order_id INT, 
+    IN p_product_id INT,
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order_details
+    SET quantity        = quantity + 1,
+        last_log_by     = p_last_log_by
+    WHERE shop_order_id = p_shop_order_id
+    AND product_id      = p_product_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
@@ -14158,6 +14217,19 @@ END //
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkShopOrderProductExist//
+
+CREATE PROCEDURE checkShopOrderProductExist(
+    IN p_shop_order_id INT,
+    IN p_product_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM shop_order_details
+    WHERE shop_order_id = p_shop_order_id
+    AND product_id = p_product_id;
+END //
 
 /* =============================================================================================
    SECTION 7: GENERATE PROCEDURES
