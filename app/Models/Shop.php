@@ -299,6 +299,24 @@ class Shop extends Model {
         ]);
     }
 
+    public function updateShopOrderTab(
+        int $p_shop_order_id,
+        string $p_order_for,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderTab(
+            :p_shop_order_id,
+            :p_order_for,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_order_for'       => $p_order_for,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
     public function updateShopOrderDetail(
         int $p_shop_order_id,
         int $p_product_id,
@@ -408,6 +426,18 @@ class Shop extends Model {
         ]);
     }
 
+    public function fetchShopOrderList(
+        null|string|int $p_shop_order_id
+    ) {
+        $sql = 'CALL fetchShopOrderList(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_order_id' => $p_shop_order_id
+        ]);
+    }
+
     public function fetchActiveShopOrder(
         null|string|int $p_shop_id,
         null|string|int $p_floor_plan_table_id
@@ -420,6 +450,30 @@ class Shop extends Model {
         return $this->fetch($sql, [
             'p_shop_id'             => $p_shop_id,
             'p_floor_plan_table_id' => $p_floor_plan_table_id
+        ]);
+    }
+
+    public function fetchShopOrderTotal(
+        null|string|int $p_shop_order_id,
+    ) {
+        $sql = 'CALL fetchShopOrderTotal(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id' => $p_shop_order_id
+        ]);
+    }
+
+    public function fetchShopOrderDetails(
+        null|string|int $p_shop_order_id,
+    ) {
+        $sql = 'CALL fetchShopOrderDetails(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id' => $p_shop_order_id
         ]);
     }
     

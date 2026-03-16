@@ -27,9 +27,9 @@
                             </div> 
                             
                             <div class="fs-6 fw-bold text-end">
-                                <span class="d-block lh-1 mb-2" id="shop-order-subtotal">&#8369; 100.50</span>
-                                <span class="d-block mb-2" id="shop-order-discounts">&#8369; 8.00</span>
-                                <span class="d-block fs-2 lh-1" id="shop-order-total">&#8369; 93.46</span>
+                                <span class="d-block lh-1 mb-2" id="shop-order-subtotal">&#8369; 0.00</span>
+                                <span class="d-block mb-2" id="shop-order-discounts">&#8369; 0.00</span>
+                                <span class="d-block fs-2 lh-1" id="shop-order-total">&#8369; 0.00</span>
                             </div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                                 Set Table
                             </button>
                         <?php endif; ?>
-                        <button class="btn btn-light w-100 p-5" id="set-tab-button">
+                        <button class="btn btn-light w-100 p-5" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
                             Set Tab
                         </button>
                         <button class="btn btn-light w-100 p-5 d-none" id="new-order-button">
@@ -73,6 +73,39 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="set-tab-modal" class="modal fade" tabindex="-1" aria-labelledby="set-tab-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Order For</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="set_tab_form" method="post" action="#">
+                    <?= $security->csrfInput('set_tab_form'); ?>
+                    <div class="row mb-6">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <input type="text" class="form-control" id="order_for" name="order_for" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="set_tab_form" class="btn btn-primary" id="submit-set-tab">Save</button>
             </div>
         </div>
     </div>

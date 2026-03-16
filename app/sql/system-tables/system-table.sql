@@ -8105,7 +8105,7 @@ CREATE TABLE shop_order_details (
   discount_value DECIMAL(3, 2) DEFAULT 0,
   discount_amount DECIMAL(3, 2) DEFAULT 0,
   subtotal DECIMAL(15, 2) GENERATED ALWAYS AS (price * quantity) STORED,
-  total_price DECIMAL(15, 2) GENERATED ALWAYS AS (subtotal - discount_amount) STORED,
+  total_price DECIMAL(15, 2) GENERATED ALWAYS AS ((price * quantity) - discount_amount) STORED,
   note VARCHAR(500),
   sent_to_kitchen DATETIME,
   preparing_date DATETIME,

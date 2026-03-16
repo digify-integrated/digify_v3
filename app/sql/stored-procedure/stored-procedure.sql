@@ -12837,7 +12837,7 @@ CREATE PROCEDURE fetchAvailableFloorPlanTableCount(
 BEGIN
 	SELECT COUNT(*) AS total
     FROM floor_plan_table
-	WHERE floor_plan_table_id NOT IN (SELECT floor_plan_table_id FROM shop_order WHERE shop_id = p_shop_id AND shop_order_status = 'Active')
+	WHERE floor_plan_table_id NOT IN (SELECT floor_plan_table_id FROM shop_order WHERE shop_id = p_shop_id AND shop_order_status = 'Active' AND floor_plan_table_id IS NOT NULL)
     AND floor_plan_id = p_floor_plan_id;
 END //
 
@@ -14168,6 +14168,29 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateShopOrderTab//
+
+CREATE PROCEDURE updateShopOrderTab(
+	IN p_shop_order_id INT, 
+    IN p_order_for VARCHAR(500),
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order
+    SET order_for       = p_order_for,
+        last_log_by     = p_last_log_by
+    WHERE shop_order_id = p_shop_order_id;
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS updateShopOrderDetail//
 
 CREATE PROCEDURE updateShopOrderDetail(
@@ -14208,6 +14231,41 @@ BEGIN
     AND floor_plan_table_id = p_floor_plan_table_id
     AND shop_order_status = 'Active'
     LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopOrderDetails//
+
+CREATE PROCEDURE fetchShopOrderDetails(
+    IN p_shop_order_id INT
+)
+BEGIN
+	SELECT * FROM shop_order
+    WHERE shop_order_id = p_shop_order_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopOrderTotal//
+
+CREATE PROCEDURE fetchShopOrderTotal(
+    IN p_shop_order_id INT
+)
+BEGIN
+	SELECT SUM(subtotal) AS subtotal, SUM(total_price) AS total, SUM(discount_amount) AS discount
+    FROM shop_order_details
+    WHERE shop_order_id = p_shop_order_id
+    AND quantity > 0;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopOrderList//
+
+CREATE PROCEDURE fetchShopOrderList(
+    IN p_shop_order_id INT
+)
+BEGIN
+	SELECT * FROM shop_order_details
+    WHERE shop_order_id = p_shop_order_id
+    AND quantity > 0
+    ORDER BY created_date;
 END //
 
 /* =============================================================================================

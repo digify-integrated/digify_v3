@@ -102,6 +102,7 @@ class ShopController {
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
+            'update shop order tab'                 => $this->updateShopOrderTab($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
@@ -110,6 +111,7 @@ class ShopController {
             'delete multiple shop'                  => $this->deleteMultipleShop(),
             'fetch shop details'                    => $this->fetchShopDetails(),
             'fetch shop register table details'     => $this->fetchShopRegisterTableDetails(),
+            'fetch shop order total'                => $this->fetchShopOrderTotal(),
             'generate shop table'                   => $this->generateShopTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
@@ -119,6 +121,7 @@ class ShopController {
             'generate shop register tables'         => $this->generateShopRegisterTables(),
             'generate shop product categories'      => $this->generateShopProductCategories(),
             'generate shop products'                => $this->generateShopProducts(),
+            'generate shop order list'              => $this->generateShopOrderList(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -415,16 +418,15 @@ class ShopController {
         $productId      = $_POST['product_id'] ?? null;
         $shopOrderId    = $_POST['shop_order_id'] ?? null;
 
-        if(empty($shopOrderId)){
-            $shopDetails    = $this->shop->fetchShop($shopId);
-            $shopName       = $shopDetails['shop_name'] ?? '';
-            
+        if (empty($shopOrderId)) {            
+            $shopName = $this->shop->fetchShop($shopId)['shop_name'] ?? '';
+
             $shopOrderId = $this->shop->insertShopOrder(
                 $shopId,
                 $shopName,
                 null,
                 null,
-                null, 
+                null,
                 $lastLogBy
             );
         }
@@ -495,8 +497,6 @@ class ShopController {
         );
     }
 
-    
-   
     public function updateShopOrderTable(
         int $lastLogBy
     ) {
@@ -514,9 +514,26 @@ class ShopController {
         );
 
         $this->systemHelper::sendSuccessResponse(
-            'Open Register Success',
-            'The register has been opened successfully.',
-            ['shop_order_id' => $shopOrderId]
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopOrderTab(
+        int $lastLogBy
+    ) {
+        $shopOrderId    = $_POST['shop_order_id'] ?? null;
+        $orderFor       = $_POST['order_for'] ?? null;
+        
+        $this->shop->updateShopOrderTab(
+            $shopOrderId,
+            $orderFor,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
         );
     }
 
@@ -551,14 +568,46 @@ class ShopController {
     }
 
     public function fetchShopRegisterTableDetails() {
-        $shopId             = $_POST['shop_id'] ?? null;
-        $floorPlanTableId   = $_POST['floor_plan_table_id'] ?? null;
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
 
-        $floorPlanTableDetails = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
+        $shopOrderDetails = $this->shop->fetchShopOrderDetails($shopOrderId);
+        $tableNumber = $shopOrderDetails['table_number'] ?? null;
+        $orderFor = $shopOrderDetails['order_for'] ?? null;
+
+        $title = '';
+
+        if(!empty($tableNumber)){
+            $title = 'Table No. ' . $tableNumber;
+        }
+
+        if(!empty($orderFor)){
+            $title = 'Order For: ' . $orderFor;
+        }
 
         $response = [
             'success'       => true,
-            'tableNumber'   => $floorPlanTableDetails['table_number'] ?? 0,
+            'title'         => $title,
+            'tableNumber'   => $tableNumber,
+            'orderFor'      => $orderFor,
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchShopOrderTotal() {
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
+
+        $shopOrderTotal = $this->shop->fetchShopOrderTotal($shopOrderId);
+        $subTotal = $shopOrderTotal['subtotal'] ?? 0;
+        $discount = $shopOrderTotal['discount'] ?? 0;
+        $total = $shopOrderTotal['total'] ?? 0;
+
+        $response = [
+            'success'   => true,
+            'subTotal'  => number_format($subTotal, 2),
+            'discount'  => number_format($discount, 2),
+            'total'     => number_format($total, 2)
         ];
 
         echo json_encode($response);
@@ -1079,6 +1128,45 @@ class ShopController {
         $response = [
             'success'   => true,
             'ELEMENT'   => $productsHtml
+        ];
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopOrderList() {
+        $shopOrderId    = $_POST['shop_order_id'] ?? null;
+        $response       = [];
+        $ordersHtml     = '';
+
+        $orders = $this->shop->fetchShopOrderList($shopOrderId);
+
+        foreach ($orders as $row) {
+            $shopOrderDetailsId = $row['shop_order_details_id'];
+            $productName        = $row['product_name'];
+            $quantity           = $row['quantity'];
+            $totalPrice         = $row['total_price'];
+
+            $ordersHtml   .= '<div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2" data-shop-order-details-id="'. $shopOrderDetailsId .'">
+                                    <div class="row align-items-center">
+                                        <div class="col-6">
+                                            <span class="fw-semibold d-block fs-4">'. $productName .'</span>
+                                        </div>
+
+                                        <div class="col-3 text-center fw-bold">
+                                            '. number_format($quantity, 2) .'
+                                        </div>
+
+                                        <div class="col-3 text-end fw-bold">
+                                            &#8369; '. number_format($totalPrice, 2) .'
+                                        </div>
+                                    </div>
+                                </div>';
+
+        }
+
+        $response = [
+            'success'   => true,
+            'ELEMENT'   => $ordersHtml
         ];
 
         echo json_encode($response);
