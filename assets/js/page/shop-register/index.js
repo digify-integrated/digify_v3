@@ -1,950 +1,265 @@
 import { generateElements } from '../../utilities/log-notes.js';
-
 import { handleSystemError } from '../../modules/system-errors.js';
-
 import { showNotification, setNotification } from '../../modules/notifications.js';
-
-import { disableButton, enableButton, resetForm} from '../../utilities/form-utilities.js';
-
-
+import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    const shop_id = $('#shop_id').val();
-
-
-
-    const setTab = () => {
-
-        const shopOrderId = sessionStorage.getItem('shop_order_id');
-
-        if (!shopOrderId) return;
-
-
-
-        traverseToRegisterTab();
-
-        disableTab();
-
-        loadOrderList(shopOrderId);
-
-        fetchOrderTotal(shopOrderId);
-        fetchRegisterDetails(shopOrderId);
-        
-
-
-
-        initializeRegister();
-
+    // --- UTILITIES ---
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func(...args), delay);
+        };
     };
 
+    const CONTROLLER_PATH = './app/Controllers/ShopController.php';
+    const $shopIdInput = $('#shop_id');
+    const getShopId = () => $shopIdInput.val();
+    const getOrderId = () => sessionStorage.getItem('shop_order_id');
 
+    /**
+     * REAL-TIME UI UPDATER
+     * Manages totals AND list quantities instantly without waiting for PHP.
+     */
+    const updateUIOptimistically = (productId, price, name) => {
+        // 1. Update Totals
+        const $totalEl = $('#shop-order-total');
+        const $subTotalEl = $('#shop-order-subtotal');
+        
+        const currentTotal = parseFloat($totalEl.text().replace(/[^\d.-]/g, '')) || 0;
+        const currentSub = parseFloat($subTotalEl.text().replace(/[^\d.-]/g, '')) || 0;
+        const addedPrice = parseFloat(price) || 0;
 
-    const loadShopFloorPlan = (shop_id) => {
+        const format = (num) => num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        $totalEl.html(`&#8369; ${format(currentTotal + addedPrice)}`);
+        $subTotalEl.html(`&#8369; ${format(currentSub + addedPrice)}`);
 
-        const requests = [
+        // 2. Update List/Quantity Instantly
+        // We look for a row in your shop-order-list container that matches this product
+        let $row = $(`#shop-order-list [data-product-id="${productId}"]`).closest('tr');
+        
+        if ($row.length) {
+            // Increment existing quantity
+            const $qtyEl = $row.find('.product-quantity'); // Ensure your template has this class
+            const currentQty = parseInt($qtyEl.text()) || 0;
+            $qtyEl.text(currentQty + 1);
+            
+            // Update row subtotal if you have one
+            const $rowTotalEl = $row.find('.product-subtotal');
+            if ($rowTotalEl.length) {
+                const newRowSub = (currentQty + 1) * addedPrice;
+                $rowTotalEl.html(`&#8369; ${format(newRowSub)}`);
+            }
+        } else {
+            // Optional: If product isn't in list, append a temporary row or just let debounce handle it
+            // Most POS systems just wait for the debounce refresh if it's a brand-new item
+        }
+    };
 
-            ['floor-plan-tab', 'generate shop register tabs'],
+    const apiRequest = async (transaction, additionalData = {}) => {
+        try {
+            const formData = new URLSearchParams({ transaction, ...additionalData });
+            const response = await fetch(CONTROLLER_PATH, { method: 'POST', body: formData });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
 
-            ['floor-plan-tables', 'generate shop register tables']
+            if (data.invalid_session && data.redirect_link) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = data.redirect_link;
+                return null;
+            }
+            if (data.notExist) {
+                setNotification(data.title, data.message, data.message_type);
+                window.location.href = window.page_link || '#';
+                return null;
+            }
+            return data;
+        } catch (error) {
+            handleSystemError(error, 'fetch_failed', `Request failed: ${error.message}`);
+            throw error;
+        }
+    };
 
-        ];
+    const loadComponent = (container, transaction, extraParams = {}) => {
+        generateElements({
+            container,
+            controller: 'ShopController',
+            transaction,
+            reference_id: getShopId(),
+            ...extraParams
+        });
+    };
 
-
-
-        requests.forEach(([container, transaction]) => {
-
-            generateElements({
-
-                container,
-
-                controller: 'ShopController',
-
-                transaction,
-
-                reference_id: shop_id
-
-            });
-
+    const refreshRegisterUI = async (orderId) => {
+        // This is the "Truth" refresh that syncs with DB
+        loadComponent('shop-order-list', 'generate shop order list', { 
+            reference_id: null, 
+            shop_order_id: orderId 
         });
 
-    }
+        await Promise.all([
+            fetchOrderTotal(orderId),
+            fetchRegisterDetails(orderId)
+        ]);
 
-    
+        initializeRegister();
+        disableTab();
+        traverseToRegisterTab();
+    };
 
-    const loadShopProductCategories = (shop_id) => {
-
-        const requests = [
-
-            ['shop-product-category-container', 'generate shop product categories']
-
-        ];
-
-
-
-        requests.forEach(([container, transaction]) => {
-
-            generateElements({
-
-                container,
-
-                controller: 'ShopController',
-
-                transaction,
-
-                reference_id: shop_id
-
-            });
-
-        });
-
-    }
-
-    
-
-    const loadShopProducts = (shop_id, product_category_id = null) => {
-
-        const requests = [
-
-            ['shop-products-container', 'generate shop products']
-
-        ];
-
-
-
-        requests.forEach(([container, transaction]) => {
-
-            generateElements({
-
-                container,
-
-                controller: 'ShopController',
-
-                transaction,
-
-                reference_id: shop_id,
-
-                product_category_id : product_category_id
-
-            });
-
-        });
-
-    }
-
-
-
-    const loadOrderList = (shop_order_id) => {
-
-        const requests = [
-
-            ['shop-order-list', 'generate shop order list']
-
-        ];
-
-
-
-        requests.forEach(([container, transaction]) => {
-
-            generateElements({
-
-                container,
-
-                controller: 'ShopController',
-
-                transaction,
-
-                reference_id: null,
-
-                shop_order_id : shop_order_id
-
-            });
-
-        });
-
-    }
-
-
+    const setTab = () => {
+        const orderId = getOrderId();
+        if (orderId) refreshRegisterUI(orderId);
+    };
 
     const fetchRegisterDetails = async (shop_order_id) => {
-
-        const transaction = 'fetch shop register table details';
-
-        
-
-        try {
-
-            const shop_id = $('#shop_id').val();
-
-
-
-            const formData = new URLSearchParams();
-
-            formData.append('transaction', transaction);
-
-            formData.append('shop_id', shop_id);
-
-            formData.append('shop_order_id', shop_order_id);
-
-
-
-            const response = await fetch('./app/Controllers/ShopController.php', {
-
-                method: 'POST',
-
-                body: formData
-
-            });
-
-        
-
-            if (!response.ok) {
-
-                throw new Error(`Request failed with status: ${response.status}`);
-
-            }
-
-        
-
-            const data = await response.json();
-
-        
-
-            if (data.success) {
-
-                $('#order-details-title').text(`${data.title}`);
-
-
-
-                if (data.tableNumber == null && data.orderFor == null){
-                    $('#set-table-button').removeClass('d-none');
-                    $('#set-tab-button').removeClass('d-none');
-                }
-                else if (data.tableNumber != null && data.orderFor == null){
-                    $('#set-tab-button').addClass('d-none');
-                    $('#set-table-button').removeClass('d-none');
-                }
-                else{
-                    $('#set-table-button').addClass('d-none');
-                    $('#set-tab-button').addClass('d-none');
-                }
-
-            }
-
-            else if (data.notExist) {
-
-                setNotification(data.title, data.message, data.message_type);
-
-                window.location.href = page_link;
-
-            }
-
-            else {
-
-                showNotification(data.title, data.message, data.message_type);
-
-            }
-
-        } catch (error) {
-
-            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
+        const data = await apiRequest('fetch shop register table details', { shop_id: getShopId(), shop_order_id });
+        if (data?.success) {
+            $('#order-details-title').text(data.title);
+            const showSetButtons = (shop_order_id != null && data.tableNumber == null && data.orderFor == null);
+            const showTableOnly = (shop_order_id != null && data.tableNumber != null && data.orderFor == null);
+            $('#set-table-button').toggleClass('d-none', !(showSetButtons || showTableOnly));
+            $('#set-tab-button').toggleClass('d-none', !showSetButtons);
         }
-
-    }
-
-
+    };
 
     const fetchOrderTotal = async (shop_order_id) => {
-
-        const transaction = 'fetch shop order total';
-
-        
-
-        try {
-
-            const formData = new URLSearchParams();
-
-            formData.append('transaction', transaction);
-
-            formData.append('shop_order_id', shop_order_id);
-
-
-
-            const response = await fetch('./app/Controllers/ShopController.php', {
-
-                method: 'POST',
-
-                body: formData
-
-            });
-
-        
-
-            if (!response.ok) {
-
-                throw new Error(`Request failed with status: ${response.status}`);
-
-            }
-
-        
-
-            const data = await response.json();
-
-        
-
-            if (data.success) {
-
-                $('#shop-order-subtotal').html(`&#8369; ${data.subTotal}`);
-
-                $('#shop-order-discounts').html(`&#8369; ${data.discount}`);
-
-                $('#shop-order-total').html(`&#8369; ${data.total}`);
-
-            }
-
-            else if (data.notExist) {
-
-                setNotification(data.title, data.message, data.message_type);
-
-                window.location.href = page_link;
-
-            }
-
-            else {
-
-                showNotification(data.title, data.message, data.message_type);
-
-            }
-
-        } catch (error) {
-
-            handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
+        const data = await apiRequest('fetch shop order total', { shop_order_id });
+        if (data?.success) {
+            $('#shop-order-subtotal').html(`&#8369; ${data.subTotal}`);
+            $('#shop-order-discounts').html(`&#8369; ${data.discount}`);
+            $('#shop-order-total').html(`&#8369; ${data.total}`);
         }
+    };
 
-    }
-
-
-
-    const enableTab = () => {
-
-        $('.nav-line-tabs .nav-link').removeClass('disabled');
-
-    }
-
-
-
-    const disableTab = () => {
-
-        $('.nav-line-tabs .nav-link').addClass('disabled');
-
-    }
-
-
+    const enableTab = () => $('.nav-line-tabs .nav-link').removeClass('disabled');
+    const disableTab = () => $('.nav-line-tabs .nav-link').addClass('disabled');
 
     const resetRegister = () => {
-
-        $('#shop-order-subtotal').html('&#8369; 0.00');
-
-        $('#shop-order-discounts').html('&#8369; 0.00');
-
-        $('#shop-order-total').html('&#8369; 0.00');
-
+        $('#shop-order-subtotal, #shop-order-discounts, #shop-order-total').html('&#8369; 0.00');
         $('#order-details-title').text('');
-
-
-
         $('#shop-order-list').empty();
-
-
-
         sessionStorage.removeItem('shop_order_id');
-
-
-
-        $('#new-order-button').addClass('d-none');
-
-        $('#send-kitchen-button').addClass('d-none');
-
-        $('#payment-button').addClass('d-none');
-
-
-
-        $('#set-table-button').addClass('d-none');
-
-        $('#set-tab-button').addClass('d-none');
-
-        
-
+        $('#new-order-button, #send-kitchen-button, #payment-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preference').addClass('d-none');
+        $('.add-shop-table-order').removeClass('d-none');
         enableTab();
-
-    }
-
-
+    };
 
     const initializeRegister = () => {
+        $('#new-order-button, #send-kitchen-button, #payment-button, #order-preference').removeClass('d-none');
+    };
 
-        $('#new-order-button').removeClass('d-none');
+    const traverseTab = (target) => {
+        const tabEl = document.querySelector(`a[href="${target}"]`);
+        if (tabEl) new bootstrap.Tab(tabEl).show();
+    };
 
-        $('#send-kitchen-button').removeClass('d-none');
+    const traverseToTablesTab = () => traverseTab("#tables_tab");
+    const traverseToRegisterTab = () => traverseTab("#register_tab");
 
-        $('#payment-button').removeClass('d-none');
-
-    }
-
-
-
-    const traverseToTablesTab = () => {
-
-        const tablesTab = document.querySelector('a[href="#tables_tab"]');
-
-
-
-        if (tablesTab) {
-
-            const tab = new bootstrap.Tab(tablesTab);
-
-            tab.show();
-
-        }
-
-    }
-
-
-
-    const traverseToRegisterTab = () => {
-
-        const registerTab = document.querySelector('a[href="#register_tab"]');
-
-
-
-        if (registerTab) {
-
-            const tab = new bootstrap.Tab(registerTab);
-
-            tab.show();
-
-        }
-
-    }
-
-
-
+    // Initial Load
     setTab();
+    loadComponent('floor-plan-tab', 'generate shop register tabs');
+    loadComponent('floor-plan-tables', 'generate shop register tables');
+    loadComponent('shop-product-category-container', 'generate shop product categories');
+    loadComponent('shop-products-container', 'generate shop products');
 
-    loadShopFloorPlan(shop_id);
-
-    loadShopProductCategories(shop_id);
-
-    loadShopProducts(shop_id);
-
-
-
+    /**
+     * EVENT DELEGATION
+     */
     document.addEventListener('click', async (event) => {
+        const target = event.target;
 
-        if (event.target.closest('.add-shop-table-order')){
+        const addProductBtn = target.closest('.add-shop-order');
+        if (addProductBtn) {
+            const currentOrderId = getOrderId();
+            const productId = addProductBtn.dataset.productId;
+            const productPrice = addProductBtn.dataset.productPrice || 0;
+            const productName = addProductBtn.dataset.productName || '';
 
-            const transaction           = 'insert shop order';
-
-            const button                = event.target.closest('.add-shop-table-order');
-
-            const shop_id               = button.dataset.shopId;
-
-            const floor_plan_table_id   = button.dataset.floorPlanTableId;
-
-   
-
-            try {
-
-                const formData = new URLSearchParams();
-
-                formData.append('transaction', transaction);
-
-                formData.append('shop_id', shop_id);
-
-                formData.append('floor_plan_table_id', floor_plan_table_id);
-
-    
-
-                const response = await fetch('./app/Controllers/ShopController.php', {
-
-                    method: 'POST',
-
-                    body: formData
-
-                });
-
-    
-
-                if (!response.ok) { 
-
-                    throw new Error(`Add order with status: ${response.status}`);
-
-                }
-
-    
-
-                const data = await response.json();
-
-    
-
-                if (data.success) {
-
-                    loadShopFloorPlan(shop_id);
-
-                    disableTab();
-
-                    initializeRegister();
-
-                    traverseToRegisterTab();
-
-                    
-
+            // 1. INSTANT UI UPDATE (Total & Quantity)
+            updateUIOptimistically(productId, productPrice, productName);
+            
+            // 2. BACKGROUND SERVER SYNC
+            // Notice we don't 'await' the refresh logic inside the loop
+            apiRequest('insert shop order product', {
+                shop_id: addProductBtn.dataset.shopId,
+                product_id: productId,
+                shop_order_id: (currentOrderId === 'null' || !currentOrderId) ? '' : currentOrderId
+            }).then(data => {
+                if (data?.success) {
                     sessionStorage.setItem('shop_order_id', data.shop_order_id);
-
+                    // 3. FINAL SYNC (Corrects any rounding or tax logic from server)
+                    refreshRegisterUI(data.shop_order_id);
                 }
+            });
+            return;
+        }
 
-                else if (data.invalid_session) {
-
-                    setNotification(data.title, data.message, data.message_type);
-
-                    window.location.href = data.redirect_link;
-
-                }
-
-                else {
-
-                    showNotification(data.title, data.message, data.message_type);
-
-                }
-
-            } catch (error) {
-
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
+        // Add/Set Table Order
+        const tableBtn = target.closest('.add-shop-table-order, .set-shop-table-order');
+        if (tableBtn) {
+            const isUpdate = tableBtn.classList.contains('set-shop-table-order');
+            const data = await apiRequest(isUpdate ? 'update shop order table' : 'insert shop order', {
+                shop_id: tableBtn.dataset.shopId,
+                floor_plan_table_id: tableBtn.dataset.floorPlanTableId,
+                shop_order_id: getOrderId()
+            });
+            if (data?.success) {
+                if (!isUpdate) sessionStorage.setItem('shop_order_id', data.shop_order_id);
+                loadComponent('floor-plan-tables', 'generate shop register tables');
+                refreshRegisterUI(getOrderId());
             }
-
+            return;
         }
 
-
-
-        if (event.target.closest('.set-shop-table-order')){
-
-            const transaction           = 'update shop order table';
-
-            const button                = event.target.closest('.set-shop-table-order');
-
-            const shop_id               = button.dataset.shopId;
-
-            const floor_plan_table_id   = button.dataset.floorPlanTableId;
-
-            const shop_order_id         = sessionStorage.getItem('shop_order_id');
-
-   
-
-            try {
-
-                const formData = new URLSearchParams();
-
-                formData.append('transaction', transaction);
-
-                formData.append('shop_id', shop_id);
-
-                formData.append('floor_plan_table_id', floor_plan_table_id);
-
-                formData.append('shop_order_id', shop_order_id);
-
-    
-
-                const response = await fetch('./app/Controllers/ShopController.php', {
-
-                    method: 'POST',
-
-                    body: formData
-
-                });
-
-    
-
-                if (!response.ok) { 
-
-                    throw new Error(`Add order with status: ${response.status}`);
-
-                }
-
-    
-
-                const data = await response.json();
-
-    
-
-                if (data.success) {
-
-                    loadShopFloorPlan(shop_id);
-
-                    disableTab();
-
-                    
-
-                    loadOrderList(shop_order_id);
-
-                    fetchOrderTotal(shop_order_id);
-
-                    fetchRegisterDetails(shop_order_id);
-
-                    initializeRegister();
-
-                    traverseToRegisterTab();
-
-                }
-
-                else if (data.invalid_session) {
-
-                    setNotification(data.title, data.message, data.message_type);
-
-                    window.location.href = data.redirect_link;
-
-                }
-
-                else {
-
-                    showNotification(data.title, data.message, data.message_type);
-
-                }
-
-            } catch (error) {
-
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
-            }
-
+        // View Existing Table Order
+        const viewOrderBtn = target.closest('.view-shop-table-orders');
+        if (viewOrderBtn) {
+            const orderId = viewOrderBtn.dataset.shopOrderId;
+            sessionStorage.setItem('shop_order_id', orderId);
+            refreshRegisterUI(orderId);
+            return;
         }
 
-
-
-        if (event.target.closest('.add-shop-order')){
-
-            const transaction   = 'insert shop order product';
-
-            const button        = event.target.closest('.add-shop-order');
-
-            const shop_id       = button.dataset.shopId;
-
-            const product_id    = button.dataset.productId;
-
-            const shop_order_id = sessionStorage.getItem('shop_order_id');
-
-   
-
-            try {
-
-                const formData = new URLSearchParams();
-
-                formData.append('transaction', transaction);
-
-                formData.append('shop_id', shop_id);
-
-                formData.append('product_id', product_id);
-
-                formData.append(
-
-                    'shop_order_id',
-
-                    shop_order_id === null || shop_order_id === 'null' ? '' : shop_order_id
-
-                );
-
-    
-
-                const response = await fetch('./app/Controllers/ShopController.php', {
-
-                    method: 'POST',
-
-                    body: formData
-
-                });
-
-    
-
-                if (!response.ok) { 
-
-                    throw new Error(`Add order with status: ${response.status}`);
-
-                }
-
-    
-
-                const data = await response.json();
-
-    
-
-                if (data.success) {
-
-                    sessionStorage.setItem('shop_order_id', data.shop_order_id);
-
-
-
-                    loadOrderList(data.shop_order_id);
-
-                    fetchOrderTotal(data.shop_order_id);
-
-                    fetchRegisterDetails(data.shop_order_id);
-
-                    initializeRegister();
-
-                }
-
-                else if (data.invalid_session) {
-
-                    setNotification(data.title, data.message, data.message_type);
-
-                    window.location.href = data.redirect_link;
-
-                }
-
-                else {
-
-                    showNotification(data.title, data.message, data.message_type);
-
-                }
-
-            } catch (error) {
-
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
-            }
-
+        // Filters
+        if (target.closest('.product-category-filter')) {
+            const filter = target.closest('.product-category-filter').dataset.productFilter;
+            loadComponent('shop-products-container', 'generate shop products', { product_category_id: filter });
         }
 
-
-
-        if (event.target.closest('.view-shop-table-orders')){
-
-            const button                = event.target.closest('.view-shop-table-orders');
-
-            const shop_id               = button.dataset.shopId;
-
-            const floor_plan_table_id   = button.dataset.floorPlanTableId;
-
-            const shop_order_id         = button.dataset.shopOrderId;
-
-
-
-            $('.set-shop-table-order').addClass('d-none');
-
-            $('.add-shop-table-order').removeClass('d-none');
-
-
-
-            sessionStorage.setItem('shop_order_id', shop_order_id);
-
-            disableTab();
-
-            fetchRegisterDetails(shop_order_id);
-
-            initializeRegister();
-
-            traverseToRegisterTab();
-
-        }
-
-
-
-        if (event.target.closest('.product-category-filter')){
-
-            const button            = event.target.closest('.product-category-filter');
-
-            const product_filter    = button.dataset.productFilter;
-
-
-
-            loadShopProducts(shop_id, product_filter);
-
-        }
-
-
-
-        if (event.target.closest('#new-order-button')){
-
+        if (target.closest('#new-order-button')) {
             resetRegister();
-
-
-
             traverseToTablesTab();
-
         }
 
-
-
-        if (event.target.closest('#set-table-button')){
-
+        if (target.closest('#set-table-button')) {
             traverseToTablesTab();
-
             enableTab();
-
-
-
             $('.set-shop-table-order').removeClass('d-none');
-
             $('.add-shop-table-order').addClass('d-none');
-
         }
-
     });
 
-
-
+    // Form Validation logic remains the same...
     $('#set_tab_form').validate({
-
-        rules: {
-
-            order_for: { required: true }
-
-        },
-
-        messages: {
-
-            order_for: { required: 'Enter the order for' }
-
-        },
-
-        errorPlacement: (error, element) => {
-
-            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
-
-        },
-
-        highlight: (element) => {
-
-            const $element = $(element);
-
-            const $target = $element.hasClass('select2-hidden-accessible')
-
-                ? $element.next().find('.select2-selection')
-
-                : $element;
-
-            $target.addClass('is-invalid');
-
-        },
-
-        unhighlight: (element) => {
-
-            const $element = $(element);
-
-            const $target = $element.hasClass('select2-hidden-accessible')
-
-                ? $element.next().find('.select2-selection')
-
-                : $element;
-
-            $target.removeClass('is-invalid');
-
-        },
-
+        rules: { order_for: { required: true } },
         submitHandler: async (form, event) => {
-
             event.preventDefault();
-
-    
-
-            const transaction       = 'update shop order tab';
-
-            const shop_order_id     = sessionStorage.getItem('shop_order_id');
-
-    
-
-            const formData = new URLSearchParams(new FormData(form));
-
-            formData.append('transaction', transaction);
-
-            formData.append('shop_order_id', shop_order_id);
-
-    
-
             disableButton('submit-set-tab');
-
-    
-
-            try {
-
-                const response = await fetch('./app/Controllers/ShopController.php', {
-
-                    method: 'POST',
-
-                    body: formData
-
-                });
-
-    
-
-                if (!response.ok) {
-
-                    throw new Error(`Save shop failed with status: ${response.status}`);
-
-                }
-
-    
-
-                const data = await response.json();
-
-    
-
-                if (data.success) {
-
-                    $('#set-tab-modal').modal('hide');
-
-                    resetForm('set_tab_form');
-
-                    disableTab();
-
-                    
-
-                    loadOrderList(shop_order_id);
-
-                    fetchOrderTotal(shop_order_id);
-
-                    fetchRegisterDetails(shop_order_id);
-
-                    initializeRegister();
-
-
-
-                    enableButton('submit-set-tab');
-
-                }
-
-                else if(data.invalid_session){
-
-                    setNotification(data.title, data.message, data.message_type);
-
-                    window.location.href = data.redirect_link;
-
-                }
-
-                else{
-
-                    showNotification(data.title, data.message, data.message_type);
-
-                    enableButton('submit-set-tab');
-
-                }
-
-            } catch (error) {
-
-                enableButton('submit-set-tab');
-
-                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
-
+            const data = await apiRequest('update shop order tab', {
+                ...Object.fromEntries(new FormData(form)),
+                shop_order_id: getOrderId()
+            });
+            if (data?.success) {
+                $('#set-tab-modal').modal('hide');
+                resetForm('set_tab_form');
+                refreshRegisterUI(getOrderId());
             }
-
-    
-
+            enableButton('submit-set-tab');
             return false;
-
         }
-
     });
-
 });

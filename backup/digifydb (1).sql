@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 16, 2026 at 06:20 PM
+-- Generation Time: Mar 18, 2026 at 10:28 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -5765,6 +5765,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveCompany` (IN `p_company_id` INT
             telephone       = p_telephone,
             email           = p_email,
             website         = p_website,
+
             last_log_by     = p_last_log_by
         WHERE company_id    = p_company_id;
 
@@ -9786,7 +9787,8 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (3, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-16 11:19:10 -> 2026-03-16 21:09:16<br/>', 1, '2026-03-16 21:09:16'),
 (4, 'shop', 4, 'Shop changed.<br/><br/>Shop Name: Test -> Cashier<br/>', 2, '2026-03-17 00:13:22'),
 (5, 'shop_floor_plan', 1, 'Shop floor plan created.', 2, '2026-03-17 00:13:30'),
-(6, 'shop_floor_plan', 2, 'Shop floor plan created.', 2, '2026-03-17 00:13:30');
+(6, 'shop_floor_plan', 2, 'Shop floor plan created.', 2, '2026-03-17 00:13:30'),
+(7, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-16 21:09:16 -> 2026-03-18 10:19:38<br/>', 1, '2026-03-18 10:19:38');
 
 -- --------------------------------------------------------
 
@@ -16078,7 +16080,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (23, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-13 13:35:40', 1, '2026-03-13 13:35:40', '2026-03-13 13:35:40', 1),
 (24, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-15 13:13:01', 1, '2026-03-15 13:13:01', '2026-03-15 13:13:01', 1),
 (25, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-16 11:19:10', 1, '2026-03-16 11:19:10', '2026-03-16 11:19:10', 1),
-(26, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-16 21:09:16', 1, '2026-03-16 21:09:16', '2026-03-16 21:09:16', 1);
+(26, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-16 21:09:16', 1, '2026-03-16 21:09:16', '2026-03-16 21:09:16', 1),
+(27, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-18 10:19:38', 1, '2026-03-18 10:19:38', '2026-03-18 10:19:38', 1);
 
 -- --------------------------------------------------------
 
@@ -18184,7 +18187,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$GFULxvFvYwb9ygcrvIHNb.49SBQdx3GMizJACgxPNutcqfUbOeLbG', '2026-02-27 14:52:10', '2026-03-16 21:09:16', 1);
+(1, 2, '$2y$10$F0gk1xcIK0TRaCG7UhSusu6Q/x6h6WcFhFmmA5737u4f6XGMl0tki', '2026-02-27 14:52:10', '2026-03-18 10:19:38', 1);
 
 -- --------------------------------------------------------
 
@@ -18416,16 +18419,12 @@ CREATE TABLE `shop_order` (
 --
 
 INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 3, 2, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:26:08', '2026-03-17 00:26:31', 2),
-(2, 4, 'Cashier', 5, 4, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:27:28', '2026-03-17 00:27:42', 2),
-(3, 4, 'Cashier', NULL, NULL, 'asdasda', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:27:53', '2026-03-17 00:27:56', 2),
-(4, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:32:54', '2026-03-17 00:32:54', 2),
-(5, 4, 'Cashier', 7, 6, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:41:50', '2026-03-17 00:41:50', 2),
-(6, 4, 'Cashier', 8, 7, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:44:08', '2026-03-17 00:44:08', 2),
-(7, 4, 'Cashier', 4, 3, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:44:23', '2026-03-17 00:44:28', 2),
-(8, 4, 'Cashier', NULL, NULL, 'asdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:45:14', '2026-03-17 00:45:17', 2),
-(9, 4, 'Cashier', NULL, NULL, 'asdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 01:18:46', '2026-03-17 01:18:52', 2),
-(10, 4, 'Cashier', NULL, NULL, 'asdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-17 01:19:00', '2026-03-17 01:19:03', 2);
+(1, 4, 'Cashier', NULL, NULL, 'asdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 14:44:10', '2026-03-18 14:49:16', 2),
+(2, 4, 'Cashier', 8, 7, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 14:50:01', '2026-03-18 14:50:01', 2),
+(3, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 15:54:28', '2026-03-18 15:54:33', 2),
+(4, 4, 'Cashier', NULL, NULL, 'asdasdasdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 15:54:42', '2026-03-18 15:55:13', 2),
+(5, 4, 'Cashier', NULL, NULL, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 16:27:06', '2026-03-18 16:27:06', 2),
+(6, 4, 'Cashier', NULL, NULL, 'asdasd', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-18 16:41:13', '2026-03-18 16:41:16', 2);
 
 -- --------------------------------------------------------
 
@@ -18462,14 +18461,13 @@ CREATE TABLE `shop_order_details` (
 --
 
 INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `quantity`, `order_status`, `price`, `discount_type`, `discount_value`, `discount_amount`, `note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, 3, 'Fries', 19.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:26:23', '2026-03-17 00:28:26', 2),
-(2, 2, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:27:28', '2026-03-17 00:27:28', 2),
-(3, 3, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:27:53', '2026-03-17 00:27:53', 2),
-(4, 4, 3, 'Fries', 13.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:33:14', '2026-03-17 00:33:21', 2),
-(5, 7, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:44:23', '2026-03-17 00:44:23', 2),
-(6, 8, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 00:45:14', '2026-03-17 00:45:14', 2),
-(7, 9, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 01:18:46', '2026-03-17 01:18:46', 2),
-(8, 10, 3, 'Fries', 15.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-17 01:19:00', '2026-03-17 01:19:29', 2);
+(1, 1, 3, 'Fries', 32.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 14:44:10', '2026-03-18 14:49:00', 2),
+(2, 2, 3, 'Fries', 56.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 14:50:11', '2026-03-18 16:26:08', 2),
+(3, 2, 2, 'Burger', 3.0000, 'Pending', 0.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 15:54:23', '2026-03-18 15:54:24', 2),
+(4, 3, 3, 'Fries', 4.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 15:54:29', '2026-03-18 15:54:30', 2),
+(5, 4, 3, 'Fries', 3.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 15:54:42', '2026-03-18 15:54:43', 2),
+(6, 5, 3, 'Fries', 1.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 16:27:06', '2026-03-18 16:27:06', 2),
+(7, 6, 3, 'Fries', 6.0000, 'Pending', 12.00, 'Percentage', 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, '2026-03-18 16:41:13', '2026-03-18 16:41:19', 2);
 
 -- --------------------------------------------------------
 
@@ -19502,7 +19500,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-16 21:09:16', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-16 21:09:16', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-18 10:19:38', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-18 10:19:38', 1);
 
 --
 -- Triggers `user_account`
@@ -20599,7 +20597,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -20791,7 +20789,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -20977,13 +20975,13 @@ ALTER TABLE `shop_floor_plan`
 -- AUTO_INCREMENT for table `shop_order`
 --
 ALTER TABLE `shop_order`
-  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`

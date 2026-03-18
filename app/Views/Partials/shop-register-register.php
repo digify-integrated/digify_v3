@@ -8,14 +8,21 @@
     <div class="col-lg-4">
         <div class="card card-flush bg-body"> 
             <div class="card-header pt-2">
-                <h3 class="card-title fw-bold text-gray-800 fs-1qx">Order Details</h3>
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="fw-bold mb-2 text-gray-900">Order Details</span>            
+                    <span class="text-warning fw-semibold fs-7" id="order-details-title"></span>
+                </h3>
 
                 <div class="card-toolbar">
-                    <div class="d-flex justify-content-end fs-2" data-kt-customer-table-toolbar="base" id="order-details-title"></div>
+                    <div class="d-flex justify-content-end fs-4 text-warning" data-kt-customer-table-toolbar="base">
+                        <button class="btn btn-icon btn-light" data-bs-toggle="modal" data-bs-target="#register-action-modal">
+                            <i class="ki-outline ki-dots-vertical fs-1"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="card-body pt-0">
+            <div class="card-body pt-3">
                 <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
@@ -50,8 +57,19 @@
                             Delivery
                         </label>
                     </div>
-                    
+
                     <div class="d-flex flex-equal gap-3 px-0 mb-0">
+                        <?php if ($floorPlanCount > 0): ?>
+                            <button class="btn btn-warning w-100 p-5 d-none" id="send-kitchen-button">
+                                Send to Kitchen
+                            </button>
+                        <?php endif; ?>
+                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
+                            Payment
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex flex-equal gap-3 px-0 mt-5">
                         <?php if ($floorPlanCount > 0): ?>
                            <button class="btn btn-light w-100 p-5" id="set-table-button">
                                 Set Table
@@ -62,14 +80,6 @@
                         </button>
                         <button class="btn btn-light w-100 p-5 d-none" id="new-order-button">
                             New
-                        </button>
-                        <?php if ($floorPlanCount > 0): ?>
-                            <button class="btn btn-warning w-100 p-5 d-none" id="send-kitchen-button">
-                                Kitchen
-                            </button>
-                        <?php endif; ?>
-                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
-                            Payment
                         </button>
                     </div>
                 </div>
@@ -106,6 +116,31 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="set_tab_form" class="btn btn-primary" id="submit-set-tab">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="register-action-modal" class="modal fade" tabindex="-1" aria-labelledby="register-action-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Actions</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="d-flex flex-equal gap-3 px-0">
+                    <button class="btn btn-light w-100 p-10 fs-2" data-bs-toggle="modal" data-bs-target="#set-tab-modal">
+                       Print Bill
+                    </button>
+                    <button class="btn btn-light w-100 p-10 fs-2">
+                        Cancel Order
+                    </button>
+                </div>
             </div>
         </div>
     </div>
