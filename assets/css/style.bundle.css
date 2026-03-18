@@ -54837,6 +54837,15 @@ body {
     color: #fff
 }
 
+.add-shop-order.is-loading {
+    opacity: 0.5;
+    cursor: wait !important;
+    filter: grayscale(0.5);
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 @media (min-width:992px) {
     .app-toolbar {
         padding-bottom: 100px !important

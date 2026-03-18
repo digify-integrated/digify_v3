@@ -7,17 +7,14 @@
     
     <div class="col-lg-4">
         <div class="card card-flush bg-body"> 
-            <div class="card-header pt-2">
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="fw-bold mb-2 text-gray-900">Order Details</span>            
-                    <span class="text-warning fw-semibold fs-7" id="order-details-title"></span>
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="fw-bold text-gray-900">Order Details</span>
                 </h3>
 
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end fs-4 text-warning" data-kt-customer-table-toolbar="base">
-                        <button class="btn btn-icon btn-light" data-bs-toggle="modal" data-bs-target="#register-action-modal">
-                            <i class="ki-outline ki-dots-vertical fs-1"></i>
-                        </button>
+                        <span class="text-primary fw-bold fs-5" id="order-details-title"></span>
                     </div>
                 </div>
             </div>
@@ -58,28 +55,37 @@
                         </label>
                     </div>
 
-                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
+                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <?php if ($floorPlanCount > 0): ?>
-                            <button class="btn btn-warning w-100 p-5 d-none" id="send-kitchen-button">
-                                Send to Kitchen
+                            <button class="btn btn-light-warning w-100 p-5 d-none" id="send-kitchen-button">
+                                Kitchen
                             </button>
-                        <?php endif; ?>
-                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
-                            Payment
-                        </button>
-                    </div>
-                    
-                    <div class="d-flex flex-equal gap-3 px-0 mt-5">
-                        <?php if ($floorPlanCount > 0): ?>
-                           <button class="btn btn-light w-100 p-5" id="set-table-button">
+                            
+                            <button class="btn btn-light-primary w-100 p-5" id="set-table-button">
                                 Set Table
                             </button>
                         <?php endif; ?>
-                        <button class="btn btn-light w-100 p-5" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
+
+                        <button class="btn btn-light-primary w-100 p-5" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
                             Set Tab
                         </button>
-                        <button class="btn btn-light w-100 p-5 d-none" id="new-order-button">
-                            New
+
+                        <button class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
+                            Print Bill
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-equal gap-3 px-0">
+                        <button class="btn btn-light-danger w-100 p-5 d-none" id="cancel-order-button">
+                            Cancel Order
+                        </button>
+
+                        <button class="btn btn-warning w-100 p-5 d-none" id="new-order-button">
+                            New Order
+                        </button>
+
+                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
+                            Payment
                         </button>
                     </div>
                 </div>

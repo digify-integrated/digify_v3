@@ -1,4 +1,3 @@
-import { generateElements } from '../../utilities/log-notes.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
@@ -82,22 +81,207 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const loadComponent = (container, transaction, extraParams = {}) => {
-        generateElements({
-            container,
-            controller: 'ShopController',
-            transaction,
-            reference_id: getShopId(),
-            ...extraParams
+    const loadOrderList = async (orderId) => {
+        const data = await apiRequest('generate shop order list', { shop_order_id: orderId });
+
+        if (data?.success) {
+            const $container = $('#shop-order-list');
+            
+            let html = '';
+            data.orders.forEach(order => {
+                html += `
+                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2" 
+                        data-product-id="${order.product_id}">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <span class="fw-semibold d-block fs-4">${order.product_name}</span>
+                            </div>
+                            <div class="col-3 text-center fw-bold product-quantity">
+                                ${order.formatted_qty}
+                            </div>
+                            <div class="col-3 text-end fw-bold">
+                                &#8369; ${order.formatted_total}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            
+            $container.html(html);
+        }
+    }
+
+    const loadRegisterTabs = async () => {
+        const data = await apiRequest('generate shop register tabs', { shop_id: getShopId() });
+
+        if (data?.success && data.floorPlans) {
+            const $container = $('#floor-plan-tab');
+            
+            const html = data.floorPlans.map((plan, i) => {
+                const activeClass = (i === 0) ? 'active' : '';
+                
+                return `
+                    <div class="col-6 col-lg-2 mb-7">
+                        <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
+                                btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg ${activeClass}"
+                        data-bs-toggle="pill"
+                        href="#floor_plan_${plan.id}">
+                            <div>
+                                <span class="text-gray-800 fw-bold fs-2 d-block">
+                                    ${plan.name}
+                                </span>
+                                <span class="text-primary fw-semibold fs-7">
+                                    Available Table: ${plan.count.toLocaleString()}
+                                </span>
+                            </div>
+                        </a>
+                    </div>`;
+            }).join(''); // Join array into a single string
+            
+            $container.html(html);
+        }
+    };
+
+    const loadRegisterTables = async () => {
+        const data = await apiRequest('generate shop register tables', { shop_id: getShopId() });
+
+        if (data?.success && data.floorPlans) {
+            const $container = $('#floor-plan-tables');
+            
+            const html = data.floorPlans.map((plan, i) => {
+                const activePane = (i === 0) ? 'show active' : '';
+                
+                // Generate the grid of tables for THIS floor plan
+                const tablesHtml = plan.tables.map(table => {
+                    const borderClass = table.isAvailable ? 'border-success' : 'border-danger';
+                    const badgeClass  = table.isAvailable ? 'badge-light-success' : 'badge-light-danger';
+                    const statusText  = table.isAvailable ? 'Available' : 'Occupied';
+
+                    // Determine which button to show
+                    let actionButton = '';
+                    if (table.isAvailable) {
+                        actionButton = `
+                            <button class="btn btn-success w-100 add-shop-table-order"
+                                    data-shop-id="${data.shopId}"
+                                    data-floor-plan-table-id="${table.id}">
+                                    Add Order
+                            </button>
+                            <button class="btn btn-success w-100 d-none set-shop-table-order"
+                                    data-shop-id="${data.shopId}"
+                                    data-floor-plan-table-id="${table.id}">
+                                    Set Table
+                            </button>`;
+                    } else {
+                        actionButton = `
+                            <button class="btn btn-warning w-100 view-shop-table-orders"
+                                    data-shop-id="${data.shopId}"
+                                    data-floor-plan-table-id="${table.id}"
+                                    data-shop-order-id="${table.shopOrderId}">
+                                    View Orders
+                            </button>`;
+                    }
+
+                    return `
+                        <div class="col-6 col-xl-3">
+                            <div class="card ${borderClass}">
+                                <div class="card-header border-0 pt-9">
+                                    <div class="card-title m-0">
+                                        <h3 class="card-title align-items-start flex-column">
+                                            <span class="card-label fw-bold">Table No. ${table.number}</span>
+                                            <span class="text-gray-700 mt-1 fw-semibold fs-6">Seats: ${table.seats}</span>
+                                        </h3>
+                                    </div>
+                                    <div class="card-toolbar">
+                                        <span class="badge ${badgeClass} fw-bold me-auto px-4 py-3">${statusText}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body px-9 pt-3 pb-9">
+                                    <div class="separator separator-dashed mb-7"></div>
+                                    ${actionButton}
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                return `
+                    <div class="tab-pane fade ${activePane}" id="floor_plan_${plan.floorPlanId}">
+                        <div class="row g-6 g-xl-9">${tablesHtml}</div>
+                    </div>`;
+            }).join('');
+            
+            $container.html(html);
+        }
+    };
+    
+    const loadRegisterProductCategories = async () => {
+        const data = await apiRequest('generate shop product categories', { shop_id: getShopId() });
+
+        if (data?.success && data.categories) {
+            const $container = $('#shop-product-category-container');
+            
+            // Start with the "All" category
+            let categoriesHtml = `
+                <div class="col-4 col-lg-2 mb-4">
+                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg active product-category-filter" 
+                    data-bs-toggle="pill" 
+                    data-product-filter="">
+                        <div>
+                            <span class="text-gray-800 fw-bold fs-3 d-block">All</span>
+                        </div>
+                    </a>
+                </div>`;
+
+            // Map the rest of the dynamic categories
+            const dynamicHtml = data.categories.map(cat => `
+                <div class="col-4 col-lg-2 mb-4">
+                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg product-category-filter" 
+                    data-bs-toggle="pill" 
+                    data-product-filter="${cat.id}">
+                        <div>
+                            <span class="text-gray-800 fw-bold fs-3 d-block">${cat.name}</span>
+                        </div>
+                    </a>
+                </div>
+            `).join('');
+
+            $container.html(categoriesHtml + dynamicHtml);
+        }
+    };
+    
+    const loadRegisterProducts = async (product_category_id = null) => {
+        const data = await apiRequest('generate shop products', { 
+            shop_id: getShopId(), 
+            product_category_id: product_category_id 
         });
+
+        if (data?.success && data.products) {
+            const $container = $('#shop-products-container');
+            
+            const html = data.products.map(product => `
+                <div class="col-6 col-lg-3 mb-5">
+                    <div class="card card-flush flex-row-fluid p-0 w-100 border border-hover-primary cursor-pointer add-shop-order" 
+                        data-product-id="${product.id}" 
+                        data-shop-id="${data.shopId}">
+                        <div class="card-body text-center">
+                            <img src="${product.image}" 
+                                class="rounded-3 mb-4 w-100 h-120px" 
+                                alt="${product.name}" 
+                                loading="lazy" />  <div class="mb-2">
+                                <div class="text-center">
+                                    <span class="fw-bold text-gray-800 fs-3 fs-xl-1">${product.name}</span>
+                                </div>
+                            </div>
+                            <span class="text-success text-end fw-bold fs-2">&#8369; ${product.formatted_price}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            $container.html(html);
+        }
     };
 
     const refreshRegisterUI = async (orderId) => {
-        // This is the "Truth" refresh that syncs with DB
-        loadComponent('shop-order-list', 'generate shop order list', { 
-            reference_id: null, 
-            shop_order_id: orderId 
-        });
+        loadOrderList(orderId);
 
         await Promise.all([
             fetchOrderTotal(orderId),
@@ -142,13 +326,13 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #send-kitchen-button, #payment-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preference').addClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preference').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #send-kitchen-button, #payment-button, #order-preference').removeClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #order-preference').removeClass('d-none');
     };
 
     const traverseTab = (target) => {
@@ -161,10 +345,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Load
     setTab();
-    loadComponent('floor-plan-tab', 'generate shop register tabs');
-    loadComponent('floor-plan-tables', 'generate shop register tables');
-    loadComponent('shop-product-category-container', 'generate shop product categories');
-    loadComponent('shop-products-container', 'generate shop products');
+    loadRegisterTabs();
+    loadRegisterTables();
+    loadRegisterProductCategories();
+    loadRegisterProducts();
 
     /**
      * EVENT DELEGATION
@@ -174,27 +358,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const addProductBtn = target.closest('.add-shop-order');
         if (addProductBtn) {
-            const currentOrderId = getOrderId();
-            const productId = addProductBtn.dataset.productId;
-            const productPrice = addProductBtn.dataset.productPrice || 0;
-            const productName = addProductBtn.dataset.productName || '';
+            if ($('.add-shop-order.is-loading').length > 0) {
+            return;
+        }
 
-            // 1. INSTANT UI UPDATE (Total & Quantity)
-            updateUIOptimistically(productId, productPrice, productName);
-            
-            // 2. BACKGROUND SERVER SYNC
-            // Notice we don't 'await' the refresh logic inside the loop
-            apiRequest('insert shop order product', {
+        // 2. LOCK ALL: Disable every product card immediately
+        const $allProducts = $('.add-shop-order');
+        $allProducts.addClass(  'is-loading');
+
+        const currentOrderId = getOrderId();
+        const productId = addProductBtn.dataset.productId;
+        const productPrice = addProductBtn.dataset.productPrice || 0;
+        const productName = addProductBtn.dataset.productName || '';
+
+        // Optimistic UI Update (instant feedback for the one clicked)
+        updateUIOptimistically(productId, productPrice, productName);
+
+        try {
+            const data = await apiRequest('insert shop order product', {
                 shop_id: addProductBtn.dataset.shopId,
                 product_id: productId,
                 shop_order_id: (currentOrderId === 'null' || !currentOrderId) ? '' : currentOrderId
-            }).then(data => {
-                if (data?.success) {
-                    sessionStorage.setItem('shop_order_id', data.shop_order_id);
-                    // 3. FINAL SYNC (Corrects any rounding or tax logic from server)
-                    refreshRegisterUI(data.shop_order_id);
-                }
             });
+
+            if (data?.success) {
+                sessionStorage.setItem('shop_order_id', data.shop_order_id);
+                
+                // 3. SYNC TRUTH: Wait for the list and totals to fully refresh from DB
+                await refreshRegisterUI(data.shop_order_id);
+            }
+        } catch (error) {
+            console.error("Critical: Could not sync order.", error);
+            // Optional: showNotification('Error', 'Failed to add item', 'error');
+        } finally {
+            // 4. UNLOCK ALL: Re-enable everything once the UI refresh is finished
+            $allProducts.removeClass('is-loading');
+        }
             return;
         }
 
@@ -209,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (data?.success) {
                 if (!isUpdate) sessionStorage.setItem('shop_order_id', data.shop_order_id);
-                loadComponent('floor-plan-tables', 'generate shop register tables');
+                loadRegisterTables();
                 refreshRegisterUI(getOrderId());
             }
             return;
@@ -227,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filters
         if (target.closest('.product-category-filter')) {
             const filter = target.closest('.product-category-filter').dataset.productFilter;
-            loadComponent('shop-products-container', 'generate shop products', { product_category_id: filter });
+            loadRegisterProducts(filter)
         }
 
         if (target.closest('#new-order-button')) {

@@ -922,254 +922,127 @@ class ShopController {
     }
     
     public function generateShopRegisterTabs() {
-        $shopId         = $_POST['reference_id'] ?? null;
-        $response       = [];
-        $isFirst        = true;
-        $floorPlansHtml = '';
-
+        $shopId = $_POST['shop_id'] ?? null;
         $floorPlans = $this->shop->fetchShopFloorPlans($shopId);
-
-        foreach ($floorPlans as $row) {
-            $floorPlanId   = $row['floor_plan_id'];
-            $floorPlanName = $row['floor_plan_name'];
-
-            $tableCount = $this->floorPlan->fetchAvailableFloorPlanTableCount($floorPlanId, $shopId)['total'] ?? 0;
-
-            $activeNav  = $isFirst ? 'active' : '';
-
-            $floorPlansHtml .= '<div class="col-lg-2 mb-7">
-                                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
-                                    btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg '. $activeNav .'"
-                                    data-bs-toggle="pill"
-                                    href="#floor_plan_'. $floorPlanId .'">
-                                        <div>
-                                            <span class="text-gray-800 fw-bold fs-2 d-block">
-                                                '.htmlspecialchars($floorPlanName).'
-                                            </span>
-
-                                            <span class="text-primary fw-semibold fs-7">
-                                                Available Table: '.number_format($tableCount).'
-                                            </span>
-                                        </div>
-                                    </a>
-                                </div>';
-
-            $isFirst = false;
-
-        }
-
-        $response = [
-            'success' => true,
-            'ELEMENT' => $floorPlansHtml
-        ];
-
-        echo json_encode($response);
-    }
-    
-    public function generateShopRegisterTables() {
-        $shopId                 = $_POST['reference_id'] ?? null;
-        $response               = [];
-        $isFirst                = true;
-        $floorPlansContentHtml  = '';
-
-        $floorPlans = $this->shop->fetchShopFloorPlans($shopId);
+        $data = [];
 
         foreach ($floorPlans as $row) {
             $floorPlanId = $row['floor_plan_id'];
-
-            $activePane = $isFirst ? 'show active' : '';
-
-            $fetchFloorPlanTables = $this->floorPlan->fetchFloorPlanTables($floorPlanId);
-
-            $floorPlanTableHtml = '<div class="tab-pane fade '.$activePane.'" id="floor_plan_'.$floorPlanId.'">
-            <div class="row g-6 g-xl-9">';
-
-            foreach ($fetchFloorPlanTables as $tableRow) {
-                $floorPlanTableId = $tableRow['floor_plan_table_id'];
-                $tableNumber      = $tableRow['table_number'] ?? 1;
-                $seats            = $tableRow['seats'] ?? 1;
-
-                $isAvailable            = $this->floorPlan->checkFloorPlanTableAvailability($floorPlanTableId, $shopId)['total'] ?? 0;
-                $activeShopOrderDetails = $this->shop->fetchActiveShopOrder($shopId, $floorPlanTableId);
-
-                $statusText  = $isAvailable == 0 ? 'Available' : 'Occupied';
-                $borderClass = $isAvailable == 0 ? 'border-success' : 'border-danger';
-                $badgeClass  = $isAvailable == 0 ? 'badge-light-success' : 'badge-light-danger';
-
-                $buttonHtml = $isAvailable == 0
-                    ? '<button class="btn btn-success w-100 add-shop-table-order"
-                            data-shop-id="'.htmlspecialchars($shopId).'"
-                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                            Add Order
-                    </button>
-                    <button class="btn btn-success w-100 d-none set-shop-table-order"
-                            data-shop-id="'.htmlspecialchars($shopId).'"
-                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'">
-                            Set Table
-                    </button>'
-                    : '<button class="btn btn-warning w-100 view-shop-table-orders"
-                            data-shop-id="'.htmlspecialchars($shopId).'"
-                            data-floor-plan-table-id="'.htmlspecialchars($floorPlanTableId).'"
-                            data-shop-order-id="'.htmlspecialchars($activeShopOrderDetails['shop_order_id']).'">
-                            View Orders
-                    </button>';
-
-                $floorPlanTableHtml .= '
-                    <div class="col-6 col-xl-3">
-                        <div class="card '.$borderClass.'">
-                            <div class="card-header border-0 pt-9">
-                                <div class="card-title m-0">
-                                    <h3 class="card-title align-items-start flex-column">
-                                        <span class="card-label fw-bold">
-                                            Table No. '.number_format($tableNumber).'
-                                        </span>
-
-                                        <span class="text-gray-700 mt-1 fw-semibold fs-6">
-                                            Seats: '.number_format($seats).'
-                                        </span>
-                                    </h3>
-                                </div>
-
-                                <div class="card-toolbar">
-                                    <span class="badge '.$badgeClass.' fw-bold me-auto px-4 py-3">
-                                        '.$statusText.'
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="card-body px-9 pt-3 pb-9">
-                                <div class="separator separator-dashed mb-7"></div>
-                                '.$buttonHtml.'
-                            </div>
-                        </div>
-                    </div>';
-            }
-
-            $floorPlanTableHtml .= '</div></div>';
-
-            $floorPlansContentHtml .= $floorPlanTableHtml;
-
-            $isFirst = false;
+            
+            // Fetch the count
+            $countData = $this->floorPlan->fetchAvailableFloorPlanTableCount($floorPlanId, $shopId);
+            
+            $data[] = [
+                'id'    => $floorPlanId,
+                'name'  => $row['floor_plan_name'],
+                'count' => (int)($countData['total'] ?? 0)
+            ];
         }
 
-        $response = [
-            'success'   => true,
-            'ELEMENT'   => $floorPlansContentHtml
-        ];
+        echo json_encode([
+            'success'    => true,
+            'floorPlans' => $data
+        ]);
+    }
+    
+    public function generateShopRegisterTables() {
+        $shopId = $_POST['shop_id'] ?? null;
+        $floorPlans = $this->shop->fetchShopFloorPlans($shopId);
+        $output = [];
 
-        echo json_encode($response);
+        foreach ($floorPlans as $row) {
+            $floorPlanId = $row['floor_plan_id'];
+            $tables = $this->floorPlan->fetchFloorPlanTables($floorPlanId);
+            $tableData = [];
+
+            foreach ($tables as $tableRow) {
+                $tableId = $tableRow['floor_plan_table_id'];
+                $isAvailable = ($this->floorPlan->checkFloorPlanTableAvailability($tableId, $shopId)['total'] ?? 0) == 0;
+                $activeOrder = $this->shop->fetchActiveShopOrder($shopId, $tableId);
+
+                $tableData[] = [
+                    'id'           => $tableId,
+                    'number'       => $tableRow['table_number'] ?? 1,
+                    'seats'        => $tableRow['seats'] ?? 1,
+                    'isAvailable'  => $isAvailable,
+                    'shopOrderId'  => $activeOrder['shop_order_id'] ?? null
+                ];
+            }
+
+            $output[] = [
+                'floorPlanId'   => $floorPlanId,
+                'tables'        => $tableData
+            ];
+        }
+
+        echo json_encode([
+            'success'    => true,
+            'floorPlans' => $output,
+            'shopId'     => $shopId
+        ]);
     }
     
     public function generateShopProductCategories() {
-        $shopId                 = $_POST['reference_id'] ?? null;
-        $response               = [];
-        $productCategoriesHtml  = '<div class="col-lg-2 mb-4">
-                                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg active product-category-filter" data-bs-toggle="pill">
-                                        <div>
-                                            <span class="text-gray-800 fw-bold fs-3 d-block">All</span>
-                                        </div>
-                                    </a>
-                                </div>';
-
-        $productCategories = $this->shop->fetchShopProductCategories($shopId);
-
-        foreach ($productCategories as $row) {
-            $productCategoryId   = $row['product_category_id'];
-            $productCategoryName = $row['product_category_name'];
-
-            $productCategoriesHtml  .= '<div class="col-lg-2 mb-4">
-                                            <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg product-category-filter" data-bs-toggle="pill" data-product-filter="'. $productCategoryId .'">
-                                                <div>
-                                                    <span class="text-gray-800 fw-bold fs-3 d-block">'. $productCategoryName .'</span>
-                                                </div>
-                                            </a>
-                                        </div>';
-
+        $shopId = $_POST['shop_id'] ?? null;
+        $categories = $this->shop->fetchShopProductCategories($shopId);
+        
+        $data = [];
+        foreach ($categories as $row) {
+            $data[] = [
+                'id'   => $row['product_category_id'],
+                'name' => $row['product_category_name']
+            ];
         }
 
-        $response = [
-            'success'   => true,
-            'ELEMENT'   => $productCategoriesHtml
-        ];
-
-        echo json_encode($response);
+        echo json_encode([
+            'success'    => true,
+            'categories' => $data
+        ]);
     }
     
     public function generateShopProducts() {
-        $shopId             = $_POST['reference_id'] ?? null;
-        $productCategoryId  = $_POST['product_category_id'] ?? null;
-        $response           = [];
-        $productsHtml       = '';
+        $shopId = $_POST['shop_id'] ?? null;
+        $catId  = $_POST['product_category_id'] ?? '';
 
+        if ($catId === 'null' || $catId === '') {
+            $productCategoryId = null; 
+        } else {
+            $productCategoryId = $catId;
+        }
+        
         $products = $this->shop->fetchShopProducts($shopId, $productCategoryId);
+        $data = [];
 
         foreach ($products as $row) {
-            $productId      = $row['product_id'];
-            $productName    = $row['product_name'];
-            $salesPrice     = $row['sales_price'];
-            $productImage   = $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'product');
-
-            $productsHtml   .= '<div class="col-6 col-lg-3 mb-5">
-                                    <div class="card card-flush flex-row-fluid p-0 w-100 border border-hover-primary cursor-pointer add-shop-order" data-product-id="'. $productId .'" data-shop-id="'. $shopId .'">
-                                        <div class="card-body text-center">
-                                            <img src="'. $productImage .'" class="rounded-3 mb-4 w-100 h-120px" alt="'. $productName .'"/>  
-                                            <div class="mb-2">
-                                                <div class="text-center">
-                                                    <span class="fw-bold text-gray-800 fs-3 fs-xl-1">'. $productName .'</span>
-                                                </div>
-                                            </div>
-                                            <span class="text-success text-end fw-bold fs-2">&#8369; '. number_format($salesPrice, 2) .'</span>
-                                        </div>
-                                    </div>
-                                </div>';
-
+            $data[] = [
+                'id'    => $row['product_id'],
+                'name'  => $row['product_name'],
+                'price' => (float)$row['sales_price'],
+                'formatted_price' => number_format($row['sales_price'], 2),
+                'image' => $this->systemHelper->checkImageExist($row['product_image'] ?? null, 'product')
+            ];
         }
 
-        $response = [
-            'success'   => true,
-            'ELEMENT'   => $productsHtml
-        ];
-
-        echo json_encode($response);
+        echo json_encode([
+            'success'  => true,
+            'products' => $data,
+            'shopId'   => $shopId
+        ]);
     }
     
     public function generateShopOrderList() {
-        $shopOrderId    = $_POST['shop_order_id'] ?? null;
-        $response       = [];
-        $ordersHtml     = '';
-
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
         $orders = $this->shop->fetchShopOrderList($shopOrderId);
 
-        foreach ($orders as $row) {
-            $shopOrderDetailsId = $row['shop_order_details_id'];
-            $productName        = $row['product_name'];
-            $quantity           = $row['quantity'];
-            $totalPrice         = $row['total_price'];
-
-            $ordersHtml   .= '<div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2" data-shop-order-details-id="'. $shopOrderDetailsId .'">
-                                    <div class="row align-items-center">
-                                        <div class="col-6">
-                                            <span class="fw-semibold d-block fs-4">'. $productName .'</span>
-                                        </div>
-
-                                        <div class="col-3 text-center fw-bold">
-                                            '. number_format($quantity, 2) .'
-                                        </div>
-
-                                        <div class="col-3 text-end fw-bold">
-                                            &#8369; '. number_format($totalPrice, 2) .'
-                                        </div>
-                                    </div>
-                                </div>';
-
+        foreach ($orders as &$row) {
+            $row['formatted_total'] = number_format($row['total_price'], 2);
+            $row['formatted_qty'] = number_format($row['quantity'], 2);
         }
 
-        $response = [
-            'success'   => true,
-            'ELEMENT'   => $ordersHtml
-        ];
-
-        echo json_encode($response);
+        echo json_encode([
+            'success' => true,
+            'orders'  => $orders
+        ]);
     }
 
     public function generateShopOptions() {
