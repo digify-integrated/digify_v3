@@ -41,15 +41,15 @@
                     <div class="separator separator-dashed mb-4"></div>
 
                     <div class="btn-group w-100 mb-4 d-none" id="order-preference" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
-                        <label class="btn btn-outline btn-color-muted btn-active-primary active" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5 active" data-kt-button="true">
                             <input class="btn-check" type="radio" name="method" value="On-Site"/>
                             On-Site
                         </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
                             <input class="btn-check" type="radio" name="method" checked="checked" value="Pickup"/>
                             Pickup
                         </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
                             <input class="btn-check" type="radio" name="method" checked="checked" value="Delivery"/>
                             Delivery
                         </label>
@@ -61,12 +61,12 @@
                                 Kitchen
                             </button>
                             
-                            <button class="btn btn-light-primary w-100 p-5" id="set-table-button">
+                            <button class="btn btn-light-primary w-100 p-5 d-none" id="set-table-button">
                                 Set Table
                             </button>
                         <?php endif; ?>
 
-                        <button class="btn btn-light-primary w-100 p-5" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
+                        <button class="btn btn-light-primary w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
                             Set Tab
                         </button>
 
