@@ -76,7 +76,7 @@
                     </div>
 
                     <div class="d-flex flex-equal gap-3 px-0">
-                        <button class="btn btn-light-danger w-100 p-5 d-none" id="cancel-order-button">
+                        <button class="btn btn-light-danger w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
                             Cancel Order
                         </button>
 
@@ -126,27 +126,35 @@
         </div>
     </div>
 </div>
-</div>
 
-<div id="register-action-modal" class="modal fade" tabindex="-1" aria-labelledby="register-action-modal" aria-hidden="true">
+<div id="cancel-order-modal" class="modal fade" tabindex="-1" aria-labelledby="cancel-order-modal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Actions</h3>
+                <h3 class="modal-title">Cancel Order</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
 
             <div class="modal-body">
-                <div class="d-flex flex-equal gap-3 px-0">
-                    <button class="btn btn-light w-100 p-10 fs-2" data-bs-toggle="modal" data-bs-target="#set-tab-modal">
-                       Print Bill
-                    </button>
-                    <button class="btn btn-light w-100 p-10 fs-2">
-                        Cancel Order
-                    </button>
-                </div>
+                <form id="cancel_order_form" method="post" action="#">
+                    <?= $security->csrfInput('cancel_order_form'); ?>
+                    <div class="row mb-6">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <textarea class="form-control" id="cancelled_reason" name="cancelled_reason" maxlength="500" rows="5" placeholder="Cancellation Reason"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="cancel_order_form" class="btn btn-primary" id="submit-cancel-order">Save</button>
             </div>
         </div>
     </div>

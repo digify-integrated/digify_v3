@@ -317,6 +317,24 @@ class Shop extends Model {
         ]);
     }
 
+    public function updateShopOrderToCancel(
+        int $p_shop_order_id,
+        null|string $p_cancelled_reason,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderToCancel(
+            :p_shop_order_id,
+            :p_cancelled_reason,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_cancelled_reason'    => $p_cancelled_reason,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
     public function updateShopOrderDetail(
         int $p_shop_order_id,
         int $p_product_id,

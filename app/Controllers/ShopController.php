@@ -103,6 +103,7 @@ class ShopController {
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
             'update shop order tab'                 => $this->updateShopOrderTab($lastLogBy),
+            'update shop order to cancel'           => $this->updateShopOrderToCancel($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
@@ -528,6 +529,24 @@ class ShopController {
         $this->shop->updateShopOrderTab(
             $shopOrderId,
             $orderFor,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopOrderToCancel(
+        int $lastLogBy
+    ) {
+        $shopOrderId        = $_POST['shop_order_id'] ?? null;
+        $cancelledReason    = $_POST['cancelled_reason'] ?? null;
+        
+        $this->shop->updateShopOrderToCancel(
+            $shopOrderId,
+            $cancelledReason,
             $lastLogBy
         );
 

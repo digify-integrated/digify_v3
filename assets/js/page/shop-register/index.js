@@ -328,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('shop_order_id');
         $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preference').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
+        loadRegisterTables();
         enableTab();
     };
 
@@ -408,8 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (data?.success) {
                 if (!isUpdate) sessionStorage.setItem('shop_order_id', data.shop_order_id);
-                loadRegisterTables();
                 refreshRegisterUI(getOrderId());
+                loadRegisterTables();
             }
             return;
         }
@@ -421,6 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.setItem('shop_order_id', orderId);
             refreshRegisterUI(orderId);
             return;
+        }
+
+        const orderPreferenceBtn = target.closest('#order-preference [data-kt-button]');
+        if (orderPreferenceBtn) {
+            const input = btn.querySelector('input[name="method"]');
         }
 
         // Filters
@@ -458,6 +464,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 refreshRegisterUI(getOrderId());
             }
             enableButton('submit-set-tab');
+            return false;
+        }
+    });
+
+    $('#cancel_order_form').validate({
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+            disableButton('submit-cancel-order');
+            const data = await apiRequest('update shop order to cancel', {
+                ...Object.fromEntries(new FormData(form)),
+                shop_order_id: getOrderId()
+            });
+            if (data?.success) {
+                $('#cancel-order-modal').modal('hide');
+                resetForm('cancel_order_form');
+                resetRegister();
+                traverseToTablesTab();
+            }
+            enableButton('submit-cancel-order');
             return false;
         }
     });

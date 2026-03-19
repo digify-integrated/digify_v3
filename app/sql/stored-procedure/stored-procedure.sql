@@ -14191,6 +14191,37 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateShopOrderToCancel//
+
+CREATE PROCEDURE updateShopOrderToCancel(
+	IN p_shop_order_id INT, 
+    IN p_cancelled_reason VARCHAR(500),
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order
+    SET cancelled_reason    = p_cancelled_reason,
+        shop_order_status   = 'Cancelled',
+        cancelled_date      = NOW(),
+        last_log_by         = p_last_log_by
+    WHERE shop_order_id     = p_shop_order_id;
+
+    UPDATE shop_order_details
+    SET order_status        = 'Cancelled',
+        cancelled_date      = NOW(),
+        last_log_by         = p_last_log_by
+    WHERE shop_order_id     = p_shop_order_id;
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS updateShopOrderDetail//
 
 CREATE PROCEDURE updateShopOrderDetail(
