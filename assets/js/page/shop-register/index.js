@@ -84,31 +84,112 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadOrderList = async (orderId) => {
         const data = await apiRequest('generate shop order list', { shop_order_id: orderId });
 
-        if (data?.success) {
-            const $container = $('#shop-order-list');
-            
-            let html = '';
-            data.orders.forEach(order => {
-                html += `
-                    <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2" 
-                        data-product-id="${order.product_id}">
-                        <div class="row align-items-center">
-                            <div class="col-6">
-                                <span class="fw-semibold d-block fs-4">${order.product_name}</span>
-                            </div>
-                            <div class="col-3 text-center fw-bold product-quantity">
-                                ${order.formatted_qty}
-                            </div>
-                            <div class="col-3 text-end fw-bold">
-                                &#8369; ${order.formatted_total}
-                            </div>
+        if (!data?.success) return;
+
+        const $container = $('#shop-order-list');
+
+        // =========================
+        // Helpers
+        // =========================
+        const pesoFormatter = new Intl.NumberFormat('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const formatPeso = (value) => `&#8369; ${pesoFormatter.format(Number(value || 0))}`;
+
+        const isValidNote = (note) => {
+            return note && note !== 'null' && note.toString().trim() !== '';
+        };
+
+        const hasDiscount = (order) => {
+            return Number(order.discount_value) > 0 && order.discount_type !== '';
+        };
+
+        const formatDiscount = (order) => {
+            if (order.discount_type === 'Percentage') {
+                return `${pesoFormatter.format(Number(order.discount_value))}%`;
+            }
+            return formatPeso(order.discount_value);
+        };
+
+        const formatTotal = (total) => {
+            return Number(total) === 0 ? 'Free' : total;
+        };
+
+        // =========================
+        // Template Builders
+        // =========================
+        const buildDiscountHTML = (order) => {
+            return `
+                <div class="row">
+                    <div class="col-12">
+                        <span class="badge badge-warning text-wrap">
+                            ${formatDiscount(order)} discount on ${formatPeso(order.subtotal)}
+                        </span>
+                    </div>
+                </div>`;
+        };
+
+        const buildNoteHTML = (note) => {
+            return `
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <span class="badge badge-danger text-wrap text-start">
+                            Note: ${note}
+                        </span>
+                    </div>
+                </div>`;
+        };
+
+        const buildDetailsHTML = (order) => {
+            const noteValid = isValidNote(order.note);
+            const discountValid = hasDiscount(order);
+
+            if (!noteValid && !discountValid) return '';
+
+            let html = '<div class="separator separator-dashed mb-2 mt-2"></div>';
+
+            if (discountValid) {
+                html += buildDiscountHTML(order);
+            }
+
+            if (noteValid) {
+                html += buildNoteHTML(order.note);
+            }
+
+            return html;
+        };
+
+        const buildOrderHTML = (order) => {
+            return `
+                <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2 shop-order" 
+                    data-shop-order-details-id="${order.shop_order_details_id}" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#update-order-details-modal">
+
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <span class="fw-semibold d-block fs-4">${order.product_name}</span>
                         </div>
-                    </div>`;
-            });
-            
-            $container.html(html);
-        }
-    }
+                        <div class="col-3 text-center fw-bold">
+                            ${order.formatted_qty}
+                        </div>
+                        <div class="col-3 text-end fw-bold">
+                            ${formatTotal(order.formatted_total)}
+                        </div>
+                    </div>
+
+                    ${buildDetailsHTML(order)}
+                </div>`;
+        };
+
+        // =========================
+        // Render
+        // =========================
+        const html = data.orders.map(buildOrderHTML).join('');
+        $container.html(html);
+    };
 
     const loadRegisterTabs = async () => {
         const data = await apiRequest('generate shop register tabs', { shop_id: getShopId() });
@@ -306,6 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const showTableOnly = (shop_order_id != null && data.tableNumber != null && data.orderFor == null);
             $('#set-table-button').toggleClass('d-none', !(showSetButtons || showTableOnly));
             $('#set-tab-button').toggleClass('d-none', !showSetButtons);
+
+            document.querySelector(`.order-preset-option[value="${data.orderPreset}"]`)?.click();
         }
     };
 
@@ -318,6 +401,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const fetchShopOrderDetails = async (shop_order_details_id) => {
+        const data = await apiRequest('fetch shop order details', { shop_order_details_id });
+        if (data?.success) {
+            $('#shop_order_details_id').val(shop_order_details_id);
+            $('#quantity').val(data.quantity);
+            $('#discount_value').val(data.discountValue);
+            $('#note').val(data.note);
+
+            $('#discount_type').val(data.discountType || '').trigger('change');
+        }
+    };
+
     const enableTab = () => $('.nav-line-tabs .nav-link').removeClass('disabled');
     const disableTab = () => $('.nav-line-tabs .nav-link').addClass('disabled');
 
@@ -326,14 +421,14 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preference').addClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         loadRegisterTables();
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #order-preference').removeClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #order-preset').removeClass('d-none');
     };
 
     const traverseTab = (target) => {
@@ -415,6 +510,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const deleteOrderDetailsBtn = target.closest('#delete-order-details');
+        if (deleteOrderDetailsBtn) {
+            const shop_order_details_id = $('#shop_order_details_id').val();
+            const data = await apiRequest('delete shop order details', {
+                shop_order_details_id: shop_order_details_id
+            });
+            if (data?.success) {
+                $('#update-order-details-modal').modal('hide');
+                resetForm('update_order_details_form');
+                loadOrderList(getOrderId());
+                fetchOrderTotal(getOrderId());
+            }
+            return;
+        }
+
         // View Existing Table Order
         const viewOrderBtn = target.closest('.view-shop-table-orders');
         if (viewOrderBtn) {
@@ -422,11 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.setItem('shop_order_id', orderId);
             refreshRegisterUI(orderId);
             return;
-        }
-
-        const orderPreferenceBtn = target.closest('#order-preference [data-kt-button]');
-        if (orderPreferenceBtn) {
-            const input = btn.querySelector('input[name="method"]');
         }
 
         // Filters
@@ -440,17 +545,65 @@ document.addEventListener('DOMContentLoaded', () => {
             traverseToTablesTab();
         }
 
+        if (target.closest('#print-bill')) {
+            const width = 800;
+            const height = 600;
+
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            const url = `print-shop-order-bill.php?id=${getOrderId()}`;
+
+            window.open(
+                url,
+                '_blank',
+                `width=${width},height=${height},top=${top},left=${left}`
+            );
+        }
+
         if (target.closest('#set-table-button')) {
             traverseToTablesTab();
             enableTab();
             $('.set-shop-table-order').removeClass('d-none');
             $('.add-shop-table-order').addClass('d-none');
         }
+
+        if (target.closest('.shop-order')) {
+            const shopOrderDetailsId = target.closest('.shop-order').dataset.shopOrderDetailsId;
+            fetchShopOrderDetails(shopOrderDetailsId);
+        }
+    });
+
+    document.querySelectorAll('.order-preset-option').forEach((radio) => {
+        radio.addEventListener('change', async function () {
+            await apiRequest('update shop order preset', {
+                shop_order_id: getOrderId(),
+                order_preset: this.value
+            });
+        });
     });
 
     // Form Validation logic remains the same...
     $('#set_tab_form').validate({
         rules: { order_for: { required: true } },
+        messages: { order_for: { required: 'Enter the name' } },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
         submitHandler: async (form, event) => {
             event.preventDefault();
             disableButton('submit-set-tab');
@@ -486,4 +639,71 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     });
+
+    $('#update_order_details_form').validate({
+        rules: {
+            quantity: {
+                required: true
+            },
+            discount_value: {
+                required: function() {
+                    return $('#discount_type').val() != '';
+                },
+                number: true,
+                maxPercentage: true
+            }
+        },
+        messages: {
+            quantity: {
+                required: 'Enter the quantity'
+            },
+            discount_value: {
+                required: 'Enter discount value',
+                number: 'Please enter a valid number'
+            }
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            const shop_order_details_id = $('#shop_order_details_id').val();
+            event.preventDefault();
+            disableButton('submit-order-details');
+            const data = await apiRequest('update shop order details', {
+                ...Object.fromEntries(new FormData(form)),
+                shop_order_details_id: shop_order_details_id
+            });
+            if (data?.success) {
+                $('#update-order-details-modal').modal('hide');
+                resetForm('update_order_details_form');
+                loadOrderList(getOrderId());
+                fetchOrderTotal(getOrderId());
+            }
+            else{
+                showNotification(data.title, data.message, data.message_type);
+            }
+            enableButton('submit-order-details');
+            return false;
+        }
+    });
+
+    $.validator.addMethod("maxPercentage", function(value, element) {
+        let discountType = $('#discount_type').val();
+
+        if (discountType === 'Percentage') {
+            return parseFloat(value) <= 100;
+        }
+        return true;
+    }, "Percentage discount cannot exceed 100%");
 });

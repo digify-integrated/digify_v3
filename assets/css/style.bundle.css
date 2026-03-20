@@ -54846,6 +54846,12 @@ body {
     user-select: none;
 }
 
+.error {
+  color: #dc2626;
+  font-size: 13px !important;
+  margin-top: 5px;
+}
+
 @media (min-width:992px) {
     .app-toolbar {
         padding-bottom: 100px !important

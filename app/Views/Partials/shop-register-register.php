@@ -40,17 +40,17 @@
                     
                     <div class="separator separator-dashed mb-4"></div>
 
-                    <div class="btn-group w-100 mb-4 d-none" id="order-preference" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
+                    <div class="btn-group w-100 mb-4 d-none" id="order-preset" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
                         <label class="btn btn-outline btn-color-muted btn-active-primary p-5 active" data-kt-button="true">
-                            <input class="btn-check" type="radio" name="method" value="On-Site"/>
+                            <input class="btn-check order-preset-option" type="radio" name="method" value="On-Site"/>
                             On-Site
                         </label>
                         <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
-                            <input class="btn-check" type="radio" name="method" checked="checked" value="Pickup"/>
+                            <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Pickup"/>
                             Pickup
                         </label>
                         <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
-                            <input class="btn-check" type="radio" name="method" checked="checked" value="Delivery"/>
+                            <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Delivery"/>
                             Delivery
                         </label>
                     </div>
@@ -70,7 +70,7 @@
                             Set Tab
                         </button>
 
-                        <button class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
+                        <butaton class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
                             Print Bill
                         </button>
                     </div>
@@ -109,11 +109,7 @@
                     <?= $security->csrfInput('set_tab_form'); ?>
                     <div class="row mb-6">
                         <div class="col-lg-12">
-                            <div class="row">
-                                <div class="col-lg-12 fv-row">
-                                    <input type="text" class="form-control" id="order_for" name="order_for" autocomplete="off">
-                                </div>
-                            </div>
+                            <input type="text" class="form-control" id="order_for" name="order_for" autocomplete="off">
                         </div>
                     </div>
                 </form>
@@ -142,11 +138,7 @@
                     <?= $security->csrfInput('cancel_order_form'); ?>
                     <div class="row mb-6">
                         <div class="col-lg-12">
-                            <div class="row">
-                                <div class="col-lg-12 fv-row">
-                                    <textarea class="form-control" id="cancelled_reason" name="cancelled_reason" maxlength="500" rows="5" placeholder="Cancellation Reason"></textarea>
-                                </div>
-                            </div>
+                            <textarea class="form-control" id="cancelled_reason" name="cancelled_reason" maxlength="500" rows="5" placeholder="Cancellation Reason"></textarea>
                         </div>
                     </div>
                 </form>
@@ -155,6 +147,57 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="cancel_order_form" class="btn btn-primary" id="submit-cancel-order">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="update-order-details-modal" class="modal fade" tabindex="-1" aria-labelledby="update-order-details-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Update Order</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="update_order_details_form" method="post" action="#">
+                    <?= $security->csrfInput('update_order_details_form'); ?>
+                    <input type="hidden" id="shop_order_details_id" name="shop_order_details_id">
+                    <div class="row mb-6">
+                        <label class="col-lg-2 col-form-label required fw-semibold fs-6" for="quantity">Quantity</label>
+                        <div class="col-lg-10">
+                           <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="0.0001">
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="discount_type">Discount</label>
+                        <div class="col-lg-5">
+                           <select id="discount_type" name="discount_type" class="form-select" data-dropdown-parent="#update-order-details-modal" data-control="select2" data-allow-clear="false">
+                                <option value="">--</option>
+                                <option value="Percentage">Percentage</option>
+                                <option value="Fixed Amount">Fixed Amount</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-5">
+                           <input type="number" class="form-control" id="discount_value" name="discount_value" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="note">Note</label>
+                        <div class="col-lg-10">
+                          <textarea class="form-control" id="note" name="note" maxlength="500" rows="5"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="delete-order-details">Delete</button>
+                <button type="submit" form="update_order_details_form" class="btn btn-primary" id="submit-order-details">Save</button>
             </div>
         </div>
     </div>

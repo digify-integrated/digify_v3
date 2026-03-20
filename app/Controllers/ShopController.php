@@ -104,15 +104,19 @@ class ShopController {
             'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
             'update shop order tab'                 => $this->updateShopOrderTab($lastLogBy),
             'update shop order to cancel'           => $this->updateShopOrderToCancel($lastLogBy),
+            'update shop order preset'              => $this->updateShopOrderPreset($lastLogBy),
+            'update shop order details'             => $this->updateShopOrderDetails($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
             'delete shop access'                    => $this->deleteShopAccess(),
             'delete shop product'                   => $this->deleteShopProduct(),
             'delete multiple shop'                  => $this->deleteMultipleShop(),
+            'delete shop order details'             => $this->deleteShopOrderDetails(),
             'fetch shop details'                    => $this->fetchShopDetails(),
             'fetch shop register table details'     => $this->fetchShopRegisterTableDetails(),
             'fetch shop order total'                => $this->fetchShopOrderTotal(),
+            'fetch shop order details'              => $this->fetchShopOrderDetailDetails(),
             'generate shop table'                   => $this->generateShopTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
@@ -555,6 +559,73 @@ class ShopController {
             ''
         );
     }
+   
+    public function updateShopOrderPreset(
+        int $lastLogBy
+    ) {
+        $shopOrderId    = $_POST['shop_order_id'] ?? null;
+        $orderPreset    = $_POST['order_preset'] ?? null;
+        
+        $this->shop->updateShopOrderPreset(
+            $shopOrderId,
+            $orderPreset,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopOrderDetails(
+        int $lastLogBy
+    ) {
+        $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
+        $quantity           = $_POST['quantity'] ?? 0;
+        $discountType       = $_POST['discount_type'] ?? null;
+        $discountValue      = $_POST['discount_value'] ?? null;
+        $note               = $_POST['note'] ?? null;
+
+        if($quantity > 0){
+            $shopOrderDetailDetails = $this->shop->fetchShopOrderDetailDetails($shopOrderDetailsId);
+            $price                  = $shopOrderDetailDetails['price'] ?? 0;
+            $subtotal               = $price * $quantity;
+
+            if(!empty($discountType)){
+                $discountAmount = $discountType === 'Percentage' ? $subtotal * ($discountValue / 100) : $discountValue;
+            }
+            else{
+                $discountAmount = 0;
+                $discountValue = 0;
+            }
+
+            if(($subtotal - $discountValue) < 0){
+                $this->systemHelper::sendErrorResponse(
+                    'Update Order Details Error',
+                    'The total amount cannot be negative.'
+                );
+            }
+
+            $this->shop->updateShopOrderDetails(
+                $shopOrderDetailsId,
+                $quantity,
+                $discountType,
+                $discountValue,
+                $discountAmount,
+                $note,
+                $lastLogBy
+            );
+        }
+        else{
+            $this->shop->deleteShopOrderDetails($shopOrderDetailsId);
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
 
     /* =============================================================================================
         SECTION 4: FETCH METHOD
@@ -592,6 +663,7 @@ class ShopController {
         $shopOrderDetails = $this->shop->fetchShopOrderDetails($shopOrderId);
         $tableNumber = $shopOrderDetails['table_number'] ?? null;
         $orderFor = $shopOrderDetails['order_for'] ?? null;
+        $orderPreset = $shopOrderDetails['order_preset'] ?? 'On-Site';
 
         $title = '';
 
@@ -608,6 +680,28 @@ class ShopController {
             'title'         => $title,
             'tableNumber'   => $tableNumber,
             'orderFor'      => $orderFor,
+            'orderPreset'   => $orderPreset
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function fetchShopOrderDetailDetails() {
+        $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
+
+        $shopOrderDetailDetails = $this->shop->fetchShopOrderDetailDetails($shopOrderDetailsId);
+        $quantity               = $shopOrderDetailDetails['quantity'] ?? 0;
+        $discountType           = $shopOrderDetailDetails['discount_type'] ?? '';
+        $discountValue          = $shopOrderDetailDetails['discount_value'] ?? 0;
+        $note                   = $shopOrderDetailDetails['note'] ?? '';
+
+        $response = [
+            'success'       => true,
+            'quantity'      => $quantity,
+            'discountType'  => $discountType,
+            'discountValue' => $discountValue,
+            'note'          => $note
         ];
 
         echo json_encode($response);
@@ -702,6 +796,17 @@ class ShopController {
         $this->systemHelper::sendSuccessResponse(
             'Delete Product Success',
             'The product has been deleted successfully.'
+        );
+    }
+
+    public function deleteShopOrderDetails() {
+        $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
+
+        $this->shop->deleteShopOrderDetails($shopOrderDetailsId);
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
         );
     }
 

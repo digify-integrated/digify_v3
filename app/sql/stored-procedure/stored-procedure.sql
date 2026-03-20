@@ -13898,6 +13898,25 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteShopOrderDetails//
+
+CREATE PROCEDURE deleteShopOrderDetails(
+    IN p_shop_order_details_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_order_details
+    WHERE shop_order_details_id = p_shop_order_details_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 6: CHECK PROCEDURES
 ============================================================================================= */
@@ -14222,6 +14241,60 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateShopOrderPreset//
+
+CREATE PROCEDURE updateShopOrderPreset(
+	IN p_shop_order_id INT, 
+    IN p_order_preset VARCHAR(100),
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order
+    SET order_preset    = p_order_preset,
+        last_log_by     = p_last_log_by
+    WHERE shop_order_id = p_shop_order_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopOrderDetails//
+
+CREATE PROCEDURE updateShopOrderDetails(
+	IN p_shop_order_details_id INT, 
+    IN p_quantity DECIMAL(15,4),
+    IN p_discount_type VARCHAR(100),
+    IN p_discount_value DECIMAL(15, 2),
+    IN p_discount_amount DECIMAL(15, 2),
+    IN p_note VARCHAR(500),
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order_details
+    SET quantity                = p_quantity,
+        discount_type           = p_discount_type,
+        discount_value          = p_discount_value,
+        discount_amount         = p_discount_amount,
+        note                    = p_note,
+        last_log_by             = p_last_log_by
+    WHERE shop_order_details_id = p_shop_order_details_id;
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS updateShopOrderDetail//
 
 CREATE PROCEDURE updateShopOrderDetail(
@@ -14272,6 +14345,17 @@ CREATE PROCEDURE fetchShopOrderDetails(
 BEGIN
 	SELECT * FROM shop_order
     WHERE shop_order_id = p_shop_order_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchShopOrderDetailDetails//
+
+CREATE PROCEDURE fetchShopOrderDetailDetails(
+    IN p_shop_order_details_id INT
+)
+BEGIN
+	SELECT * FROM shop_order_details
+    WHERE shop_order_details_id = p_shop_order_details_id
     LIMIT 1;
 END //
 

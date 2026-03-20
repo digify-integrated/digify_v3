@@ -335,6 +335,54 @@ class Shop extends Model {
         ]);
     }
 
+    public function updateShopOrderPreset(
+        int $p_shop_order_id,
+        string $p_order_preset,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderPreset(
+            :p_shop_order_id,
+            :p_order_preset,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_order_preset'    => $p_order_preset,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopOrderDetails(
+        int $p_shop_order_details_id,
+        string $p_quantity,
+        string $p_discount_type,
+        string $p_discount_value,
+        string $p_discount_amount,
+        string $p_note,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderDetails(
+            :p_shop_order_details_id,
+            :p_quantity,
+            :p_discount_type,
+            :p_discount_value,
+            :p_discount_amount,
+            :p_note,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_details_id'   => $p_shop_order_details_id,
+            'p_quantity'                => $p_quantity,
+            'p_discount_type'           => $p_discount_type,
+            'p_discount_value'          => $p_discount_value,
+            'p_discount_amount'         => $p_discount_amount,
+            'p_note'                    => $p_note,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
     public function updateShopOrderDetail(
         int $p_shop_order_id,
         int $p_product_id,
@@ -494,6 +542,18 @@ class Shop extends Model {
             'p_shop_order_id' => $p_shop_order_id
         ]);
     }
+
+    public function fetchShopOrderDetailDetails(
+        null|string|int $p_shop_order_details_id,
+    ) {
+        $sql = 'CALL fetchShopOrderDetailDetails(
+            :p_shop_order_details_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_details_id' => $p_shop_order_details_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS
@@ -556,6 +616,18 @@ class Shop extends Model {
         
         return $this->query($sql, [
             'p_shop_product_id' => $p_shop_product_id
+        ]);
+    }
+
+    public function deleteShopOrderDetails(
+        int $p_shop_order_details_id
+    ) {
+        $sql = 'CALL deleteShopOrderDetails(
+            :p_shop_order_details_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_order_details_id' => $p_shop_order_details_id
         ]);
     }
 
