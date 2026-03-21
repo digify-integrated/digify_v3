@@ -2913,16 +2913,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Tax Rate: ", OLD.tax_rate, " -> ", NEW.tax_rate, "<br/>");
     END IF;
 
-    IF NEW.tax_type <> OLD.tax_type THEN
-        SET audit_log = CONCAT(audit_log, "Tax Type: ", OLD.tax_type, " -> ", NEW.tax_type, "<br/>");
-    END IF;
-
-    IF NEW.tax_computation <> OLD.tax_computation THEN
-        SET audit_log = CONCAT(audit_log, "Tax Computation: ", OLD.tax_computation, " -> ", NEW.tax_computation, "<br/>");
-    END IF;
-
-    IF NEW.tax_scope <> OLD.tax_scope THEN
-        SET audit_log = CONCAT(audit_log, "Tax Scope: ", OLD.tax_scope, " -> ", NEW.tax_scope, "<br/>");
+    IF NEW.tax_calculation <> OLD.tax_calculation THEN
+        SET audit_log = CONCAT(audit_log, "Tax Calculation: ", OLD.tax_calculation, " -> ", NEW.tax_calculation, "<br/>");
     END IF;
 
     IF NEW.tax_status <> OLD.tax_status THEN
@@ -3495,10 +3487,6 @@ BEGIN
 
     IF NEW.product_name <> OLD.product_name THEN
         SET audit_log = CONCAT(audit_log, "Product: ", OLD.product_name, " -> ", NEW.product_name, "<br/>");
-    END IF;
-
-    IF NEW.tax_type <> OLD.tax_type THEN
-        SET audit_log = CONCAT(audit_log, "Tax Type: ", OLD.tax_type, " -> ", NEW.tax_type, "<br/>");
     END IF;
 
     IF NEW.tax_name <> OLD.tax_name THEN

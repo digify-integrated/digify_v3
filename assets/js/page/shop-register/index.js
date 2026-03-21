@@ -396,8 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await apiRequest('fetch shop order total', { shop_order_id });
         if (data?.success) {
             $('#shop-order-subtotal').html(`&#8369; ${data.subTotal}`);
-            $('#shop-order-discounts').html(`&#8369; ${data.discount}`);
-            $('#shop-order-total').html(`&#8369; ${data.total}`);
+            $('#shop-order-taxes').html(`&#8369; ${data.additiveTaxTotal}`);
+            $('#shop-order-transaction-discounts').html(`&#8369; ${data.totalDiscount}`);
+            $('#shop-order-total').html(`&#8369; ${data.totalPrice}`);
         }
     };
 
@@ -413,6 +414,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const fetchShopOrderDiscountDetails = async (shop_order_id) => {
+        const data = await apiRequest('fetch shop order discount details', { shop_order_id });
+        if (data?.success) {
+            $('#transaction_discount_value').val(data.transactionDiscountValue);
+
+            $('#transaction_discount_type').val(data.transactionDiscountType || '').trigger('change');
+        }
+    };
+
     const enableTab = () => $('.nav-line-tabs .nav-link').removeClass('disabled');
     const disableTab = () => $('.nav-line-tabs .nav-link').addClass('disabled');
 
@@ -421,14 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         loadRegisterTables();
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #order-preset').removeClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #order-preset').removeClass('d-none');
     };
 
     const traverseTab = (target) => {
@@ -572,6 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const shopOrderDetailsId = target.closest('.shop-order').dataset.shopOrderDetailsId;
             fetchShopOrderDetails(shopOrderDetailsId);
         }
+
+        if (target.closest('#discount-button')) {
+            fetchShopOrderDiscountDetails(getOrderId());
+        }
     });
 
     document.querySelectorAll('.order-preset-option').forEach((radio) => {
@@ -694,6 +708,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification(data.title, data.message, data.message_type);
             }
             enableButton('submit-order-details');
+            return false;
+        }
+    });
+
+    $('#transaction_discount_form').validate({
+        rules: {
+            transaction_discount_value: {
+                required: function() {
+                    return $('#transaction_discount_type').val() != '';
+                },
+                number: true,
+                maxPercentage: true
+            }
+        },
+        messages: {
+            transaction_discount_value: {
+                required: 'Enter discount value',
+                number: 'Please enter a valid number'
+            }
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+            disableButton('submit-transaction-discount');
+            const data = await apiRequest('update shop order discount', {
+                ...Object.fromEntries(new FormData(form)),
+                shop_order_id: getOrderId()
+            });
+            if (data?.success) {
+                $('#discount-modal').modal('hide');
+                resetForm('transaction_discount_form');
+                fetchOrderTotal(getOrderId());
+            }
+            else{
+                showNotification(data.title, data.message, data.message_type);
+            }
+            enableButton('submit-transaction-discount');
             return false;
         }
     });

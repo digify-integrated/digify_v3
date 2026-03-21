@@ -8,17 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/TaxController.php',
         transaction: 'generate tax table',
         ajaxData: {
-            filter_by_tax_type: $('#filter_by_tax_type').val(),
-            filter_by_tax_computation: $('#filter_by_tax_computation').val(),
-            filter_by_tax_scope: $('#filter_by_tax_scope').val(),
+            filter_by_tax_calculation: $('#filter_by_tax_calculation').val(),
             filter_by_tax_status: $('#filter_by_tax_status').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
             { data: 'TAX' },
             { data: 'TAX_RATE' },
-            { data: 'TAX_TYPE' },
-            { data: 'TAX_SCOPE' }
+            { data: 'TAX_CALCULATION' },
+            { data: 'STATUS' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -42,9 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#filter_by_tax_type').val(null).trigger('change');
-            $('#filter_by_tax_computation').val(null).trigger('change');
-            $('#filter_by_tax_scope').val(null).trigger('change');
+            $('#filter_by_tax_calculation').val(null).trigger('change');
             $('#filter_by_tax_status').val('Active').trigger('change');
 
             initializeDatatable(datatableConfig());

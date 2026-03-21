@@ -204,7 +204,6 @@ class Product extends Model {
     public function insertProductTax(
         int $p_product_id,
         string $p_product_name,
-        string $p_tax_type,
         int $p_tax_id,
         string $p_tax_name,
         int $p_last_log_by
@@ -212,7 +211,6 @@ class Product extends Model {
         $sql = 'CALL insertProductTax(
             :p_product_id,
             :p_product_name,
-            :p_tax_type,
             :p_tax_id,
             :p_tax_name,
             :p_last_log_by
@@ -221,7 +219,6 @@ class Product extends Model {
         return $this->query($sql, [
             'p_product_id'      => $p_product_id,
             'p_product_name'    => $p_product_name,
-            'p_tax_type'        => $p_tax_type,
             'p_tax_id'          => $p_tax_id,
             'p_tax_name'        => $p_tax_name,
             'p_last_log_by'     => $p_last_log_by
@@ -483,17 +480,29 @@ class Product extends Model {
     }
 
     public function fetchProductTax(
-        int $p_product_id,
-        string $p_tax_type
+        int $p_product_id
     ) {
         $sql = 'CALL fetchProductTax(
-            :p_product_id,
-            :p_tax_type
+            :p_product_id
         )';
         
         return $this->fetchAll($sql, [
-            'p_product_id'  => $p_product_id,
-            'p_tax_type'    => $p_tax_type
+            'p_product_id'  => $p_product_id
+        ]);
+    }
+
+    public function fetchProductTotalTaxRate(
+        int $p_product_id,
+        string $p_tax_calculation
+    ) {
+        $sql = 'CALL fetchProductTotalTaxRate(
+            :p_product_id,
+            :p_tax_calculation
+        )';
+        
+        return $this->fetch($sql, [
+            'p_product_id'      => $p_product_id,
+            'p_tax_calculation' => $p_tax_calculation
         ]);
     }
 

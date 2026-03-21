@@ -13,18 +13,14 @@ class Tax extends Model {
         null|int $p_tax_id,
         string $p_tax_name,
         float $p_tax_rate,
-        string $p_tax_type,
-        string $p_tax_computation,
-        string $p_tax_scope,
+        string $p_tax_calculation,
         int $p_last_log_by
     )    {
         $sql = 'CALL saveTax(
             :p_tax_id,
             :p_tax_name,
             :p_tax_rate,
-            :p_tax_type,
-            :p_tax_computation,
-            :p_tax_scope,
+            :p_tax_calculation,
             :p_last_log_by
         )';
 
@@ -32,9 +28,7 @@ class Tax extends Model {
             'p_tax_id'              => $p_tax_id,
             'p_tax_name'            => $p_tax_name,
             'p_tax_rate'            => $p_tax_rate,
-            'p_tax_type'            => $p_tax_type,
-            'p_tax_computation'     => $p_tax_computation,
-            'p_tax_scope'           => $p_tax_scope,
+            'p_tax_calculation'     => $p_tax_calculation,
             'p_last_log_by'         => $p_last_log_by
         ]);
 
@@ -132,40 +126,22 @@ class Tax extends Model {
     ============================================================================================= */
 
     public function generateTaxTable(
-        null|string $p_filter_by_tax_type,
-        null|string $p_filter_by_tax_computation,
-        null|string $p_filter_by_tax_scope,
+        null|string $p_filter_by_tax_calculation,
         null|string $p_filter_by_tax_status
     ) {
         $sql = 'CALL generateTaxTable(
-            :p_filter_by_tax_type,
-            :p_filter_by_tax_computation,
-            :p_filter_by_tax_scope,
+            :p_filter_by_tax_calculation,
             :p_filter_by_tax_status
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_tax_type'          => $p_filter_by_tax_type,
-            'p_filter_by_tax_computation'   => $p_filter_by_tax_computation,
-            'p_filter_by_tax_scope'         => $p_filter_by_tax_scope,
+            'p_filter_by_tax_calculation'   => $p_filter_by_tax_calculation,
             'p_filter_by_tax_status'        => $p_filter_by_tax_status
         ]);
     }
 
     public function generateTaxOptions() {
         $sql = 'CALL generateTaxOptions()';
-        
-        return $this->fetchAll($sql);
-    }
-
-    public function generateSalesTaxOptions() {
-        $sql = 'CALL generateSalesTaxOptions()';
-        
-        return $this->fetchAll($sql);
-    }
-
-    public function generatePurchaseTaxOptions() {
-        $sql = 'CALL generatePurchaseTaxOptions()';
         
         return $this->fetchAll($sql);
     }

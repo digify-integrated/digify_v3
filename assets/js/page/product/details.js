@@ -195,8 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-               $('#sales_tax_id').val(data.salesTax || '').trigger('change');
-               $('#purchase_tax_id').val(data.purchaseTax || '').trigger('change');
+               $('#tax_id').val(data.tax || '').trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -225,8 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     (async () => {
         const dropdownConfigs = [
             { url: './app/Controllers/ProductCategoryController.php', selector: '#product_category_id', transaction: 'generate product category options', extraData: { multiple: true } },
-            { url: './app/Controllers/TaxController.php', selector: '#sales_tax_id', transaction: 'generate sales tax options', extraData: { multiple: true } },
-            { url: './app/Controllers/TaxController.php', selector: '#purchase_tax_id', transaction: 'generate purchase tax options', extraData: { multiple: true } },
+            { url: './app/Controllers/TaxController.php', selector: '#tax_id', transaction: 'generate tax options', extraData: { multiple: true } },
             { url: './app/Controllers/UnitController.php', selector: '#unit_id', transaction: 'generate unit options' },
             { url: './app/Controllers/ProductController.php', selector: '#bom_product_id', transaction: 'generate bom product options', extraData: { product_id: product_id } },
         ];

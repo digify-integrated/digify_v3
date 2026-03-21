@@ -6,15 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#tax_form').validate({
         rules: {
             tax_name: { required: true },
-            tax_computation: {required: true },
+            tax_calculation: {required: true },
             tax_rate: { required: true },
-            tax_type: { required: true }
         },
         messages: {
             tax_name: { required: 'Enter the display name' },
-            tax_computation: { required: 'Choose the tax computation' },
+            tax_calculation: { required: 'Choose the tax calculation' },
             tax_rate: { required: 'Enter the tax rate' },
-            tax_type: { required: 'Choose the tax type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

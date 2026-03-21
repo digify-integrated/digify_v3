@@ -25,14 +25,16 @@
                     <div class="border border-dashed border-gray-300 rounded mb-5">
                         <div class="d-flex flex-stack p-6">
                             <div class="fs-6 fw-bold">
-                                <span class="d-block lh-1 mb-2">Subtotal</span>
-                                <span class="d-block mb-2">Discounts</span>
+                                <span class="d-block mb-2">Subtotal</span>
+                                <span class="d-block mb-2">Taxes</span>
+                                <span class="d-block mb-2">Discount</span>
                                 <span class="d-block fs-2 lh-1">Total</span>
                             </div> 
                             
                             <div class="fs-6 fw-bold text-end">
-                                <span class="d-block lh-1 mb-2" id="shop-order-subtotal">&#8369; 0.00</span>
-                                <span class="d-block mb-2" id="shop-order-discounts">&#8369; 0.00</span>
+                                <span class="d-block mb-2" id="shop-order-subtotal">&#8369; 0.00</span>
+                                <span class="d-block mb-2" id="shop-order-taxes">&#8369; 0.00</span>
+                                <span class="d-block mb-2" id="shop-order-transaction-discounts">&#8369; 0.00</span>
                                 <span class="d-block fs-2 lh-1" id="shop-order-total">&#8369; 0.00</span>
                             </div>
                         </div>
@@ -69,23 +71,29 @@
                         <button class="btn btn-light-primary w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
                             Set Tab
                         </button>
+                    </div>
 
-                        <butaton class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
+                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
+                        <button class="btn btn-light-success w-100 p-5 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
+                            Discount
+                        </button>
+
+                        <button class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
                             Print Bill
+                        </button>
+
+                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
+                            Payment
                         </button>
                     </div>
 
-                    <div class="d-flex flex-equal gap-3 px-0">
+                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
                         <button class="btn btn-light-danger w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
                             Cancel Order
                         </button>
 
                         <button class="btn btn-warning w-100 p-5 d-none" id="new-order-button">
                             New Order
-                        </button>
-
-                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
-                            Payment
                         </button>
                     </div>
                 </div>
@@ -195,9 +203,60 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="delete-order-details">Delete</button>
-                <button type="submit" form="update_order_details_form" class="btn btn-primary" id="submit-order-details">Save</button>
+                <div class="d-flex justify-content-between  w-100">
+                    <button type="button" class="btn btn-danger" id="delete-order-details">
+                        Delete
+                    </button>
+                    <div>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" form="update_order_details_form" class="btn btn-primary" id="submit-order-details">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="discount-modal" class="modal fade" tabindex="-1" aria-labelledby="discount-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Discount</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="transaction_discount_form" method="post" action="#">
+                    <?= $security->csrfInput('transaction_discount_form'); ?>
+                    <div class="row mb-6">
+                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="transaction_discount_type">Discount</label>
+                        <div class="col-lg-5">
+                           <select id="transaction_discount_type" name="transaction_discount_type" class="form-select" data-dropdown-parent="#discount-modal" data-control="select2" data-allow-clear="false">
+                                <option value="">--</option>
+                                <option value="Percentage">Percentage</option>
+                                <option value="Fixed Amount">Fixed Amount</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-5">
+                           <input type="number" class="form-control" id="transaction_discount_value" name="transaction_discount_value" min="0" step="0.01">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+               <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="submit" form="transaction_discount_form" class="btn btn-primary" id="submit-transaction-discount">
+                    Save
+                </button>
             </div>
         </div>
     </div>

@@ -16,20 +16,6 @@
             <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="tax_computation">
-                            Tax Computation
-                        </label>
-
-                        <select id="tax_computation" name="tax_computation" class="form-select" data-control="select2" data-allow-clear="false">
-                            <option value="">--</option>
-                            <option value="Fixed">Fixed</option>
-                            <option value="Percentage">Percentage</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="tax_rate">
                             Tax Rate
                         </label>
@@ -37,34 +23,17 @@
                         <input type="number" class="form-control" id="tax_rate" name="tax_rate" min="0" step="0.01">
                     </div>
                 </div>
-            </div>
-
-            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-                <div class="col">
-                    <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="tax_type">
-                            Tax Type
-                        </label>
-
-                        <select id="tax_type" name="tax_type" class="form-select" data-control="select2" data-allow-clear="false">
-                            <option value="">--</option>
-                            <option value="None">None</option>
-                            <option value="Purchases">Purchases</option>
-                            <option value="Sales">Sales</option>
-                        </select>
-                    </div>
-                </div>
                 
                 <div class="col">
                     <div class="fv-row mb-7">
-                        <label class="fs-6 fw-semibold form-label mt-3" for="tax_scope">
-                            Tax Scope
+                        <label class="fs-6 fw-semibold required form-label mt-3" for="tax_calculation">
+                            Tax Calculation
                         </label>
 
-                        <select id="tax_scope" name="tax_scope" class="form-select" data-control="select2" data-allow-clear="false">
+                        <select id="tax_calculation" name="tax_calculation" class="form-select" data-control="select2" data-allow-clear="false">
                             <option value="">--</option>
-                            <option value="Goods">Goods</option>
-                            <option value="Services">Services</option>
+                            <option value="Additive">Additive</option>
+                            <option value="Inclusive">Inclusive</option>
                         </select>
                     </div>
                 </div>

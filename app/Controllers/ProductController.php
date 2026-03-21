@@ -507,11 +507,10 @@ class ProductController {
             );
         }
 
-        $productId          = $_POST['product_id'] ?? null;
-        $salesPrice         = $_POST['sales_price'] ?? 0;
-        $cost               = $_POST['cost'] ?? 0;
-        $salesTaxIds        = $_POST['sales_tax_id'] ?? [];
-        $purchaseTaxIds     = $_POST['purchase_tax_id'] ?? [];
+        $productId  = $_POST['product_id'] ?? null;
+        $salesPrice = $_POST['sales_price'] ?? 0;
+        $cost       = $_POST['cost'] ?? 0;
+        $taxIds     = $_POST['tax_id'] ?? [];
 
         $this->product->updateProductPricing(
             $productId,
@@ -525,29 +524,14 @@ class ProductController {
         $productDetails   = $this->product->fetchProduct($productId);
         $productName      = $productDetails['product_name'] ?? '';
 
-        foreach ($salesTaxIds as $salesTaxId) {
-            $taxDetails     = $this->tax->fetchTax($salesTaxId);
-            $taxName        = $taxDetails['tax_name'] ?? null;
+        foreach ($taxIds as $taxId) {
+            $taxDetails = $this->tax->fetchTax($taxId);
+            $taxName    = $taxDetails['tax_name'] ?? null;
 
             $this->product->insertProductTax(
                 $productId,
                 $productName,
-                'Sales',
-                $salesTaxId,
-                $taxName,
-                $lastLogBy
-            );
-        }
-
-        foreach ($purchaseTaxIds as $purchaseTaxId) {
-            $taxDetails     = $this->tax->fetchTax($purchaseTaxId);
-            $taxName        = $taxDetails['tax_name'] ?? null;
-
-            $this->product->insertProductTax(
-                $productId,
-                $productName,
-                'Purchases',
-                $purchaseTaxId,
+                $taxId,
                 $taxName,
                 $lastLogBy
             );
@@ -941,30 +925,18 @@ class ProductController {
             );
         }
 
-        $salesTaxDetails = $this->product->fetchProductTax(
-            $productId,
-            'Sales'
+        $taxDetails = $this->product->fetchProductTax(
+            $productId
         );
 
-        $purchaseTaxDetails = $this->product->fetchProductTax(
-            $productId,
-            'Purchases'
-        );
-
-        $salesTax = [];
-        foreach ($salesTaxDetails as $row) {
-            $salesTax[] = $row['tax_id'];
-        }
-
-        $purchaseTax = [];
-        foreach ($purchaseTaxDetails as $row) {
-            $purchaseTax[] = $row['tax_id'];
+        $tax = [];
+        foreach ($taxDetails as $row) {
+            $tax[] = $row['tax_id'];
         }
 
         $response = [
-            'success'       => true,
-            'salesTax'      => $salesTax,
-            'purchaseTax'   => $purchaseTax
+            'success'   => true,
+            'tax'       => $tax,
         ];
 
         echo json_encode($response);

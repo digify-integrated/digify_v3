@@ -224,23 +224,44 @@ class Shop extends Model {
         int $p_shop_order_id,
         int $p_product_id,
         string $p_product_name,
-        string $p_price,
+        string $p_quantity,
+        string $p_base_price,
+        string $p_discount_per_unit,
+        string $p_net_price_per_unit,
+        string $p_inclusive_rate,
+        string $p_additive_rate,
+        string $p_inclusive_tax_per_unit,
+        string $p_additive_tax_per_unit,
         int $p_last_log_by
     )    {
         $sql = 'CALL insertShopOrderDetail(
             :p_shop_order_id,
             :p_product_id,
             :p_product_name,
-            :p_price,
+            :p_quantity,
+            :p_base_price,
+            :p_discount_per_unit,
+            :p_net_price_per_unit,
+            :p_inclusive_rate,
+            :p_additive_rate,
+            :p_inclusive_tax_per_unit,
+            :p_additive_tax_per_unit,
             :p_last_log_by
         )';
 
         return $this->query($sql, [
-            'p_shop_order_id'   => $p_shop_order_id,
-            'p_product_id'      => $p_product_id,
-            'p_product_name'    => $p_product_name,
-            'p_price'           => $p_price,
-            'p_last_log_by'     => $p_last_log_by
+            'p_shop_order_id'           => $p_shop_order_id,
+            'p_product_id'              => $p_product_id,
+            'p_product_name'            => $p_product_name,
+            'p_quantity'                => $p_quantity,
+            'p_base_price'              => $p_base_price,
+            'p_discount_per_unit'       => $p_discount_per_unit,
+            'p_net_price_per_unit'      => $p_net_price_per_unit,
+            'p_inclusive_rate'          => $p_inclusive_rate,
+            'p_additive_rate'           => $p_additive_rate,
+            'p_inclusive_tax_per_unit'  => $p_inclusive_tax_per_unit,
+            'p_additive_tax_per_unit'   => $p_additive_tax_per_unit,
+            'p_last_log_by'             => $p_last_log_by
         ]);
     }
 
@@ -359,6 +380,13 @@ class Shop extends Model {
         string $p_discount_type,
         string $p_discount_value,
         string $p_discount_amount,
+        string $p_base_price,
+        string $p_discount_per_unit,
+        string $p_net_price_per_unit,
+        string $p_inclusive_rate,
+        string $p_additive_rate,
+        string $p_inclusive_tax_per_unit,
+        string $p_additive_tax_per_unit,
         string $p_note,
         int $p_last_log_by
     )    {
@@ -368,6 +396,13 @@ class Shop extends Model {
             :p_discount_type,
             :p_discount_value,
             :p_discount_amount,
+            :p_base_price,
+            :p_discount_per_unit,
+            :p_net_price_per_unit,
+            :p_inclusive_rate,
+            :p_additive_rate,
+            :p_inclusive_tax_per_unit,
+            :p_additive_tax_per_unit,
             :p_note,
             :p_last_log_by
         )';
@@ -378,6 +413,13 @@ class Shop extends Model {
             'p_discount_type'           => $p_discount_type,
             'p_discount_value'          => $p_discount_value,
             'p_discount_amount'         => $p_discount_amount,
+            'p_base_price'              => $p_base_price,
+            'p_discount_per_unit'       => $p_discount_per_unit,
+            'p_net_price_per_unit'      => $p_net_price_per_unit,
+            'p_inclusive_rate'          => $p_inclusive_rate,
+            'p_additive_rate'           => $p_additive_rate,
+            'p_inclusive_tax_per_unit'  => $p_inclusive_tax_per_unit,
+            'p_additive_tax_per_unit'   => $p_additive_tax_per_unit,
             'p_note'                    => $p_note,
             'p_last_log_by'             => $p_last_log_by
         ]);
@@ -386,18 +428,84 @@ class Shop extends Model {
     public function updateShopOrderDetail(
         int $p_shop_order_id,
         int $p_product_id,
+        string $p_quantity,
+        string $p_base_price,
+        string $p_discount_amount,
+        string $p_discount_per_unit,
+        string $p_net_price_per_unit,
+        string $p_inclusive_rate,
+        string $p_additive_rate,
+        string $p_inclusive_tax_per_unit,
+        string $p_additive_tax_per_unit,
         int $p_last_log_by
     )    {
         $sql = 'CALL updateShopOrderDetail(
             :p_shop_order_id,
             :p_product_id,
+            :p_quantity,
+            :p_base_price,
+            :p_discount_amount,
+            :p_discount_per_unit,
+            :p_net_price_per_unit,
+            :p_inclusive_rate,
+            :p_additive_rate,
+            :p_inclusive_tax_per_unit,
+            :p_additive_tax_per_unit,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'           => $p_shop_order_id,
+            'p_product_id'              => $p_product_id,
+            'p_quantity'                => $p_quantity,
+            'p_base_price'              => $p_base_price,
+            'p_discount_amount'         => $p_discount_amount,
+            'p_discount_per_unit'       => $p_discount_per_unit,
+            'p_net_price_per_unit'      => $p_net_price_per_unit,
+            'p_inclusive_rate'          => $p_inclusive_rate,
+            'p_additive_rate'           => $p_additive_rate,
+            'p_inclusive_tax_per_unit'  => $p_inclusive_tax_per_unit,
+            'p_additive_tax_per_unit'   => $p_additive_tax_per_unit,
+            'p_last_log_by'             => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopOrderTotal(
+        int $p_shop_order_id,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderTotal(
+            :p_shop_order_id,
             :p_last_log_by
         )';
 
         return $this->query($sql, [
             'p_shop_order_id'   => $p_shop_order_id,
-            'p_product_id'      => $p_product_id,
             'p_last_log_by'     => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopOrderDiscount(
+        int $p_shop_order_id,
+        string $p_transaction_discount_type,
+        string $p_transaction_discount_value,
+        string $p_transaction_discount_amount,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopOrderDiscount(
+            :p_shop_order_id,
+            :p_transaction_discount_type,
+            :p_transaction_discount_value,
+            :p_transaction_discount_amount,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'               => $p_shop_order_id,
+            'p_transaction_discount_type'   => $p_transaction_discount_type,
+            'p_transaction_discount_value'  => $p_transaction_discount_value,
+            'p_transaction_discount_amount' => $p_transaction_discount_amount,
+            'p_last_log_by'                 => $p_last_log_by
         ]);
     }
 
@@ -552,6 +660,21 @@ class Shop extends Model {
         
         return $this->fetch($sql, [
             'p_shop_order_details_id' => $p_shop_order_details_id
+        ]);
+    }
+
+    public function fetchShopOrderDetailsByProduct(
+        null|string|int $p_shop_order_id,
+        null|string|int $p_product_id
+    ) {
+        $sql = 'CALL fetchShopOrderDetailsByProduct(
+            :p_shop_order_id,
+            :p_product_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_product_id'      => $p_product_id
         ]);
     }
     

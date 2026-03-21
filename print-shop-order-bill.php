@@ -43,7 +43,19 @@ function renderReceiptContent($pdf, $data) {
     }
 
     $pdf->Ln(2);
-    $tableDisplay = (!empty($data['floorPlanName']) ? $data['floorPlanName'] . ' ' : '') . 'Table No. ' . $data['tableNumber'];
+    $tableNum = $data['tableNumber'] ?? null;
+    $orderFor = $data['orderFor'] ?? null;
+    $floorPlan = $data['floorPlanName'] ?? '';
+
+    $tableDisplay = '';
+
+    if ($tableNum && !$orderFor) {
+        $prefix = $floorPlan ? "$floorPlan " : "";
+        $tableDisplay = "{$prefix}Table No. $tableNum";
+    } elseif ($orderFor && !$tableNum) {
+        $tableDisplay = "Order For: $orderFor";
+    }
+    
     $pdf->MultiCell(0, 4, $tableDisplay, 0, 'L');
     $pdf->MultiCell(0, 4, 'Date Time: ' . date('Y-m-d H:i:s'), 0, 'L');
     $pdf->MultiCell(0, 4, 'Cashier: ' . $data['userFileAs'], 0, 'L');
@@ -84,14 +96,12 @@ function renderReceiptContent($pdf, $data) {
     $pdf->Ln(-3);
     
     // Totals Section
-    $pdf->MultiCell(0, 4, 'SUBTOTAL: P' . 0, 0, 'R');
-    $pdf->MultiCell(0, 4, 'VAT Sales: P' . 0, 0, 'R');
-    $pdf->MultiCell(0, 4, 'VAT: P' . 0, 0, 'R');
-    $pdf->MultiCell(0, 4, 'SC: P' . 0, 0, 'R');
-    $pdf->MultiCell(0, 4, 'DISCOUNT: P' . 0, 0, 'R');
+    $pdf->MultiCell(0, 4, 'Subtotal: P' . number_format($data['subtotal'], 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'Taxes: P' . number_format($data['additiveTaxTotal'], 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'Discount: P' . number_format($data['totalDiscount'], 2), 0, 'R');
 
     $pdf->SetFont('courier', 'B', 9);
-    $pdf->MultiCell(0, 4, 'AMOUNT DUE: P' . 0, 0, 'R');
+    $pdf->MultiCell(0, 4, 'AMOUNT DUE: P' . number_format($data['totalPrice'], 2), 0, 'R');
     $pdf->SetFont('courier', '', 9);
 
     $pdf->Ln(3);
@@ -106,13 +116,22 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     $loginCredentialsDetails = $authentication->fetchLoginCredentials($userID);
     $data['userFileAs'] = $loginCredentialsDetails['file_as'] ?? '';
 
-    $shopOrderDetails = $shop->fetchShopOrderDetails($shopOrderId);
-    $shopId           = $shopOrderDetails['shop_id'] ?? null;
-    $data['tableNumber'] = $shopOrderDetails['table_number'] ?? null;
-    $floorPlanTableId = $shopOrderDetails['floor_plan_table_id'] ?? null;
+    $shopOrderDetails           = $shop->fetchShopOrderDetails($shopOrderId);
+    $shopId                     = $shopOrderDetails['shop_id'] ?? null;
+    $data['tableNumber']        = $shopOrderDetails['table_number'] ?? null;
+    $floorPlanTableId           = $shopOrderDetails['floor_plan_table_id'] ?? null;
+    $data['orderFor']           = $shopOrderDetails['order_for'] ?? null;
+    $data['subtotal']           = $shopOrderDetails['subtotal'] ?? null;
+    $data['additiveTaxTotal']   = $shopOrderDetails['additive_tax_total'] ?? null;
+    $orderDiscountAmount        = $shopOrderDetails['order_discount_amount'] ?? 0;
+    $transactionDiscountAmount  = $shopOrderTotal['transaction_discount_amount'] ?? 0;
+    $data['totalDiscount']      = $orderDiscountAmount + $transactionDiscountAmount;
+    $data['totalPrice']         = $shopOrderDetails['total_price'] ?? 0;
 
-    $floorPlanTableDetails = $floorPlan->fetchFloorPlanTable($floorPlanTableId);
-    $data['floorPlanName'] = $floorPlanTableDetails['floor_plan_name'] ?? null;
+    if(!empty($floorPlanTableId)){
+        $floorPlanTableDetails = $floorPlan->fetchFloorPlanTable($floorPlanTableId);
+        $data['floorPlanName'] = $floorPlanTableDetails['floor_plan_name'] ?? null;
+    }    
 
     $shopDetails    = $shop->fetchShop($shopId);
     $companyId      = $shopDetails['company_id'] ?? null;

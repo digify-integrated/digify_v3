@@ -67,20 +67,18 @@ class TaxController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save tax'                          => $this->saveTax($lastLogBy),
-            'update tax archive'                => $this->updateTaxArchive($lastLogBy),
-            'update tax unarchive'              => $this->updateTaxUnarchive($lastLogBy),
-            'delete tax'                        => $this->deleteTax(),
-            'delete multiple tax'               => $this->deleteMultipleTax(),
-            'fetch tax details'                 => $this->fetchTaxDetails(),
-            'generate tax table'                => $this->generateTaxTable(),
-            'generate tax options'              => $this->generateTaxOptions(),
-            'generate sales tax options'        => $this->generateSalesTaxOptions(),
-            'generate purchase tax options'     => $this->generatePurchaseTaxOptions(),
-            default                             => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'save tax'              => $this->saveTax($lastLogBy),
+            'update tax archive'    => $this->updateTaxArchive($lastLogBy),
+            'update tax unarchive'  => $this->updateTaxUnarchive($lastLogBy),
+            'delete tax'            => $this->deleteTax(),
+            'delete multiple tax'   => $this->deleteMultipleTax(),
+            'fetch tax details'     => $this->fetchTaxDetails(),
+            'generate tax table'    => $this->generateTaxTable(),
+            'generate tax options'  => $this->generateTaxOptions(),
+            default                 => $this->systemHelper::sendErrorResponse(
+                                        'Transaction Failed',
+                                        'We encountered an issue while processing your request.'
+                                    )
         };
     }
 
@@ -102,18 +100,14 @@ class TaxController {
 
         $taxId          = $_POST['tax_id'] ?? null;
         $taxName        = $_POST['tax_name'] ?? null;
-        $taxComputation = $_POST['tax_computation'] ?? 'Percentage';
+        $taxCalculation = $_POST['tax_calculation'] ?? 'Additive';
         $taxRate        = $_POST['tax_rate'] ?? 0;
-        $taxType        = $_POST['tax_type'] ?? 'Sales';
-        $taxCcope       = $_POST['tax_scope'] ?? null;
 
         $taxId = $this->tax->saveTax(
             $taxId,
             $taxName,
             $taxRate,
-            $taxType,
-            $taxComputation,
-            $taxCcope,
+            $taxCalculation,
             $lastLogBy
         );
 
@@ -189,9 +183,7 @@ class TaxController {
             'success'           => true,
             'taxName'           => $taxDetails['tax_name'] ?? null,
             'taxRate'           => $taxDetails['tax_rate'] ?? 0,
-            'taxType'           => $taxDetails['tax_type'] ?? 'Sales',
-            'taxComputation'    => $taxDetails['tax_computation'] ?? 'Percentage',
-            'taxScope'          => $taxDetails['tax_scope'] ?? null
+            'taxCalculation'    => $taxDetails['tax_calculation'] ?? 'Additive'
         ];
 
         echo json_encode($response);
@@ -236,16 +228,12 @@ class TaxController {
 
     public function generateTaxTable() {
         $pageLink               = $_POST['page_link'] ?? null;
-        $taxTypeFilter          = $this->systemHelper->checkFilter($_POST['filter_by_tax_type'] ?? null);
-        $taxComputationFilter   = $this->systemHelper->checkFilter($_POST['filter_by_tax_computation'] ?? null);
-        $taxScopeFilter         = $this->systemHelper->checkFilter($_POST['filter_by_tax_scope'] ?? null);
+        $taxCalculationFilter   = $this->systemHelper->checkFilter($_POST['filter_by_tax_calculation'] ?? null);
         $taxStatusFilter        = $this->systemHelper->checkFilter($_POST['filter_by_tax_status'] ?? null);
         $response               = [];
 
         $taxs = $this->tax->generateTaxTable(
-            $taxTypeFilter,
-            $taxComputationFilter,
-            $taxScopeFilter,
+            $taxCalculationFilter,
             $taxStatusFilter
         );
 
@@ -253,19 +241,22 @@ class TaxController {
             $taxId              = $row['tax_id'];
             $taxName            = $row['tax_name'];
             $taxRate            = $row['tax_rate'];
-            $taxType            = $row['tax_type'];
-            $taxScope           = $row['tax_scope'];
+            $taxCalculation     = $row['tax_calculation'];
+            $taxStatus          = $row['tax_status'];
+            $badgeClass         = $taxStatus == 'Active' ? 'success' : 'danger';
+            $taxStatusBadge     = '<div class="badge badge-lg badge-light-'. $badgeClass .'">'. $taxStatus .'</div>';
+
             $taxIdEncrypted     = $this->security->encryptData($taxId);
 
             $response[] = [
-                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $taxId .'">
-                                    </div>',
-                'TAX'           => $taxName,
-                'TAX_RATE'      => number_format($taxRate, 2),
-                'TAX_TYPE'      => $taxType,
-                'TAX_SCOPE'     => $taxScope,
-                'LINK'          => $pageLink .'&id='. $taxIdEncrypted
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $taxId .'">
+                                        </div>',
+                'TAX'               => $taxName,
+                'TAX_RATE'          => number_format($taxRate, 2),
+                'TAX_CALCULATION'   => $taxCalculation,
+                'STATUS'            => $taxStatusBadge,
+                'LINK'              => $pageLink .'&id='. $taxIdEncrypted
             ];
         }
 
@@ -284,52 +275,6 @@ class TaxController {
         }
 
         $taxes = $this->tax->generateTaxOptions();
-
-        foreach ($taxes as $row) {
-            $response[] = [
-                'id'    => $row['tax_id'],
-                'text'  => $row['tax_name']
-            ];
-        }
-
-        echo json_encode($response);
-    }
-    
-    public function generateSalesTaxOptions() {
-        $multiple   = $_POST['multiple'] ?? false;
-        $response   = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $taxes = $this->tax->generateSalesTaxOptions();
-
-        foreach ($taxes as $row) {
-            $response[] = [
-                'id'    => $row['tax_id'],
-                'text'  => $row['tax_name']
-            ];
-        }
-
-        echo json_encode($response);
-    }
-    
-    public function generatePurchaseTaxOptions() {
-        $multiple   = $_POST['multiple'] ?? false;
-        $response   = [];
-
-        if(!$multiple){
-            $response[] = [
-                'id'    => '',
-                'text'  => '--'
-            ];
-        }
-
-        $taxes = $this->tax->generatePurchaseTaxOptions();
 
         foreach ($taxes as $row) {
             $response[] = [

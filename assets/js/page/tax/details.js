@@ -30,9 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('tax_name').value   = data.taxName || '';
                 document.getElementById('tax_rate').value   = data.taxRate || '';
 
-                $('#tax_computation').val(data.taxComputation || '').trigger('change');
-                $('#tax_type').val(data.taxType || '').trigger('change');
-                $('#tax_scope').val(data.taxScope || '').trigger('change');
+                $('#tax_calculation').val(data.taxCalculation || '').trigger('change');
             } 
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -52,15 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#tax_form').validate({
         rules: {
             tax_name: { required: true },
-            tax_computation: {required: true },
+            tax_calculation: {required: true },
             tax_rate: { required: true },
-            tax_type: { required: true }
         },
         messages: {
             tax_name: { required: 'Enter the display name' },
-            tax_computation: { required: 'Choose the tax computation' },
+            tax_calculation: { required: 'Choose the tax calculation' },
             tax_rate: { required: 'Enter the tax rate' },
-            tax_type: { required: 'Choose the tax type' }
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

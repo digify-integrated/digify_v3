@@ -9563,9 +9563,7 @@ CREATE PROCEDURE saveTax(
     IN p_tax_id INT, 
     IN p_tax_name VARCHAR(200), 
     IN p_tax_rate DECIMAL(5,2), 
-    IN p_tax_type ENUM('None', 'Purchases','Sales'), 
-    IN p_tax_computation ENUM('Fixed','Percentage'), 
-    IN p_tax_scope ENUM('Goods','Services'), 
+    IN p_tax_calculation ENUM('Additive', 'Inclusive'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9582,17 +9580,13 @@ BEGIN
         INSERT INTO tax (
             tax_name,
             tax_rate,
-            tax_type,
-            tax_computation,
-            tax_scope,
+            tax_calculation,
             last_log_by
         ) 
         VALUES(
             p_tax_name,
             p_tax_rate,
-            p_tax_type,
-            p_tax_computation,
-            p_tax_scope,
+            p_tax_calculation,
             p_last_log_by
         ); 
         
@@ -9606,9 +9600,7 @@ BEGIN
         UPDATE tax
         SET tax_name            = p_tax_name,
             tax_rate            = p_tax_rate,
-            tax_type            = p_tax_type,
-            tax_computation     = p_tax_computation,
-            tax_scope           = p_tax_scope,
+            tax_calculation     = p_tax_calculation,
             last_log_by         = p_last_log_by
         WHERE tax_id            = p_tax_id;
 
@@ -9731,36 +9723,18 @@ END //
 DROP PROCEDURE IF EXISTS generateTaxTable//
 
 CREATE PROCEDURE generateTaxTable(
-    IN p_filter_by_tax_type TEXT,
-    IN p_filter_by_tax_computation TEXT,
-    IN p_filter_by_tax_scope TEXT,
+    IN p_filter_by_tax_calculation TEXT,
     IN p_filter_by_tax_status TEXT
 )
 BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT tax_id, tax_name, tax_rate, tax_type, tax_computation, tax_scope 
+    SET query = 'SELECT tax_id, tax_name, tax_rate, tax_calculation, tax_status 
                 FROM tax ';
 
-    IF p_filter_by_tax_type IS NOT NULL AND p_filter_by_tax_type <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' tax_type IN (', p_filter_by_tax_type, ')');
-    END IF;
-
-    IF p_filter_by_tax_computation IS NOT NULL AND p_filter_by_tax_computation <> '' THEN
-        IF filter_conditions <> '' THEN
-            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
-        END IF;
-
-        SET filter_conditions = CONCAT(filter_conditions, ' tax_computation IN (', p_filter_by_tax_computation, ')');
-    END IF;
-
-    IF p_filter_by_tax_scope IS NOT NULL AND p_filter_by_tax_scope <> '' THEN
-        IF filter_conditions <> '' THEN
-            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
-        END IF;
-
-        SET filter_conditions = CONCAT(filter_conditions, ' tax_scope IN (', p_filter_by_tax_scope, ')');
+    IF p_filter_by_tax_calculation IS NOT NULL AND p_filter_by_tax_calculation <> '' THEN
+        SET filter_conditions = CONCAT(filter_conditions, ' tax_calculation IN (', p_filter_by_tax_calculation, ')');
     END IF;
 
     IF p_filter_by_tax_status IS NOT NULL AND p_filter_by_tax_status <> '' THEN
@@ -9788,26 +9762,6 @@ CREATE PROCEDURE generateTaxOptions()
 BEGIN
 	SELECT tax_id, tax_name 
     FROM tax 
-    ORDER BY tax_name;
-END //
-
-DROP PROCEDURE IF EXISTS generateSalesTaxOptions//
-
-CREATE PROCEDURE generateSalesTaxOptions()
-BEGIN
-	SELECT tax_id, tax_name 
-    FROM tax 
-    WHERE tax_type = 'Sales'
-    ORDER BY tax_name;
-END //
-
-DROP PROCEDURE IF EXISTS generatePurchaseTaxOptions//
-
-CREATE PROCEDURE generatePurchaseTaxOptions()
-BEGIN
-	SELECT tax_id, tax_name 
-    FROM tax 
-    WHERE tax_type = 'Purchases'
     ORDER BY tax_name;
 END //
 
@@ -10921,8 +10875,7 @@ DROP PROCEDURE IF EXISTS insertProductTax//
 
 CREATE PROCEDURE insertProductTax(
     IN p_product_id INT, 
-    IN p_product_name VARCHAR(100), 
-    IN p_tax_type VARCHAR(50), 
+    IN p_product_name VARCHAR(100),
     IN p_tax_id INT, 
     IN p_tax_name VARCHAR(100), 
     IN p_last_log_by INT
@@ -10938,7 +10891,6 @@ BEGIN
     INSERT INTO product_tax (
         product_id,
         product_name,
-        tax_type,
         tax_id,
         tax_name,
         last_log_by
@@ -10946,7 +10898,6 @@ BEGIN
     VALUES(
         p_product_id,
         p_product_name,
-        p_tax_type,
         p_tax_id,
         p_tax_name,
         p_last_log_by
@@ -11379,12 +11330,26 @@ END //
 DROP PROCEDURE IF EXISTS fetchProductTax//
 
 CREATE PROCEDURE fetchProductTax(
-	IN p_product_id INT,
-    IN p_tax_type VARCHAR(50)
+	IN p_product_id INT
 )
 BEGIN
 	SELECT * FROM product_tax
-	WHERE product_id = p_product_id AND tax_type = p_tax_type;
+	WHERE product_id = p_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS fetchProductTotalTaxRate//
+
+CREATE PROCEDURE fetchProductTotalTaxRate(
+	IN p_product_id INT,
+    IN p_tax_calculation VARCHAR(100)
+)
+BEGIN
+	SELECT ROUND(SUM(tax_rate)/100, 2) as total
+    FROM product_tax pt
+    JOIN tax t ON pt.tax_id = t.tax_id
+    WHERE pt.product_id = p_product_id
+    AND t.tax_calculation = p_tax_calculation
+    AND t.tax_status = 'Active';
 END //
 
 DROP PROCEDURE IF EXISTS fetchProductAttribute//
@@ -14129,7 +14094,14 @@ CREATE PROCEDURE insertShopOrderDetail(
     IN p_shop_order_id INT, 
     IN p_product_id INT,
     IN p_product_name VARCHAR(100),
-    IN p_price DECIMAL(15, 2), 
+    IN p_quantity DECIMAL(15,4),
+    IN p_base_price DECIMAL(15,2),
+    IN p_discount_per_unit DECIMAL(15,2),
+    IN p_net_price_per_unit DECIMAL(15,2),
+    IN p_inclusive_rate DECIMAL(15,2),
+    IN p_additive_rate DECIMAL(15,2),
+    IN p_inclusive_tax_per_unit DECIMAL(15,2),
+    IN p_additive_tax_per_unit DECIMAL(15,2),
     IN p_last_log_by INT
 )
 BEGIN
@@ -14144,14 +14116,28 @@ BEGIN
         shop_order_id,
         product_id,
         product_name,
-        price,
+        quantity,
+        base_price,
+        discount_per_unit,
+        net_price_per_unit,
+        inclusive_rate,
+        additive_rate,
+        inclusive_tax_per_unit,
+        additive_tax_per_unit,
         last_log_by
     )
     VALUES(
         p_shop_order_id,
         p_product_id,
         p_product_name,
-        p_price,
+        p_quantity,
+        p_base_price,
+        p_discount_per_unit,
+        p_net_price_per_unit,
+        p_inclusive_rate,
+        p_additive_rate,
+        p_inclusive_tax_per_unit,
+        p_additive_tax_per_unit,
         p_last_log_by
     );
 
@@ -14267,16 +14253,23 @@ END //
 DROP PROCEDURE IF EXISTS updateShopOrderDetails//
 
 CREATE PROCEDURE updateShopOrderDetails(
-	IN p_shop_order_details_id INT, 
+    IN p_shop_order_details_id INT, 
     IN p_quantity DECIMAL(15,4),
     IN p_discount_type VARCHAR(100),
-    IN p_discount_value DECIMAL(15, 2),
-    IN p_discount_amount DECIMAL(15, 2),
+    IN p_discount_value DECIMAL(15,2),
+    IN p_discount_amount DECIMAL(15,2),
+    IN p_base_price DECIMAL(15,2),
+    IN p_discount_per_unit DECIMAL(15,2),
+    IN p_net_price_per_unit DECIMAL(15,2),
+    IN p_inclusive_rate DECIMAL(10,6),
+    IN p_additive_rate DECIMAL(10,6),
+    IN p_inclusive_tax_per_unit DECIMAL(15,2),
+    IN p_additive_tax_per_unit DECIMAL(15,2),
     IN p_note VARCHAR(500),
-	IN p_last_log_by INT
+    IN p_last_log_by INT
 )
 BEGIN
- 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
     END;
@@ -14288,6 +14281,13 @@ BEGIN
         discount_type           = p_discount_type,
         discount_value          = p_discount_value,
         discount_amount         = p_discount_amount,
+        base_price              = p_base_price,
+        discount_per_unit       = p_discount_per_unit,
+        net_price_per_unit      = p_net_price_per_unit,
+        inclusive_rate          = p_inclusive_rate,
+        additive_rate           = p_additive_rate,
+        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
+        additive_tax_per_unit   = p_additive_tax_per_unit,
         note                    = p_note,
         last_log_by             = p_last_log_by
     WHERE shop_order_details_id = p_shop_order_details_id;
@@ -14300,6 +14300,15 @@ DROP PROCEDURE IF EXISTS updateShopOrderDetail//
 CREATE PROCEDURE updateShopOrderDetail(
 	IN p_shop_order_id INT, 
     IN p_product_id INT,
+    IN p_quantity DECIMAL(15,4),
+    IN p_base_price DECIMAL(15,2),
+    IN p_discount_amount DECIMAL(15,2),
+    IN p_discount_per_unit DECIMAL(15,2),
+    IN p_net_price_per_unit DECIMAL(15,2),
+    IN p_inclusive_rate DECIMAL(10,6),
+    IN p_additive_rate DECIMAL(10,6),
+    IN p_inclusive_tax_per_unit DECIMAL(15,2),
+    IN p_additive_tax_per_unit DECIMAL(15,2),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -14311,10 +14320,87 @@ BEGIN
     START TRANSACTION;
 
     UPDATE shop_order_details
-    SET quantity        = quantity + 1,
-        last_log_by     = p_last_log_by
-    WHERE shop_order_id = p_shop_order_id
-    AND product_id      = p_product_id;
+    SET quantity                = p_quantity,
+        base_price              = p_base_price,
+        discount_amount         = p_discount_amount,
+        discount_per_unit       = p_discount_per_unit,
+        net_price_per_unit      = p_net_price_per_unit,
+        inclusive_rate          = p_inclusive_rate,
+        additive_rate           = p_additive_rate,
+        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
+        additive_tax_per_unit   = p_additive_tax_per_unit,
+        last_log_by             = p_last_log_by
+    WHERE shop_order_id         = p_shop_order_id
+    AND product_id              = p_product_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopOrderTotal//
+
+CREATE PROCEDURE updateShopOrderTotal(
+    IN in_shop_order_id INT,
+	IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    -- Aggregate totals from shop_order_details with quantity > 0
+    UPDATE shop_order o
+    JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(subtotal),0) AS subtotal,
+            IFNULL(SUM(discount_amount),0) AS order_discount_amount,
+            IFNULL(SUM(taxable_amount),0) AS taxable_amount,
+            IFNULL(SUM(total_price),0) AS subtotal_price,
+            IFNULL(SUM(inclusive_tax_total),0) AS inclusive_tax_total,
+            IFNULL(SUM(additive_tax_total),0) AS additive_tax_total
+        FROM shop_order_details
+        WHERE shop_order_id = in_shop_order_id
+          AND quantity > 0
+        GROUP BY shop_order_id
+    ) s ON o.shop_order_id = s.shop_order_id
+    SET 
+        o.subtotal = s.subtotal,
+        o.order_discount_amount = s.order_discount_amount,
+        o.taxable_amount = s.taxable_amount,
+        o.subtotal_price = s.subtotal_price,
+        o.inclusive_tax_total = s.inclusive_tax_total,
+        o.additive_tax_total = s.additive_tax_total,
+        o.last_log_by = p_last_log_by;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopOrderDiscount//
+
+CREATE PROCEDURE updateShopOrderDiscount(
+    IN p_shop_order_id INT, 
+    IN p_transaction_discount_type VARCHAR(100),
+    IN p_transaction_discount_value DECIMAL(15,4),
+    IN p_transaction_discount_amount DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order
+    SET transaction_discount_type   = p_transaction_discount_type,
+        transaction_discount_value  = p_transaction_discount_value,
+        transaction_discount_amount = p_transaction_discount_amount,
+        last_log_by                 = p_last_log_by
+    WHERE shop_order_id             = p_shop_order_id;
 
     COMMIT;
 END //
@@ -14359,16 +14445,28 @@ BEGIN
     LIMIT 1;
 END //
 
+DROP PROCEDURE IF EXISTS fetchShopOrderDetailsByProduct//
+
+CREATE PROCEDURE fetchShopOrderDetailsByProduct(
+    IN p_shop_order_id INT,
+    IN p_product_id INT
+)
+BEGIN
+	SELECT * FROM shop_order_details
+    WHERE shop_order_id = p_shop_order_id
+    AND product_id = p_product_id
+    LIMIT 1;
+END //
+
 DROP PROCEDURE IF EXISTS fetchShopOrderTotal//
 
 CREATE PROCEDURE fetchShopOrderTotal(
     IN p_shop_order_id INT
 )
 BEGIN
-	SELECT SUM(subtotal) AS subtotal, SUM(total_price) AS total, SUM(discount_amount) AS discount
-    FROM shop_order_details
-    WHERE shop_order_id = p_shop_order_id
-    AND quantity > 0;
+	SELECT transaction_discount_amount, subtotal, order_discount_amount, taxable_amount, subtotal_price, inclusive_tax_total, additive_tax_total, total_price
+    FROM shop_order
+    WHERE shop_order_id = p_shop_order_id;
 END //
 
 DROP PROCEDURE IF EXISTS fetchShopOrderList//

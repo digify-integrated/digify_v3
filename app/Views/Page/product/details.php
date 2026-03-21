@@ -248,14 +248,10 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex flex-wrap gap-5 d-none">
-                                <div class="fv-row w-100 flex-md-root mb-2">
-                                    <label class="form-label" for="sales_tax_id">Sales Tax</label>
-                                    <select id="sales_tax_id" name="sales_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
-                                </div>
+                            <div class="d-flex flex-wrap gap-5">
                                 <div class="fv-row w-100 flex-md-root">
-                                    <label class="form-label" for="purchase_tax_id">Purchase Tax</label>
-                                    <select id="purchase_tax_id" name="purchase_tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                    <label class="form-label" for="tax_id">Tax</label>
+                                    <select id="tax_id" name="tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
                                 </div>
                             </div>
                         </form>
