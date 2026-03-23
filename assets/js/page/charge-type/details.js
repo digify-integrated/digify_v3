@@ -5,19 +5,19 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 
 document.addEventListener('DOMContentLoaded', () => {
     const page_link         = document.getElementById('page-link')?.getAttribute('href') || 'apps.php';
-    const discount_type_id  = document.getElementById('details-id')?.textContent.trim();
+    const charge_type_id  = document.getElementById('details-id')?.textContent.trim();
 
     const displayDetails = async () => {
-        const transaction = 'fetch discount type details';
+        const transaction = 'fetch charge type details';
 
         try {
-            resetForm('discount_type_form');
+            resetForm('charge_type_form');
             
             const formData = new URLSearchParams();
             formData.append('transaction', transaction);
-            formData.append('discount_type_id', discount_type_id);
+            formData.append('charge_type_id', charge_type_id);
 
-            const response = await fetch('./app/Controllers/DiscountTypeController.php', {
+            const response = await fetch('./app/Controllers/ChargeTypeController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('discount_type_name').value = data.discountTypeName || '';
-                document.getElementById('discount_value').value = data.discountValue || '';
+                document.getElementById('charge_type_name').value = data.chargeTypeName || '';
+                document.getElementById('charge_value').value = data.chargeValue || '';
 
                 $('#value_type').val(data.valueType).trigger('change');
                 $('#is_variable').val(data.isVariable).trigger('change');
@@ -48,21 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    attachLogNotesHandler('#log-notes-main', '#details-id', 'discount_type');
+    attachLogNotesHandler('#log-notes-main', '#details-id', 'charge_type');
     displayDetails();
 
-    $('#discount_type_form').validate({
+    $('#charge_type_form').validate({
         rules: {
-            discount_type_name: { required: true },
+            charge_type_name: { required: true },
             value_type: { required: true },
-            discount_value: { required: true },
+            charge_value: { required: true },
             is_variable: { required: true },
             affects_tax: { required: true }
         },
         messages: {
-            discount_type_name: { required: 'Enter the display name' },
+            charge_type_name: { required: 'Enter the display name' },
             value_type: { required: 'Choose the value type' },
-            discount_value: { required: 'Enter the discount value' },
+            charge_value: { required: 'Enter the charge value' },
             is_variable: { required: 'Choose is variable' },
             affects_tax: { required: 'Choose affects tax' }
         },
@@ -86,22 +86,22 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction = 'save discount type';
+            const transaction = 'save charge type';
 
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
-            formData.append('discount_type_id', discount_type_id);
+            formData.append('charge_type_id', charge_type_id);
 
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/DiscountTypeController.php', {
+                const response = await fetch('./app/Controllers/ChargeTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save discount type failed with status: ${response.status}`);
+                    throw new Error(`Save charge type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -128,13 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('click', async (event) => {
-        if (!event.target.closest('#delete-discount-type')) return;
+        if (!event.target.closest('#delete-charge-type')) return;
 
-        const transaction = 'delete discount type';
+        const transaction = 'delete charge type';
 
         const result = await Swal.fire({
-            title: 'Confirm Discount Type Deletion',
-            text: 'Are you sure you want to delete this discount type?',
+            title: 'Confirm Charge Type Deletion',
+            text: 'Are you sure you want to delete this charge type?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -150,9 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new URLSearchParams();
                 formData.append('transaction', transaction);
-                formData.append('discount_type_id', discount_type_id);
+                formData.append('charge_type_id', charge_type_id);
 
-                const response = await fetch('./app/Controllers/DiscountTypeController.php', {
+                const response = await fetch('./app/Controllers/ChargeTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -180,19 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#is_variable').on('change', function () {
         const isYes = $(this).val() === 'Yes';
-        const $discountInput = $('#discount_value');
+        const $chargeInput = $('#charge_value');
 
-        if (isYes) $discountInput.val(0);
+        if (isYes) $chargeInput.val(0);
         
-        $discountInput.prop('readonly', isYes);
+        $chargeInput.prop('readonly', isYes);
     });
 
     $.validator.addMethod("maxPercentage", function(value, element) {
-        let discountType = $('#value_type').val();
+        let chargeType = $('#value_type').val();
 
-        if (discountType === 'Percentage') {
+        if (chargeType === 'Percentage') {
             return parseFloat(value) <= 100;
         }
         return true;
-    }, "Percentage discount cannot exceed 100%");
+    }, "Percentage charge cannot exceed 100%");
 });

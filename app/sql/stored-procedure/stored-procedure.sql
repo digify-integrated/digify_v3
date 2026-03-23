@@ -13414,6 +13414,162 @@ END //
 
 
 
+
+/* =============================================================================================
+   STORED PROCEDURE: CHARGE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveChargeType//
+
+CREATE PROCEDURE saveChargeType(
+    IN p_charge_type_id INT, 
+    IN p_charge_type_name VARCHAR(100), 
+    IN p_value_type ENUM('Percentage','Fixed Amount'), 
+    IN p_charge_value DECIMAL(15,2), 
+    IN p_is_variable ENUM('Yes', 'No'), 
+    IN p_affects_tax ENUM('Yes', 'No'), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_charge_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_charge_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM charge_type WHERE charge_type_id = p_charge_type_id) THEN
+        INSERT INTO charge_type (
+            charge_type_name,
+            value_type,
+            charge_value,
+            is_variable,
+            affects_tax,
+            last_log_by
+        ) 
+        VALUES(
+            p_charge_type_name,
+            p_value_type,
+            p_charge_value,
+            p_is_variable,
+            p_affects_tax,
+            p_last_log_by
+        );
+        
+        SET v_new_charge_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE charge_type
+        SET charge_type_name  = p_charge_type_name,
+            value_type          = p_value_type,
+            charge_value      = p_charge_value,
+            is_variable         = p_is_variable,
+            affects_tax         = p_affects_tax,
+            last_log_by         = p_last_log_by
+        WHERE charge_type_id  = p_charge_type_id;
+
+        SET v_new_charge_type_id = p_charge_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_charge_type_id AS new_charge_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchChargeType//
+
+CREATE PROCEDURE fetchChargeType(
+    IN p_charge_type_id INT
+)
+BEGIN
+	SELECT * FROM charge_type
+	WHERE charge_type_id = p_charge_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteChargeType//
+
+CREATE PROCEDURE deleteChargeType(
+    IN p_charge_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM charge_type
+    WHERE charge_type_id = p_charge_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkChargeTypeExist//
+
+CREATE PROCEDURE checkChargeTypeExist(
+    IN p_charge_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM charge_type
+    WHERE charge_type_id = p_charge_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateChargeTypeTable//
+
+CREATE PROCEDURE generateChargeTypeTable()
+BEGIN
+	SELECT *
+    FROM charge_type 
+    ORDER BY charge_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateChargeTypeOptions//
+
+CREATE PROCEDURE generateChargeTypeOptions()
+BEGIN
+	SELECT charge_type_id, charge_type_name 
+    FROM charge_type 
+    ORDER BY charge_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
 /* =============================================================================================
    STORED PROCEDURE: SHOP
 ============================================================================================= */

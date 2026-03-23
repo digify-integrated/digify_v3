@@ -3,11 +3,11 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {    
-    $('#discount_type_form').validate({
+    $('#charge_type_form').validate({
         rules: {
-            discount_type_name: { required: true },
+            charge_type_name: { required: true },
             value_type: { required: true },
-            discount_value: {  
+            charge_value: {  
                 required: function() {
                     return $('#value_type').val() != '';
                 },
@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
             affects_tax: { required: true }
         },
         messages: {
-            discount_type_name: { required: 'Enter the display name' },
+            charge_type_name: { required: 'Enter the display name' },
             value_type: { required: 'Choose the value type' },
-            discount_value: {
-                required: 'Enter discount value',
+            charge_value: {
+                required: 'Enter charge value',
                 number: 'Please enter a valid number'
             },
             is_variable: { required: 'Choose is variable' },
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitHandler: async (form, event) => {
             event.preventDefault();
 
-            const transaction   = 'save discount type';
+            const transaction   = 'save charge type';
             const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
 
             const formData = new URLSearchParams(new FormData(form));
@@ -56,20 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
             disableButton('submit-data');
 
             try {
-                const response = await fetch('./app/Controllers/DiscountTypeController.php', {
+                const response = await fetch('./app/Controllers/ChargeTypeController.php', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Save discount type failed with status: ${response.status}`);
+                    throw new Error(`Save charge type failed with status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success) {
                     setNotification(data.title, data.message, data.message_type);
-                    window.location = `${page_link}&id=${data.discount_type_id}`;
+                    window.location = `${page_link}&id=${data.charge_type_id}`;
                 }
                 else if(data.invalid_session){
                     setNotification(data.title, data.message, data.message_type);
@@ -90,19 +90,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#is_variable').on('change', function () {
         const isYes = $(this).val() === 'Yes';
-        const $discountInput = $('#discount_value');
+        const $chargeInput = $('#charge_value');
 
-        if (isYes) $discountInput.val(0);
+        if (isYes) $chargeInput.val(0);
         
-        $discountInput.prop('readonly', isYes);
+        $chargeInput.prop('readonly', isYes);
     });
 
     $.validator.addMethod("maxPercentage", function(value, element) {
-        let discountType = $('#value_type').val();
+        let chargeType = $('#value_type').val();
 
-        if (discountType === 'Percentage') {
+        if (chargeType === 'Percentage') {
             return parseFloat(value) <= 100;
         }
         return true;
-    }, "Percentage discount cannot exceed 100%");
+    }, "Percentage charge cannot exceed 100%");
 });

@@ -82,7 +82,11 @@
             </li>
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary py-5 me-6 " data-bs-toggle="tab" href="#advanced_tab" aria-selected="false" role="tab" tabindex="-1">Product</a>
+                <a class="nav-link text-active-primary py-5 me-6 " data-bs-toggle="tab" href="#products_tab" aria-selected="false" role="tab" tabindex="-1">Products</a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link text-active-primary py-5 me-6 " data-bs-toggle="tab" href="#advanced_tab" aria-selected="false" role="tab" tabindex="-1">Advanced</a>
             </li>
         </ul>
     </div>
@@ -90,175 +94,146 @@
 
 <div class="tab-content">
     <div class="tab-pane fade active show" id="general_tab" role="tabpanel">
-        <div class="card card-flush py-4 mb-10">
-            <div class="card-header">
-                <div class="card-title">
-                    <h2>General</h2>
-                </div>
-            </div>
-                        
-            <div class="card-body pt-0">
-                <form id="shop_form" method="post" action="#">
-                    <?= $security->csrfInput('shop_form'); ?>
-                    <div class="fv-row mb-4">
-                        <label class="fs-6 fw-semibold required form-label mt-3" for="shop_name">
-                            Display Name
-                        </label>
-
-                        <input type="text" class="form-control" id="shop_name" name="shop_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                    </div>
-
-                    <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-                        <div class="col">
-                            <div class="fv-row mb-7">
-                                <label class="fs-6 fw-semibold required form-label mt-3" for="company_id">
-                                    Company
-                                </label>
-
-                                <select id="company_id" name="company_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="fv-row mb-7">
-                                <label class="fs-6 fw-semibold required form-label mt-3" for="shop_type_id">
-                                    Shop Type
-                                </label>
-
-                                <select id="shop_type_id" name="shop_type_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
-                            </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-flush py-4 mb-10">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2>General</h2>
                         </div>
                     </div>
-                </form>
-            </div>
-            <?php
-                echo ($permissions['write'] > 0) ? '<div class="d-flex justify-content-end py-6 px-9">
-                                                        <button type="submit" form="shop_form" class="btn btn-primary" id="submit-shop">Save</button>
-                                                    </div>' : '';
-            ?>
-        </div>
+                                
+                    <div class="card-body pt-0">
+                        <form id="shop_form" method="post" action="#">
+                            <?= $security->csrfInput('shop_form'); ?>
+                            <div class="fv-row mb-4">
+                                <label class="fs-6 fw-semibold required form-label mt-3" for="shop_name">
+                                    Display Name
+                                </label>
 
-        <div class="card card-flush py-4 mb-10">
-            <div class="card-header">
-                <div class="card-title">
-                    <h2 class="me-4">Payment Method</h2>
-                </div>
-                <div class="card-toolbar">
-                    <div class="d-flex align-items-center position-relative my-1 me-3">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-payment-method-datatable-search" placeholder="Search..." autocomplete="off" />
+                                <input type="text" class="form-control" id="shop_name" name="shop_name" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                            </div>
+
+                            <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+                                <div class="col">
+                                    <div class="fv-row mb-7">
+                                        <label class="fs-6 fw-semibold required form-label mt-3" for="company_id">
+                                            Company
+                                        </label>
+
+                                        <select id="company_id" name="company_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="fv-row mb-7">
+                                        <label class="fs-6 fw-semibold required form-label mt-3" for="shop_type_id">
+                                            Shop Type
+                                        </label>
+
+                                        <select id="shop_type_id" name="shop_type_id" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <select id="shop-payment-method-datatable-length" class="form-select w-auto me-4">
-                        <option value="-1">All</option>
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <?php
-                            echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-payment-method-modal" id="add-shop-payment-method">Add Payment Method</button>' : '';
-                        ?> 
-                    </div>
+                    <?php
+                        echo ($permissions['write'] > 0) ? '<div class="d-flex justify-content-end py-6 px-9">
+                                                                <button type="submit" form="shop_form" class="btn btn-primary" id="submit-shop">Save</button>
+                                                            </div>' : '';
+                    ?>
                 </div>
-            </div>
-                            
-            <div class="card-body pt-0">
-                <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-payment-method-table">
-                    <thead>
-                        <tr class="fw-semibold fs-6 text-gray-800">
-                            <th>Payment Method</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="fw-semibold text-gray-600"></tbody>
-                </table>
             </div>
         </div>
 
-        <div class="card card-flush py-4 mb-10">
-            <div class="card-header">
-                <div class="card-title">
-                    <h2 class="me-4">Shop Floor Plan</h2>
-                </div>
-                <div class="card-toolbar">
-                    <div class="d-flex align-items-center position-relative my-1 me-3">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-floor-plan-datatable-search" placeholder="Search..." autocomplete="off" />
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-flush py-4 mb-10">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2 class="me-4">Shop Floor Plan</h2>
+                        </div>
+                        <div class="card-toolbar">
+                            <div class="d-flex align-items-center position-relative my-1 me-3">
+                                <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-floor-plan-datatable-search" placeholder="Search..." autocomplete="off" />
+                            </div>
+                            <select id="shop-floor-plan-datatable-length" class="form-select w-auto me-4">
+                                <option value="-1">All</option>
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                <?php
+                                    echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-floor-plan-modal" id="add-shop-floor-plan">Add Floor Plan</button>' : '';
+                                ?> 
+                            </div>
+                        </div>
                     </div>
-                    <select id="shop-floor-plan-datatable-length" class="form-select w-auto me-4">
-                        <option value="-1">All</option>
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <?php
-                            echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-floor-plan-modal" id="add-shop-floor-plan">Add Floor Plan</button>' : '';
-                        ?> 
+                                    
+                    <div class="card-body pt-0">
+                        <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-floor-plan-table">
+                            <thead>
+                                <tr class="fw-semibold fs-6 text-gray-800">
+                                    <th>Floor Plan</th>
+                                    <th>No. Tables</th>
+                                    <th>No. Seats</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-                            
-            <div class="card-body pt-0">
-                <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-floor-plan-table">
-                    <thead>
-                        <tr class="fw-semibold fs-6 text-gray-800">
-                            <th>Floor Plan</th>
-                            <th>No. Tables</th>
-                            <th>No. Seats</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="fw-semibold text-gray-600"></tbody>
-                </table>
-            </div>
-        </div>
 
-        <div class="card card-flush py-4">
-            <div class="card-header">
-                <div class="card-title">
-                    <h2 class="me-4">Shop Access</h2>
-                </div>
-                <div class="card-toolbar">
-                    <div class="d-flex align-items-center position-relative my-1 me-3">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-access-datatable-search" placeholder="Search..." autocomplete="off" />
+            <div class="col-lg-6">
+                <div class="card card-flush py-4">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2 class="me-4">Shop Access</h2>
+                        </div>
+                        <div class="card-toolbar">
+                            <div class="d-flex align-items-center position-relative my-1 me-3">
+                                <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-access-datatable-search" placeholder="Search..." autocomplete="off" />
+                            </div>
+                            <select id="shop-access-datatable-length" class="form-select w-auto me-4">
+                                <option value="-1">All</option>
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                                <?php
+                                    echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-access-modal" id="add-shop-access">Add User Account</button>' : '';
+                                ?> 
+                            </div>
+                        </div>
                     </div>
-                    <select id="shop-access-datatable-length" class="form-select w-auto me-4">
-                        <option value="-1">All</option>
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                        <?php
-                            echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-access-modal" id="add-shop-access">Add User Account</button>' : '';
-                        ?> 
+                                    
+                    <div class="card-body pt-0">
+                        <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-access-table">
+                            <thead>
+                                <tr class="fw-semibold fs-6 text-gray-800">
+                                    <th>User Account</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600"></tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-                            
-            <div class="card-body pt-0">
-                <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-access-table">
-                    <thead>
-                        <tr class="fw-semibold fs-6 text-gray-800">
-                            <th>User Account</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="fw-semibold text-gray-600"></tbody>
-                </table>
             </div>
         </div>
     </div>
 
-    <div class="tab-pane fade" id="advanced_tab" role="tabpanel">
+    <div class="tab-pane fade" id="products_tab" role="tabpanel">
         <div class="d-flex flex-column gap-7 gap-lg-10">
             <div class="card card-flush py-4">
                 <div class="card-header">
@@ -294,6 +269,131 @@
                                 <th>Qty.</th>
                                 <th>Sales Price</th>
                                 <th>Cost</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="advanced_tab" role="tabpanel">
+        <div class="d-flex flex-column gap-7 gap-lg-10">
+            <div class="card card-flush">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2 class="me-4">Payment Method</h2>
+                    </div>
+                    <div class="card-toolbar">
+                        <div class="d-flex align-items-center position-relative my-1 me-3">
+                            <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-payment-method-datatable-search" placeholder="Search..." autocomplete="off" />
+                        </div>
+                        <select id="shop-payment-method-datatable-length" class="form-select w-auto me-4">
+                            <option value="-1">All</option>
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                            <?php
+                                echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-payment-method-modal" id="add-shop-payment-method">Add Payment Method</button>' : '';
+                            ?> 
+                        </div>
+                    </div>
+                </div>
+                                    
+                <div class="card-body pt-0">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-payment-method-table">
+                        <thead>
+                            <tr class="fw-semibold fs-6 text-gray-800">
+                                <th>Payment Method</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card card-flush py-4">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2 class="me-4">Discounts</h2>
+                    </div>
+                    <div class="card-toolbar">
+                        <div class="d-flex align-items-center position-relative my-1 me-3">
+                            <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-discounts-datatable-search" placeholder="Search..." autocomplete="off" />
+                        </div>
+                        <select id="shop-discounts-datatable-length" class="form-select w-auto me-4">
+                            <option value="-1">All</option>
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                            <?php
+                                echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-discounts-modal" id="add-shop-discounts">Add Discounts</button>' : '';
+                            ?> 
+                        </div>
+                    </div>
+                </div>
+                            
+                <div class="card-body pt-0">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-discounts-table">
+                        <thead>
+                            <tr class="fw-semibold fs-6 text-gray-800">
+                                <th>Discount</th>
+                                <th>Value Type</th>
+                                <th>Discount Value</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card card-flush py-4">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2 class="me-4">Charges</h2>
+                    </div>
+                    <div class="card-toolbar">
+                        <div class="d-flex align-items-center position-relative my-1 me-3">
+                            <i class="ki-outline ki-magnifier fs-3 position-absolute ms-5"></i> <input type="text" class="form-control w-250px ps-12" id="shop-charges-datatable-search" placeholder="Search..." autocomplete="off" />
+                        </div>
+                        <select id="shop-charges-datatable-length" class="form-select w-auto me-4">
+                            <option value="-1">All</option>
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+                            <?php
+                                echo $permissions['write'] > 0 ? '<button type="button" class="btn btn-light-primary me-3" data-bs-toggle="modal" data-bs-target="#shop-charges-modal" id="add-shop-charges">Add Charges</button>' : '';
+                            ?> 
+                        </div>
+                    </div>
+                </div>
+                            
+                <div class="card-body pt-0">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5 gs-7" id="shop-charges-table">
+                        <thead>
+                            <tr class="fw-semibold fs-6 text-gray-800">
+                                <th>Charge</th>
+                                <th>Value Type</th>
+                                <th>Charge Value</th>
                                 <th></th>
                             </tr>
                         </thead>

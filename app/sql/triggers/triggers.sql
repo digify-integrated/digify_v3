@@ -4230,6 +4230,134 @@ END //
 
 
 /* =============================================================================================
+   TRIGGER: DISCOUNT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_discount_type_update//
+
+CREATE TRIGGER trg_discount_type_update
+AFTER UPDATE ON discount_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Discount type changed.<br/><br/>';
+
+    IF NEW.discount_type_name <> OLD.discount_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Discount Type Name: ", OLD.discount_type_name, " -> ", NEW.discount_type_name, "<br/>");
+    END IF;
+
+    IF NEW.value_type <> OLD.value_type THEN
+        SET audit_log = CONCAT(audit_log, "Value Type: ", OLD.value_type, " -> ", NEW.value_type, "<br/>");
+    END IF;
+
+    IF NEW.discount_value <> OLD.discount_value THEN
+        SET audit_log = CONCAT(audit_log, "Discount Value: ", OLD.discount_value, " -> ", NEW.discount_value, "<br/>");
+    END IF;
+
+    IF NEW.is_variable <> OLD.is_variable THEN
+        SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
+    END IF;
+
+    IF NEW.affects_tax <> OLD.affects_tax THEN
+        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Discount type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('discount_type', NEW.discount_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_discount_type_insert//
+
+CREATE TRIGGER trg_discount_type_insert
+AFTER INSERT ON discount_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Discount type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('discount_type', NEW.discount_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+   TRIGGER: CHARGE TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: UPDATE TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_charge_type_update//
+
+CREATE TRIGGER trg_charge_type_update
+AFTER UPDATE ON charge_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Charge type changed.<br/><br/>';
+
+    IF NEW.charge_type_name <> OLD.charge_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Charge Type Name: ", OLD.charge_type_name, " -> ", NEW.charge_type_name, "<br/>");
+    END IF;
+
+    IF NEW.value_type <> OLD.value_type THEN
+        SET audit_log = CONCAT(audit_log, "Value Type: ", OLD.value_type, " -> ", NEW.value_type, "<br/>");
+    END IF;
+
+    IF NEW.charge_value <> OLD.charge_value THEN
+        SET audit_log = CONCAT(audit_log, "Charge Value: ", OLD.charge_value, " -> ", NEW.charge_value, "<br/>");
+    END IF;
+
+    IF NEW.is_variable <> OLD.is_variable THEN
+        SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
+    END IF;
+
+    IF NEW.affects_tax <> OLD.affects_tax THEN
+        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    END IF;
+    
+    IF audit_log <> 'Charge type changed.<br/><br/>' THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('charge_type', NEW.charge_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT TRIGGERS
+============================================================================================= */
+
+DROP TRIGGER IF EXISTS trg_charge_type_insert//
+
+CREATE TRIGGER trg_charge_type_insert
+AFTER INSERT ON charge_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Charge type created.';
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('charge_type', NEW.charge_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* =============================================================================================
+   END OF TRIGGERS
+============================================================================================= */
+
+
+
+/* =============================================================================================
    TRIGGER: SHOP
 ============================================================================================= */
 
