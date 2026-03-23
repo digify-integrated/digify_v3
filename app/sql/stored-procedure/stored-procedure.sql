@@ -13258,6 +13258,162 @@ END //
 
 
 
+
+/* =============================================================================================
+   STORED PROCEDURE: DISCOUNT TYPE
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 1: SAVE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveDiscountType//
+
+CREATE PROCEDURE saveDiscountType(
+    IN p_discount_type_id INT, 
+    IN p_discount_type_name VARCHAR(100), 
+    IN p_value_type ENUM('Percentage','Fixed Amount'), 
+    IN p_discount_value DECIMAL(15,2), 
+    IN p_is_variable ENUM('Yes', 'No'), 
+    IN p_affects_tax ENUM('Yes', 'No'), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_discount_type_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_discount_type_id IS NULL OR NOT EXISTS (SELECT 1 FROM discount_type WHERE discount_type_id = p_discount_type_id) THEN
+        INSERT INTO discount_type (
+            discount_type_name,
+            value_type,
+            discount_value,
+            is_variable,
+            affects_tax,
+            last_log_by
+        ) 
+        VALUES(
+            p_discount_type_name,
+            p_value_type,
+            p_discount_value,
+            p_is_variable,
+            p_affects_tax,
+            p_last_log_by
+        );
+        
+        SET v_new_discount_type_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE discount_type
+        SET discount_type_name  = p_discount_type_name,
+            value_type          = p_value_type,
+            discount_value      = p_discount_value,
+            is_variable         = p_is_variable,
+            affects_tax         = p_affects_tax,
+            last_log_by         = p_last_log_by
+        WHERE discount_type_id  = p_discount_type_id;
+
+        SET v_new_discount_type_id = p_discount_type_id;
+    END IF;
+
+    COMMIT;
+
+    SELECT v_new_discount_type_id AS new_discount_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 2: INSERT PROCEDURES
+============================================================================================= */
+
+/* =============================================================================================
+   SECTION 3: UPDATE PROCEDURES
+=============================================================================================  */
+
+/* =============================================================================================
+   SECTION 4: FETCH PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS fetchDiscountType//
+
+CREATE PROCEDURE fetchDiscountType(
+    IN p_discount_type_id INT
+)
+BEGIN
+	SELECT * FROM discount_type
+	WHERE discount_type_id = p_discount_type_id
+    LIMIT 1;
+END //
+
+/* =============================================================================================
+   SECTION 5: DELETE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS deleteDiscountType//
+
+CREATE PROCEDURE deleteDiscountType(
+    IN p_discount_type_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM discount_type
+    WHERE discount_type_id = p_discount_type_id;
+
+    COMMIT;
+END //
+
+/* =============================================================================================
+   SECTION 6: CHECK PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS checkDiscountTypeExist//
+
+CREATE PROCEDURE checkDiscountTypeExist(
+    IN p_discount_type_id INT
+)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM discount_type
+    WHERE discount_type_id = p_discount_type_id;
+END //
+
+/* =============================================================================================
+   SECTION 7: GENERATE PROCEDURES
+============================================================================================= */
+
+DROP PROCEDURE IF EXISTS generateDiscountTypeTable//
+
+CREATE PROCEDURE generateDiscountTypeTable()
+BEGIN
+	SELECT *
+    FROM discount_type 
+    ORDER BY discount_type_id;
+END //
+
+DROP PROCEDURE IF EXISTS generateDiscountTypeOptions//
+
+CREATE PROCEDURE generateDiscountTypeOptions()
+BEGIN
+	SELECT discount_type_id, discount_type_name 
+    FROM discount_type 
+    ORDER BY discount_type_name;
+END //
+
+/* =============================================================================================
+   END OF PROCEDURES
+============================================================================================= */
+
+
+
 /* =============================================================================================
    STORED PROCEDURE: SHOP
 ============================================================================================= */
