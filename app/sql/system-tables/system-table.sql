@@ -7829,45 +7829,6 @@ CREATE INDEX idx_charge_type_affects_tax ON charge_type(affects_tax);
 
 
 /* =============================================================================================
-  TABLE: DISCOUNT TYPE
-============================================================================================= */
-
-DROP TABLE IF EXISTS discount_type;
-
-CREATE TABLE charge_type (
-  charge_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  charge_name VARCHAR(100) NOT NULL,
-
-  value_type ENUM('Percentage','Fixed Amount') DEFAULT 'Percentage',
-  charge_value DECIMAL(15,2) DEFAULT 0,
-
-  is_variable TINYINT(1) DEFAULT 0,
-  is_taxable TINYINT(1) DEFAULT 0,
-
-  is_active TINYINT(1) DEFAULT 1,
-
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  last_log_by INT UNSIGNED DEFAULT 1
-);
-
-/* =============================================================================================
-  INDEX: DISCOUNT TYPE
-============================================================================================= */
-
-CREATE INDEX idx_discounts_value_type ON discounts(value_type);
-
-/* =============================================================================================
-  INITIAL VALUES: DISCOUNT TYPE
-============================================================================================= */
-
-/* =============================================================================================
-  END OF TABLE DEFINITIONS
-============================================================================================= */
-
-
-
-/* =============================================================================================
   TABLE: SHOP
 ============================================================================================= */
 
@@ -8240,11 +8201,6 @@ CREATE TABLE shop_order (
   cancelled_reason VARCHAR(500),
   refund_date DATETIME,
   
-  -- Transaction discount
-  transaction_discount_type ENUM('Percentage','Fixed Amount'),
-  transaction_discount_value DECIMAL(15,2) DEFAULT 0, -- input value
-  transaction_discount_amount DECIMAL(15,2) DEFAULT 0, -- calculated amount
-  
   -- Aggregated totals from shop_order_details
   subtotal DECIMAL(15,2) DEFAULT 0,          -- SUM of subtotal
   order_discount_amount DECIMAL(15,2) DEFAULT 0,          -- SUM of discount aount
@@ -8254,8 +8210,10 @@ CREATE TABLE shop_order (
   additive_tax_total DECIMAL(15,2) DEFAULT 0,  -- SUM of additive_tax_total per item
   
   -- Final total after transaction discount
-  total_price DECIMAL(15,2) 
+  total_order_amount DECIMAL(15,2) 
     GENERATED ALWAYS AS ((taxable_amount - transaction_discount_amount) + additive_tax_total) STORED,
+
+  outstanding_balance DECIMAL(15,2) DEFAULT 0,
 
   -- Audit fields
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -8305,22 +8263,13 @@ CREATE TABLE shop_order_details (
   -- Base price (tax-inclusive)
   base_price DECIMAL(15,2) NOT NULL DEFAULT 0,
 
-  -- Discount
-  discount_type ENUM('Percentage','Fixed Amount'),
-  discount_value DECIMAL(15,2) DEFAULT 0,
-  discount_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- Derived per-unit values
-  discount_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula discount_amount / quantity
-  net_price_per_unit DECIMAL(15,2), -- Formula: base_price - discount_per_unit
-
   -- Tax rates (stored snapshot)
   inclusive_rate DECIMAL(10,6) DEFAULT 0, -- Formula: SUM(inclusive taxes)   -- from tax table in decimal form
   additive_rate DECIMAL(10,6) DEFAULT 0, -- Formula: SUM(additive taxes)    -- from tax table in decimal form
 
   -- Per-unit taxes
   inclusive_tax_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula: (base_price * inclusive_rate) / (1 + inclusive_rate)
-  additive_tax_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula: net_price_per_unit * additive_rate
+  additive_tax_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula: base_price * additive_rate
 
   -- Total taxes (generated)
   inclusive_tax_total DECIMAL(15,2)
@@ -8333,11 +8282,8 @@ CREATE TABLE shop_order_details (
   subtotal DECIMAL(15,2)
     GENERATED ALWAYS AS (ROUND(base_price * quantity,2)) STORED,
 
-  taxable_amount DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(subtotal - discount_amount,2)) STORED,
-
   total_price DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(taxable_amount + additive_tax_total,2)) STORED,
+    GENERATED ALWAYS AS (ROUND(subtotal + additive_tax_total,2)) STORED,
 
   -- Order status
   order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled') DEFAULT 'Pending',
@@ -8376,6 +8322,82 @@ CREATE INDEX idx_shop_order_details_completed_date ON shop_order_details(complet
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER DETAILS
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP ORDER APPLIED DISCOUNTS
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_order_applied_discounts;
+
+CREATE TABLE shop_order_applied_discounts (
+  shop_order_applied_discounts_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_order_id INT UNSIGNED NOT NULL,
+  discount_type_id INT UNSIGNED NOT NULL,
+  discount_name VARCHAR(100),
+  applied_value DECIMAL(15,2),
+  calculated_amount DECIMAL(15,2),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
+  FOREIGN KEY (discount_type_id) REFERENCES discount_type(discount_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+CREATE INDEX idx_shop_order_applied_discounts_shop_order_id ON shop_order_applied_discounts(shop_order_id);
+CREATE INDEX idx_shop_order_applied_discounts_discount_type_id ON shop_order_applied_discounts(discount_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_order_applied_charges;
+
+CREATE TABLE shop_order_applied_charges (
+  shop_order_applied_charges_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_order_id INT UNSIGNED NOT NULL,
+  charge_type_id INT UNSIGNED NOT NULL,
+  charge_name VARCHAR(100),
+  applied_value DECIMAL(15,2),
+  calculated_amount DECIMAL(15,2),
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
+  FOREIGN KEY (charge_type_id) REFERENCES charge_type(charge_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+CREATE INDEX idx_shop_order_applied_charges_shop_order_id ON shop_order_applied_charges(shop_order_id);
+CREATE INDEX idx_shop_order_applied_charges_charge_type_id ON shop_order_applied_charges(charge_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ORDER APPLIED CHARGES
 ============================================================================================= */
 
 /* =============================================================================================

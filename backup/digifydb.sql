@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 23, 2026 at 03:56 PM
+-- Generation Time: Mar 24, 2026 at 04:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1555,6 +1555,36 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopAccess` (IN `p_shop_acces
 
     DELETE FROM shop_access
     WHERE shop_access_id = p_shop_access_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopCharges`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopCharges` (IN `p_shop_charges_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_charges
+    WHERE shop_charges_id = p_shop_charges_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `deleteShopDiscounts`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteShopDiscounts` (IN `p_shop_discounts_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_discounts
+    WHERE shop_discounts_id = p_shop_discounts_id;
 
     COMMIT;
 END$$
@@ -4111,6 +4141,46 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopAccessTable` (IN `p_sho
     ORDER BY file_as;
 END$$
 
+DROP PROCEDURE IF EXISTS `generateShopChargesTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopChargesTable` (IN `p_shop_id` INT)   BEGIN
+	SELECT shop_charges_id, charge_type_id, charge_type_name
+    FROM shop_charges 
+    WHERE shop_id = p_shop_id
+    ORDER BY charge_type_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopChargeTypeOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopChargeTypeOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT charge_type_id, charge_type_name 
+    FROM charge_type 
+    WHERE charge_type_id NOT IN (
+        SELECT charge_type_id
+        FROM shop_charges
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY charge_type_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopDiscountsTable`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopDiscountsTable` (IN `p_shop_id` INT)   BEGIN
+	SELECT shop_discounts_id, discount_type_id, discount_type_name
+    FROM shop_discounts 
+    WHERE shop_id = p_shop_id
+    ORDER BY discount_type_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `generateShopDiscountTypeOptions`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopDiscountTypeOptions` (IN `p_shop_id` INT)   BEGIN
+	SELECT discount_type_id, discount_type_name 
+    FROM discount_type 
+    WHERE discount_type_id NOT IN (
+        SELECT discount_type_id
+        FROM shop_discounts
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY discount_type_name;
+END$$
+
 DROP PROCEDURE IF EXISTS `generateShopFloorPlanOptions`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShopFloorPlanOptions` (IN `p_shop_id` INT)   BEGIN
 	SELECT floor_plan_id, floor_plan_name 
@@ -5060,6 +5130,60 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertScrap` (IN `p_product_id` INT
     SELECT v_new_scrap_id AS new_scrap_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `insertShopCharges`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopCharges` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_charge_type_id` INT, IN `p_charge_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_charges (
+        shop_id,
+        shop_name,
+        charge_type_id,
+        charge_type_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_charge_type_id,
+        p_charge_type_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `insertShopDiscounts`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopDiscounts` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_discount_type_id` INT, IN `p_discount_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_discounts (
+        shop_id,
+        shop_name,
+        discount_type_id,
+        discount_type_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_discount_type_id,
+        p_discount_type_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `insertShopFloorPlan`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopFloorPlan` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(100), IN `p_floor_plan_id` INT, IN `p_floor_plan_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -5123,7 +5247,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrder` (IN `p_shop_id` IN
 END$$
 
 DROP PROCEDURE IF EXISTS `insertShopOrderDetail`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_discount_per_unit` DECIMAL(15,2), IN `p_net_price_per_unit` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(15,2), IN `p_additive_rate` DECIMAL(15,2), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(15,2), IN `p_additive_rate` DECIMAL(15,2), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -5137,8 +5261,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_
         product_name,
         quantity,
         base_price,
-        discount_per_unit,
-        net_price_per_unit,
         inclusive_rate,
         additive_rate,
         inclusive_tax_per_unit,
@@ -5151,8 +5273,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_
         p_product_name,
         p_quantity,
         p_base_price,
-        p_discount_per_unit,
-        p_net_price_per_unit,
         p_inclusive_rate,
         p_additive_rate,
         p_inclusive_tax_per_unit,
@@ -9468,7 +9588,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopArchive` (IN `p_shop_id` 
 END$$
 
 DROP PROCEDURE IF EXISTS `updateShopOrderDetail`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_discount_amount` DECIMAL(15,2), IN `p_discount_per_unit` DECIMAL(15,2), IN `p_net_price_per_unit` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -9479,9 +9599,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_
     UPDATE shop_order_details
     SET quantity                = p_quantity,
         base_price              = p_base_price,
-        discount_amount         = p_discount_amount,
-        discount_per_unit       = p_discount_per_unit,
-        net_price_per_unit      = p_net_price_per_unit,
         inclusive_rate          = p_inclusive_rate,
         additive_rate           = p_additive_rate,
         inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
@@ -9489,34 +9606,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_
         last_log_by             = p_last_log_by
     WHERE shop_order_id         = p_shop_order_id
     AND product_id              = p_product_id;
-
-    COMMIT;
-END$$
-
-DROP PROCEDURE IF EXISTS `updateShopOrderDetails`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetails` (IN `p_shop_order_details_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_discount_type` VARCHAR(100), IN `p_discount_value` DECIMAL(15,2), IN `p_discount_amount` DECIMAL(15,2), IN `p_base_price` DECIMAL(15,2), IN `p_discount_per_unit` DECIMAL(15,2), IN `p_net_price_per_unit` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_note` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE shop_order_details
-    SET quantity                = p_quantity,
-        discount_type           = p_discount_type,
-        discount_value          = p_discount_value,
-        discount_amount         = p_discount_amount,
-        base_price              = p_base_price,
-        discount_per_unit       = p_discount_per_unit,
-        net_price_per_unit      = p_net_price_per_unit,
-        inclusive_rate          = p_inclusive_rate,
-        additive_rate           = p_additive_rate,
-        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
-        additive_tax_per_unit   = p_additive_tax_per_unit,
-        note                    = p_note,
-        last_log_by             = p_last_log_by
-    WHERE shop_order_details_id = p_shop_order_details_id;
 
     COMMIT;
 END$$
@@ -9540,6 +9629,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDiscount` (IN `p_sho
     COMMIT;
 END$$
 
+DROP PROCEDURE IF EXISTS `updateShopOrderNote`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderNote` (IN `p_shop_order_details_id` INT, IN `p_note` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order_details
+    SET note                    = p_note,
+        last_log_by             = p_last_log_by
+    WHERE shop_order_details_id = p_shop_order_details_id;
+
+    COMMIT;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateShopOrderPreset`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderPreset` (IN `p_shop_order_id` INT, IN `p_order_preset` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -9553,6 +9659,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderPreset` (IN `p_shop_
     SET order_preset    = p_order_preset,
         last_log_by     = p_last_log_by
     WHERE shop_order_id = p_shop_order_id;
+
+    COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `updateShopOrderQuantity`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderQuantity` (IN `p_shop_order_details_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_last_log_by` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order_details
+    SET quantity                = p_quantity,
+        last_log_by             = p_last_log_by
+    WHERE shop_order_details_id = p_shop_order_details_id;
 
     COMMIT;
 END$$
@@ -10171,7 +10294,12 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (39, 'role_permission', 82, 'Role permission changed.<br/><br/>Export Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:42'),
 (40, 'role_permission', 82, 'Role permission changed.<br/><br/>Log Notes Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:43'),
 (41, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-23 10:17:39 -> 2026-03-23 21:17:31<br/>', 1, '2026-03-23 21:17:31'),
-(42, 'charge_type', 1, 'Charge type created.', 2, '2026-03-23 22:09:36');
+(42, 'charge_type', 1, 'Charge type created.', 2, '2026-03-23 22:09:36'),
+(43, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-23 21:17:31 -> 2026-03-24 09:42:22<br/>', 1, '2026-03-24 09:42:22'),
+(44, 'shop_payment_method', 6, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
+(45, 'shop_payment_method', 7, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
+(46, 'shop_payment_method', 8, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
+(47, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 09:42:22 -> 2026-03-24 20:24:04<br/>', 1, '2026-03-24 20:24:04');
 
 -- --------------------------------------------------------
 
@@ -16617,7 +16745,9 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (32, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-23 10:17:39', 1, '2026-03-23 10:17:39', '2026-03-23 10:17:39', 1),
 (33, NULL, 'l.agulto@chjristianmotors.ph', '::1', '2026-03-23 21:17:27', 0, '2026-03-23 21:17:27', '2026-03-23 21:17:27', 1),
 (34, NULL, 'l.agulto@cjristianmotors.ph', '::1', '2026-03-23 21:17:29', 0, '2026-03-23 21:17:29', '2026-03-23 21:17:29', 1),
-(35, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-23 21:17:31', 1, '2026-03-23 21:17:31', '2026-03-23 21:17:31', 1);
+(35, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-23 21:17:31', 1, '2026-03-23 21:17:31', '2026-03-23 21:17:31', 1),
+(36, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-24 09:42:22', 1, '2026-03-24 09:42:22', '2026-03-24 09:42:22', 1),
+(37, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-24 20:24:04', 1, '2026-03-24 20:24:04', '2026-03-24 20:24:04', 1);
 
 -- --------------------------------------------------------
 
@@ -17852,6 +17982,7 @@ DELIMITER $$
 CREATE TRIGGER `trg_product_pricelist_insert` AFTER INSERT ON `product_pricelist` FOR EACH ROW BEGIN
     DECLARE audit_log TEXT DEFAULT 'Product pricelist created.';
 
+
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('product_pricelist', NEW.product_pricelist_id, audit_log, NEW.last_log_by, NOW());
 END
@@ -18729,7 +18860,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$8Y1Z0gJD/lsao7fKn6vT4ujRwUVoBMdZ5EGdWSoaFvvUqU6TFWCRW', '2026-02-27 14:52:10', '2026-03-23 21:17:31', 1);
+(1, 2, '$2y$10$7u1RCrNmh8j/OCAN2fMQeu8SlY4ZpGQd0HeJ8QLrESigfjiY/o7gm', '2026-02-27 14:52:10', '2026-03-24 20:24:04', 1);
 
 -- --------------------------------------------------------
 
@@ -18872,6 +19003,57 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `shop_charges`
+--
+
+DROP TABLE IF EXISTS `shop_charges`;
+CREATE TABLE `shop_charges` (
+  `shop_charges_id` int(10) UNSIGNED NOT NULL,
+  `shop_id` int(10) UNSIGNED NOT NULL,
+  `shop_name` varchar(200) NOT NULL,
+  `charge_type_id` int(10) UNSIGNED NOT NULL,
+  `charge_type_name` varchar(100) NOT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop_charges`
+--
+
+INSERT INTO `shop_charges` (`shop_charges_id`, `shop_id`, `shop_name`, `charge_type_id`, `charge_type_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 4, 'Cashier', 1, 'Service Charge', '2026-03-24 16:18:05', '2026-03-24 16:18:05', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_discounts`
+--
+
+DROP TABLE IF EXISTS `shop_discounts`;
+CREATE TABLE `shop_discounts` (
+  `shop_discounts_id` int(10) UNSIGNED NOT NULL,
+  `shop_id` int(10) UNSIGNED NOT NULL,
+  `shop_name` varchar(200) NOT NULL,
+  `discount_type_id` int(10) UNSIGNED NOT NULL,
+  `discount_type_name` varchar(100) NOT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop_discounts`
+--
+
+INSERT INTO `shop_discounts` (`shop_discounts_id`, `shop_id`, `shop_name`, `discount_type_id`, `discount_type_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 4, 'Cashier', 4, 'Employee Discount', '2026-03-24 15:41:57', '2026-03-24 15:41:57', 2),
+(5, 4, 'Cashier', 3, 'Senior Citizen', '2026-03-24 16:15:56', '2026-03-24 16:15:56', 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `shop_floor_plan`
 --
 
@@ -18971,8 +19153,46 @@ CREATE TABLE `shop_order` (
 --
 
 INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `transaction_discount_type`, `transaction_discount_value`, `transaction_discount_amount`, `subtotal`, `order_discount_amount`, `taxable_amount`, `subtotal_price`, `inclusive_tax_total`, `additive_tax_total`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 'Percentage', 0.00, 0.00, 684.00, 0.00, 684.00, 820.80, 0.00, 136.80, '2026-03-21 23:46:53', '2026-03-21 23:53:19', 2),
+(1, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 'Percentage', 0.00, 0.00, 120.00, 0.00, 120.00, 144.00, 0.00, 24.00, '2026-03-21 23:46:53', '2026-03-24 22:27:56', 2),
 (2, 4, 'Cashier', NULL, NULL, 'Test', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 'Percentage', 100.00, 12.00, 12.00, 0.00, 12.00, 14.40, 0.00, 2.40, '2026-03-21 23:56:36', '2026-03-22 00:37:10', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_order_applied_charges`
+--
+
+DROP TABLE IF EXISTS `shop_order_applied_charges`;
+CREATE TABLE `shop_order_applied_charges` (
+  `shop_order_applied_charges_id` int(10) UNSIGNED NOT NULL,
+  `shop_order_id` int(10) UNSIGNED NOT NULL,
+  `charge_type_id` int(10) UNSIGNED NOT NULL,
+  `charge_name` varchar(100) DEFAULT NULL,
+  `applied_value` decimal(15,2) DEFAULT NULL,
+  `calculated_amount` decimal(15,2) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shop_order_applied_discounts`
+--
+
+DROP TABLE IF EXISTS `shop_order_applied_discounts`;
+CREATE TABLE `shop_order_applied_discounts` (
+  `shop_order_applied_discounts_id` int(10) UNSIGNED NOT NULL,
+  `shop_order_id` int(10) UNSIGNED NOT NULL,
+  `discount_type_id` int(10) UNSIGNED NOT NULL,
+  `discount_name` varchar(100) DEFAULT NULL,
+  `applied_value` decimal(15,2) DEFAULT NULL,
+  `calculated_amount` decimal(15,2) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_log_by` int(10) UNSIGNED DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -18988,11 +19208,6 @@ CREATE TABLE `shop_order_details` (
   `product_name` varchar(200) NOT NULL,
   `quantity` decimal(15,4) DEFAULT 1.0000,
   `base_price` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `discount_type` enum('Percentage','Fixed Amount') DEFAULT NULL,
-  `discount_value` decimal(15,2) DEFAULT 0.00,
-  `discount_amount` decimal(15,2) DEFAULT 0.00,
-  `discount_per_unit` decimal(15,2) DEFAULT 0.00,
-  `net_price_per_unit` decimal(15,2) DEFAULT NULL,
   `inclusive_rate` decimal(10,6) DEFAULT 0.000000,
   `additive_rate` decimal(10,6) DEFAULT 0.000000,
   `inclusive_tax_per_unit` decimal(15,2) DEFAULT 0.00,
@@ -19000,8 +19215,7 @@ CREATE TABLE `shop_order_details` (
   `inclusive_tax_total` decimal(15,2) GENERATED ALWAYS AS (round(`inclusive_tax_per_unit`,2) * `quantity`) STORED,
   `additive_tax_total` decimal(15,2) GENERATED ALWAYS AS (round(`additive_tax_per_unit`,2) * `quantity`) STORED,
   `subtotal` decimal(15,2) GENERATED ALWAYS AS (round(`base_price` * `quantity`,2)) STORED,
-  `taxable_amount` decimal(15,2) GENERATED ALWAYS AS (round(`subtotal` - `discount_amount`,2)) STORED,
-  `total_price` decimal(15,2) GENERATED ALWAYS AS (round(`taxable_amount` + `additive_tax_total`,2)) STORED,
+  `total_price` decimal(15,2) GENERATED ALWAYS AS (round(`subtotal` + `additive_tax_total`,2)) STORED,
   `order_status` enum('Pending','Kitchen','Preparing','To Serve','Completed','Cancelled') DEFAULT 'Pending',
   `note` varchar(500) DEFAULT NULL,
   `sent_to_kitchen` datetime DEFAULT NULL,
@@ -19018,10 +19232,9 @@ CREATE TABLE `shop_order_details` (
 -- Dumping data for table `shop_order_details`
 --
 
-INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `quantity`, `base_price`, `discount_type`, `discount_value`, `discount_amount`, `discount_per_unit`, `net_price_per_unit`, `inclusive_rate`, `additive_rate`, `inclusive_tax_per_unit`, `additive_tax_per_unit`, `order_status`, `note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `cancelled_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, 3, 'Fries', 57.0000, 12.00, '', 0.00, 0.00, 0.00, 12.00, 0.000000, 0.200000, 0.00, 2.40, 'Pending', '', NULL, NULL, NULL, NULL, NULL, '2026-03-21 23:46:55', '2026-03-21 23:53:19', 2),
-(2, 2, 3, 'Fries', 1.0000, 12.00, NULL, 0.00, 0.00, 0.00, 12.00, 0.000000, 0.200000, 0.00, 2.40, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-21 23:56:36', '2026-03-21 23:56:36', 2),
-(3, 2, 2, 'Burger', 1.0000, 0.00, NULL, 0.00, 0.00, 0.00, 0.00, 0.000000, 0.000000, 0.00, 0.00, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-22 00:37:33', '2026-03-22 00:37:33', 2);
+INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `quantity`, `base_price`, `inclusive_rate`, `additive_rate`, `inclusive_tax_per_unit`, `additive_tax_per_unit`, `order_status`, `note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `cancelled_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(16, 1, 3, 'Fries', 10.0000, 12.00, 0.000000, 0.200000, 0.00, 2.40, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-24 22:19:48', '2026-03-24 22:27:50', 2),
+(17, 1, 2, 'Burger', 4.0000, 0.00, 0.000000, 0.000000, 0.00, 0.00, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-24 22:19:49', '2026-03-24 22:27:49', 2);
 
 -- --------------------------------------------------------
 
@@ -19046,7 +19259,10 @@ CREATE TABLE `shop_payment_method` (
 --
 
 INSERT INTO `shop_payment_method` (`shop_payment_method_id`, `shop_id`, `shop_name`, `payment_method_id`, `payment_method_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(5, 4, 'Test', 4, 'Bank Transfer', '2026-03-03 00:55:51', '2026-03-03 00:55:51', 2);
+(5, 4, 'Test', 4, 'Bank Transfer', '2026-03-03 00:55:51', '2026-03-03 00:55:51', 2),
+(6, 4, 'Cashier', 1, 'Cash', '2026-03-24 15:29:41', '2026-03-24 15:29:41', 2),
+(7, 4, 'Cashier', 8, 'Check', '2026-03-24 15:29:41', '2026-03-24 15:29:41', 2),
+(8, 4, 'Cashier', 2, 'Credit Card', '2026-03-24 15:29:41', '2026-03-24 15:29:41', 2);
 
 --
 -- Triggers `shop_payment_method`
@@ -20052,7 +20268,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-23 21:17:31', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-23 21:17:31', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-24 20:24:04', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-24 20:24:04', 1);
 
 --
 -- Triggers `user_account`
@@ -20956,6 +21172,24 @@ ALTER TABLE `shop_access`
   ADD KEY `idx_shop_access_user_account_id` (`user_account_id`);
 
 --
+-- Indexes for table `shop_charges`
+--
+ALTER TABLE `shop_charges`
+  ADD PRIMARY KEY (`shop_charges_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_charges_shop_id` (`shop_id`),
+  ADD KEY `idx_shop_charges_charge_type_id` (`charge_type_id`);
+
+--
+-- Indexes for table `shop_discounts`
+--
+ALTER TABLE `shop_discounts`
+  ADD PRIMARY KEY (`shop_discounts_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_discounts_shop_id` (`shop_id`),
+  ADD KEY `idx_shop_discounts_discount_type_id` (`discount_type_id`);
+
+--
 -- Indexes for table `shop_floor_plan`
 --
 ALTER TABLE `shop_floor_plan`
@@ -20978,19 +21212,31 @@ ALTER TABLE `shop_order`
   ADD KEY `idx_shop_order_refund_date` (`refund_date`);
 
 --
+-- Indexes for table `shop_order_applied_charges`
+--
+ALTER TABLE `shop_order_applied_charges`
+  ADD PRIMARY KEY (`shop_order_applied_charges_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_order_applied_charges_shop_order_id` (`shop_order_id`),
+  ADD KEY `idx_shop_order_applied_charges_charge_type_id` (`charge_type_id`);
+
+--
+-- Indexes for table `shop_order_applied_discounts`
+--
+ALTER TABLE `shop_order_applied_discounts`
+  ADD PRIMARY KEY (`shop_order_applied_discounts_id`),
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_shop_order_applied_discounts_shop_order_id` (`shop_order_id`),
+  ADD KEY `idx_shop_order_applied_discounts_discount_type_id` (`discount_type_id`);
+
+--
 -- Indexes for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
   ADD PRIMARY KEY (`shop_order_details_id`),
-  ADD KEY `last_log_by` (`last_log_by`),
-  ADD KEY `idx_shop_order_details_shop_order_id` (`shop_order_id`),
-  ADD KEY `idx_shop_order_details_product_id` (`product_id`),
-  ADD KEY `idx_shop_order_details_order_status` (`order_status`),
-  ADD KEY `idx_shop_order_details_discount_type` (`discount_type`),
-  ADD KEY `idx_shop_order_details_sent_to_kitchen` (`sent_to_kitchen`),
-  ADD KEY `idx_shop_order_details_preparing_date` (`preparing_date`),
-  ADD KEY `idx_shop_order_details_to_serve_date` (`to_serve_date`),
-  ADD KEY `idx_shop_order_details_completed_date` (`completed_date`);
+  ADD KEY `shop_order_id` (`shop_order_id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `last_log_by` (`last_log_by`);
 
 --
 -- Indexes for table `shop_payment_method`
@@ -21175,7 +21421,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -21379,7 +21625,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -21556,6 +21802,18 @@ ALTER TABLE `shop_access`
   MODIFY `shop_access_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `shop_charges`
+--
+ALTER TABLE `shop_charges`
+  MODIFY `shop_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `shop_discounts`
+--
+ALTER TABLE `shop_discounts`
+  MODIFY `shop_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `shop_floor_plan`
 --
 ALTER TABLE `shop_floor_plan`
@@ -21568,16 +21826,28 @@ ALTER TABLE `shop_order`
   MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `shop_order_applied_charges`
+--
+ALTER TABLE `shop_order_applied_charges`
+  MODIFY `shop_order_applied_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shop_order_applied_discounts`
+--
+ALTER TABLE `shop_order_applied_discounts`
+  MODIFY `shop_order_applied_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`
 --
 ALTER TABLE `shop_payment_method`
-  MODIFY `shop_payment_method_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `shop_payment_method_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `shop_product`
@@ -22128,6 +22398,22 @@ ALTER TABLE `shop_access`
   ADD CONSTRAINT `shop_access_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
+-- Constraints for table `shop_charges`
+--
+ALTER TABLE `shop_charges`
+  ADD CONSTRAINT `shop_charges_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
+  ADD CONSTRAINT `shop_charges_ibfk_2` FOREIGN KEY (`charge_type_id`) REFERENCES `charge_type` (`charge_type_id`),
+  ADD CONSTRAINT `shop_charges_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_discounts`
+--
+ALTER TABLE `shop_discounts`
+  ADD CONSTRAINT `shop_discounts_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
+  ADD CONSTRAINT `shop_discounts_ibfk_2` FOREIGN KEY (`discount_type_id`) REFERENCES `discount_type` (`discount_type_id`),
+  ADD CONSTRAINT `shop_discounts_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
 -- Constraints for table `shop_floor_plan`
 --
 ALTER TABLE `shop_floor_plan`
@@ -22141,6 +22427,22 @@ ALTER TABLE `shop_floor_plan`
 ALTER TABLE `shop_order`
   ADD CONSTRAINT `shop_order_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`),
   ADD CONSTRAINT `shop_order_ibfk_2` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_order_applied_charges`
+--
+ALTER TABLE `shop_order_applied_charges`
+  ADD CONSTRAINT `shop_order_applied_charges_ibfk_1` FOREIGN KEY (`shop_order_id`) REFERENCES `shop_order` (`shop_order_id`),
+  ADD CONSTRAINT `shop_order_applied_charges_ibfk_2` FOREIGN KEY (`charge_type_id`) REFERENCES `charge_type` (`charge_type_id`),
+  ADD CONSTRAINT `shop_order_applied_charges_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+
+--
+-- Constraints for table `shop_order_applied_discounts`
+--
+ALTER TABLE `shop_order_applied_discounts`
+  ADD CONSTRAINT `shop_order_applied_discounts_ibfk_1` FOREIGN KEY (`shop_order_id`) REFERENCES `shop_order` (`shop_order_id`),
+  ADD CONSTRAINT `shop_order_applied_discounts_ibfk_2` FOREIGN KEY (`discount_type_id`) REFERENCES `discount_type` (`discount_type_id`),
+  ADD CONSTRAINT `shop_order_applied_discounts_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
 
 --
 -- Constraints for table `shop_order_details`

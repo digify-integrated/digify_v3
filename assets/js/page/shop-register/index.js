@@ -96,21 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
             maximumFractionDigits: 2
         });
 
-        const formatPeso = (value) => `&#8369; ${pesoFormatter.format(Number(value || 0))}`;
-
         const isValidNote = (note) => {
             return note && note !== 'null' && note.toString().trim() !== '';
-        };
-
-        const hasDiscount = (order) => {
-            return Number(order.discount_value) > 0 && order.discount_type !== '';
-        };
-
-        const formatDiscount = (order) => {
-            if (order.discount_type === 'Percentage') {
-                return `${pesoFormatter.format(Number(order.discount_value))}%`;
-            }
-            return formatPeso(order.discount_value);
         };
 
         const formatTotal = (total) => {
@@ -120,22 +107,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // =========================
         // Template Builders
         // =========================
-        const buildDiscountHTML = (order) => {
+        const buildEmptyStateHTML = () => {
             return `
-                <div class="row">
-                    <div class="col-12">
-                        <span class="badge badge-warning text-wrap">
-                            ${formatDiscount(order)} discount on ${formatPeso(order.subtotal)}
-                        </span>
-                    </div>
+                <div class="d-flex flex-column flex-center border border-dashed border-gray-300 rounded py-10 px-5">
+                    <i class="ki-outline ki-basket fs-3x text-gray-400 mb-3"></i>
+                    <span class="fs-6 fw-bold text-gray-500">No items added in this order yet.</span>
                 </div>`;
         };
 
         const buildNoteHTML = (note) => {
             return `
-                <div class="row mt-2">
+                <div class="row mb-4">
                     <div class="col-12">
-                        <span class="badge badge-danger text-wrap text-start">
+                        <span class="badge badge-warning text-wrap text-start">
                             Note: ${note}
                         </span>
                     </div>
@@ -144,51 +128,106 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buildDetailsHTML = (order) => {
             const noteValid = isValidNote(order.note);
-            const discountValid = hasDiscount(order);
-
-            if (!noteValid && !discountValid) return '';
+            if (!noteValid) return '';
 
             let html = '<div class="separator separator-dashed mb-2 mt-2"></div>';
-
-            if (discountValid) {
-                html += buildDiscountHTML(order);
-            }
-
-            if (noteValid) {
-                html += buildNoteHTML(order.note);
-            }
+            html += buildNoteHTML(order.note);
 
             return html;
         };
 
         const buildOrderHTML = (order) => {
             return `
-                <div class="border border-dashed border-gray-300 rounded px-7 bg-hover-secondary py-5 mb-2 shop-order" 
-                    data-shop-order-details-id="${order.shop_order_details_id}" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#update-order-details-modal">
+                <div class="border border-dashed border-gray-300 rounded px-7 py-3 mb-2">
+                    <div class="d-flex align-items-center justify-content-between gap-5">
+                        <div class="fs-5 text-gray-900 fw-semibold flex-grow-1 min-w-0">
+                            ${order.product_name}
+                        </div>
 
-                    <div class="row align-items-center">
-                        <div class="col-6">
-                            <span class="fw-semibold d-block fs-4">${order.product_name}</span>
+                        <div class="position-relative w-150px order-quantity" 
+                            data-kt-dialer="true" 
+                            data-kt-dialer-min="0.01" 
+                            data-kt-dialer-step="1" 
+                            data-kt-dialer-decimals="2">
+                            
+                            <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
+                                <i class="ki-outline ki-minus-circle fs-1"></i>
+                            </button>
+
+                            <input type="text" class="form-control form-control-solid border-0 ps-10 pe-10 text-center" 
+                                data-kt-dialer-control="input" 
+                                placeholder="Amount" 
+                                data-shop-order-details-id="${order.shop_order_details_id}" 
+                                value="${order.formatted_qty.trim()}"/>
+
+                            <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
+                                <i class="ki-outline ki-plus-circle fs-1"></i>
+                            </button>
                         </div>
-                        <div class="col-3 text-center fw-bold">
-                            ${order.formatted_qty}
-                        </div>
-                        <div class="col-3 text-end fw-bold">
+
+                        <div class="fs-5 text-gray-900 fw-semibold w-100px text-end">
                             ${formatTotal(order.formatted_total)}
                         </div>
-                    </div>
 
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-icon btn-active-light-warning w-30px h-30px shop-order-notes" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="modal" data-bs-target="#order-notes-modal" data-bs-toggle="tooltip" title="Note">
+                                <i class="ki-outline ki-notepad-edit fs-3"></i>
+                            </a>
+                            <a href="#" class="btn btn-icon btn-active-light-danger w-30px h-30px delete-order-details" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="tooltip" title="Delete">
+                                <i class="ki-outline ki-trash fs-3"></i>
+                            </a>
+                        </div>
+                    </div>
                     ${buildDetailsHTML(order)}
                 </div>`;
         };
 
         // =========================
-        // Render
+        // Render Logic
         // =========================
+        if (!data.orders || data.orders.length === 0) {
+            $container.html(buildEmptyStateHTML());
+            return; // Stop here if empty
+        }
+
         const html = data.orders.map(buildOrderHTML).join('');
         $container.html(html);
+
+        // =========================
+        // Initialization
+        // =========================
+        
+        // Combined loop for performance
+        $container.find('[data-kt-dialer="true"]').each(function() {
+            const dialerElement = this;
+            let dialerObject = KTDialer.getInstance(dialerElement) || new KTDialer(dialerElement);
+
+            const orderDetailsId = $(dialerElement).find('input').attr('data-shop-order-details-id');
+
+            dialerObject.on('kt.dialer.changed', async function() {
+                const quantity = dialerObject.getValue();
+                
+                try {
+                    const result = await apiRequest('update shop order quantity', {
+                        shop_order_details_id: orderDetailsId,
+                        quantity: quantity
+                    });
+
+                    if(result?.success){
+                        // Reload the list and totals to reflect price changes
+                        loadOrderList(getOrderId());
+                        fetchOrderTotal(getOrderId());
+                    }
+                } catch (error) {
+                    console.error("Critical: Could not sync order.", error);
+                }
+            });
+        });
+
+        // Initialize tooltips
+        $container.find('[data-bs-toggle="tooltip"]').each(function() {
+            new bootstrap.Tooltip(this);
+        });
     };
 
     const loadRegisterTabs = async () => {
@@ -361,6 +400,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const loadOrderDiscount = async () => {
+        const data = await apiRequest('generate shop discounts form', { shop_id: getShopId() });
+
+        if (data?.success && data.floorPlans) {
+            const $container = $('#discount-list');
+            
+            const html = data.floorPlans.map((plan, i) => {
+                const activeClass = (i === 0) ? 'active' : '';
+                
+                return `
+                    <div class="col-6 col-lg-2 mb-7">
+                        <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
+                                btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg ${activeClass}"
+                        data-bs-toggle="pill"
+                        href="#floor_plan_${plan.id}">
+                            <div>
+                                <span class="text-gray-800 fw-bold fs-2 d-block">
+                                    ${plan.name}
+                                </span>
+                                <span class="text-primary fw-semibold fs-7">
+                                    Available Table: ${plan.count.toLocaleString()}
+                                </span>
+                            </div>
+                        </a>
+                    </div>`;
+            }).join(''); // Join array into a single string
+            
+            $container.html(html);
+        }
+    };
+
+
     const refreshRegisterUI = async (orderId) => {
         loadOrderList(orderId);
 
@@ -406,20 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await apiRequest('fetch shop order details', { shop_order_details_id });
         if (data?.success) {
             $('#shop_order_details_id').val(shop_order_details_id);
-            $('#quantity').val(data.quantity);
-            $('#discount_value').val(data.discountValue);
             $('#note').val(data.note);
-
-            $('#discount_type').val(data.discountType || '').trigger('change');
-        }
-    };
-
-    const fetchShopOrderDiscountDetails = async (shop_order_id) => {
-        const data = await apiRequest('fetch shop order discount details', { shop_order_id });
-        if (data?.success) {
-            $('#transaction_discount_value').val(data.transactionDiscountValue);
-
-            $('#transaction_discount_type').val(data.transactionDiscountType || '').trigger('change');
         }
     };
 
@@ -431,14 +489,14 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charges-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         loadRegisterTables();
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #order-preset').removeClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charges-button, #order-preset').removeClass('d-none');
     };
 
     const traverseTab = (target) => {
@@ -465,41 +523,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const addProductBtn = target.closest('.add-shop-order');
         if (addProductBtn) {
             if ($('.add-shop-order.is-loading').length > 0) {
-            return;
-        }
-
-        // 2. LOCK ALL: Disable every product card immediately
-        const $allProducts = $('.add-shop-order');
-        $allProducts.addClass(  'is-loading');
-
-        const currentOrderId = getOrderId();
-        const productId = addProductBtn.dataset.productId;
-        const productPrice = addProductBtn.dataset.productPrice || 0;
-        const productName = addProductBtn.dataset.productName || '';
-
-        // Optimistic UI Update (instant feedback for the one clicked)
-        updateUIOptimistically(productId, productPrice, productName);
-
-        try {
-            const data = await apiRequest('insert shop order product', {
-                shop_id: addProductBtn.dataset.shopId,
-                product_id: productId,
-                shop_order_id: (currentOrderId === 'null' || !currentOrderId) ? '' : currentOrderId
-            });
-
-            if (data?.success) {
-                sessionStorage.setItem('shop_order_id', data.shop_order_id);
-                
-                // 3. SYNC TRUTH: Wait for the list and totals to fully refresh from DB
-                await refreshRegisterUI(data.shop_order_id);
+                return;
             }
-        } catch (error) {
-            console.error("Critical: Could not sync order.", error);
-            // Optional: showNotification('Error', 'Failed to add item', 'error');
-        } finally {
-            // 4. UNLOCK ALL: Re-enable everything once the UI refresh is finished
-            $allProducts.removeClass('is-loading');
-        }
+
+            // 2. LOCK ALL: Disable every product card immediately
+            const $allProducts = $('.add-shop-order');
+            $allProducts.addClass(  'is-loading');
+
+            const currentOrderId = getOrderId();
+            const productId = addProductBtn.dataset.productId;
+            const productPrice = addProductBtn.dataset.productPrice || 0;
+            const productName = addProductBtn.dataset.productName || '';
+
+            // Optimistic UI Update (instant feedback for the one clicked)
+            updateUIOptimistically(productId, productPrice, productName);
+
+            try {
+                const data = await apiRequest('insert shop order product', {
+                    shop_id: addProductBtn.dataset.shopId,
+                    product_id: productId,
+                    shop_order_id: (currentOrderId === 'null' || !currentOrderId) ? '' : currentOrderId
+                });
+
+                if (data?.success) {
+                    sessionStorage.setItem('shop_order_id', data.shop_order_id);
+                    
+                    // 3. SYNC TRUTH: Wait for the list and totals to fully refresh from DB
+                    await refreshRegisterUI(data.shop_order_id);
+                }
+            } catch (error) {
+                console.error("Critical: Could not sync order.", error);
+                // Optional: showNotification('Error', 'Failed to add item', 'error');
+            } finally {
+                // 4. UNLOCK ALL: Re-enable everything once the UI refresh is finished
+                $allProducts.removeClass('is-loading');
+            }
             return;
         }
 
@@ -516,21 +574,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!isUpdate) sessionStorage.setItem('shop_order_id', data.shop_order_id);
                 refreshRegisterUI(getOrderId());
                 loadRegisterTables();
-            }
-            return;
-        }
-
-        const deleteOrderDetailsBtn = target.closest('#delete-order-details');
-        if (deleteOrderDetailsBtn) {
-            const shop_order_details_id = $('#shop_order_details_id').val();
-            const data = await apiRequest('delete shop order details', {
-                shop_order_details_id: shop_order_details_id
-            });
-            if (data?.success) {
-                $('#update-order-details-modal').modal('hide');
-                resetForm('update_order_details_form');
-                loadOrderList(getOrderId());
-                fetchOrderTotal(getOrderId());
             }
             return;
         }
@@ -578,14 +621,69 @@ document.addEventListener('DOMContentLoaded', () => {
             $('.add-shop-table-order').addClass('d-none');
         }
 
-        if (target.closest('.shop-order')) {
-            const shopOrderDetailsId = target.closest('.shop-order').dataset.shopOrderDetailsId;
+        if (target.closest('.shop-order-notes')) {
+            const shopOrderDetailsId = target.closest('.shop-order-notes').dataset.shopOrderDetailsId;
             fetchShopOrderDetails(shopOrderDetailsId);
         }
 
         if (target.closest('#discount-button')) {
-            fetchShopOrderDiscountDetails(getOrderId());
+            loadOrderDiscount(getOrderId());
         }
+
+        if (target.closest('#charge-button')) {
+            loadOrderCharge(getOrderId());
+        }
+
+        if (target.closest('.delete-order-details')){
+            const transaction           = 'delete shop order details';
+            const button                = event.target.closest('.delete-order-details');
+            const shop_order_details_id = button.dataset.shopOrderDetailsId;
+                
+            Swal.fire({
+                title: 'Confirm Order Deletion',
+                text: 'Are you sure you want to delete this order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+                
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_order_details_id', shop_order_details_id);
+                
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+                
+                    const data = await response.json();
+                
+                    if (data.success) {
+                        loadOrderList(getOrderId());
+                        fetchOrderTotal(getOrderId());
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+                }
     });
 
     document.querySelectorAll('.order-preset-option').forEach((radio) => {
@@ -654,60 +752,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('#update_order_details_form').validate({
-        rules: {
-            quantity: {
-                required: true
-            },
-            discount_value: {
-                required: function() {
-                    return $('#discount_type').val() != '';
-                },
-                number: true,
-                maxPercentage: true
-            }
-        },
-        messages: {
-            quantity: {
-                required: 'Enter the quantity'
-            },
-            discount_value: {
-                required: 'Enter discount value',
-                number: 'Please enter a valid number'
-            }
-        },
-        highlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
-                ? $element.next().find('.select2-selection')
-                : $element;
-            $target.addClass('is-invalid');
-        },
-        unhighlight: (element) => {
-            const $element = $(element);
-            const $target = $element.hasClass('select2-hidden-accessible')
-                ? $element.next().find('.select2-selection')
-                : $element;
-            $target.removeClass('is-invalid');
-        },
+    $('#order_notes_form').validate({
         submitHandler: async (form, event) => {
             const shop_order_details_id = $('#shop_order_details_id').val();
             event.preventDefault();
-            disableButton('submit-order-details');
-            const data = await apiRequest('update shop order details', {
+            disableButton('submit-order-notes');
+            const data = await apiRequest('update shop order note', {
                 ...Object.fromEntries(new FormData(form)),
                 shop_order_details_id: shop_order_details_id
             });
             if (data?.success) {
-                $('#update-order-details-modal').modal('hide');
-                resetForm('update_order_details_form');
+                $('#order-notes-modal').modal('hide');
+                resetForm('order_notes_form');
                 loadOrderList(getOrderId());
                 fetchOrderTotal(getOrderId());
             }
             else{
                 showNotification(data.title, data.message, data.message_type);
             }
-            enableButton('submit-order-details');
+            enableButton('submit-order-notes');
             return false;
         }
     });
@@ -727,6 +790,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 required: 'Enter discount value',
                 number: 'Please enter a valid number'
             }
+        },
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
         },
         highlight: (element) => {
             const $element = $(element);

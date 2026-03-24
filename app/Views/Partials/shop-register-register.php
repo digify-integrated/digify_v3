@@ -20,53 +20,7 @@
             </div>
 
             <div class="card-body pt-3">
-                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px" id="shop-order-lists">
-                    <div class="border border-dashed border-gray-300 rounded px-7 py-3 mb-5 ">
-                        <div class="d-flex align-items-center justify-content-between gap-5">
-                            <div class="fs-6 text-gray-900 fw-semibold w-auto flex-grow-1">
-                                Fries
-                            </div>
-
-                            <div class="position-relative w-150px" 
-                                data-kt-dialer="true" 
-                                data-kt-dialer-min="0.01" 
-                                data-kt-dialer-step="0.01" 
-                                data-kt-dialer-decimals="2">
-
-                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
-                                    <i class="ki-outline ki-minus-circle fs-1"></i>
-                                </button>
-
-                                <input type="text" class="form-control form-control-solid border-0 ps-12 pe-12 text-center" data-kt-dialer-control="input" placeholder="Amount" readonly value="0.00"/>
-
-                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
-                                    <i class="ki-outline ki-plus-circle fs-1"></i>
-                                </button>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-icon btn-active-light-primary w-30px h-30px" data-bs-toggle="modal" data-bs-target="#kt_modal_update_address">
-                                    <span data-bs-toggle="tooltip" title="Edit">
-                                        <i class="ki-outline ki-pencil fs-3"></i>
-                                    </span>
-                                </a>
-
-                                <a href="#" class="btn btn-icon btn-active-light-primary w-30px h-30px" data-bs-toggle="tooltip" title="Delete">
-                                    <i class="ki-outline ki-trash fs-3"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="separator separator-dashed my-4"></div>
-
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <span class="badge badge-danger text-wrap text-start">
-                                    Note: ${note}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="hover-scroll-overlay-y pe-6 me-n8" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
                         <div class="d-flex flex-stack p-6">
@@ -103,12 +57,14 @@
                         </label>
                     </div>
 
+                    <?php if ($floorPlanCount > 0): ?>
+                        <button class="btn btn-warning w-100 p-5 mb-3 d-none" id="send-kitchen-button">
+                            Send To Kitchen
+                        </button>
+                    <?php endif; ?>
+
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
-                        <?php if ($floorPlanCount > 0): ?>
-                            <button class="btn btn-light-warning w-100 p-5 d-none" id="send-kitchen-button">
-                                Kitchen
-                            </button>
-                            
+                        <?php if ($floorPlanCount > 0): ?>                            
                             <button class="btn btn-light-primary w-100 p-5 d-none" id="set-table-button">
                                 Set Table
                             </button>
@@ -124,6 +80,13 @@
                             Discount
                         </button>
 
+                        
+                        <button class="btn btn-light-danger w-100 p-5 d-none" id="charges-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
+                            Extra Charges
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <button class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
                             Print Bill
                         </button>
@@ -206,42 +169,22 @@
     </div>
 </div>
 
-<div id="update-order-details-modal" class="modal fade" tabindex="-1" aria-labelledby="update-order-details-modal" aria-hidden="true">
+<div id="order-notes-modal" class="modal fade" tabindex="-1" aria-labelledby="order-notes-modal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Update Order</h3>
+                <h3 class="modal-title">Notes</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             </div>
 
             <div class="modal-body">
-                <form id="update_order_details_form" method="post" action="#">
-                    <?= $security->csrfInput('update_order_details_form'); ?>
+                <form id="order_notes_form" method="post" action="#">
+                    <?= $security->csrfInput('order_notes_form'); ?>
                     <input type="hidden" id="shop_order_details_id" name="shop_order_details_id">
-                    <div class="row mb-6">
-                        <label class="col-lg-2 col-form-label required fw-semibold fs-6" for="quantity">Quantity</label>
-                        <div class="col-lg-10">
-                           <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="0.0001">
-                        </div>
-                    </div>
-                    <div class="row mb-6">
-                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="discount_type">Discount</label>
-                        <div class="col-lg-5">
-                           <select id="discount_type" name="discount_type" class="form-select" data-dropdown-parent="#update-order-details-modal" data-control="select2" data-allow-clear="false">
-                                <option value="">--</option>
-                                <option value="Percentage">Percentage</option>
-                                <option value="Fixed Amount">Fixed Amount</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-5">
-                           <input type="number" class="form-control" id="discount_value" name="discount_value" min="0" step="0.01">
-                        </div>
-                    </div>
                     <div class="row">
-                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="note">Note</label>
-                        <div class="col-lg-10">
+                        <div class="col-lg-12">
                           <textarea class="form-control" id="note" name="note" maxlength="500" rows="5"></textarea>
                         </div>
                     </div>
@@ -249,19 +192,12 @@
             </div>
 
             <div class="modal-footer">
-                <div class="d-flex justify-content-between  w-100">
-                    <button type="button" class="btn btn-danger" id="delete-order-details">
-                        Delete
-                    </button>
-                    <div>
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="submit" form="update_order_details_form" class="btn btn-primary" id="submit-order-details">
-                            Save
-                        </button>
-                    </div>
-                </div>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="submit" form="order_notes_form" class="btn btn-primary" id="submit-order-notes">
+                    Save
+                </button>
             </div>
         </div>
     </div>
@@ -278,21 +214,9 @@
             </div>
 
             <div class="modal-body">
-                <form id="transaction_discount_form" method="post" action="#">
-                    <?= $security->csrfInput('transaction_discount_form'); ?>
-                    <div class="row mb-6">
-                        <label class="col-lg-2 col-form-label fw-semibold fs-6" for="transaction_discount_type">Discount</label>
-                        <div class="col-lg-5">
-                           <select id="transaction_discount_type" name="transaction_discount_type" class="form-select" data-dropdown-parent="#discount-modal" data-control="select2" data-allow-clear="false">
-                                <option value="">--</option>
-                                <option value="Percentage">Percentage</option>
-                                <option value="Fixed Amount">Fixed Amount</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-5">
-                           <input type="number" class="form-control" id="transaction_discount_value" name="transaction_discount_value" min="0" step="0.01">
-                        </div>
-                    </div>
+                <form id="order_discount_form" method="post" action="#">
+                    <?= $security->csrfInput('order_discount_form'); ?>
+                    <div id="discount-list"></div>
                 </form>
             </div>
 
@@ -300,7 +224,36 @@
                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     Close
                 </button>
-                <button type="submit" form="transaction_discount_form" class="btn btn-primary" id="submit-transaction-discount">
+                <button type="submit" form="order_discount_form" class="btn btn-primary" id="submit-order-discount">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="charge-modal" class="modal fade" tabindex="-1" aria-labelledby="charge-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Discount</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="order_charge_form" method="post" action="#">
+                    <?= $security->csrfInput('order_charge_form'); ?>
+                    <div id="charge-list"></div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+               <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="submit" form="order_charge_form" class="btn btn-primary" id="submit-order-charge">
                     Save
                 </button>
             </div>

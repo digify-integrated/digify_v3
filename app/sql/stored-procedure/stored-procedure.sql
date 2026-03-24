@@ -14573,8 +14573,6 @@ CREATE PROCEDURE insertShopOrderDetail(
     IN p_product_name VARCHAR(100),
     IN p_quantity DECIMAL(15,4),
     IN p_base_price DECIMAL(15,2),
-    IN p_discount_per_unit DECIMAL(15,2),
-    IN p_net_price_per_unit DECIMAL(15,2),
     IN p_inclusive_rate DECIMAL(15,2),
     IN p_additive_rate DECIMAL(15,2),
     IN p_inclusive_tax_per_unit DECIMAL(15,2),
@@ -14595,8 +14593,6 @@ BEGIN
         product_name,
         quantity,
         base_price,
-        discount_per_unit,
-        net_price_per_unit,
         inclusive_rate,
         additive_rate,
         inclusive_tax_per_unit,
@@ -14609,8 +14605,6 @@ BEGIN
         p_product_name,
         p_quantity,
         p_base_price,
-        p_discount_per_unit,
-        p_net_price_per_unit,
         p_inclusive_rate,
         p_additive_rate,
         p_inclusive_tax_per_unit,
@@ -14727,22 +14721,11 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS updateShopOrderDetails//
+DROP PROCEDURE IF EXISTS updateShopOrderQuantity//
 
-CREATE PROCEDURE updateShopOrderDetails(
+CREATE PROCEDURE updateShopOrderQuantity(
     IN p_shop_order_details_id INT, 
     IN p_quantity DECIMAL(15,4),
-    IN p_discount_type VARCHAR(100),
-    IN p_discount_value DECIMAL(15,2),
-    IN p_discount_amount DECIMAL(15,2),
-    IN p_base_price DECIMAL(15,2),
-    IN p_discount_per_unit DECIMAL(15,2),
-    IN p_net_price_per_unit DECIMAL(15,2),
-    IN p_inclusive_rate DECIMAL(10,6),
-    IN p_additive_rate DECIMAL(10,6),
-    IN p_inclusive_tax_per_unit DECIMAL(15,2),
-    IN p_additive_tax_per_unit DECIMAL(15,2),
-    IN p_note VARCHAR(500),
     IN p_last_log_by INT
 )
 BEGIN
@@ -14755,17 +14738,29 @@ BEGIN
 
     UPDATE shop_order_details
     SET quantity                = p_quantity,
-        discount_type           = p_discount_type,
-        discount_value          = p_discount_value,
-        discount_amount         = p_discount_amount,
-        base_price              = p_base_price,
-        discount_per_unit       = p_discount_per_unit,
-        net_price_per_unit      = p_net_price_per_unit,
-        inclusive_rate          = p_inclusive_rate,
-        additive_rate           = p_additive_rate,
-        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
-        additive_tax_per_unit   = p_additive_tax_per_unit,
-        note                    = p_note,
+        last_log_by             = p_last_log_by
+    WHERE shop_order_details_id = p_shop_order_details_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopOrderNote//
+
+CREATE PROCEDURE updateShopOrderNote(
+    IN p_shop_order_details_id INT, 
+    IN p_note VARCHAR(500),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_order_details
+    SET note                    = p_note,
         last_log_by             = p_last_log_by
     WHERE shop_order_details_id = p_shop_order_details_id;
 
@@ -14779,9 +14774,6 @@ CREATE PROCEDURE updateShopOrderDetail(
     IN p_product_id INT,
     IN p_quantity DECIMAL(15,4),
     IN p_base_price DECIMAL(15,2),
-    IN p_discount_amount DECIMAL(15,2),
-    IN p_discount_per_unit DECIMAL(15,2),
-    IN p_net_price_per_unit DECIMAL(15,2),
     IN p_inclusive_rate DECIMAL(10,6),
     IN p_additive_rate DECIMAL(10,6),
     IN p_inclusive_tax_per_unit DECIMAL(15,2),
@@ -14799,9 +14791,6 @@ BEGIN
     UPDATE shop_order_details
     SET quantity                = p_quantity,
         base_price              = p_base_price,
-        discount_amount         = p_discount_amount,
-        discount_per_unit       = p_discount_per_unit,
-        net_price_per_unit      = p_net_price_per_unit,
         inclusive_rate          = p_inclusive_rate,
         additive_rate           = p_additive_rate,
         inclusive_tax_per_unit  = p_inclusive_tax_per_unit,

@@ -115,7 +115,8 @@ class ShopController {
             'update shop order tab'                 => $this->updateShopOrderTab($lastLogBy),
             'update shop order to cancel'           => $this->updateShopOrderToCancel($lastLogBy),
             'update shop order preset'              => $this->updateShopOrderPreset($lastLogBy),
-            'update shop order details'             => $this->updateShopOrderDetails($lastLogBy),
+            'update shop order note'                => $this->updateShopOrderNote($lastLogBy),
+            'update shop order quantity'            => $this->updateShopOrderQuantity($lastLogBy),
             'update shop order discount'            => $this->updateShopOrderDiscount($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
@@ -143,6 +144,7 @@ class ShopController {
             'generate shop product categories'      => $this->generateShopProductCategories(),
             'generate shop products'                => $this->generateShopProducts(),
             'generate shop order list'              => $this->generateShopOrderList(),
+            'generate shop discounts form'          => $this->generateShopDiscountList(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -538,33 +540,17 @@ class ShopController {
         if($checkShopOrderProductExist > 0){
             $shopOrderDetailDetails = $this->shop->fetchShopOrderDetailsByProduct($shopOrderId, $productId);
             $quantity               = ($shopOrderDetailDetails['quantity'] ?? 0) + 1;
-            $discountType           = $shopOrderDetailDetails['discount_type'] ?? '';
-            $discountValue          = $shopOrderDetailDetails['discount_value'] ?? '';
-            $subtotal               = $basePrice * $quantity;
 
-            if(!empty($discountType)){
-                $discountAmount = $discountType === 'Percentage' ? $subtotal * ($discountValue / 100) : $discountValue;
-            }
-            else{
-                $discountAmount = 0;
-                $discountValue = 0;
-            }
-
-            $discountPerUnit = $discountAmount / $quantity;
-            $netPricePerUnit = $basePrice - $discountPerUnit;
             $inclusiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
             $additiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
             $inclusiveTaxPerUnit = ($basePrice * $inclusiveRate) / (1 + $inclusiveRate);
-            $additiveTaxPerUnit = $netPricePerUnit * $additiveRate;
+            $additiveTaxPerUnit = $basePrice * $additiveRate;
 
             $this->shop->updateShopOrderDetail(
                 $shopOrderId,
                 $productId,
                 $quantity,
                 $basePrice,
-                $discountAmount,
-                $discountPerUnit,
-                $netPricePerUnit,
                 $inclusiveRate,
                 $additiveRate,
                 $inclusiveTaxPerUnit,
@@ -574,12 +560,10 @@ class ShopController {
         }
         else {
             $quantity               = 1;
-            $discountPerUnit        = 0;
-            $netPricePerUnit        = $basePrice - $discountPerUnit;
             $inclusiveRate          = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
             $additiveRate           = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
             $inclusiveTaxPerUnit    = ($basePrice * $inclusiveRate) / (1 + $inclusiveRate);
-            $additiveTaxPerUnit     = $netPricePerUnit * $additiveRate;
+            $additiveTaxPerUnit     = $basePrice * $additiveRate;
 
             $this->shop->insertShopOrderDetail(
                 $shopOrderId,
@@ -587,8 +571,6 @@ class ShopController {
                 $productName,
                 $quantity,
                 $basePrice,
-                $discountPerUnit,
-                $netPricePerUnit,
                 $inclusiveRate,
                 $additiveRate,
                 $inclusiveTaxPerUnit,
@@ -597,10 +579,10 @@ class ShopController {
             );
         }
 
-        $this->shop->updateShopOrderTotal(
+        /*$this->shop->updateShopOrderTotal(
             $shopOrderId,
             $lastLogBy
-        );
+        );*/
 
         $this->systemHelper::sendSuccessResponse(
             '',
@@ -721,64 +703,36 @@ class ShopController {
         );
     }
    
-    public function updateShopOrderDetails(
+    public function updateShopOrderNote(
+        int $lastLogBy
+    ) {
+        $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
+        $note               = $_POST['note'] ?? null;
+
+        $this->shop->updateShopOrderNote(
+            $shopOrderDetailsId,
+            $note,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopOrderQuantity(
         int $lastLogBy
     ) {
         $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
         $quantity           = $_POST['quantity'] ?? 0;
-        $discountType       = $_POST['discount_type'] ?? null;
-        $discountValue      = $_POST['discount_value'] ?? null;
-        $note               = $_POST['note'] ?? null;
 
         if($quantity > 0){
-            $shopOrderDetailDetails = $this->shop->fetchShopOrderDetailDetails($shopOrderDetailsId);
-            $shopOrderId            = $shopOrderDetailDetails['shop_order_id'] ?? 0;
-            $productId              = $shopOrderDetailDetails['product_id'] ?? 0;
-
-            $productDetails = $this->product->fetchProduct($productId);
-            $basePrice      = $productDetails['sales_price'] ?? 0;
-            
-            $subtotal = $basePrice * $quantity;
-
-            if(!empty($discountType)){
-                $discountAmount = $discountType === 'Percentage' ? $subtotal * ($discountValue / 100) : $discountValue;
-            }
-            else{
-                $discountAmount = 0;
-                $discountValue = 0;
-            }
-
-            $discountPerUnit = $discountAmount / $quantity;
-            $netPricePerUnit = $basePrice - $discountPerUnit;
-            $inclusiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
-            $additiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
-            $inclusiveTaxPerUnit = ($basePrice * $inclusiveRate) / (1 + $inclusiveRate);
-            $additiveTaxPerUnit = $netPricePerUnit * $additiveRate;
-
-            $this->shop->updateShopOrderDetails(
+            $this->shop->updateShopOrderQuantity(
                 $shopOrderDetailsId,
                 $quantity,
-                $discountType,
-                $discountValue,
-                $discountAmount,
-                $basePrice,
-                $discountPerUnit,
-                $netPricePerUnit,
-                $inclusiveRate,
-                $additiveRate,
-                $inclusiveTaxPerUnit,
-                $additiveTaxPerUnit,
-                $note,
                 $lastLogBy
             );
-
-            $this->shop->updateShopOrderTotal(
-                $shopOrderId,
-                $lastLogBy
-            );
-        }
-        else{
-            $this->shop->deleteShopOrderDetails($shopOrderDetailsId);
         }
 
         $this->systemHelper::sendSuccessResponse(
@@ -1401,6 +1355,32 @@ class ShopController {
         echo json_encode([
             'success'    => true,
             'floorPlans' => $data
+        ]);
+    }
+    
+    public function generateShopDiscountList() {
+        $shopId = $_POST['shop_id'] ?? null;
+        $shopDiscounts = $this->shop->fetchShopDiscounts($shopId);
+        $data = [];
+
+        foreach ($shopDiscounts as $row) {
+            $shopDiscountsId = $row['shop_discounts_id'];
+            $discountTypeId = $row['discount_type_id'];
+            
+            $discountTypeDetails = $this->discountType->fetchDiscountType($discountTypeId);
+            
+            $data[] = [
+                'id'    => $shopDiscountsId,
+                'discountTypeName'  => $discountTypeDetails['discount_type_name'],
+                'valueType'  => $discountTypeDetails['value_type'],
+                'discountValue'  => $discountTypeDetails['discount_value'],
+                'isVariable'  => $discountTypeDetails['is_variable'],
+            ];
+        }
+
+        echo json_encode([
+            'success'    => true,
+            'discounts' => $data
         ]);
     }
     
