@@ -13408,6 +13408,22 @@ BEGIN
     ORDER BY discount_type_name;
 END //
 
+DROP PROCEDURE IF EXISTS generateShopDiscountTypeOptions//
+
+CREATE PROCEDURE generateShopDiscountTypeOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT discount_type_id, discount_type_name 
+    FROM discount_type 
+    WHERE discount_type_id NOT IN (
+        SELECT discount_type_id
+        FROM shop_discounts
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY discount_type_name;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */
@@ -13563,6 +13579,23 @@ BEGIN
     FROM charge_type 
     ORDER BY charge_type_name;
 END //
+
+DROP PROCEDURE IF EXISTS generateShopChargeTypeOptions//
+
+CREATE PROCEDURE generateShopChargeTypeOptions(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT charge_type_id, charge_type_name 
+    FROM charge_type 
+    WHERE charge_type_id NOT IN (
+        SELECT charge_type_id
+        FROM shop_charges
+        WHERE shop_id = p_shop_id
+    )
+    ORDER BY charge_type_name;
+END //
+
 
 /* =============================================================================================
    END OF PROCEDURES
@@ -13779,6 +13812,76 @@ BEGIN
         p_shop_name,
         p_product_id,
         p_product_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopDiscounts//
+
+CREATE PROCEDURE insertShopDiscounts(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_discount_type_id INT, 
+    IN p_discount_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_discounts (
+        shop_id,
+        shop_name,
+        discount_type_id,
+        discount_type_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_discount_type_id,
+        p_discount_type_name,
+        p_last_log_by
+    );
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS insertShopCharges//
+
+CREATE PROCEDURE insertShopCharges(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(100),
+    IN p_charge_type_id INT, 
+    IN p_charge_type_name VARCHAR(100), 
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO shop_charges (
+        shop_id,
+        shop_name,
+        charge_type_id,
+        charge_type_name,
+        last_log_by
+    )
+    VALUES(
+        p_shop_id,
+        p_shop_name,
+        p_charge_type_id,
+        p_charge_type_name,
         p_last_log_by
     );
 
@@ -14175,6 +14278,44 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS deleteShopDiscounts//
+
+CREATE PROCEDURE deleteShopDiscounts(
+    IN p_shop_discounts_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_discounts
+    WHERE shop_discounts_id = p_shop_discounts_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS deleteShopCharges//
+
+CREATE PROCEDURE deleteShopCharges(
+    IN p_shop_charges_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM shop_charges
+    WHERE shop_charges_id = p_shop_charges_id;
+
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS deleteShopOrderDetails//
 
 CREATE PROCEDURE deleteShopOrderDetails(
@@ -14325,6 +14466,30 @@ BEGIN
     FROM shop_product 
     WHERE shop_id = p_shop_id
     ORDER BY product_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopDiscountsTable//
+
+CREATE PROCEDURE generateShopDiscountsTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_discounts_id, discount_type_id, discount_type_name
+    FROM shop_discounts 
+    WHERE shop_id = p_shop_id
+    ORDER BY discount_type_name;
+END //
+
+DROP PROCEDURE IF EXISTS generateShopChargesTable//
+
+CREATE PROCEDURE generateShopChargesTable(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT shop_charges_id, charge_type_id, charge_type_name
+    FROM shop_charges 
+    WHERE shop_id = p_shop_id
+    ORDER BY charge_type_name;
 END //
 
 DROP PROCEDURE IF EXISTS generateShopOptions//

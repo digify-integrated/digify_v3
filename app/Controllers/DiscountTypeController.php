@@ -67,16 +67,17 @@ class DiscountTypeController {
         $transaction = strtolower(trim($transaction));
 
         match ($transaction) {
-            'save discount type'                => $this->saveDiscountType($lastLogBy),
-            'delete discount type'              => $this->deleteDiscountType(),
-            'delete multiple discount type'     => $this->deleteMultipleDiscountType(),
-            'fetch discount type details'       => $this->fetchDiscountTypeDetails(),
-            'generate discount type table'      => $this->generateDiscountTypeTable(),
-            'generate discount type options'    => $this->generateDiscountTypeOptions(),
-            default                             => $this->systemHelper::sendErrorResponse(
-                                                        'Transaction Failed',
-                                                        'We encountered an issue while processing your request.'
-                                                    )
+            'save discount type'                    => $this->saveDiscountType($lastLogBy),
+            'delete discount type'                  => $this->deleteDiscountType(),
+            'delete multiple discount type'         => $this->deleteMultipleDiscountType(),
+            'fetch discount type details'           => $this->fetchDiscountTypeDetails(),
+            'generate discount type table'          => $this->generateDiscountTypeTable(),
+            'generate discount type options'        => $this->generateDiscountTypeOptions(),
+            'generate shop discount type options'   => $this->generateShopDiscountTypeOptions(),
+            default                                 => $this->systemHelper::sendErrorResponse(
+                                                            'Transaction Failed',
+                                                            'We encountered an issue while processing your request.'
+                                                        )
         };
     }
 
@@ -242,6 +243,30 @@ class DiscountTypeController {
         }
 
         $discountTypes = $this->discountType->generateDiscountTypeOptions();
+
+        foreach ($discountTypes as $row) {
+            $response[] = [
+                'id'    => $row['discount_type_id'],
+                'text'  => $row['discount_type_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+    
+    public function generateShopDiscountTypeOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $discountTypes = $this->discountType->generateShopDiscountTypeOptions($shopId);
 
         foreach ($discountTypes as $row) {
             $response[] = [

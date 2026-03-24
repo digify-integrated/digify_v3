@@ -113,6 +113,14 @@ class DiscountType extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateShopDiscountTypeOptions(int $p_shop_id) {
+        $sql = 'CALL generateShopDiscountTypeOptions(:p_shop_id)';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

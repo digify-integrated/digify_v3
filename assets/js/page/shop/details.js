@@ -95,6 +95,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const discountsDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/DiscountTypeController.php',
+            dropdownSelector: '#discount_type_id',
+            data: { 
+                transaction: 'generate shop discount type options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
+    const chargesDropdown = async () => {
+        await generateDropdownOptions({
+            url: './app/Controllers/ChargeTypeController.php',
+            dropdownSelector: '#charge_type_id',
+            data: { 
+                transaction: 'generate shop charge type options', 
+                multiple: true,
+                shop_id: shop_id
+            }
+        });
+    };
+
     (async () => {
         const dropdownConfigs = [
             { url: './app/Controllers/CompanyController.php', selector: '#company_id', transaction: 'generate company options' },
@@ -197,10 +221,56 @@ document.addEventListener('DOMContentLoaded', () => {
         order : [[0, 'asc']]
     });
 
+    initializeDatatable({
+        selector: '#shop-discounts-table',
+        ajaxUrl: './app/Controllers/ShopController.php',
+        transaction: 'generate shop discounts table',
+        ajaxData: {
+            shop_id: shop_id
+        },
+        columns: [
+            { data: 'DISCOUNT' },
+            { data: 'VALUE_TYPE' },
+            { data: 'DISCOUNT_VALUE' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 }
+        ],
+        order : [[0, 'asc']]
+    });
+
+    initializeDatatable({
+        selector: '#shop-charges-table',
+        ajaxUrl: './app/Controllers/ShopController.php',
+        transaction: 'generate shop charges table',
+        ajaxData: {
+            shop_id: shop_id
+        },
+        columns: [
+            { data: 'CHARGES' },
+            { data: 'VALUE_TYPE' },
+            { data: 'CHARGE_VALUE' },
+            { data: 'ACTION' }
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 }
+        ],
+        order : [[0, 'asc']]
+    });
+
     initializeSubDatatableControls('#shop-payment-method-datatable-search', '#shop-payment-method-datatable-length', '#shop-payment-method-table');
     initializeSubDatatableControls('#shop-floor-plan-datatable-search', '#shop-floor-plan-datatable-length', '#shop-floor-plan-table');
     initializeSubDatatableControls('#shop-access-datatable-search', '#shop-access-datatable-length', '#shop-access-table');
     initializeSubDatatableControls('#shop-product-datatable-search', '#shop-product-datatable-length', '#shop-product-table');
+    initializeSubDatatableControls('#shop-discounts-datatable-search', '#shop-discounts-datatable-length', '#shop-discounts-table');
+    initializeSubDatatableControls('#shop-charges-datatable-search', '#shop-charges-datatable-length', '#shop-charges-table');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'shop');
     
     $('#shop_form').validate({
@@ -528,6 +598,136 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 enableButton('submit-shop-product');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#shop_discounts_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop discounts';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-discounts');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop discounts failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-discounts');
+                    reloadDatatable('#shop-discounts-table');
+                    $('#shop-discounts-modal').modal('hide');
+                    resetForm('shop_discounts_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-discounts');
+                }
+            } catch (error) {
+                enableButton('submit-shop-discounts');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+
+            return false;
+        }
+    });
+
+    $('#shop_charges_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+        unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+
+            const transaction = 'save shop charges';
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shop_id);
+
+            disableButton('submit-shop-charges');
+
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Save shop charges failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-charges');
+                    reloadDatatable('#shop-charges-table');
+                    $('#shop-charges-modal').modal('hide');
+                    resetForm('shop_charges_form');
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-shop-charges');
+                }
+            } catch (error) {
+                enableButton('submit-shop-charges');
                 handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
             }
 
@@ -922,6 +1122,130 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.success) {
                         showNotification(data.title, data.message, data.message_type);
                         reloadDatatable('#shop-product-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-discounts')){
+            await discountsDropdown();
+        }
+
+        if (event.target.closest('.view-shop-discounts-log-notes')){
+            const button            = event.target.closest('.view-shop-discounts-log-notes');
+            const shop_discounts_id = button.dataset.shopDiscountsId;
+        
+            attachLogNotesClassHandler('shop_discounts', shop_discounts_id);
+        }
+
+        if (event.target.closest('.delete-shop-discounts')){
+            const transaction       = 'delete shop discounts';
+            const button            = event.target.closest('.delete-shop-discounts');
+            const shop_discounts_id = button.dataset.shopDiscountsId;
+        
+            Swal.fire({
+                title: 'Confirm Discount Deletion',
+                text: 'Are you sure you want to delete this discount?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_discounts_id', shop_discounts_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-discounts-table');
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                }
+            });
+        }
+
+        if (event.target.closest('#add-shop-charges')){
+            await chargesDropdown();
+        }        
+
+        if (event.target.closest('.view-shop-charges-log-notes')){
+            const button            = event.target.closest('.view-shop-charges-log-notes');
+            const shop_charges_id = button.dataset.shopChargesId;
+        
+            attachLogNotesClassHandler('shop_charges', shop_charges_id);
+        }
+
+        if (event.target.closest('.delete-shop-charges')){
+            const transaction       = 'delete shop charges';
+            const button            = event.target.closest('.delete-shop-charges');
+            const shop_charges_id   = button.dataset.shopChargesId;
+        
+            Swal.fire({
+                title: 'Confirm Charge Deletion',
+                text: 'Are you sure you want to delete this charge?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+        
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_charges_id', shop_charges_id);
+        
+                try {
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        reloadDatatable('#shop-charges-table');
                     }
                     else if (data.invalid_session) {
                         setNotification(data.title, data.message, data.message_type);

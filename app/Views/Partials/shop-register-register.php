@@ -20,7 +20,53 @@
             </div>
 
             <div class="card-body pt-3">
-                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px" id="shop-order-list"></div>
+                <div class="hover-scroll-overlay-y pe-6 me-n6" style="max-height: 320px" id="shop-order-lists">
+                    <div class="border border-dashed border-gray-300 rounded px-7 py-3 mb-5 ">
+                        <div class="d-flex align-items-center justify-content-between gap-5">
+                            <div class="fs-6 text-gray-900 fw-semibold w-auto flex-grow-1">
+                                Fries
+                            </div>
+
+                            <div class="position-relative w-150px" 
+                                data-kt-dialer="true" 
+                                data-kt-dialer-min="0.01" 
+                                data-kt-dialer-step="0.01" 
+                                data-kt-dialer-decimals="2">
+
+                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
+                                    <i class="ki-outline ki-minus-circle fs-1"></i>
+                                </button>
+
+                                <input type="text" class="form-control form-control-solid border-0 ps-12 pe-12 text-center" data-kt-dialer-control="input" placeholder="Amount" readonly value="0.00"/>
+
+                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
+                                    <i class="ki-outline ki-plus-circle fs-1"></i>
+                                </button>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="#" class="btn btn-icon btn-active-light-primary w-30px h-30px" data-bs-toggle="modal" data-bs-target="#kt_modal_update_address">
+                                    <span data-bs-toggle="tooltip" title="Edit">
+                                        <i class="ki-outline ki-pencil fs-3"></i>
+                                    </span>
+                                </a>
+
+                                <a href="#" class="btn btn-icon btn-active-light-primary w-30px h-30px" data-bs-toggle="tooltip" title="Delete">
+                                    <i class="ki-outline ki-trash fs-3"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="separator separator-dashed my-4"></div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <span class="badge badge-danger text-wrap text-start">
+                                    Note: ${note}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
                         <div class="d-flex flex-stack p-6">

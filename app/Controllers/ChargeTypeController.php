@@ -73,6 +73,7 @@ class ChargeTypeController {
             'fetch charge type details'         => $this->fetchChargeTypeDetails(),
             'generate charge type table'        => $this->generateChargeTypeTable(),
             'generate charge type options'      => $this->generateChargeTypeOptions(),
+            'generate shop charge type options' => $this->generateShopChargeTypeOptions(),
             default                             => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
                                                         'We encountered an issue while processing your request.'
@@ -242,6 +243,30 @@ class ChargeTypeController {
         }
 
         $chargeTypes = $this->chargeType->generateChargeTypeOptions();
+
+        foreach ($chargeTypes as $row) {
+            $response[] = [
+                'id'    => $row['charge_type_id'],
+                'text'  => $row['charge_type_name']
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+      public function generateShopChargeTypeOptions() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $multiple   = $_POST['multiple'] ?? false;
+        $response   = [];
+
+        if(!$multiple){
+            $response[] = [
+                'id'    => '',
+                'text'  => '--'
+            ];
+        }
+
+        $chargeTypes = $this->chargeType->generateShopChargeTypeOptions($shopId);
 
         foreach ($chargeTypes as $row) {
             $response[] = [

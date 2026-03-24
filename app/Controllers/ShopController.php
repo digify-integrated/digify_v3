@@ -10,6 +10,8 @@ use App\Models\PaymentMethod;
 use App\Models\FloorPlan;
 use App\Models\UserAccount;
 use App\Models\Product;
+use App\Models\DiscountType;
+use App\Models\ChargeType;
 use App\Models\Authentication;
 use App\Core\Security;
 use App\Helpers\SystemHelper;
@@ -23,6 +25,8 @@ class ShopController {
     protected FloorPlan $floorPlan;
     protected UserAccount $userAccount;
     protected Product $product;
+    protected DiscountType $discountType;
+    protected ChargeType $chargeType;
     protected Authentication $authentication;
     protected Security $security;
     protected SystemHelper $systemHelper;
@@ -35,6 +39,8 @@ class ShopController {
         FloorPlan $floorPlan,
         UserAccount $userAccount,
         Product $product,
+        DiscountType $discountType,
+        ChargeType $chargeType,
         Authentication $authentication,
         Security $security,
         SystemHelper $systemHelper
@@ -46,6 +52,8 @@ class ShopController {
         $this->floorPlan        = $floorPlan;
         $this->userAccount      = $userAccount;
         $this->product          = $product;
+        $this->discountType     = $discountType;
+        $this->chargeType       = $chargeType;
         $this->authentication   = $authentication;
         $this->security         = $security;
         $this->systemHelper     = $systemHelper;
@@ -96,6 +104,8 @@ class ShopController {
             'save shop floor plan'                  => $this->saveShopFloorPlan($lastLogBy),
             'save shop access'                      => $this->saveShopAccess($lastLogBy),
             'save shop product'                     => $this->saveShopProduct($lastLogBy),
+            'save shop discounts'                   => $this->saveShopDiscounts($lastLogBy),
+            'save shop charges'                     => $this->saveShopCharges($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
@@ -112,6 +122,8 @@ class ShopController {
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
             'delete shop access'                    => $this->deleteShopAccess(),
             'delete shop product'                   => $this->deleteShopProduct(),
+            'delete shop discounts'                 => $this->deleteShopDiscounts(),
+            'delete shop charges'                   => $this->deleteShopCharges(),
             'delete multiple shop'                  => $this->deleteMultipleShop(),
             'delete shop order details'             => $this->deleteShopOrderDetails(),
             'fetch shop details'                    => $this->fetchShopDetails(),
@@ -124,6 +136,8 @@ class ShopController {
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
             'generate shop access table'            => $this->generateShopAccessTable($lastLogBy, $pageId),
             'generate shop product table'           => $this->generateShopProductTable($lastLogBy, $pageId),
+            'generate shop discounts table'         => $this->generateShopDiscountsTable($lastLogBy, $pageId),
+            'generate shop charges table'           => $this->generateShopChargesTable($lastLogBy, $pageId),
             'generate shop register tabs'           => $this->generateShopRegisterTabs(),
             'generate shop register tables'         => $this->generateShopRegisterTables(),
             'generate shop product categories'      => $this->generateShopProductCategories(),
@@ -216,8 +230,8 @@ class ShopController {
         }
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Payment Method Success',
-            'The payment method has been saved successfully.'
+            'Save Shop Payment Method Success',
+            'The shop payment method has been saved successfully.'
         );
     }
 
@@ -254,8 +268,8 @@ class ShopController {
         }
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Floor Plan Success',
-            'The floor plan has been saved successfully.'
+            'Save Shop Floor Plan Success',
+            'The shop floor plan has been saved successfully.'
         );
     }
 
@@ -292,8 +306,8 @@ class ShopController {
         }
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Access Success',
-            'The access has been saved successfully.'
+            'Save Shop Access Success',
+            'The shop access has been saved successfully.'
         );
     }
 
@@ -310,7 +324,7 @@ class ShopController {
         $productIds     = $_POST['product_id'] ?? [];
 
         if (empty($productIds)) {
-            $this->systemHelper::sendErrorResponse('Save Shop Product Error', 'Please select the product.');
+            $this->systemHelper::sendErrorResponse('Save Shop Product Error', 'Please select the shop product.');
         }
 
         $shopDetails    = $this->shop->fetchShop($shopId);
@@ -330,8 +344,85 @@ class ShopController {
         }
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Product Success',
-            'The product has been saved successfully.'
+            'Save Shop Product Success',
+            'The shop product has been saved successfully.'
+        );
+    }
+
+    public function saveShopDiscounts(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_discounts_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId             = $_POST['shop_id'] ?? null;
+        $discountTypeIds    = $_POST['discount_type_id'] ?? [];
+
+        if (empty($discountTypeIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Discounts Error', 'Please select the discounts.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+        
+
+        foreach ($discountTypeIds as $discountTypeId) {
+            $discountTypeDetails    = $this->discountType->fetchDiscountType($discountTypeId);
+            $discountTypeName       = $discountTypeDetails['discount_type_name'] ?? '';
+
+            $this->shop->insertShopDiscounts(
+                $shopId,
+                $shopName,
+                $discountTypeId,
+                $discountTypeName,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Shop Discounts Success',
+            'The shop discounts has been saved successfully.'
+        );
+    }
+
+    public function saveShopCharges(
+        int $lastLogBy
+    ) {
+        $csrfToken = $_POST['csrf_token'] ?? null;
+
+        if (!$csrfToken || !$this->security::validateCSRFToken($csrfToken, 'shop_charges_form')) {
+            $this->systemHelper::sendErrorResponse('Invalid Request', 'Security check failed. Please refresh and try again.');
+        }
+
+        $shopId         = $_POST['shop_id'] ?? null;
+        $chargeTypeIds  = $_POST['charge_type_id'] ?? [];
+
+        if (empty($chargeTypeIds)) {
+            $this->systemHelper::sendErrorResponse('Save Shop Charges Error', 'Please select the charges.');
+        }
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        foreach ($chargeTypeIds as $chargeTypeId) {
+            $chargeTypeDetails  = $this->chargeType->fetchChargeType($chargeTypeId);
+            $chargeTypeName     = $chargeTypeDetails['charge_type_name'] ?? '';
+
+            $this->shop->insertShopCharges(
+                $shopId,
+                $shopName,
+                $chargeTypeId,
+                $chargeTypeName,
+                $lastLogBy
+            );
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Shop Charges Success',
+            'The shop charges has been saved successfully.'
         );
     }
 
@@ -923,6 +1014,28 @@ class ShopController {
         );
     }
 
+    public function deleteShopDiscounts() {
+        $shopDiscountsId = $_POST['shop_discounts_id'] ?? null;
+
+        $this->shop->deleteShopDiscounts($shopDiscountsId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Discount Success',
+            'The discount has been deleted successfully.'
+        );
+    }
+
+    public function deleteShopCharges() {
+        $shopChargesId = $_POST['shop_charges_id'] ?? null;
+
+        $this->shop->deleteShopCharges($shopChargesId);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Delete Charge Success',
+            'The charge has been deleted successfully.'
+        );
+    }
+
     public function deleteShopOrderDetails() {
         $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
 
@@ -1168,6 +1281,104 @@ class ShopController {
 
         echo json_encode($response);
     }
+
+    public function generateShopDiscountsTable(
+        int $userId,
+        int $pageId
+    ) {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $response   = [];
+
+        $writeAccess    = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        
+        $shopDiscounts = $this->shop->generateShopDiscountsTable($shopId);
+
+        foreach ($shopDiscounts as $row) {
+            $shopDiscountsId    = $row['shop_discounts_id'];
+            $discountTypeId     = $row['discount_type_id'];
+            $discountTypeName   = $row['discount_type_name'];
+
+            $discountTypeDetails    = $this->discountType->fetchDiscountType($discountTypeId);
+            $valueType              = $discountTypeDetails['value_type'] ?? 0;
+            $discountValue          = $discountTypeDetails['discount_value'] ?? 0;
+
+            $deleteButton = '';
+            if($writeAccess > 0){
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-discounts" data-shop-discounts-id="' . $shopDiscountsId . '">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+            
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-shop-discounts-log-notes" data-shop-discounts-id="' . $shopDiscountsId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $response[] = [
+                'DISCOUNT'          => $discountTypeName,
+                'VALUE_TYPE'        => $valueType,
+                'DISCOUNT_VALUE'    => number_format($discountValue, 2),
+                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
+                                            '. $logNotes .'
+                                            '. $deleteButton .'
+                                        </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generateShopChargesTable(
+        int $userId,
+        int $pageId
+    ) {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $response   = [];
+
+        $writeAccess    = $this->authentication->checkUserPermission($userId, $pageId, 'write')['total'] ?? 0;
+        $logNotesAccess = $this->authentication->checkUserPermission($userId, $pageId, 'log notes')['total'] ?? 0;
+        
+        $shopCharges = $this->shop->generateShopChargesTable($shopId);
+
+        foreach ($shopCharges as $row) {
+            $shopChargesId  = $row['shop_charges_id'];
+            $chargeTypeId   = $row['charge_type_id'];
+            $chargeTypeName = $row['charge_type_name'];
+
+            $chargeTypeDetails  = $this->chargeType->fetchChargeType($chargeTypeId);
+            $valueType          = $chargeTypeDetails['value_type'] ?? 0;
+            $chargeValue        = $chargeTypeDetails['charge_value'] ?? 0;
+
+            $deleteButton = '';
+            if($writeAccess > 0){
+                $deleteButton = '<button class="btn btn-icon btn-light btn-active-light-danger delete-shop-charges" data-shop-charges-id="' . $shopChargesId . '">
+                                    <i class="ki-outline ki-trash fs-3 m-0 fs-5"></i>
+                                </button>';
+            }
+            
+            $logNotes = '';
+            if($logNotesAccess > 0){
+                $logNotes = '<button class="btn btn-icon btn-light btn-active-light-primary view-shop-charges-log-notes" data-shop-charges-id="' . $shopChargesId . '" data-bs-toggle="modal" data-bs-target="#log-notes-modal" title="View Log Notes">
+                                <i class="ki-outline ki-shield-search fs-3 m-0 fs-5"></i>
+                            </button>';
+            }
+
+            $response[] = [
+                'CHARGES'       => $chargeTypeName,
+                'VALUE_TYPE'    => $valueType,
+                'CHARGE_VALUE'  => number_format($chargeValue, 2),
+                'ACTION'        => '<div class="d-flex justify-content-end gap-3">
+                                        '. $logNotes .'
+                                        '. $deleteButton .'
+                                    </div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
     
     public function generateShopRegisterTabs() {
         $shopId = $_POST['shop_id'] ?? null;
@@ -1334,6 +1545,8 @@ $controller = new ShopController(
     new FloorPlan(),
     new UserAccount(),
     new Product(),
+    new DiscountType(),
+    new ChargeType(),
     new Authentication(),
     new Security(),
     new SystemHelper()

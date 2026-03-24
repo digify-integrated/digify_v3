@@ -8144,33 +8144,70 @@ CREATE INDEX idx_shop_session_denomination_count_type ON shop_session_denominati
 
 
 /* =============================================================================================
-  TABLE: SHOP ADJUSTMENTS
+  TABLE: SHOP DISCOUNTS
 ============================================================================================= */
 
-DROP TABLE IF EXISTS shop_adjustments;
+DROP TABLE IF EXISTS shop_discounts;
 
-CREATE TABLE shop_adjustments (
-  shop_adjustments_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE shop_discounts (
+  shop_discounts_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   shop_id INT UNSIGNED NOT NULL,
   shop_name VARCHAR(200) NOT NULL,
-  adjustment_type_id INT UNSIGNED NOT NULL,
-  adjustment_type_name VARCHAR(100) NOT NULL,
-  application_order INT DEFAULT 1,
+	discount_type_id INT UNSIGNED NOT NULL,
+	discount_type_name VARCHAR(100) NOT NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (adjustment_type_id) REFERENCES adjustment_type(adjustment_type_id),
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (discount_type_id) REFERENCES discount_type(discount_type_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
 /* =============================================================================================
-  INDEX: SHOP ADJUSTMENTS
+  INDEX: SHOP DISCOUNTS
 ============================================================================================= */
 
-CREATE INDEX idx_shop_adjustments_adjustment_type_id ON shop_adjustments(adjustment_type_id);
+CREATE INDEX idx_shop_discounts_shop_id ON shop_discounts(shop_id);
+CREATE INDEX idx_shop_discounts_discount_type_id ON shop_discounts(discount_type_id);
 
 /* =============================================================================================
-  INITIAL VALUES: SHOP ADJUSTMENTS
+  INITIAL VALUES: SHOP DISCOUNTS
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+/* =============================================================================================
+  TABLE: SHOP CHARGES
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_charges;
+
+CREATE TABLE shop_charges (
+  shop_charges_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  shop_id INT UNSIGNED NOT NULL,
+  shop_name VARCHAR(200) NOT NULL,
+	charge_type_id INT UNSIGNED NOT NULL,
+	charge_type_name VARCHAR(100) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
+  FOREIGN KEY (charge_type_id) REFERENCES charge_type(charge_type_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP DISCOUNTS
+============================================================================================= */
+
+CREATE INDEX idx_shop_charges_shop_id ON shop_charges(shop_id);
+CREATE INDEX idx_shop_charges_charge_type_id ON shop_charges(charge_type_id);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP DISCOUNTS
 ============================================================================================= */
 
 /* =============================================================================================

@@ -141,6 +141,54 @@ class Shop extends Model {
         ]);
     }
 
+    public function insertShopDiscounts(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_discount_type_id,
+        string $p_discount_type_name,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopDiscounts(
+            :p_shop_id,
+            :p_shop_name,
+            :p_discount_type_id,
+            :p_discount_type_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_shop_name'           => $p_shop_name,
+            'p_discount_type_id'    => $p_discount_type_id,
+            'p_discount_type_name'  => $p_discount_type_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopCharges(
+        int $p_shop_id,
+        string $p_shop_name,
+        int $p_charge_type_id,
+        string $p_charge_type_name,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopCharges(
+            :p_shop_id,
+            :p_shop_name,
+            :p_charge_type_id,
+            :p_charge_type_name,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_id'             => $p_shop_id,
+            'p_shop_name'           => $p_shop_name,
+            'p_charge_type_id'      => $p_charge_type_id,
+            'p_charge_type_name'    => $p_charge_type_name,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
     public function insertShopSession(
         int $p_shop_id,
         string $p_shop_name,
@@ -742,6 +790,30 @@ class Shop extends Model {
         ]);
     }
 
+    public function deleteShopDiscounts(
+        int $p_shop_discounts_id
+    ) {
+        $sql = 'CALL deleteShopDiscounts(
+            :p_shop_discounts_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_discounts_id' => $p_shop_discounts_id
+        ]);
+    }
+
+    public function deleteShopCharges(
+        int $p_shop_charges_id
+    ) {
+        $sql = 'CALL deleteShopCharges(
+            :p_shop_charges_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_charges_id' => $p_shop_charges_id
+        ]);
+    }
+
     public function deleteShopOrderDetails(
         int $p_shop_order_details_id
     ) {
@@ -850,6 +922,30 @@ class Shop extends Model {
         null|string $p_shop_id
     ) {
         $sql = 'CALL generateShopProductTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function generateShopDiscountsTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopDiscountsTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function generateShopChargesTable(
+        null|string $p_shop_id
+    ) {
+        $sql = 'CALL generateShopChargesTable(
             :p_shop_id
         )';
         

@@ -113,6 +113,14 @@ class ChargeType extends Model {
         return $this->fetchAll($sql);
     }
 
+    public function generateShopChargeTypeOptions(int $p_shop_id) {
+        $sql = 'CALL generateShopChargeTypeOptions(:p_shop_id)';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

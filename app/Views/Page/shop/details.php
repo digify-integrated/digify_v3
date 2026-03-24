@@ -13,11 +13,11 @@
 
 <div class="card mb-10">
     <div class="card-body pt-9 pb-0">
-        <div class="d-flex flex-wrap flex-sm-nowrap mb-6">            
+        <div class="d-flex flex-wrap flex-sm-nowrap">
             <div class="flex-grow-1">
-                <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+                <div class="d-flex justify-content-between align-items-start flex-wrap">
                     <div class="d-flex flex-column">
-                        <div class="d-flex align-items-center mb-4">
+                        <div class="d-flex align-items-center mb-2">
                             <h1 class="text-gray-800 fs-2 fw-bold me-3" id="shop">-</h1>
                             <?= $shopBadge ?>
                         </div>
@@ -78,15 +78,15 @@
 
         <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary py-5 me-6  active" data-bs-toggle="tab" href="#general_tab" aria-selected="false" role="tab" tabindex="-1">General</a>
+                <a class="nav-link text-active-primary py-5 me-6 active" data-bs-toggle="tab" href="#general_tab" aria-selected="false" role="tab" tabindex="-1">General</a>
             </li>
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary py-5 me-6 " data-bs-toggle="tab" href="#products_tab" aria-selected="false" role="tab" tabindex="-1">Products</a>
+                <a class="nav-link text-active-primary py-5 me-6" data-bs-toggle="tab" href="#products_tab" aria-selected="false" role="tab" tabindex="-1">Products</a>
             </li>
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link text-active-primary py-5 me-6 " data-bs-toggle="tab" href="#advanced_tab" aria-selected="false" role="tab" tabindex="-1">Advanced</a>
+                <a class="nav-link text-active-primary py-5 me-6" data-bs-toggle="tab" href="#advanced_tab" aria-selected="false" role="tab" tabindex="-1">Advanced</a>
             </li>
         </ul>
     </div>
@@ -540,6 +540,76 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="submit" form="shop_product_form" class="btn btn-primary" id="submit-shop-product">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-discounts-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-discounts-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Discounts</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_discounts_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_discounts_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="discount_type_id">Discounts</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="discount_type_id" name="discount_type_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_discounts_form" class="btn btn-primary" id="submit-shop-discounts">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="shop-charges-modal" class="modal fade" tabindex="-1" aria-labelledby="shop-charges-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Charges</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="shop_charges_form" method="post" action="#">
+                    <?= $security->csrfInput('shop_charges_form'); ?>
+
+                    <div class="row mb-6">
+                        <label class="col-lg-3 required col-form-label fw-semibold fs-6" for="charge_type_id">Charges</label>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-12 fv-row">
+                                    <select id="charge_type_id" name="charge_type_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shop_charges_form" class="btn btn-primary" id="submit-shop-charges">Assign</button>
             </div>
         </div>
     </div>
