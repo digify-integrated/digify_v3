@@ -6843,7 +6843,7 @@ CREATE TABLE tax (
   tax_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   tax_name VARCHAR(100) NOT NULL,
   tax_rate DECIMAL(15,2) DEFAULT 0, 
-  tax_calculation ENUM('Additive','Inclusive') DEFAULT 'Additive',
+  tax_calculation ENUM('Inclusive','Additive') DEFAULT 'Inclusive',
   tax_status ENUM('Active','Archived') DEFAULT 'Active',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -7182,6 +7182,7 @@ CREATE TABLE product (
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   cost DECIMAL(15,4) DEFAULT 0,
   sales_price DECIMAL(15,4) DEFAULT 0,
+  tax_classification ENUM('Vatable', 'Vat Exempt','Zero Rated') DEFAULT 'Vatable',
   is_variant ENUM('Yes','No') DEFAULT 'No',
   is_sellable ENUM('Yes','No') DEFAULT 'Yes',
   is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
@@ -7768,7 +7769,8 @@ CREATE TABLE discount_type (
   value_type ENUM('Percentage','Fixed Amount') DEFAULT 'Percentage',
   discount_value DECIMAL(15,2) DEFAULT 0,
   is_variable ENUM('Yes', 'No') DEFAULT 'No',
-  affects_tax ENUM('Yes', 'No') DEFAULT 'No',
+  application_order ENUM('Before Tax','After Tax') DEFAULT 'After Tax',
+  is_vat_exempt ENUM('Yes','No') DEFAULT 'No',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1
@@ -7780,7 +7782,8 @@ CREATE TABLE discount_type (
 
 CREATE INDEX idx_discount_type_value_type ON discount_type(value_type);
 CREATE INDEX idx_discount_type_is_variable ON discount_type(is_variable);
-CREATE INDEX idx_discount_type_affects_tax ON discount_type(affects_tax);
+CREATE INDEX idx_discount_type_application_order ON discount_type(application_order);
+CREATE INDEX idx_discount_type_is_vat_exempt ON discount_type(is_vat_exempt);
 
 /* =============================================================================================
   INITIAL VALUES: DISCOUNT TYPE
@@ -7804,7 +7807,8 @@ CREATE TABLE charge_type (
   value_type ENUM('Percentage','Fixed Amount') DEFAULT 'Percentage',
   charge_value DECIMAL(15,2) DEFAULT 0,
   is_variable ENUM('Yes', 'No') DEFAULT 'No',
-  affects_tax ENUM('Yes', 'No') DEFAULT 'No',
+  application_order ENUM('Before Tax','After Tax') DEFAULT 'After Tax',
+  tax_type ENUM('Vatable','Non Vatable') DEFAULT 'Non Vatable',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1
@@ -7816,7 +7820,8 @@ CREATE TABLE charge_type (
 
 CREATE INDEX idx_charge_type_value_type ON charge_type(value_type);
 CREATE INDEX idx_charge_type_is_variable ON charge_type(is_variable);
-CREATE INDEX idx_charge_type_affects_tax ON charge_type(affects_tax);
+CREATE INDEX idx_charge_type_application_order ON charge_type(application_order);
+CREATE INDEX idx_charge_type_tax_type ON charge_type(tax_type);
 
 /* =============================================================================================
   INITIAL VALUES: CHARGE TYPE
@@ -8201,19 +8206,28 @@ CREATE TABLE shop_order (
   cancelled_reason VARCHAR(500),
   refund_date DATETIME,
   
-  -- Aggregated totals from shop_order_details
-  subtotal DECIMAL(15,2) DEFAULT 0,          -- SUM of subtotal
-  order_discount_amount DECIMAL(15,2) DEFAULT 0,          -- SUM of discount aount
-  taxable_amount DECIMAL(15,2) DEFAULT 0,    -- SUM of taxable_amount per item
-  subtotal_price DECIMAL(15,2) DEFAULT 0,    -- SUM of total_price per item (before transaction discount)
-  inclusive_tax_total DECIMAL(15,2) DEFAULT 0, -- SUM of inclusive_tax_total per item
-  additive_tax_total DECIMAL(15,2) DEFAULT 0,  -- SUM of additive_tax_total per item
-  
-  -- Final total after transaction discount
-  total_order_amount DECIMAL(15,2) 
-    GENERATED ALWAYS AS ((taxable_amount - transaction_discount_amount) + additive_tax_total) STORED,
+  -- 🔥 SALES BREAKDOWN
+  gross_sales DECIMAL(15,2) DEFAULT 0,
 
-  outstanding_balance DECIMAL(15,2) DEFAULT 0,
+  vat_sales DECIMAL(15,2) DEFAULT 0,
+  vat_amount DECIMAL(15,2) DEFAULT 0,
+
+  vat_exempt_sales DECIMAL(15,2) DEFAULT 0,
+  zero_rated_sales DECIMAL(15,2) DEFAULT 0,
+
+  -- 🔥 DISCOUNTS
+  before_tax_discount DECIMAL(15,2) DEFAULT 0,
+  after_tax_discount DECIMAL(15,2) DEFAULT 0,
+
+  -- 🔥 TAXES
+  additive_tax_total DECIMAL(15,2) DEFAULT 0,
+
+  -- 🔥 CHARGES
+  service_charge_total DECIMAL(15,2) DEFAULT 0,
+  other_charge_total DECIMAL(15,2) DEFAULT 0,
+
+  -- 🔥 FINAL
+  total_amount_due DECIMAL(15,2) DEFAULT 0,
 
   -- Audit fields
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -8255,56 +8269,29 @@ DROP TABLE IF EXISTS shop_order_details;
 CREATE TABLE shop_order_details (
   shop_order_details_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   shop_order_id INT UNSIGNED NOT NULL,
+
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
 
   quantity DECIMAL(15,4) DEFAULT 1,
 
-  -- Base price (tax-inclusive)
-  base_price DECIMAL(15,2) NOT NULL DEFAULT 0,
+  base_price DECIMAL(15,2) NOT NULL,
 
-  -- Tax rates (stored snapshot)
-  inclusive_rate DECIMAL(10,6) DEFAULT 0, -- Formula: SUM(inclusive taxes)   -- from tax table in decimal form
-  additive_rate DECIMAL(10,6) DEFAULT 0, -- Formula: SUM(additive taxes)    -- from tax table in decimal form
+   -- TAX SNAPSHOT
+  inclusive_rate DECIMAL(10,6) DEFAULT 0,
+  additive_rate DECIMAL(10,6) DEFAULT 0,
 
-  -- Per-unit taxes
-  inclusive_tax_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula: (base_price * inclusive_rate) / (1 + inclusive_rate)
-  additive_tax_per_unit DECIMAL(15,2) DEFAULT 0, -- Formula: base_price * additive_rate
+  -- COMPUTED VALUES
+  subtotal DECIMAL(15,2) DEFAULT 0,
 
-  -- Total taxes (generated)
-  inclusive_tax_total DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(inclusive_tax_per_unit, 2) * quantity) STORED,
-
-  additive_tax_total DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(additive_tax_per_unit, 2) * quantity) STORED, 
-
-  -- Computed totals
-  subtotal DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(base_price * quantity,2)) STORED,
-
-  total_price DECIMAL(15,2)
-    GENERATED ALWAYS AS (ROUND(subtotal + additive_tax_total,2)) STORED,
-
-  -- Order status
-  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled') DEFAULT 'Pending',
-
-  note VARCHAR(500),
-
-  sent_to_kitchen DATETIME,
-  preparing_date DATETIME,
-  to_serve_date DATETIME,
-  completed_date DATETIME,
-  cancelled_date DATETIME,
-
-  -- Audit fields
+  -- =========================
+  -- AUDIT
+  -- =========================
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
 
-  -- Foreign keys
-  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
-  FOREIGN KEY (product_id) REFERENCES product(product_id),
-  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id)
 );
 
 /* =============================================================================================

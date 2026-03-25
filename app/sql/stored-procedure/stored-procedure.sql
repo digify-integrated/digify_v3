@@ -14167,6 +14167,17 @@ BEGIN
     ORDER BY table_number;
 END //
 
+DROP PROCEDURE IF EXISTS fetchShopDiscounts//
+
+CREATE PROCEDURE fetchShopDiscounts(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT * FROM shop_discounts
+    WHERE shop_id = p_shop_id
+    ORDER BY discount_type_name;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */

@@ -101,7 +101,7 @@ class TaxController {
         $taxId          = $_POST['tax_id'] ?? null;
         $taxName        = $_POST['tax_name'] ?? null;
         $taxCalculation = $_POST['tax_calculation'] ?? 'Additive';
-        $taxRate        = $_POST['tax_rate'] ?? 0;
+        $taxRate        = $_POST['tax_rate'] ?? 0 / 100;
 
         $taxId = $this->tax->saveTax(
             $taxId,
@@ -182,7 +182,7 @@ class TaxController {
         $response = [
             'success'           => true,
             'taxName'           => $taxDetails['tax_name'] ?? null,
-            'taxRate'           => $taxDetails['tax_rate'] ?? 0,
+            'taxRate'           => $taxDetails['tax_rate'] ?? 0 * 100,
             'taxCalculation'    => $taxDetails['tax_calculation'] ?? 'Additive'
         ];
 
@@ -240,7 +240,7 @@ class TaxController {
         foreach ($taxs as $row) {
             $taxId              = $row['tax_id'];
             $taxName            = $row['tax_name'];
-            $taxRate            = $row['tax_rate'];
+            $taxRate            = $row['tax_rate'] * 100;
             $taxCalculation     = $row['tax_calculation'];
             $taxStatus          = $row['tax_status'];
             $badgeClass         = $taxStatus == 'Active' ? 'success' : 'danger';
@@ -253,7 +253,7 @@ class TaxController {
                                             <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $taxId .'">
                                         </div>',
                 'TAX'               => $taxName,
-                'TAX_RATE'          => number_format($taxRate, 2),
+                'TAX_RATE'          => number_format($taxRate, 2) . '%',
                 'TAX_CALCULATION'   => $taxCalculation,
                 'STATUS'            => $taxStatusBadge,
                 'LINK'              => $pageLink .'&id='. $taxIdEncrypted

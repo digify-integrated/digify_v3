@@ -20,7 +20,7 @@
             </div>
 
             <div class="card-body pt-3">
-                <div class="hover-scroll-overlay-y pe-6 me-n8" style="max-height: 320px" id="shop-order-list"></div>
+                <div class="hover-scroll-overlay-y pe-6 me-n9" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
                         <div class="d-flex flex-stack p-6">
@@ -43,65 +43,65 @@
                     <div class="separator separator-dashed mb-4"></div>
 
                     <div class="btn-group w-100 mb-4 d-none" id="order-preset" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5 active" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4 active" data-kt-button="true">
                             <input class="btn-check order-preset-option" type="radio" name="method" value="On-Site"/>
                             On-Site
                         </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4" data-kt-button="true">
                             <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Pickup"/>
                             Pickup
                         </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-5" data-kt-button="true">
+                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4" data-kt-button="true">
                             <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Delivery"/>
                             Delivery
                         </label>
                     </div>
 
                     <?php if ($floorPlanCount > 0): ?>
-                        <button class="btn btn-warning w-100 p-5 mb-3 d-none" id="send-kitchen-button">
+                        <button class="btn btn-warning w-100 p-4 mb-3 d-none" id="send-kitchen-button">
                             Send To Kitchen
                         </button>
                     <?php endif; ?>
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <?php if ($floorPlanCount > 0): ?>                            
-                            <button class="btn btn-light-primary w-100 p-5 d-none" id="set-table-button">
+                            <button class="btn btn-light-primary w-100 p-4 d-none" id="set-table-button">
                                 Set Table
                             </button>
                         <?php endif; ?>
 
-                        <button class="btn btn-light-primary w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
+                        <button class="btn btn-light-primary w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
                             Set Tab
                         </button>
                     </div>
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
-                        <button class="btn btn-light-success w-100 p-5 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
+                        <button class="btn btn-light-success w-100 p-4 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
                             Discount
                         </button>
 
                         
-                        <button class="btn btn-light-danger w-100 p-5 d-none" id="charges-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
+                        <button class="btn btn-light-danger w-100 p-4 d-none" id="charges-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
                             Extra Charges
                         </button>
                     </div>
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
-                        <button class="btn btn-secondary w-100 p-5 d-none" id="print-bill">
+                        <button class="btn btn-secondary w-100 p-4 d-none" id="print-bill">
                             Print Bill
                         </button>
 
-                        <button class="btn btn-success w-100 p-5 d-none" id="payment-button">
+                        <button class="btn btn-success w-100 p-4 d-none" id="payment-button">
                             Payment
                         </button>
                     </div>
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-0">
-                        <button class="btn btn-light-danger w-100 p-5 d-none" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
+                        <button class="btn btn-light-danger w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
                             Cancel Order
                         </button>
 
-                        <button class="btn btn-warning w-100 p-5 d-none" id="new-order-button">
+                        <button class="btn btn-warning w-100 p-4 d-none" id="new-order-button">
                             New Order
                         </button>
                     </div>
@@ -216,7 +216,7 @@
             <div class="modal-body">
                 <form id="order_discount_form" method="post" action="#">
                     <?= $security->csrfInput('order_discount_form'); ?>
-                    <div id="discount-list"></div>
+                    <div id="discount-lists"></div>
                 </form>
             </div>
 

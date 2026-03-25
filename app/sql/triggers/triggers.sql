@@ -3401,6 +3401,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
     END IF;
 
+    IF NEW.tax_classification <> OLD.tax_classification THEN
+        SET audit_log = CONCAT(audit_log, "Tax Classification: ", OLD.tax_classification, " -> ", NEW.tax_classification, "<br/>");
+    END IF;
+
     IF NEW.is_variant <> OLD.is_variant THEN
         SET audit_log = CONCAT(audit_log, "Is Variant: ", OLD.is_variant, " -> ", NEW.is_variant, "<br/>");
     END IF;

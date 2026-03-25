@@ -746,6 +746,18 @@ class Shop extends Model {
             'p_product_id'      => $p_product_id
         ]);
     }
+
+    public function fetchShopDiscounts(
+        null|string|int $p_shop_id
+    ) {
+        $sql = 'CALL fetchShopDiscounts(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 5: DELETE METHODS

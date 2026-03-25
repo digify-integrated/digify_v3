@@ -3,15 +3,6 @@ import { showNotification, setNotification } from '../../modules/notifications.j
 import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- UTILITIES ---
-    const debounce = (func, delay) => {
-        let timeoutId;
-        return (...args) => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func(...args), delay);
-        };
-    };
-
     const CONTROLLER_PATH = './app/Controllers/ShopController.php';
     const $shopIdInput = $('#shop_id');
     const getShopId = () => $shopIdInput.val();
@@ -101,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const formatTotal = (total) => {
-            return Number(total) === 0 ? 'Free' : total;
+            return Number(total) === 0 ? 'Free' : `&#8369; ${total}`;
         };
 
         // =========================
@@ -117,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buildNoteHTML = (note) => {
             return `
-                <div class="row mb-4">
+                <div class="row mb-0">
                     <div class="col-12">
                         <span class="badge badge-warning text-wrap text-start">
                             Note: ${note}
@@ -130,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const noteValid = isValidNote(order.note);
             if (!noteValid) return '';
 
-            let html = '<div class="separator separator-dashed mb-2 mt-2"></div>';
+            let html = '<div class="separator separator-dashed mb-4 mt-4"></div>';
             html += buildNoteHTML(order.note);
 
             return html;
@@ -139,43 +130,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const buildOrderHTML = (order) => {
             return `
                 <div class="border border-dashed border-gray-300 rounded px-7 py-3 mb-2">
-                    <div class="d-flex align-items-center justify-content-between gap-5">
-                        <div class="fs-5 text-gray-900 fw-semibold flex-grow-1 min-w-0">
-                            ${order.product_name}
+                    <div class="row align-items-center g-3">
+                        
+                        <div class="col-md-3 col-12">
+                            <div class="fs-6 text-gray-900 fw-semibold text-truncate" title="${order.product_name}">
+                                ${order.product_name}
+                            </div>
                         </div>
 
-                        <div class="position-relative w-150px order-quantity" 
-                            data-kt-dialer="true" 
-                            data-kt-dialer-min="0.01" 
-                            data-kt-dialer-step="1" 
-                            data-kt-dialer-decimals="2">
-                            
-                            <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
-                                <i class="ki-outline ki-minus-circle fs-1"></i>
-                            </button>
+                        <div class="col-md-4 col-6 d-flex justify-content-center">
+                            <div class="position-relative w-100 order-quantity" 
+                                style="max-width: 180px;"
+                                data-kt-dialer="true" 
+                                data-kt-dialer-min="0.01" 
+                                data-kt-dialer-step="1" 
+                                data-kt-dialer-decimals="2">
+                                
+                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
+                                    <i class="ki-outline ki-minus-circle fs-1"></i>
+                                </button>
 
-                            <input type="text" class="form-control form-control-solid border-0 ps-10 pe-10 text-center" 
-                                data-kt-dialer-control="input" 
-                                placeholder="Amount" 
-                                data-shop-order-details-id="${order.shop_order_details_id}" 
-                                value="${order.formatted_qty.trim()}"/>
+                                <input type="text" class="form-control form-control-solid border-0 ps-12 pe-12 text-center fs-6 fw-bold" 
+                                    data-kt-dialer-control="input" 
+                                    placeholder="Amount" 
+                                    data-shop-order-details-id="${order.shop_order_details_id}" 
+                                    value="${order.formatted_qty.trim()}"/>
 
-                            <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
-                                <i class="ki-outline ki-plus-circle fs-1"></i>
-                            </button>
+                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
+                                    <i class="ki-outline ki-plus-circle fs-1"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="fs-5 text-gray-900 fw-semibold w-100px text-end">
-                            ${formatTotal(order.formatted_total)}
+                        <div class="col-md-3 col-3 text-end">
+                            <div class="fs-6 text-gray-900 fw-semibold">
+                                ${formatTotal(order.formatted_total)}
+                            </div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-icon btn-active-light-warning w-30px h-30px shop-order-notes" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="modal" data-bs-target="#order-notes-modal" data-bs-toggle="tooltip" title="Note">
-                                <i class="ki-outline ki-notepad-edit fs-3"></i>
-                            </a>
-                            <a href="#" class="btn btn-icon btn-active-light-danger w-30px h-30px delete-order-details" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="tooltip" title="Delete">
-                                <i class="ki-outline ki-trash fs-3"></i>
-                            </a>
+                        <div class="col-md-2 col-3 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="#" class="btn btn-icon btn-active-light-warning w-35px h-35px shop-order-notes" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="modal" data-bs-target="#order-notes-modal">
+                                    <i class="ki-outline ki-notepad-edit fs-2"></i>
+                                </a>
+                                <a href="#" class="btn btn-icon btn-active-light-danger w-35px h-35px delete-order-details" data-shop-order-details-id="${order.shop_order_details_id}">
+                                    <i class="ki-outline ki-trash fs-2"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     ${buildDetailsHTML(order)}
@@ -222,11 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Critical: Could not sync order.", error);
                 }
             });
-        });
-
-        // Initialize tooltips
-        $container.find('[data-bs-toggle="tooltip"]').each(function() {
-            new bootstrap.Tooltip(this);
         });
     };
 
@@ -430,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
             $container.html(html);
         }
     };
-
 
     const refreshRegisterUI = async (orderId) => {
         loadOrderList(orderId);
