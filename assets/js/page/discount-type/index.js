@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'VALUE_TYPE' },
             { data: 'DISCOUNT_VALUE' },
             { data: 'IS_VARIABLE' },
-            { data: 'AFFECTS_TAX' },
+            { data: 'APPLICATION_ORDER' },
+            { data: 'IS_VAT_EXEMPT' },
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
@@ -21,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { width: 'auto', targets: 2, responsivePriority: 3 },
             { width: 'auto', targets: 3, responsivePriority: 4 },
             { width: 'auto', targets: 4, responsivePriority: 5 },
-            { width: 'auto', targets: 5, responsivePriority: 6 }
+            { width: 'auto', targets: 5, responsivePriority: 6 },
+            { width: 'auto', targets: 6, responsivePriority: 7 },
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');

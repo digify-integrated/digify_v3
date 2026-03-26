@@ -15,7 +15,8 @@ class DiscountType extends Model {
         string $p_value_type,
         string $p_discount_value,
         string $p_is_variable,
-        string $p_affects_tax,
+        string $p_application_order,
+        string $p_is_vat_exempt,
         int $p_last_log_by
     )    {
         $sql = 'CALL saveDiscountType(
@@ -24,7 +25,8 @@ class DiscountType extends Model {
             :p_value_type,
             :p_discount_value,
             :p_is_variable,
-            :p_affects_tax,
+            :p_application_order,
+            :p_is_vat_exempt,
             :p_last_log_by
         )';
 
@@ -34,7 +36,8 @@ class DiscountType extends Model {
             'p_value_type'          => $p_value_type,
             'p_discount_value'      => $p_discount_value,
             'p_is_variable'         => $p_is_variable,
-            'p_affects_tax'         => $p_affects_tax,
+            'p_application_order'   => $p_application_order,
+            'p_is_vat_exempt'       => $p_is_vat_exempt,
             'p_last_log_by'         => $p_last_log_by
         ]);
 

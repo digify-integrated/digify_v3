@@ -311,20 +311,23 @@ class Product extends Model {
         int $p_product_id,
         float $p_sales_price,
         float $p_cost,
+        string $p_tax_classification,
         int $p_last_log_by
     ) {
         $sql = 'CALL updateProductPricing(
             :p_product_id,
             :p_sales_price,
             :p_cost,
+            :p_tax_classification,
             :p_last_log_by
         )';
         
         return $this->query($sql, [
-            'p_product_id'      => $p_product_id,
-            'p_sales_price'     => $p_sales_price,
-            'p_cost'            => $p_cost,
-            'p_last_log_by'     => $p_last_log_by
+            'p_product_id'          => $p_product_id,
+            'p_sales_price'         => $p_sales_price,
+            'p_cost'                => $p_cost,
+            'p_tax_classification'  => $p_tax_classification,
+            'p_last_log_by'         => $p_last_log_by
         ]);
     }
 

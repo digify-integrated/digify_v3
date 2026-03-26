@@ -102,7 +102,8 @@ class ChargeTypeController {
         $valueType          = $_POST['value_type'] ?? null;
         $chargeValue        = $_POST['charge_value'] ?? null;
         $isVariable         = $_POST['is_variable'] ?? null;
-        $affectsTax         = $_POST['affects_tax'] ?? null;
+        $applicationOrder   = $_POST['application_order'] ?? null;
+        $taxType            = $_POST['tax_type'] ?? null;
 
         $chargeTypeId = $this->chargeType->saveChargeType(
             $chargeTypeId,
@@ -110,7 +111,8 @@ class ChargeTypeController {
             $valueType,
             $chargeValue,
             $isVariable,
-            $affectsTax,
+            $applicationOrder,
+            $taxType,
             $lastLogBy
         );
 
@@ -156,7 +158,8 @@ class ChargeTypeController {
             'valueType'         => $chargeTypeDetails['value_type'] ?? null,
             'chargeValue'       => $chargeTypeDetails['charge_value'] ?? null,
             'isVariable'        => $chargeTypeDetails['is_variable'] ?? null,
-            'affectsTax'        => $chargeTypeDetails['affects_tax'] ?? null,
+            'applicationOrder'  => $chargeTypeDetails['application_order'] ?? null,
+            'taxType'           => $chargeTypeDetails['tax_type'] ?? null,
         ];
 
         echo json_encode($response);
@@ -206,25 +209,27 @@ class ChargeTypeController {
         $chargeTypes = $this->chargeType->generateChargeTypeTable();
 
         foreach ($chargeTypes as $row) {
-            $chargeTypeId     = $row['charge_type_id'];
-            $chargeTypeName   = $row['charge_type_name'];
+            $chargeTypeId       = $row['charge_type_id'];
+            $chargeTypeName     = $row['charge_type_name'];
             $valueType          = $row['value_type'];
-            $chargeValue      = $row['charge_value'];
+            $chargeValue        = $row['charge_value'];
             $isVariable         = $row['is_variable'];
-            $affectsTax         = $row['affects_tax'];
+            $applicationOrder   = $row['application_order'];
+            $taxType            = $row['tax_type'];
 
             $chargeTypeIdEncrypted = $this->security->encryptData($chargeTypeId);
 
             $response[] = [
-                'CHECK_BOX'     => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                        <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $chargeTypeId .'">
-                                    </div>',
-                'CHARGE_NAME'   => $chargeTypeName,
-                'VALUE_TYPE'    => $valueType,
-                'CHARGE_VALUE'  => $chargeValue,
-                'IS_VARIABLE'   => $isVariable,
-                'AFFECTS_TAX'   => $affectsTax,
-                'LINK'          => $pageLink .'&id='. $chargeTypeIdEncrypted
+                'CHECK_BOX'         => '<div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                            <input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $chargeTypeId .'">
+                                        </div>',
+                'CHARGE_NAME'       => $chargeTypeName,
+                'VALUE_TYPE'        => $valueType,
+                'CHARGE_VALUE'      => $chargeValue,
+                'IS_VARIABLE'       => $isVariable,
+                'APPLICATION_ORDER' => $applicationOrder,
+                'TAX_TYPE'          => $taxType,
+                'LINK'              => $pageLink .'&id='. $chargeTypeIdEncrypted
             ];
         }
 

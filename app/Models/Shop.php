@@ -276,8 +276,10 @@ class Shop extends Model {
         string $p_base_price,
         string $p_inclusive_rate,
         string $p_additive_rate,
-        string $p_inclusive_tax_per_unit,
-        string $p_additive_tax_per_unit,
+        string $p_subtotal,
+        string $p_inclusive_tax_amount,
+        string $p_additive_tax_amount,
+        string $p_net_sales,
         int $p_last_log_by
     )    {
         $sql = 'CALL insertShopOrderDetail(
@@ -288,8 +290,10 @@ class Shop extends Model {
             :p_base_price,
             :p_inclusive_rate,
             :p_additive_rate,
-            :p_inclusive_tax_per_unit,
-            :p_additive_tax_per_unit,
+            :p_subtotal,
+            :p_inclusive_tax_amount,
+            :p_additive_tax_amount,
+            :p_net_sales,
             :p_last_log_by
         )';
 
@@ -301,8 +305,10 @@ class Shop extends Model {
             'p_base_price'              => $p_base_price,
             'p_inclusive_rate'          => $p_inclusive_rate,
             'p_additive_rate'           => $p_additive_rate,
-            'p_inclusive_tax_per_unit'  => $p_inclusive_tax_per_unit,
-            'p_additive_tax_per_unit'   => $p_additive_tax_per_unit,
+            'p_subtotal'                => $p_subtotal,
+            'p_inclusive_tax_amount'    => $p_inclusive_tax_amount,
+            'p_additive_tax_amount'     => $p_additive_tax_amount,
+            'p_net_sales'               => $p_net_sales,
             'p_last_log_by'             => $p_last_log_by
         ]);
     }
@@ -510,8 +516,10 @@ class Shop extends Model {
         string $p_base_price,
         string $p_inclusive_rate,
         string $p_additive_rate,
-        string $p_inclusive_tax_per_unit,
-        string $p_additive_tax_per_unit,
+        string $p_subtotal,
+        string $p_inclusive_tax_amount,
+        string $p_additive_tax_amount,
+        string $p_net_sales,
         int $p_last_log_by
     )    {
         $sql = 'CALL updateShopOrderDetail(
@@ -521,8 +529,10 @@ class Shop extends Model {
             :p_base_price,
             :p_inclusive_rate,
             :p_additive_rate,
-            :p_inclusive_tax_per_unit,
-            :p_additive_tax_per_unit,
+            :p_subtotal,
+            :p_inclusive_tax_amount,
+            :p_additive_tax_amount,
+            :p_net_sales,
             :p_last_log_by
         )';
 
@@ -533,8 +543,10 @@ class Shop extends Model {
             'p_base_price'              => $p_base_price,
             'p_inclusive_rate'          => $p_inclusive_rate,
             'p_additive_rate'           => $p_additive_rate,
-            'p_inclusive_tax_per_unit'  => $p_inclusive_tax_per_unit,
-            'p_additive_tax_per_unit'   => $p_additive_tax_per_unit,
+            'p_subtotal'                => $p_subtotal,
+            'p_inclusive_tax_amount'    => $p_inclusive_tax_amount,
+            'p_additive_tax_amount'     => $p_additive_tax_amount,
+            'p_net_sales'               => $p_net_sales,
             'p_last_log_by'             => $p_last_log_by
         ]);
     }

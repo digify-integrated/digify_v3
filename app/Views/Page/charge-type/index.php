@@ -51,7 +51,8 @@
                         <th>Value Type</th>
                         <th>Charge Value</th>
                         <th>Is Variable?</th>
-                        <th>Affects Tax?</th>
+                        <th>Application Order</th>
+                        <th>Tax Type</th>
                     </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-800"></tbody>

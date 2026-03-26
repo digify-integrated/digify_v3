@@ -237,18 +237,28 @@
                             <?= $security->csrfInput('product_pricing_form'); ?>
                             
                             <div class="d-flex flex-wrap gap-5">
-                                <div class="fv-row w-100 flex-md-root mb-2">
+                                <div class="fv-row w-100 flex-md-root mb-7">
                                     <label class="required form-label" for="sales_price">Sales Price</label>
                                     <input type="number" id="sales_price" name="sales_price" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
 
-                                <div class="fv-row w-100 flex-md-root mb-2">
+                                <div class="fv-row w-100 flex-md-root mb-7">
                                     <label class="required form-label" for="cost">Cost</label>
                                     <input type="number" id="cost" name="cost" class="form-control" min="0" step="0.0001" <?php echo $disabled; ?>/>
                                 </div>
                             </div>
 
                             <div class="d-flex flex-wrap gap-5">
+                                <div class="fv-row w-100 flex-md-root mb-7">
+                                    <label class="required form-label" for="cost">Tax Classification</label>
+                                    <select id="tax_classification" name="tax_classification" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
+                                        <option value="">--</option>
+                                        <option value="Vatable">Vatable</option>
+                                        <option value="VAT Exempt">VAT Exempt</option>
+                                        <option value="Zero Rated">Zero Rated</option>
+                                    </select>
+                                </div>
+                                
                                 <div class="fv-row w-100 flex-md-root">
                                     <label class="form-label" for="tax_id">Tax</label>
                                     <select id="tax_id" name="tax_id[]" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>></select>

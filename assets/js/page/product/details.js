@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#length').val(data.length || 0);
 
                 $('#product_type').val(data.productType || '').trigger('change');
+                $('#tax_classification').val(data.taxClassification || '').trigger('change');
 
                 document.getElementById('track-inventory').checked = data.trackInventory === 'Yes';
                 document.getElementById('is-sellable').checked = data.isSellable === 'Yes';
@@ -481,10 +482,12 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#product_pricing_form').validate({
         rules: {
             sales_price: { required: true },
+            tax_classification: { required: true },
             cost: { required: true }
         },
         messages: {
             sales_price: { required: 'Enter the sales price' },
+            tax_classification: { required: 'Choose the tax classification' },
             cost: { required: 'Enter the cost' }
         },
         errorPlacement: (error, element) => {

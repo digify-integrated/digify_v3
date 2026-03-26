@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 maxPercentage: true 
             },
             is_variable: { required: true },
-            affects_tax: { required: true }
+            application_order: { required: true },
+            tax_type: { required: true },
         },
         messages: {
             charge_type_name: { required: 'Enter the display name' },
@@ -25,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 number: 'Please enter a valid number'
             },
             is_variable: { required: 'Choose is variable' },
-            affects_tax: { required: 'Choose affects tax' }
+            application_order: { required: 'Choose the application order' },
+            tax_type: { required: 'Choose the tax type' },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

@@ -4265,8 +4265,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
     END IF;
 
-    IF NEW.affects_tax <> OLD.affects_tax THEN
-        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    IF NEW.application_order <> OLD.application_order THEN
+        SET audit_log = CONCAT(audit_log, "Application Order: ", OLD.application_order, " -> ", NEW.application_order, "<br/>");
+    END IF;
+
+    IF NEW.is_vat_exempt <> OLD.is_vat_exempt THEN
+        SET audit_log = CONCAT(audit_log, "Is VAT Exempt: ", OLD.is_vat_exempt, " -> ", NEW.is_vat_exempt, "<br/>");
     END IF;
     
     IF audit_log <> 'Discount type changed.<br/><br/>' THEN
@@ -4329,8 +4333,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
     END IF;
 
-    IF NEW.affects_tax <> OLD.affects_tax THEN
-        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    IF NEW.application_order <> OLD.application_order THEN
+        SET audit_log = CONCAT(audit_log, "Application Order: ", OLD.application_order, " -> ", NEW.application_order, "<br/>");
+    END IF;
+
+    IF NEW.tax_type <> OLD.tax_type THEN
+        SET audit_log = CONCAT(audit_log, "Tax Type: ", OLD.tax_type, " -> ", NEW.tax_type, "<br/>");
     END IF;
     
     IF audit_log <> 'Charge type changed.<br/><br/>' THEN

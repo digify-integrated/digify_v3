@@ -11108,6 +11108,7 @@ CREATE PROCEDURE updateProductPricing(
 	IN p_product_id INT, 
 	IN p_sales_price DECIMAL(15,2),
 	IN p_cost DECIMAL(15,2),
+	IN p_tax_classification ENUM('Vatable', 'VAT Exempt','Zero Rated'),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -11119,10 +11120,11 @@ BEGIN
     START TRANSACTION;
 
     UPDATE product
-    SET sales_price     = p_sales_price,
-        cost            = p_cost,
-        last_log_by     = p_last_log_by
-    WHERE product_id    = p_product_id;
+    SET sales_price         = p_sales_price,
+        cost                = p_cost,
+        tax_classification  = p_tax_classification,
+        last_log_by         = p_last_log_by
+    WHERE product_id        = p_product_id;
 
     COMMIT;
 END //
@@ -13275,7 +13277,8 @@ CREATE PROCEDURE saveDiscountType(
     IN p_value_type ENUM('Percentage','Fixed Amount'), 
     IN p_discount_value DECIMAL(15,2), 
     IN p_is_variable ENUM('Yes', 'No'), 
-    IN p_affects_tax ENUM('Yes', 'No'), 
+    IN p_application_order ENUM('Before Tax','After Tax'), 
+    IN p_is_vat_exempt ENUM('Yes', 'No'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -13294,7 +13297,8 @@ BEGIN
             value_type,
             discount_value,
             is_variable,
-            affects_tax,
+            application_order,
+            is_vat_exempt,
             last_log_by
         ) 
         VALUES(
@@ -13302,7 +13306,8 @@ BEGIN
             p_value_type,
             p_discount_value,
             p_is_variable,
-            p_affects_tax,
+            p_application_order,
+            p_is_vat_exempt,
             p_last_log_by
         );
         
@@ -13313,7 +13318,8 @@ BEGIN
             value_type          = p_value_type,
             discount_value      = p_discount_value,
             is_variable         = p_is_variable,
-            affects_tax         = p_affects_tax,
+            application_order   = p_application_order,
+            is_vat_exempt       = p_is_vat_exempt,
             last_log_by         = p_last_log_by
         WHERE discount_type_id  = p_discount_type_id;
 
@@ -13447,7 +13453,8 @@ CREATE PROCEDURE saveChargeType(
     IN p_value_type ENUM('Percentage','Fixed Amount'), 
     IN p_charge_value DECIMAL(15,2), 
     IN p_is_variable ENUM('Yes', 'No'), 
-    IN p_affects_tax ENUM('Yes', 'No'), 
+    IN p_application_order ENUM('Before Tax','After Tax'), 
+    IN p_tax_type ENUM('Vatable','Non Vatable'), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -13466,7 +13473,8 @@ BEGIN
             value_type,
             charge_value,
             is_variable,
-            affects_tax,
+            application_order,
+            tax_type,
             last_log_by
         ) 
         VALUES(
@@ -13474,20 +13482,22 @@ BEGIN
             p_value_type,
             p_charge_value,
             p_is_variable,
-            p_affects_tax,
+            p_application_order,
+            p_tax_type,
             p_last_log_by
         );
         
         SET v_new_charge_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE charge_type
-        SET charge_type_name  = p_charge_type_name,
+        SET charge_type_name    = p_charge_type_name,
             value_type          = p_value_type,
-            charge_value      = p_charge_value,
+            charge_value        = p_charge_value,
             is_variable         = p_is_variable,
-            affects_tax         = p_affects_tax,
+            application_order   = p_application_order,
+            tax_type            = p_tax_type,
             last_log_by         = p_last_log_by
-        WHERE charge_type_id  = p_charge_type_id;
+        WHERE charge_type_id    = p_charge_type_id;
 
         SET v_new_charge_type_id = p_charge_type_id;
     END IF;
@@ -14584,10 +14594,12 @@ CREATE PROCEDURE insertShopOrderDetail(
     IN p_product_name VARCHAR(100),
     IN p_quantity DECIMAL(15,4),
     IN p_base_price DECIMAL(15,2),
-    IN p_inclusive_rate DECIMAL(15,2),
-    IN p_additive_rate DECIMAL(15,2),
-    IN p_inclusive_tax_per_unit DECIMAL(15,2),
-    IN p_additive_tax_per_unit DECIMAL(15,2),
+    IN p_inclusive_rate DECIMAL(10,6),
+    IN p_additive_rate DECIMAL(10,6),
+    IN p_subtotal DECIMAL(15,2),
+    IN p_inclusive_tax_amount DECIMAL(15,2),
+    IN p_additive_tax_amount DECIMAL(15,2),
+    IN p_net_sales DECIMAL(15,2),
     IN p_last_log_by INT
 )
 BEGIN
@@ -14606,8 +14618,10 @@ BEGIN
         base_price,
         inclusive_rate,
         additive_rate,
-        inclusive_tax_per_unit,
-        additive_tax_per_unit,
+        subtotal,
+        inclusive_tax_amount,
+        additive_tax_amount,
+        net_sales,
         last_log_by
     )
     VALUES(
@@ -14618,8 +14632,10 @@ BEGIN
         p_base_price,
         p_inclusive_rate,
         p_additive_rate,
-        p_inclusive_tax_per_unit,
-        p_additive_tax_per_unit,
+        p_subtotal,
+        p_inclusive_tax_amount,
+        p_additive_tax_amount,
+        p_net_sales,
         p_last_log_by
     );
 
@@ -14787,8 +14803,10 @@ CREATE PROCEDURE updateShopOrderDetail(
     IN p_base_price DECIMAL(15,2),
     IN p_inclusive_rate DECIMAL(10,6),
     IN p_additive_rate DECIMAL(10,6),
-    IN p_inclusive_tax_per_unit DECIMAL(15,2),
-    IN p_additive_tax_per_unit DECIMAL(15,2),
+    IN p_subtotal DECIMAL(15,2),
+    IN p_inclusive_tax_amount DECIMAL(15,2),
+    IN p_additive_tax_amount DECIMAL(15,2),
+    IN p_net_sales DECIMAL(15,2),
 	IN p_last_log_by INT
 )
 BEGIN
@@ -14804,8 +14822,10 @@ BEGIN
         base_price              = p_base_price,
         inclusive_rate          = p_inclusive_rate,
         additive_rate           = p_additive_rate,
-        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
-        additive_tax_per_unit   = p_additive_tax_per_unit,
+        subtotal                = p_subtotal,
+        inclusive_tax_amount    = p_inclusive_tax_amount,
+        additive_tax_amount     = p_additive_tax_amount,
+        net_sales               = p_net_sales,
         last_log_by             = p_last_log_by
     WHERE shop_order_id         = p_shop_order_id
     AND product_id              = p_product_id;

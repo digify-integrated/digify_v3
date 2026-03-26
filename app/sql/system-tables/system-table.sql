@@ -7182,7 +7182,7 @@ CREATE TABLE product (
   quantity_on_hand DECIMAL(15,4) DEFAULT 0,
   cost DECIMAL(15,4) DEFAULT 0,
   sales_price DECIMAL(15,4) DEFAULT 0,
-  tax_classification ENUM('Vatable', 'Vat Exempt','Zero Rated') DEFAULT 'Vatable',
+  tax_classification ENUM('Vatable', 'VAT Exempt','Zero Rated') DEFAULT 'Vatable',
   is_variant ENUM('Yes','No') DEFAULT 'No',
   is_sellable ENUM('Yes','No') DEFAULT 'Yes',
   is_purchasable ENUM('Yes','No') DEFAULT 'Yes',
@@ -8206,27 +8206,66 @@ CREATE TABLE shop_order (
   cancelled_reason VARCHAR(500),
   refund_date DATETIME,
   
-  -- 🔥 SALES BREAKDOWN
+  -- =========================
+  -- 🔹 SALES BREAKDOWN
+  -- =========================
+
+  -- Formula: SUM(order_details.subtotal)
   gross_sales DECIMAL(15,2) DEFAULT 0,
 
+  -- Formula: gross_sales - vat_amount
   vat_sales DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula: SUM(order_details.inclusive_tax_amount)
   vat_amount DECIMAL(15,2) DEFAULT 0,
 
+  -- Formula: SUM(subtotal WHERE product.tax_classification = VAT_EXEMPT)
   vat_exempt_sales DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula: SUM(subtotal WHERE product.tax_classification = ZERO_RATED)
   zero_rated_sales DECIMAL(15,2) DEFAULT 0,
 
-  -- 🔥 DISCOUNTS
+  -- =========================
+  -- 🔹 DISCOUNTS
+  -- =========================
+
+  -- Formula: SUM(discounts WHERE application_order = 'Before Tax')
+  -- Applied to VATABLE sales ONLY
   before_tax_discount DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula: SUM(discounts WHERE application_order = 'After Tax')
   after_tax_discount DECIMAL(15,2) DEFAULT 0,
 
-  -- 🔥 TAXES
+  -- =========================
+  -- 🔹 TAXES
+  -- =========================
+
+  -- Formula: SUM(order_details.additive_tax_amount)
   additive_tax_total DECIMAL(15,2) DEFAULT 0,
 
-  -- 🔥 CHARGES
+  -- =========================
+  -- 🔹 CHARGES
+  -- =========================
+
+  -- Formula: vat_sales × service_charge_rate
+  -- (NON-VATABLE)
   service_charge_total DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula: SUM(other charges)
   other_charge_total DECIMAL(15,2) DEFAULT 0,
 
-  -- 🔥 FINAL
+  -- =========================
+  -- 🔹 FINAL TOTAL
+  -- =========================
+
+  -- FINAL FORMULA:
+  -- total_amount_due =
+  --   vat_sales
+  -- + vat_amount
+  -- + additive_tax_total
+  -- + service_charge_total
+  -- + other_charge_total
+  -- - after_tax_discount
   total_amount_due DECIMAL(15,2) DEFAULT 0,
 
   -- Audit fields
@@ -8272,17 +8311,47 @@ CREATE TABLE shop_order_details (
 
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
+  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled') DEFAULT 'Pending',
 
   quantity DECIMAL(15,4) DEFAULT 1,
-
   base_price DECIMAL(15,2) NOT NULL,
 
-   -- TAX SNAPSHOT
+  -- =========================
+  -- 🔹 TAX SNAPSHOT
+  -- =========================
+
+  -- Formula: SUM(inclusive taxes)
   inclusive_rate DECIMAL(10,6) DEFAULT 0,
+
+  -- Formula: SUM(additive taxes)
   additive_rate DECIMAL(10,6) DEFAULT 0,
 
-  -- COMPUTED VALUES
+  -- =========================
+  -- 🔹 COMPUTED VALUES
+  -- =========================
+
+  -- Formula: base_price × quantity
   subtotal DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula:
+  -- subtotal × (inclusive_rate / (1 + inclusive_rate))
+  inclusive_tax_amount DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula:
+  -- (subtotal - inclusive_tax_amount) × additive_rate
+  additive_tax_amount DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula:
+  -- subtotal - inclusive_tax_amount
+  net_sales DECIMAL(15,2) DEFAULT 0,
+
+  note VARCHAR(500),
+
+  sent_to_kitchen DATETIME,
+  preparing_date DATETIME,
+  to_serve_date DATETIME,
+  completed_date DATETIME,
+  cancelled_date DATETIME,
 
   -- =========================
   -- AUDIT
@@ -8301,11 +8370,11 @@ CREATE TABLE shop_order_details (
 CREATE INDEX idx_shop_order_details_shop_order_id ON shop_order_details(shop_order_id);
 CREATE INDEX idx_shop_order_details_product_id ON shop_order_details(product_id);
 CREATE INDEX idx_shop_order_details_order_status ON shop_order_details(order_status);
-CREATE INDEX idx_shop_order_details_discount_type ON shop_order_details(discount_type);
 CREATE INDEX idx_shop_order_details_sent_to_kitchen ON shop_order_details(sent_to_kitchen);
 CREATE INDEX idx_shop_order_details_preparing_date ON shop_order_details(preparing_date);
 CREATE INDEX idx_shop_order_details_to_serve_date ON shop_order_details(to_serve_date);
 CREATE INDEX idx_shop_order_details_completed_date ON shop_order_details(completed_date);
+CREATE INDEX idx_shop_order_details_cancelled_date ON shop_order_details(cancelled_date);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER DETAILS
@@ -8330,6 +8399,7 @@ CREATE TABLE shop_order_applied_discounts (
   discount_name VARCHAR(100),
   applied_value DECIMAL(15,2),
   calculated_amount DECIMAL(15,2),
+  application_order ENUM('Before Tax','After Tax'),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8344,6 +8414,7 @@ CREATE TABLE shop_order_applied_discounts (
 
 CREATE INDEX idx_shop_order_applied_discounts_shop_order_id ON shop_order_applied_discounts(shop_order_id);
 CREATE INDEX idx_shop_order_applied_discounts_discount_type_id ON shop_order_applied_discounts(discount_type_id);
+CREATE INDEX idx_shop_order_applied_discounts_application_order ON shop_order_applied_discounts(application_order);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER APPLIED CHARGES
@@ -8368,6 +8439,7 @@ CREATE TABLE shop_order_applied_charges (
   charge_name VARCHAR(100),
   applied_value DECIMAL(15,2),
   calculated_amount DECIMAL(15,2),
+  tax_type ENUM('Vatable','Non Vatable'),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8382,6 +8454,7 @@ CREATE TABLE shop_order_applied_charges (
 
 CREATE INDEX idx_shop_order_applied_charges_shop_order_id ON shop_order_applied_charges(shop_order_id);
 CREATE INDEX idx_shop_order_applied_charges_charge_type_id ON shop_order_applied_charges(charge_type_id);
+CREATE INDEX idx_shop_order_applied_charges_tax_type ON shop_order_applied_charges(tax_type);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER APPLIED CHARGES

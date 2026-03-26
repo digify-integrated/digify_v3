@@ -507,15 +507,17 @@ class ProductController {
             );
         }
 
-        $productId  = $_POST['product_id'] ?? null;
-        $salesPrice = $_POST['sales_price'] ?? 0;
-        $cost       = $_POST['cost'] ?? 0;
-        $taxIds     = $_POST['tax_id'] ?? [];
+        $productId          = $_POST['product_id'] ?? null;
+        $salesPrice         = $_POST['sales_price'] ?? 0;
+        $cost               = $_POST['cost'] ?? 0;
+        $taxClassification  = $_POST['tax_classification'] ?? 0;
+        $taxIds             = $_POST['tax_id'] ?? [];
 
         $this->product->updateProductPricing(
             $productId,
             $salesPrice,
             $cost,
+            $taxClassification,
             $lastLogBy
         );
 
@@ -900,6 +902,7 @@ class ProductController {
             'showOnPos'             => $productDetails['show_on_pos'] ?? 'Yes',
             'quantityOnHand'        => $productDetails['quantity_on_hand'] ?? 0,
             'salesPrice'            => $productDetails['sales_price'] ?? 0,
+            'taxClassification'     => $productDetails['tax_classification'] ?? 0,
             'cost'                  => $productDetails['cost'] ?? 0,
             'weight'                => $productDetails['weight'] ?? 0,
             'width'                 => $productDetails['width'] ?? 0,

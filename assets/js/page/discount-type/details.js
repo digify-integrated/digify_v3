@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 $('#value_type').val(data.valueType).trigger('change');
                 $('#is_variable').val(data.isVariable).trigger('change');
-                $('#affects_tax').val(data.affectsTax).trigger('change');
+                $('#application_order').val(data.applicationOrder).trigger('change');
+                $('#is_vat_exempt').val(data.isVatExempt).trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -55,16 +56,24 @@ document.addEventListener('DOMContentLoaded', () => {
         rules: {
             discount_type_name: { required: true },
             value_type: { required: true },
-            discount_value: { required: true },
+            discount_value: {  
+                required: function() {
+                    return $('#value_type').val() != '';
+                },
+                number: true,
+                maxPercentage: true 
+            },
             is_variable: { required: true },
-            affects_tax: { required: true }
+            application_order: { required: true },
+            is_vat_exempt: { required: true },
         },
         messages: {
             discount_type_name: { required: 'Enter the display name' },
             value_type: { required: 'Choose the value type' },
             discount_value: { required: 'Enter the discount value' },
             is_variable: { required: 'Choose is variable' },
-            affects_tax: { required: 'Choose affects tax' }
+            application_order: { required: 'Choose the application order' },
+            is_vat_exempt: { required: 'Choose is VAT exempt' },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

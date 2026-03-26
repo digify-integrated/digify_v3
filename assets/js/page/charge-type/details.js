@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 $('#value_type').val(data.valueType).trigger('change');
                 $('#is_variable').val(data.isVariable).trigger('change');
-                $('#affects_tax').val(data.affectsTax).trigger('change');
+                $('#application_order').val(data.applicationOrder).trigger('change');
+                $('#tax_type').val(data.taxType).trigger('change');
             }
             else if (data.notExist) {
                 setNotification(data.title, data.message, data.message_type);
@@ -55,16 +56,27 @@ document.addEventListener('DOMContentLoaded', () => {
         rules: {
             charge_type_name: { required: true },
             value_type: { required: true },
-            charge_value: { required: true },
+            charge_value: {  
+                required: function() {
+                    return $('#value_type').val() != '';
+                },
+                number: true,
+                maxPercentage: true 
+            },
             is_variable: { required: true },
-            affects_tax: { required: true }
+            application_order: { required: true },
+            tax_type: { required: true },
         },
         messages: {
             charge_type_name: { required: 'Enter the display name' },
             value_type: { required: 'Choose the value type' },
-            charge_value: { required: 'Enter the charge value' },
+            charge_value: {
+                required: 'Enter charge value',
+                number: 'Please enter a valid number'
+            },
             is_variable: { required: 'Choose is variable' },
-            affects_tax: { required: 'Choose affects tax' }
+            application_order: { required: 'Choose the application order' },
+            tax_type: { required: 'Choose the tax type' },
         },
         errorPlacement: (error, element) => {
             showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);

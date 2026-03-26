@@ -535,17 +535,29 @@ class ShopController {
         $productName    = $productDetails['product_name'] ?? '';
         $basePrice      = $productDetails['sales_price'] ?? 0;
 
-        $checkShopOrderProductExist = $this->shop->checkShopOrderProductExist($shopOrderId, $productId)['total'] ?? 0;
+        $inclusiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
+        $additiveRate  = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
 
-        if($checkShopOrderProductExist > 0){
-            $shopOrderDetailDetails = $this->shop->fetchShopOrderDetailsByProduct($shopOrderId, $productId);
-            $quantity               = ($shopOrderDetailDetails['quantity'] ?? 0) + 1;
+        $check = $this->shop->checkShopOrderProductExist($shopOrderId, $productId)['total'] ?? 0;
 
-            $inclusiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
-            $additiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
-            $inclusiveTaxPerUnit = ($basePrice * $inclusiveRate) / (1 + $inclusiveRate);
-            $additiveTaxPerUnit = $basePrice * $additiveRate;
+        if ($check > 0) {
+            $details  = $this->shop->fetchShopOrderDetailsByProduct($shopOrderId, $productId);
 
+            $quantity = ($details['quantity'] ?? 0) + 1;
+            $basePrice = $details['base_price'];
+        }
+        else {
+            $quantity = 1;
+        }
+
+        $amounts = $this->computeItemAmounts(
+            $basePrice,
+            $quantity,
+            $inclusiveRate,
+            $additiveRate
+        );
+
+        if ($check > 0) {
             $this->shop->updateShopOrderDetail(
                 $shopOrderId,
                 $productId,
@@ -553,18 +565,14 @@ class ShopController {
                 $basePrice,
                 $inclusiveRate,
                 $additiveRate,
-                $inclusiveTaxPerUnit,
-                $additiveTaxPerUnit,
+                $amounts['subtotal'],
+                $amounts['inclusive_tax'],
+                $amounts['additive_tax'],
+                $amounts['net_sales'],
                 $lastLogBy
             );
         }
         else {
-            $quantity               = 1;
-            $inclusiveRate          = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
-            $additiveRate           = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
-            $inclusiveTaxPerUnit    = ($basePrice * $inclusiveRate) / (1 + $inclusiveRate);
-            $additiveTaxPerUnit     = $basePrice * $additiveRate;
-
             $this->shop->insertShopOrderDetail(
                 $shopOrderId,
                 $productId,
@@ -573,8 +581,10 @@ class ShopController {
                 $basePrice,
                 $inclusiveRate,
                 $additiveRate,
-                $inclusiveTaxPerUnit,
-                $additiveTaxPerUnit,
+                $amounts['subtotal'],
+                $amounts['inclusive_tax'],
+                $amounts['additive_tax'],
+                $amounts['net_sales'],
                 $lastLogBy
             );
         }
@@ -727,10 +737,35 @@ class ShopController {
         $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
         $quantity           = $_POST['quantity'] ?? 0;
 
+        $details        = $this->shop->fetchShopOrderDetailDetails($shopOrderDetailsId);
+        $shopOrderId    = $details['shop_order_id'];
+        $productId      = $details['product_id'];
+
+        $productDetails = $this->product->fetchProduct($productId);
+        $basePrice      = $productDetails['sales_price'] ?? 0;
+
+        $inclusiveRate = $this->product->fetchProductTotalTaxRate($productId, 'Inclusive')['total'] ?? 0;
+        $additiveRate  = $this->product->fetchProductTotalTaxRate($productId, 'Additive')['total'] ?? 0;
+
+        $amounts = $this->computeItemAmounts(
+            $basePrice,
+            $quantity,
+            $inclusiveRate,
+            $additiveRate
+        );
+
         if($quantity > 0){
-            $this->shop->updateShopOrderQuantity(
-                $shopOrderDetailsId,
+            $this->shop->updateShopOrderDetail(
+                $shopOrderId,
+                $productId,
                 $quantity,
+                $basePrice,
+                $inclusiveRate,
+                $additiveRate,
+                $amounts['subtotal'],
+                $amounts['inclusive_tax'],
+                $amounts['additive_tax'],
+                $amounts['net_sales'],
                 $lastLogBy
             );
         }
@@ -1474,7 +1509,7 @@ class ShopController {
         $orders = $this->shop->fetchShopOrderList($shopOrderId);
 
         foreach ($orders as &$row) {
-            $row['formatted_total'] = number_format($row['total_price'], 2);
+            $row['formatted_total'] = number_format($row['subtotal'], 2);
             $row['formatted_qty'] = number_format($row['quantity'], 2);
         }
 
@@ -1511,6 +1546,30 @@ class ShopController {
     /* =============================================================================================
         SECTION 8: CUSTOM METHOD
     ============================================================================================= */
+
+    private function computeItemAmounts($basePrice, $quantity, $inclusiveRate, $additiveRate) {
+        $subtotal = round($basePrice * $quantity, 2);
+
+        if ($inclusiveRate > 0) {
+            $inclusiveTaxAmount = round(
+                ($subtotal * $inclusiveRate) / (1 + $inclusiveRate),
+                2
+            );
+        } else {
+            $inclusiveTaxAmount = 0;
+        }
+
+        $netSales = round($subtotal - $inclusiveTaxAmount, 2);
+
+        $additiveTaxAmount = round($netSales * $additiveRate, 2);
+
+        return [
+            'subtotal' => $subtotal,
+            'inclusive_tax' => $inclusiveTaxAmount,
+            'net_sales' => $netSales,
+            'additive_tax' => $additiveTaxAmount
+        ];
+    }
 
     /* =============================================================================================
         END OF METHODS

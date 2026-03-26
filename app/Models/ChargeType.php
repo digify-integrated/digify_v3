@@ -15,7 +15,8 @@ class ChargeType extends Model {
         string $p_value_type,
         string $p_charge_value,
         string $p_is_variable,
-        string $p_affects_tax,
+        string $p_application_order,
+        string $p_tax_type,
         int $p_last_log_by
     )    {
         $sql = 'CALL saveChargeType(
@@ -24,17 +25,19 @@ class ChargeType extends Model {
             :p_value_type,
             :p_charge_value,
             :p_is_variable,
-            :p_affects_tax,
+            :p_application_order,
+            :p_tax_type,
             :p_last_log_by
         )';
 
         $row = $this->fetch($sql, [
-            'p_charge_type_id'    => $p_charge_type_id,
-            'p_charge_type_name'  => $p_charge_type_name,
+            'p_charge_type_id'      => $p_charge_type_id,
+            'p_charge_type_name'    => $p_charge_type_name,
             'p_value_type'          => $p_value_type,
-            'p_charge_value'      => $p_charge_value,
+            'p_charge_value'        => $p_charge_value,
             'p_is_variable'         => $p_is_variable,
-            'p_affects_tax'         => $p_affects_tax,
+            'p_application_order'   => $p_application_order,
+            'p_tax_type'            => $p_tax_type,
             'p_last_log_by'         => $p_last_log_by
         ]);
 

@@ -102,7 +102,8 @@ class DiscountTypeController {
         $valueType          = $_POST['value_type'] ?? null;
         $discountValue      = $_POST['discount_value'] ?? null;
         $isVariable         = $_POST['is_variable'] ?? null;
-        $affectsTax         = $_POST['affects_tax'] ?? null;
+        $applicationOrder   = $_POST['application_order'] ?? null;
+        $isVatExempt        = $_POST['is_vat_exempt'] ?? null;
 
         $discountTypeId = $this->discountType->saveDiscountType(
             $discountTypeId,
@@ -110,7 +111,8 @@ class DiscountTypeController {
             $valueType,
             $discountValue,
             $isVariable,
-            $affectsTax,
+            $applicationOrder,
+            $isVatExempt,
             $lastLogBy
         );
 
@@ -156,7 +158,8 @@ class DiscountTypeController {
             'valueType'         => $discountTypeDetails['value_type'] ?? null,
             'discountValue'     => $discountTypeDetails['discount_value'] ?? null,
             'isVariable'        => $discountTypeDetails['is_variable'] ?? null,
-            'affectsTax'        => $discountTypeDetails['affects_tax'] ?? null,
+            'applicationOrder'  => $discountTypeDetails['application_order'] ?? null,
+            'isVatExempt'       => $discountTypeDetails['is_vat_exempt'] ?? null,
         ];
 
         echo json_encode($response);
@@ -211,7 +214,8 @@ class DiscountTypeController {
             $valueType          = $row['value_type'];
             $discountValue      = $row['discount_value'];
             $isVariable         = $row['is_variable'];
-            $affectsTax         = $row['affects_tax'];
+            $applicationOrder   = $row['application_order'];
+            $isVatExempt        = $row['is_vat_exempt'];
 
             $discountTypeIdEncrypted = $this->security->encryptData($discountTypeId);
 
@@ -223,7 +227,8 @@ class DiscountTypeController {
                 'VALUE_TYPE'        => $valueType,
                 'DISCOUNT_VALUE'    => $discountValue,
                 'IS_VARIABLE'       => $isVariable,
-                'AFFECTS_TAX'       => $affectsTax,
+                'APPLICATION_ORDER' => $applicationOrder,
+                'IS_VAT_EXEMPT'     => $isVatExempt,
                 'LINK'              => $pageLink .'&id='. $discountTypeIdEncrypted
             ];
         }
