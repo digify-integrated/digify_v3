@@ -117,7 +117,6 @@ class ShopController {
             'update shop order preset'              => $this->updateShopOrderPreset($lastLogBy),
             'update shop order note'                => $this->updateShopOrderNote($lastLogBy),
             'update shop order quantity'            => $this->updateShopOrderQuantity($lastLogBy),
-            'update shop order discount'            => $this->updateShopOrderDiscount($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
@@ -144,7 +143,7 @@ class ShopController {
             'generate shop product categories'      => $this->generateShopProductCategories(),
             'generate shop products'                => $this->generateShopProducts(),
             'generate shop order list'              => $this->generateShopOrderList(),
-            'generate shop discounts form'          => $this->generateShopDiscountList(),
+            'generate shop discounts list'          => $this->generateShopDiscountList(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -589,10 +588,10 @@ class ShopController {
             );
         }
 
-        /*$this->shop->updateShopOrderTotal(
+        $this->shop->updateShopOrderTotal(
             $shopOrderId,
             $lastLogBy
-        );*/
+        );
 
         $this->systemHelper::sendSuccessResponse(
             '',
@@ -770,35 +769,8 @@ class ShopController {
             );
         }
 
-        $this->systemHelper::sendSuccessResponse(
-            '',
-            ''
-        );
-    }
-   
-    public function updateShopOrderDiscount(
-        int $lastLogBy
-    ) {
-        $shopOrderId                = $_POST['shop_order_id'] ?? null;
-        $transactionDiscountType    = $_POST['transaction_discount_type'] ?? null;
-        $transactionDiscountValue   = $_POST['transaction_discount_value'] ?? null;
-
-        $shopOrderDetails   = $this->shop->fetchShopOrderDetails($shopOrderId);
-        $taxableAmount      =  $shopOrderDetails['taxable_amount'] ?? 0;
-
-        if(!empty($transactionDiscountType)){
-            $transactionDiscountAmount = $transactionDiscountType === 'Percentage' ? $taxableAmount * ($transactionDiscountValue / 100) : $transactionDiscountValue;
-        }
-        else{
-            $transactionDiscountAmount = 0;
-            $transactionDiscountValue = 0;
-        }
-
-        $this->shop->updateShopOrderDiscount(
+        $this->shop->updateShopOrderTotal(
             $shopOrderId,
-            $transactionDiscountType,
-            $transactionDiscountValue,
-            $transactionDiscountAmount,
             $lastLogBy
         );
 
@@ -906,25 +878,26 @@ class ShopController {
         exit;
     }
 
-    public function fetchShopOrderTotal() {
+    public function fetchShopOrderTotal() { 
         $shopOrderId = $_POST['shop_order_id'] ?? null;
 
-        $shopOrderTotal = $this->shop->fetchShopOrderTotal($shopOrderId);
-        $additiveTaxTotal = $shopOrderTotal['additive_tax_total'] ?? 0;
-        $transactionDiscountAmount = $shopOrderTotal['transaction_discount_amount'] ?? 0;
-        $subTotal = $shopOrderTotal['subtotal'] ?? 0;
-        $orderDiscountAmount = $shopOrderTotal['order_discount_amount'] ?? 0;
-        $totalPrice = $shopOrderTotal['total_price'] ?? 0;
-        $totalDiscount = $orderDiscountAmount + $transactionDiscountAmount;
+        $order = $this->shop->fetchShopOrderTotal($shopOrderId);
+
+        // Fetch breakdowns
+        $charges = $this->shop->fetchOrderCharges($shopOrderId) ?? [];
+        $discounts = $this->shop->fetchOrderDiscounts($shopOrderId) ?? [];
 
         $response = [
-            'success'                   => true,
-            'subTotal'                  => number_format($subTotal, 2),
-            'orderDiscount'             => number_format($orderDiscountAmount, 2),
-            'additiveTaxTotal'          => number_format($additiveTaxTotal, 2),
-            'transactionDiscountAmount' => number_format($transactionDiscountAmount, 2),
-            'totalDiscount'             => number_format($totalDiscount, 2),
-            'totalPrice'                => number_format($totalPrice, 2)
+            'success' => true,
+
+            // 🔹 SAFE ACCESS
+            'subtotal'   => isset($order['gross_sales']) ? (float)$order['gross_sales'] : 0,
+            'vat_sales'  => isset($order['vat_sales']) ? (float)$order['vat_sales'] : 0,
+            'vat_amount' => isset($order['vat_amount']) ? (float)$order['vat_amount'] : 0,
+            'total'      => isset($order['total_amount_due']) ? (float)$order['total_amount_due'] : 0,
+
+            'charges'    => $charges,
+            'discounts'  => $discounts
         ];
 
         echo json_encode($response);
@@ -1395,26 +1368,35 @@ class ShopController {
     
     public function generateShopDiscountList() {
         $shopId = $_POST['shop_id'] ?? null;
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
+
         $shopDiscounts = $this->shop->fetchShopDiscounts($shopId);
         $data = [];
 
         foreach ($shopDiscounts as $row) {
-            $shopDiscountsId = $row['shop_discounts_id'];
             $discountTypeId = $row['discount_type_id'];
-            
-            $discountTypeDetails = $this->discountType->fetchDiscountType($discountTypeId);
-            
+
+            $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+
+            // 🔹 Check if already applied
+            $applied = $this->shop->fetchAppliedDiscount($shopOrderId, $discountTypeId);
+
+            // 🔥 VALUE LOGIC
+            $appliedValue = $applied['applied_value'] 
+                ?? $discountType['discount_value'];
+
             $data[] = [
-                'id'    => $shopDiscountsId,
-                'discountTypeName'  => $discountTypeDetails['discount_type_name'],
-                'valueType'  => $discountTypeDetails['value_type'],
-                'discountValue'  => $discountTypeDetails['discount_value'],
-                'isVariable'  => $discountTypeDetails['is_variable'],
+                'discountTypeId'   => $discountTypeId,
+                'discountName'     => $discountType['discount_type_name'],
+                'valueType'        => $discountType['value_type'],
+                'discountValue'    => $discountType['discount_value'],
+                'appliedValue'     => $appliedValue,
+                'isVariable'       => $discountType['is_variable']
             ];
         }
 
         echo json_encode([
-            'success'    => true,
+            'success' => true,
             'discounts' => $data
         ]);
     }

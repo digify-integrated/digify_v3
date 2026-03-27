@@ -23,19 +23,12 @@
                 <div class="hover-scroll-overlay-y pe-6 me-n9" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
-                        <div class="d-flex flex-stack p-6">
-                            <div class="fs-6 fw-bold">
-                                <span class="d-block mb-2">Subtotal</span>
-                                <span class="d-block mb-2">Taxes</span>
-                                <span class="d-block mb-2">Discount</span>
-                                <span class="d-block fs-2 lh-1">Total</span>
-                            </div> 
-                            
-                            <div class="fs-6 fw-bold text-end">
-                                <span class="d-block mb-2" id="shop-order-subtotal">&#8369; 0.00</span>
-                                <span class="d-block mb-2" id="shop-order-taxes">&#8369; 0.00</span>
-                                <span class="d-block mb-2" id="shop-order-transaction-discounts">&#8369; 0.00</span>
-                                <span class="d-block fs-2 lh-1" id="shop-order-total">&#8369; 0.00</span>
+                        <div class="p-6">
+                            <div id="order-summary-list"></div>
+
+                            <div class="d-flex flex-stack mt-4">
+                                <div class="fs-4 fw-bold">AMOUNT DUE</div>
+                                <div class="fs-2 fw-bold" id="shop-order-total">₱ 0.00</div>
                             </div>
                         </div>
                     </div>
@@ -57,24 +50,6 @@
                         </label>
                     </div>
 
-                    <?php if ($floorPlanCount > 0): ?>
-                        <button class="btn btn-warning w-100 p-4 mb-3 d-none" id="send-kitchen-button">
-                            Send To Kitchen
-                        </button>
-                    <?php endif; ?>
-
-                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
-                        <?php if ($floorPlanCount > 0): ?>                            
-                            <button class="btn btn-light-primary w-100 p-4 d-none" id="set-table-button">
-                                Set Table
-                            </button>
-                        <?php endif; ?>
-
-                        <button class="btn btn-light-primary w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
-                            Set Tab
-                        </button>
-                    </div>
-
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <button class="btn btn-light-success w-100 p-4 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
                             Discount
@@ -83,6 +58,22 @@
                         
                         <button class="btn btn-light-danger w-100 p-4 d-none" id="charges-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
                             Extra Charges
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
+                        <?php if ($floorPlanCount > 0): ?>               
+                            <button class="btn btn-warning w-100 p-4 d-none" id="send-kitchen-button">
+                                Send To Kitchen
+                            </button>
+
+                            <button class="btn btn-light-primary w-100 p-4 d-none" id="set-table-button">
+                                Set Table
+                            </button>
+                        <?php endif; ?>
+
+                        <button class="btn btn-light-primary w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
+                            Set Tab
                         </button>
                     </div>
 
@@ -232,11 +223,11 @@
     </div>
 </div>
 
-<div id="charge-modal" class="modal fade" tabindex="-1" aria-labelledby="charge-modal" aria-hidden="true">
+<div id="charges-modal" class="modal fade" tabindex="-1" aria-labelledby="charges-modal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Discount</h3>
+                <h3 class="modal-title">Charges</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
@@ -245,7 +236,7 @@
             <div class="modal-body">
                 <form id="order_charge_form" method="post" action="#">
                     <?= $security->csrfInput('order_charge_form'); ?>
-                    <div id="charge-list"></div>
+                    <div id="charges-list"></div>
                 </form>
             </div>
 

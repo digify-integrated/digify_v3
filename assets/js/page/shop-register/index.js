@@ -397,34 +397,66 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadOrderDiscount = async () => {
-        const data = await apiRequest('generate shop discounts form', { shop_id: getShopId() });
+        const data = await apiRequest('generate shop discounts list', { 
+            shop_id: getShopId(),
+            shop_order_id: getOrderId()
+        });
 
-        if (data?.success && data.floorPlans) {
-            const $container = $('#discount-list');
-            
-            const html = data.floorPlans.map((plan, i) => {
-                const activeClass = (i === 0) ? 'active' : '';
+        if (!data?.success || !data.discounts) return;
+
+        const $container = $('#discount-lists');
+
+        const html = data.discounts.map((discount, i) => {
+
+            const isPercentage = discount.valueType === 'Percentage';
+            const isReadonly = discount.isVariable === 'No';
+
+            const symbol = isPercentage ? '%' : '₱';
+            const maxAttr = isPercentage ? 'max="100"' : '';
+            const readonlyAttr = isReadonly ? 'readonly' : '';
+
+            return `
+            <div class="row mb-4">
                 
-                return `
-                    <div class="col-6 col-lg-2 mb-7">
-                        <a class="nav-link nav-link-border-solid btn btn-outline btn-flex 
-                                btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg ${activeClass}"
-                        data-bs-toggle="pill"
-                        href="#floor_plan_${plan.id}">
-                            <div>
-                                <span class="text-gray-800 fw-bold fs-2 d-block">
-                                    ${plan.name}
-                                </span>
-                                <span class="text-primary fw-semibold fs-7">
-                                    Available Table: ${plan.count.toLocaleString()}
-                                </span>
-                            </div>
-                        </a>
-                    </div>`;
-            }).join(''); // Join array into a single string
-            
-            $container.html(html);
-        }
+                <!-- Label -->
+                <div class="col-lg-4">
+                    <label class="fs-6 fw-semibold form-label mt-2">
+                        ${discount.discountName}
+                        <span class="text-muted">(${symbol})</span>
+                    </label>
+                </div>
+
+                <!-- Input -->
+                <div class="col-lg-8">
+                    <input 
+                        type="number"
+                        class="form-control discount-input"
+                        
+                        name="discounts[${i}][value]"
+                        value="${discount.appliedValue ?? 0}"
+
+                        min="0"
+                        step="0.01"
+                        ${maxAttr}
+                        ${readonlyAttr}
+
+                        data-type="${discount.valueType}"
+                        data-id="${discount.discountTypeId}"
+                    >
+
+                    <!-- Hidden ID -->
+                    <input 
+                        type="hidden" 
+                        name="discounts[${i}][discount_type_id]" 
+                        value="${discount.discountTypeId}"
+                    >
+                </div>
+
+            </div>
+            `;
+        }).join('');
+
+        $container.html(html);
     };
 
     const refreshRegisterUI = async (orderId) => {
@@ -458,14 +490,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const formatPeso = (amount) => `₱ ${parseFloat(amount).toFixed(2)}`;
+
     const fetchOrderTotal = async (shop_order_id) => {
         const data = await apiRequest('fetch shop order total', { shop_order_id });
-        if (data?.success) {
-            $('#shop-order-subtotal').html(`&#8369; ${data.subTotal}`);
-            $('#shop-order-taxes').html(`&#8369; ${data.additiveTaxTotal}`);
-            $('#shop-order-transaction-discounts').html(`&#8369; ${data.totalDiscount}`);
-            $('#shop-order-total').html(`&#8369; ${data.totalPrice}`);
+
+        if (!data?.success) return;
+
+        let html = '';
+
+        // 🔹 Subtotal
+        html += `
+            <div class="d-flex flex-stack mb-2">
+                <span>Subtotal</span>
+                <span>${formatPeso(data.subtotal)}</span>
+            </div>
+        `;
+
+        // 🔹 VAT Sales
+        html += `
+            <div class="d-flex flex-stack mb-2">
+                <span>VAT Sales</span>
+                <span>${formatPeso(data.vat_sales)}</span>
+            </div>
+        `;
+
+        // 🔹 VAT
+        html += `
+            <div class="d-flex flex-stack mb-2">
+                <span>VAT (12%)</span>
+                <span>${formatPeso(data.vat_amount)}</span>
+            </div>
+        `;
+
+        // 🔹 Charges (ONLY if exist)
+        if (data.charges.length > 0) {
+            data.charges.forEach(charge => {
+                html += `
+                    <div class="d-flex flex-stack mb-2 text-primary">
+                        <span>${charge.name}</span>
+                        <span>${formatPeso(charge.amount)}</span>
+                    </div>
+                `;
+            });
         }
+
+        // 🔹 Discounts (ONLY if exist)
+        if (data.discounts.length > 0) {
+            data.discounts.forEach(discount => {
+                html += `
+                    <div class="d-flex flex-stack mb-2 text-danger">
+                        <span>${discount.name}</span>
+                        <span>-${formatPeso(discount.amount)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Inject
+        $('#order-summary-list').html(html);
+
+        // 🔹 Total
+        $('#shop-order-total').html(formatPeso(data.total));
     };
 
     const fetchShopOrderDetails = async (shop_order_details_id) => {

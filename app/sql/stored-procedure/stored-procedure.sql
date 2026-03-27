@@ -14188,6 +14188,78 @@ BEGIN
     ORDER BY discount_type_name;
 END //
 
+DROP PROCEDURE IF EXISTS fetchOrderDiscounts//
+
+CREATE PROCEDURE fetchOrderDiscounts(
+    IN p_shop_order_id INT
+)
+BEGIN
+    SELECT 
+        shop_order_applied_discounts_id AS discount_id,
+
+        discount_name AS name,
+
+        applied_value,
+
+        calculated_amount AS amount,
+
+        value_type,
+
+        affects_tax
+
+    FROM shop_order_applied_discounts
+    WHERE shop_order_id = p_shop_order_id
+    ORDER BY discount_name;
+
+END //
+
+DROP PROCEDURE IF EXISTS fetchOrderCharges//
+
+CREATE PROCEDURE fetchOrderCharges(
+    IN p_shop_order_id INT
+)
+BEGIN
+    SELECT 
+        shop_order_applied_charges_id AS charge_id,
+
+        charge_name AS name,
+
+        applied_value,
+
+        calculated_amount AS amount,
+
+        value_type,
+
+        affects_tax
+
+    FROM shop_order_applied_charges
+    WHERE shop_order_id = p_shop_order_id
+    ORDER BY charge_name;
+
+END //
+
+DROP PROCEDURE IF EXISTS fetchAppliedDiscount //
+
+CREATE PROCEDURE fetchAppliedDiscount(
+    IN p_shop_order_id INT,
+    IN p_discount_type_id INT
+)
+BEGIN
+    SELECT 
+        shop_order_applied_discounts_id,
+        shop_order_id,
+        discount_type_id,
+        discount_name,
+        applied_value,
+        calculated_amount,
+        value_type,
+        affects_tax
+    FROM shop_order_applied_discounts
+    WHERE shop_order_id = p_shop_order_id
+      AND discount_type_id = p_discount_type_id
+    LIMIT 1;
+END //
+
 /* =============================================================================================
    SECTION 5: DELETE PROCEDURES
 ============================================================================================= */
@@ -14837,51 +14909,6 @@ DROP PROCEDURE IF EXISTS updateShopOrderTotal//
 
 CREATE PROCEDURE updateShopOrderTotal(
     IN in_shop_order_id INT,
-	IN p_last_log_by INT
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    -- Aggregate totals from shop_order_details with quantity > 0
-    UPDATE shop_order o
-    JOIN (
-        SELECT 
-            shop_order_id,
-            IFNULL(SUM(subtotal),0) AS subtotal,
-            IFNULL(SUM(discount_amount),0) AS order_discount_amount,
-            IFNULL(SUM(taxable_amount),0) AS taxable_amount,
-            IFNULL(SUM(total_price),0) AS subtotal_price,
-            IFNULL(SUM(inclusive_tax_total),0) AS inclusive_tax_total,
-            IFNULL(SUM(additive_tax_total),0) AS additive_tax_total
-        FROM shop_order_details
-        WHERE shop_order_id = in_shop_order_id
-          AND quantity > 0
-        GROUP BY shop_order_id
-    ) s ON o.shop_order_id = s.shop_order_id
-    SET 
-        o.subtotal = s.subtotal,
-        o.order_discount_amount = s.order_discount_amount,
-        o.taxable_amount = s.taxable_amount,
-        o.subtotal_price = s.subtotal_price,
-        o.inclusive_tax_total = s.inclusive_tax_total,
-        o.additive_tax_total = s.additive_tax_total,
-        o.last_log_by = p_last_log_by;
-
-    COMMIT;
-END //
-
-DROP PROCEDURE IF EXISTS updateShopOrderDiscount//
-
-CREATE PROCEDURE updateShopOrderDiscount(
-    IN p_shop_order_id INT, 
-    IN p_transaction_discount_type VARCHAR(100),
-    IN p_transaction_discount_value DECIMAL(15,4),
-    IN p_transaction_discount_amount DECIMAL(15,2),
     IN p_last_log_by INT
 )
 BEGIN
@@ -14892,14 +14919,74 @@ BEGIN
 
     START TRANSACTION;
 
-    UPDATE shop_order
-    SET transaction_discount_type   = p_transaction_discount_type,
-        transaction_discount_value  = p_transaction_discount_value,
-        transaction_discount_amount = p_transaction_discount_amount,
-        last_log_by                 = p_last_log_by
-    WHERE shop_order_id             = p_shop_order_id;
+    -- =========================
+    -- 🔹 STEP 1: AGGREGATE ITEM VALUES
+    -- =========================
+    UPDATE shop_order o
+    JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(subtotal), 0) AS gross_sales,
+            IFNULL(SUM(inclusive_tax_amount), 0) AS vat_amount,
+            IFNULL(SUM(additive_tax_amount), 0) AS additive_tax_total
+        FROM shop_order_details
+        WHERE shop_order_id = in_shop_order_id
+          AND quantity > 0
+        GROUP BY shop_order_id
+    ) d ON o.shop_order_id = d.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 2: AGGREGATE DISCOUNTS
+    -- =========================
+    LEFT JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(calculated_amount), 0) AS total_discount_amount
+        FROM shop_order_applied_discounts
+        WHERE shop_order_id = in_shop_order_id
+        GROUP BY shop_order_id
+    ) disc ON o.shop_order_id = disc.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 3: AGGREGATE CHARGES
+    -- =========================
+    LEFT JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(calculated_amount), 0) AS total_charge_amount
+        FROM shop_order_applied_charges
+        WHERE shop_order_id = in_shop_order_id
+        GROUP BY shop_order_id
+    ) chg ON o.shop_order_id = chg.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 4: UPDATE FINAL VALUES
+    -- =========================
+    SET 
+        o.gross_sales = d.gross_sales,
+
+        o.vat_amount = d.vat_amount,
+
+        o.vat_sales = ROUND(d.gross_sales - d.vat_amount, 2),
+
+        o.additive_tax_total = d.additive_tax_total,
+
+        o.total_discount_amount = IFNULL(disc.total_discount_amount, 0),
+
+        o.total_charge_amount = IFNULL(chg.total_charge_amount, 0),
+
+        -- FINAL TOTAL
+        o.total_amount_due = ROUND(
+            d.gross_sales
+            - IFNULL(disc.total_discount_amount, 0)
+            + d.additive_tax_total
+            + IFNULL(chg.total_charge_amount, 0),
+        2),
+
+        o.last_log_by = p_last_log_by;
 
     COMMIT;
+
 END //
 
 /* =============================================================================================
@@ -14961,7 +15048,7 @@ CREATE PROCEDURE fetchShopOrderTotal(
     IN p_shop_order_id INT
 )
 BEGIN
-	SELECT transaction_discount_amount, subtotal, order_discount_amount, taxable_amount, subtotal_price, inclusive_tax_total, additive_tax_total, total_price
+	SELECT gross_sales, vat_amount, vat_sales, vat_exempt_sales, zero_rated_sales, total_discount_amount, additive_tax_total, total_charge_amount, total_amount_due
     FROM shop_order
     WHERE shop_order_id = p_shop_order_id;
 END //

@@ -566,30 +566,6 @@ class Shop extends Model {
         ]);
     }
 
-    public function updateShopOrderDiscount(
-        int $p_shop_order_id,
-        string $p_transaction_discount_type,
-        string $p_transaction_discount_value,
-        string $p_transaction_discount_amount,
-        int $p_last_log_by
-    )    {
-        $sql = 'CALL updateShopOrderDiscount(
-            :p_shop_order_id,
-            :p_transaction_discount_type,
-            :p_transaction_discount_value,
-            :p_transaction_discount_amount,
-            :p_last_log_by
-        )';
-
-        return $this->query($sql, [
-            'p_shop_order_id'               => $p_shop_order_id,
-            'p_transaction_discount_type'   => $p_transaction_discount_type,
-            'p_transaction_discount_value'  => $p_transaction_discount_value,
-            'p_transaction_discount_amount' => $p_transaction_discount_amount,
-            'p_last_log_by'                 => $p_last_log_by
-        ]);
-    }
-
     /* =============================================================================================
         SECTION 4: FETCH METHODS
     ============================================================================================= */
@@ -720,6 +696,21 @@ class Shop extends Model {
         ]);
     }
 
+    public function fetchAppliedDiscount(
+        null|string|int $p_shop_order_id,
+        null|string|int $p_discount_type_id,
+    ) {
+        $sql = 'CALL fetchShopOrderTotal(
+            :p_shop_order_id,
+            :p_discount_type_id,
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_discount_type_id'    => $p_discount_type_id
+        ]);
+    }
+
     public function fetchShopOrderDetails(
         null|string|int $p_shop_order_id,
     ) {
@@ -768,6 +759,30 @@ class Shop extends Model {
         
         return $this->fetchAll($sql, [
             'p_shop_id' => $p_shop_id
+        ]);
+    }
+
+    public function fetchOrderCharges(
+        null|string|int $p_shop_order_id
+    ) {
+        $sql = 'CALL fetchOrderCharges(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_order_id' => $p_shop_order_id
+        ]);
+    }
+
+    public function fetchOrderDiscounts(
+        null|string|int $p_shop_order_id
+    ) {
+        $sql = 'CALL fetchOrderDiscounts(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_order_id' => $p_shop_order_id
         ]);
     }
     

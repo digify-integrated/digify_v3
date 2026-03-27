@@ -8192,12 +8192,15 @@ CREATE TABLE shop_order (
   shop_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   shop_id INT UNSIGNED NOT NULL,
   shop_name VARCHAR(200) NOT NULL,
+
   floor_plan_table_id INT UNSIGNED,
   table_number INT,
   order_for VARCHAR(500),
   order_preset ENUM('On-Site', 'Pickup', 'Delivery') DEFAULT 'On-Site',
-  
-  -- Order status
+
+  -- =========================
+  -- 🔹 ORDER STATUS
+  -- =========================
   shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded', 'Cancelled') DEFAULT 'Active',
   paid_date DATETIME,
   void_date DATETIME,
@@ -8205,54 +8208,54 @@ CREATE TABLE shop_order (
   cancelled_date DATETIME,
   cancelled_reason VARCHAR(500),
   refund_date DATETIME,
-  
+
   -- =========================
   -- 🔹 SALES BREAKDOWN
   -- =========================
 
-  -- Formula: SUM(order_details.subtotal)
+  -- Formula: SUM(shop_order_details.subtotal)
+  -- Description: Total of all items (VAT-INCLUSIVE price)
   gross_sales DECIMAL(15,2) DEFAULT 0,
 
-  -- Formula: gross_sales - vat_amount
-  vat_sales DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(order_details.inclusive_tax_amount)
+  -- Formula: SUM(shop_order_details.inclusive_tax_amount)
+  -- Description: Extracted VAT from gross_sales
   vat_amount DECIMAL(15,2) DEFAULT 0,
 
-  -- Formula: SUM(subtotal WHERE product.tax_classification = VAT_EXEMPT)
+  -- Formula: gross_sales - vat_amount
+  -- Description: VAT-exclusive sales (BIR: VAT Sales)
+  vat_sales DECIMAL(15,2) DEFAULT 0,
+
+  -- Formula: SUM(subtotal WHERE product is VAT-EXEMPT)
+  -- Description: Sales not subject to VAT
   vat_exempt_sales DECIMAL(15,2) DEFAULT 0,
 
-  -- Formula: SUM(subtotal WHERE product.tax_classification = ZERO_RATED)
+  -- Formula: SUM(subtotal WHERE product is ZERO-RATED)
+  -- Description: Sales with 0% VAT
   zero_rated_sales DECIMAL(15,2) DEFAULT 0,
 
   -- =========================
   -- 🔹 DISCOUNTS
   -- =========================
 
-  -- Formula: SUM(discounts WHERE application_order = 'Before Tax')
-  -- Applied to VATABLE sales ONLY
-  before_tax_discount DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(discounts WHERE application_order = 'After Tax')
-  after_tax_discount DECIMAL(15,2) DEFAULT 0,
+  -- Formula: SUM(shop_order_applied_discounts.calculated_amount)
+  -- Description: Total of ALL discounts (before + after tax combined)
+  total_discount_amount DECIMAL(15,2) DEFAULT 0,
 
   -- =========================
   -- 🔹 TAXES
   -- =========================
 
-  -- Formula: SUM(order_details.additive_tax_amount)
+  -- Formula: SUM(shop_order_details.additive_tax_amount)
+  -- Description: Taxes added on top of selling price (non-VAT)
   additive_tax_total DECIMAL(15,2) DEFAULT 0,
 
   -- =========================
   -- 🔹 CHARGES
   -- =========================
 
-  -- Formula: vat_sales × service_charge_rate
-  -- (NON-VATABLE)
-  service_charge_total DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(other charges)
-  other_charge_total DECIMAL(15,2) DEFAULT 0,
+  -- Formula: SUM(shop_order_applied_charges.calculated_amount)
+  -- Description: All additional charges (service charge, delivery, etc.)
+  total_charge_amount DECIMAL(15,2) DEFAULT 0,
 
   -- =========================
   -- 🔹 FINAL TOTAL
@@ -8260,20 +8263,25 @@ CREATE TABLE shop_order (
 
   -- FINAL FORMULA:
   -- total_amount_due =
-  --   vat_sales
-  -- + vat_amount
+  --   gross_sales
+  -- - total_discount_amount
   -- + additive_tax_total
-  -- + service_charge_total
-  -- + other_charge_total
-  -- - after_tax_discount
+  -- + total_charge_amount
+  --
+  -- Description:
+  -- Final payable amount after discounts, taxes, and charges
   total_amount_due DECIMAL(15,2) DEFAULT 0,
 
-  -- Audit fields
+  -- =========================
+  -- 🔹 AUDIT
+  -- =========================
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  
-  -- Foreign keys
+
+  -- =========================
+  -- 🔹 FOREIGN KEYS
+  -- =========================
   FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
