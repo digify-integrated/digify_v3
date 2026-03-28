@@ -700,7 +700,7 @@ class Shop extends Model {
         null|string|int $p_shop_order_id,
         null|string|int $p_discount_type_id,
     ) {
-        $sql = 'CALL fetchShopOrderTotal(
+        $sql = 'CALL fetchAppliedDiscount(
             :p_shop_order_id,
             :p_discount_type_id,
         )';
@@ -708,6 +708,21 @@ class Shop extends Model {
         return $this->fetch($sql, [
             'p_shop_order_id'       => $p_shop_order_id,
             'p_discount_type_id'    => $p_discount_type_id
+        ]);
+    }
+
+    public function fetchAppliedCharge(
+        null|string|int $p_shop_order_id,
+        null|string|int $p_charge_type_id,
+    ) {
+        $sql = 'CALL fetchAppliedCharge(
+            :p_shop_order_id,
+            :p_charge_type_id,
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_charge_type_id'  => $p_charge_type_id
         ]);
     }
 
@@ -778,6 +793,18 @@ class Shop extends Model {
         null|string|int $p_shop_order_id
     ) {
         $sql = 'CALL fetchOrderDiscounts(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_order_id' => $p_shop_order_id
+        ]);
+    }
+
+    public function fetchShopCharges(
+        null|string|int $p_shop_order_id
+    ) {
+        $sql = 'CALL fetchShopCharges(
             :p_shop_order_id
         )';
         

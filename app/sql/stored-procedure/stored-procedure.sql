@@ -14188,6 +14188,17 @@ BEGIN
     ORDER BY discount_type_name;
 END //
 
+DROP PROCEDURE IF EXISTS fetchShopCharges//
+
+CREATE PROCEDURE fetchShopCharges(
+    IN p_shop_id INT
+)
+BEGIN
+	SELECT * FROM shop_charges
+    WHERE shop_id = p_shop_id
+    ORDER BY charge_type_name;
+END //
+
 DROP PROCEDURE IF EXISTS fetchOrderDiscounts//
 
 CREATE PROCEDURE fetchOrderDiscounts(
@@ -14245,18 +14256,24 @@ CREATE PROCEDURE fetchAppliedDiscount(
     IN p_discount_type_id INT
 )
 BEGIN
-    SELECT 
-        shop_order_applied_discounts_id,
-        shop_order_id,
-        discount_type_id,
-        discount_name,
-        applied_value,
-        calculated_amount,
-        value_type,
-        affects_tax
+    SELECT *
     FROM shop_order_applied_discounts
     WHERE shop_order_id = p_shop_order_id
       AND discount_type_id = p_discount_type_id
+    LIMIT 1;
+END //
+
+DROP PROCEDURE IF EXISTS fetchAppliedCharge //
+
+CREATE PROCEDURE fetchAppliedCharge(
+    IN p_shop_order_id INT,
+    IN p_charge_type_id INT
+)
+BEGIN
+    SELECT *
+    FROM shop_order_applied_charges
+    WHERE shop_order_id = p_shop_order_id
+      AND charge_type_id = p_charge_type_id
     LIMIT 1;
 END //
 

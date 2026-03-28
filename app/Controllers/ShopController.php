@@ -144,6 +144,7 @@ class ShopController {
             'generate shop products'                => $this->generateShopProducts(),
             'generate shop order list'              => $this->generateShopOrderList(),
             'generate shop discounts list'          => $this->generateShopDiscountList(),
+            'generate shop charges list'            => $this->generateShopChargeList(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -1385,19 +1386,60 @@ class ShopController {
             $appliedValue = $applied['applied_value'] 
                 ?? $discountType['discount_value'];
 
+            $isApplied = $applied['applied_value'] ?? 0 > 0 ? true : false;
+
             $data[] = [
                 'discountTypeId'   => $discountTypeId,
                 'discountName'     => $discountType['discount_type_name'],
                 'valueType'        => $discountType['value_type'],
                 'discountValue'    => $discountType['discount_value'],
                 'appliedValue'     => $appliedValue,
-                'isVariable'       => $discountType['is_variable']
+                'isVariable'       => $discountType['is_variable'],
+                'isApplied'        => $isApplied
             ];
         }
 
         echo json_encode([
             'success' => true,
             'discounts' => $data
+        ]);
+    }
+    
+    public function generateShopChargeList() {
+        $shopId = $_POST['shop_id'] ?? null;
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
+
+        $shopCharges = $this->shop->fetchShopCharges($shopId);
+        $data = [];
+
+        foreach ($shopCharges as $row) {
+            $chargeTypeId = $row['charge_type_id'];
+
+            $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
+
+            // 🔹 Check if already applied
+            $applied = $this->shop->fetchAppliedCharge($shopOrderId, $chargeTypeId);
+
+            // 🔥 VALUE LOGIC
+            $appliedValue = $applied['applied_value'] 
+                ?? $chargeType['charge_value'];
+
+            $isApplied = $applied['applied_value'] ?? 0 > 0 ? true : false;
+
+            $data[] = [
+                'chargeTypeId'  => $chargeTypeId,
+                'chargeName'    => $chargeType['charge_type_name'],
+                'valueType'     => $chargeType['value_type'],
+                'chargeValue'   => $chargeType['charge_value'],
+                'appliedValue'  => $appliedValue,
+                'isVariable'    => $chargeType['is_variable'],
+                'isApplied'     => $isApplied
+            ];
+        }
+
+        echo json_encode([
+            'success' => true,
+            'charges' => $data
         ]);
     }
     

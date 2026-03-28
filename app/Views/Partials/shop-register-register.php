@@ -204,19 +204,12 @@
                 </div>
             </div>
 
-            <div class="modal-body">
-                <form id="order_discount_form" method="post" action="#">
-                    <?= $security->csrfInput('order_discount_form'); ?>
-                    <div id="discount-lists"></div>
-                </form>
+            <div class="modal-body" id="discount-lists">
             </div>
 
             <div class="modal-footer">
                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     Close
-                </button>
-                <button type="submit" form="order_discount_form" class="btn btn-primary" id="submit-order-discount">
-                    Save
                 </button>
             </div>
         </div>
@@ -233,19 +226,12 @@
                 </div>
             </div>
 
-            <div class="modal-body">
-                <form id="order_charge_form" method="post" action="#">
-                    <?= $security->csrfInput('order_charge_form'); ?>
-                    <div id="charges-list"></div>
-                </form>
+            <div class="modal-body" id="charge-lists">
             </div>
 
             <div class="modal-footer">
                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     Close
-                </button>
-                <button type="submit" form="order_charge_form" class="btn btn-primary" id="submit-order-charge">
-                    Save
                 </button>
             </div>
         </div>

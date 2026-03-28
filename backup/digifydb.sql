@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 24, 2026 at 04:23 PM
+-- Generation Time: Mar 28, 2026 at 04:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1898,6 +1898,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAllProductSubProduct` (IN `p_p
 	WHERE parent_product_id = p_product_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchAppliedCharge`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAppliedCharge` (IN `p_shop_order_id` INT, IN `p_charge_type_id` INT)   BEGIN
+    SELECT *
+    FROM shop_order_applied_charges
+    WHERE shop_order_id = p_shop_order_id
+      AND charge_type_id = p_charge_type_id
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchAppliedDiscount`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAppliedDiscount` (IN `p_shop_order_id` INT, IN `p_discount_type_id` INT)   BEGIN
+    SELECT *
+    FROM shop_order_applied_discounts
+    WHERE shop_order_id = p_shop_order_id
+      AND discount_type_id = p_discount_type_id
+    LIMIT 1;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchAppModule`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAppModule` (IN `p_app_module_id` INT)   BEGIN
 	SELECT * FROM app_module
@@ -2316,6 +2334,48 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchNotificationSetting` (IN `p_no
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchOrderCharges`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchOrderCharges` (IN `p_shop_order_id` INT)   BEGIN
+    SELECT 
+        shop_order_applied_charges_id AS charge_id,
+
+        charge_name AS name,
+
+        applied_value,
+
+        calculated_amount AS amount,
+
+        value_type,
+
+        affects_tax
+
+    FROM shop_order_applied_charges
+    WHERE shop_order_id = p_shop_order_id
+    ORDER BY charge_name;
+
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchOrderDiscounts`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchOrderDiscounts` (IN `p_shop_order_id` INT)   BEGIN
+    SELECT 
+        shop_order_applied_discounts_id AS discount_id,
+
+        discount_name AS name,
+
+        applied_value,
+
+        calculated_amount AS amount,
+
+        value_type,
+
+        affects_tax
+
+    FROM shop_order_applied_discounts
+    WHERE shop_order_id = p_shop_order_id
+    ORDER BY discount_name;
+
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchOTP`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchOTP` (IN `p_user_account_id` INT)   BEGIN
     SELECT otp,
@@ -2467,6 +2527,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShop` (IN `p_shop_id` INT)   B
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `fetchShopCharges`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopCharges` (IN `p_shop_id` INT)   BEGIN
+	SELECT * FROM shop_charges
+    WHERE shop_id = p_shop_id
+    ORDER BY charge_type_name;
+END$$
+
+DROP PROCEDURE IF EXISTS `fetchShopDiscounts`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopDiscounts` (IN `p_shop_id` INT)   BEGIN
+	SELECT * FROM shop_discounts
+    WHERE shop_id = p_shop_id
+    ORDER BY discount_type_name;
+END$$
+
 DROP PROCEDURE IF EXISTS `fetchShopFloorPlanCount`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopFloorPlanCount` (IN `p_shop_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
@@ -2513,7 +2587,7 @@ END$$
 
 DROP PROCEDURE IF EXISTS `fetchShopOrderTotal`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchShopOrderTotal` (IN `p_shop_order_id` INT)   BEGIN
-	SELECT transaction_discount_amount, subtotal, order_discount_amount, taxable_amount, subtotal_price, inclusive_tax_total, additive_tax_total, total_price
+	SELECT gross_sales, vat_amount, vat_sales, vat_exempt_sales, zero_rated_sales, total_discount_amount, additive_tax_total, total_charge_amount, total_amount_due
     FROM shop_order
     WHERE shop_order_id = p_shop_order_id;
 END$$
@@ -5247,7 +5321,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrder` (IN `p_shop_id` IN
 END$$
 
 DROP PROCEDURE IF EXISTS `insertShopOrderDetail`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(15,2), IN `p_additive_rate` DECIMAL(15,2), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_product_name` VARCHAR(100), IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_subtotal` DECIMAL(15,2), IN `p_inclusive_tax_amount` DECIMAL(15,2), IN `p_additive_tax_amount` DECIMAL(15,2), IN `p_net_sales` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -5263,8 +5337,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_
         base_price,
         inclusive_rate,
         additive_rate,
-        inclusive_tax_per_unit,
-        additive_tax_per_unit,
+        subtotal,
+        inclusive_tax_amount,
+        additive_tax_amount,
+        net_sales,
         last_log_by
     )
     VALUES(
@@ -5275,8 +5351,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertShopOrderDetail` (IN `p_shop_
         p_base_price,
         p_inclusive_rate,
         p_additive_rate,
-        p_inclusive_tax_per_unit,
-        p_additive_tax_per_unit,
+        p_subtotal,
+        p_inclusive_tax_amount,
+        p_additive_tax_amount,
+        p_net_sales,
         p_last_log_by
     );
 
@@ -5817,7 +5895,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveBloodType` (IN `p_blood_type_id
 END$$
 
 DROP PROCEDURE IF EXISTS `saveChargeType`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `saveChargeType` (IN `p_charge_type_id` INT, IN `p_charge_type_name` VARCHAR(100), IN `p_value_type` ENUM('Percentage','Fixed Amount'), IN `p_charge_value` DECIMAL(15,2), IN `p_is_variable` ENUM('Yes','No'), IN `p_affects_tax` ENUM('Yes','No'), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveChargeType` (IN `p_charge_type_id` INT, IN `p_charge_type_name` VARCHAR(100), IN `p_value_type` ENUM('Percentage','Fixed Amount'), IN `p_charge_value` DECIMAL(15,2), IN `p_is_variable` ENUM('Yes','No'), IN `p_application_order` ENUM('Before Tax','After Tax'), IN `p_tax_type` ENUM('Vatable','Non Vatable'), IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_charge_type_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -5833,7 +5911,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveChargeType` (IN `p_charge_type_
             value_type,
             charge_value,
             is_variable,
-            affects_tax,
+            application_order,
+            tax_type,
             last_log_by
         ) 
         VALUES(
@@ -5841,20 +5920,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveChargeType` (IN `p_charge_type_
             p_value_type,
             p_charge_value,
             p_is_variable,
-            p_affects_tax,
+            p_application_order,
+            p_tax_type,
             p_last_log_by
         );
         
         SET v_new_charge_type_id = LAST_INSERT_ID();
     ELSE
         UPDATE charge_type
-        SET charge_type_name  = p_charge_type_name,
+        SET charge_type_name    = p_charge_type_name,
             value_type          = p_value_type,
-            charge_value      = p_charge_value,
+            charge_value        = p_charge_value,
             is_variable         = p_is_variable,
-            affects_tax         = p_affects_tax,
+            application_order   = p_application_order,
+            tax_type            = p_tax_type,
             last_log_by         = p_last_log_by
-        WHERE charge_type_id  = p_charge_type_id;
+        WHERE charge_type_id    = p_charge_type_id;
 
         SET v_new_charge_type_id = p_charge_type_id;
     END IF;
@@ -6363,7 +6444,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDepartureReason` (IN `p_departu
 END$$
 
 DROP PROCEDURE IF EXISTS `saveDiscountType`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDiscountType` (IN `p_discount_type_id` INT, IN `p_discount_type_name` VARCHAR(100), IN `p_value_type` ENUM('Percentage','Fixed Amount'), IN `p_discount_value` DECIMAL(15,2), IN `p_is_variable` ENUM('Yes','No'), IN `p_affects_tax` ENUM('Yes','No'), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDiscountType` (IN `p_discount_type_id` INT, IN `p_discount_type_name` VARCHAR(100), IN `p_value_type` ENUM('Percentage','Fixed Amount'), IN `p_discount_value` DECIMAL(15,2), IN `p_is_variable` ENUM('Yes','No'), IN `p_application_order` ENUM('Before Tax','After Tax'), IN `p_is_vat_exempt` ENUM('Yes','No'), IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_discount_type_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6379,7 +6460,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDiscountType` (IN `p_discount_t
             value_type,
             discount_value,
             is_variable,
-            affects_tax,
+            application_order,
+            is_vat_exempt,
             last_log_by
         ) 
         VALUES(
@@ -6387,7 +6469,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDiscountType` (IN `p_discount_t
             p_value_type,
             p_discount_value,
             p_is_variable,
-            p_affects_tax,
+            p_application_order,
+            p_is_vat_exempt,
             p_last_log_by
         );
         
@@ -6398,7 +6481,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveDiscountType` (IN `p_discount_t
             value_type          = p_value_type,
             discount_value      = p_discount_value,
             is_variable         = p_is_variable,
-            affects_tax         = p_affects_tax,
+            application_order   = p_application_order,
+            is_vat_exempt       = p_is_vat_exempt,
             last_log_by         = p_last_log_by
         WHERE discount_type_id  = p_discount_type_id;
 
@@ -6656,6 +6740,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveEmployeeExperience` (IN `p_empl
             p_start_year,
             p_end_month,
             p_end_year,
+
             p_job_description,
             p_last_log_by
         );
@@ -8610,6 +8695,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveWorkLocation` (IN `p_work_locat
 
     START TRANSACTION;
 
+
     IF p_work_location_id IS NULL OR NOT EXISTS (SELECT 1 FROM work_location WHERE work_location_id = p_work_location_id) THEN
         INSERT INTO work_location (
             work_location_name,
@@ -9399,7 +9485,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductInventory` (IN `p_prod
 END$$
 
 DROP PROCEDURE IF EXISTS `updateProductPricing`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductPricing` (IN `p_product_id` INT, IN `p_sales_price` DECIMAL(15,2), IN `p_cost` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductPricing` (IN `p_product_id` INT, IN `p_sales_price` DECIMAL(15,2), IN `p_cost` DECIMAL(15,2), IN `p_tax_classification` ENUM('Vatable','VAT Exempt','Zero Rated'), IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -9408,10 +9494,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductPricing` (IN `p_produc
     START TRANSACTION;
 
     UPDATE product
-    SET sales_price     = p_sales_price,
-        cost            = p_cost,
-        last_log_by     = p_last_log_by
-    WHERE product_id    = p_product_id;
+    SET sales_price         = p_sales_price,
+        cost                = p_cost,
+        tax_classification  = p_tax_classification,
+        last_log_by         = p_last_log_by
+    WHERE product_id        = p_product_id;
 
     COMMIT;
 END$$
@@ -9588,7 +9675,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopArchive` (IN `p_shop_id` 
 END$$
 
 DROP PROCEDURE IF EXISTS `updateShopOrderDetail`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_inclusive_tax_per_unit` DECIMAL(15,2), IN `p_additive_tax_per_unit` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_order_id` INT, IN `p_product_id` INT, IN `p_quantity` DECIMAL(15,4), IN `p_base_price` DECIMAL(15,2), IN `p_inclusive_rate` DECIMAL(10,6), IN `p_additive_rate` DECIMAL(10,6), IN `p_subtotal` DECIMAL(15,2), IN `p_inclusive_tax_amount` DECIMAL(15,2), IN `p_additive_tax_amount` DECIMAL(15,2), IN `p_net_sales` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -9601,30 +9688,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDetail` (IN `p_shop_
         base_price              = p_base_price,
         inclusive_rate          = p_inclusive_rate,
         additive_rate           = p_additive_rate,
-        inclusive_tax_per_unit  = p_inclusive_tax_per_unit,
-        additive_tax_per_unit   = p_additive_tax_per_unit,
+        subtotal                = p_subtotal,
+        inclusive_tax_amount    = p_inclusive_tax_amount,
+        additive_tax_amount     = p_additive_tax_amount,
+        net_sales               = p_net_sales,
         last_log_by             = p_last_log_by
     WHERE shop_order_id         = p_shop_order_id
     AND product_id              = p_product_id;
-
-    COMMIT;
-END$$
-
-DROP PROCEDURE IF EXISTS `updateShopOrderDiscount`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderDiscount` (IN `p_shop_order_id` INT, IN `p_transaction_discount_type` VARCHAR(100), IN `p_transaction_discount_value` DECIMAL(15,4), IN `p_transaction_discount_amount` DECIMAL(15,2), IN `p_last_log_by` INT)   BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE shop_order
-    SET transaction_discount_type   = p_transaction_discount_type,
-        transaction_discount_value  = p_transaction_discount_value,
-        transaction_discount_amount = p_transaction_discount_amount,
-        last_log_by                 = p_last_log_by
-    WHERE shop_order_id             = p_shop_order_id;
 
     COMMIT;
 END$$
@@ -9749,32 +9819,74 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderTotal` (IN `in_shop_
 
     START TRANSACTION;
 
-    -- Aggregate totals from shop_order_details with quantity > 0
+    -- =========================
+    -- 🔹 STEP 1: AGGREGATE ITEM VALUES
+    -- =========================
     UPDATE shop_order o
     JOIN (
         SELECT 
             shop_order_id,
-            IFNULL(SUM(subtotal),0) AS subtotal,
-            IFNULL(SUM(discount_amount),0) AS order_discount_amount,
-            IFNULL(SUM(taxable_amount),0) AS taxable_amount,
-            IFNULL(SUM(total_price),0) AS subtotal_price,
-            IFNULL(SUM(inclusive_tax_total),0) AS inclusive_tax_total,
-            IFNULL(SUM(additive_tax_total),0) AS additive_tax_total
+            IFNULL(SUM(subtotal), 0) AS gross_sales,
+            IFNULL(SUM(inclusive_tax_amount), 0) AS vat_amount,
+            IFNULL(SUM(additive_tax_amount), 0) AS additive_tax_total
         FROM shop_order_details
         WHERE shop_order_id = in_shop_order_id
           AND quantity > 0
         GROUP BY shop_order_id
-    ) s ON o.shop_order_id = s.shop_order_id
+    ) d ON o.shop_order_id = d.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 2: AGGREGATE DISCOUNTS
+    -- =========================
+    LEFT JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(calculated_amount), 0) AS total_discount_amount
+        FROM shop_order_applied_discounts
+        WHERE shop_order_id = in_shop_order_id
+        GROUP BY shop_order_id
+    ) disc ON o.shop_order_id = disc.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 3: AGGREGATE CHARGES
+    -- =========================
+    LEFT JOIN (
+        SELECT 
+            shop_order_id,
+            IFNULL(SUM(calculated_amount), 0) AS total_charge_amount
+        FROM shop_order_applied_charges
+        WHERE shop_order_id = in_shop_order_id
+        GROUP BY shop_order_id
+    ) chg ON o.shop_order_id = chg.shop_order_id
+
+    -- =========================
+    -- 🔹 STEP 4: UPDATE FINAL VALUES
+    -- =========================
     SET 
-        o.subtotal = s.subtotal,
-        o.order_discount_amount = s.order_discount_amount,
-        o.taxable_amount = s.taxable_amount,
-        o.subtotal_price = s.subtotal_price,
-        o.inclusive_tax_total = s.inclusive_tax_total,
-        o.additive_tax_total = s.additive_tax_total,
+        o.gross_sales = d.gross_sales,
+
+        o.vat_amount = d.vat_amount,
+
+        o.vat_sales = ROUND(d.gross_sales - d.vat_amount, 2),
+
+        o.additive_tax_total = d.additive_tax_total,
+
+        o.total_discount_amount = IFNULL(disc.total_discount_amount, 0),
+
+        o.total_charge_amount = IFNULL(chg.total_charge_amount, 0),
+
+        -- FINAL TOTAL
+        o.total_amount_due = ROUND(
+            d.gross_sales
+            - IFNULL(disc.total_discount_amount, 0)
+            + d.additive_tax_total
+            + IFNULL(chg.total_charge_amount, 0),
+        2),
+
         o.last_log_by = p_last_log_by;
 
     COMMIT;
+
 END$$
 
 DROP PROCEDURE IF EXISTS `updateShopUnarchive`$$
@@ -10299,7 +10411,36 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (44, 'shop_payment_method', 6, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
 (45, 'shop_payment_method', 7, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
 (46, 'shop_payment_method', 8, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
-(47, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 09:42:22 -> 2026-03-24 20:24:04<br/>', 1, '2026-03-24 20:24:04');
+(47, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 09:42:22 -> 2026-03-24 20:24:04<br/>', 1, '2026-03-24 20:24:04'),
+(48, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 20:24:04 -> 2026-03-25 11:01:54<br/>', 1, '2026-03-25 11:01:54'),
+(49, 'tax', 2, 'Tax changed.<br/><br/>Tax Calculation: Additive -> Inclusive<br/>', 2, '2026-03-25 14:22:41'),
+(50, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-25 11:01:54 -> 2026-03-26 09:02:10<br/>', 1, '2026-03-26 09:02:10'),
+(51, 'product', 3, 'Product changed.<br/><br/>Sales Price: 12.0000 -> 10.0000<br/>', 2, '2026-03-26 09:20:08'),
+(52, 'product_tax', 4, 'Product tax created.', 2, '2026-03-26 09:20:08'),
+(53, 'product_tax', 5, 'Product tax created.', 2, '2026-03-26 09:20:08'),
+(54, 'product_tax', 6, 'Product tax created.', 2, '2026-03-26 10:02:47'),
+(55, 'product_tax', 7, 'Product tax created.', 2, '2026-03-26 10:02:47'),
+(56, 'product', 3, 'Product changed.<br/><br/>Tax Classification: Vatable -> Vat Exempt<br/>', 2, '2026-03-26 10:02:54'),
+(57, 'product_tax', 8, 'Product tax created.', 2, '2026-03-26 10:02:54'),
+(58, 'product_tax', 9, 'Product tax created.', 2, '2026-03-26 10:02:54'),
+(59, 'product_tax', 10, 'Product tax created.', 2, '2026-03-26 10:03:53'),
+(60, 'product_tax', 11, 'Product tax created.', 2, '2026-03-26 10:03:53'),
+(61, 'product', 3, 'Product changed.<br/><br/>Tax Classification: VAT Exempt -> Zero Rated<br/>', 2, '2026-03-26 10:03:57'),
+(62, 'product_tax', 12, 'Product tax created.', 2, '2026-03-26 10:03:57'),
+(63, 'product_tax', 13, 'Product tax created.', 2, '2026-03-26 10:03:57'),
+(64, 'product', 3, 'Product changed.<br/><br/>Tax Classification: Zero Rated -> Vatable<br/>', 2, '2026-03-26 10:07:22'),
+(65, 'product_tax', 14, 'Product tax created.', 2, '2026-03-26 10:07:22'),
+(66, 'product_tax', 15, 'Product tax created.', 2, '2026-03-26 10:07:22'),
+(67, 'charge_type', 1, 'Charge type created.', 2, '2026-03-26 14:24:28'),
+(68, 'product_tax', 16, 'Product tax created.', 2, '2026-03-26 14:31:48'),
+(69, 'tax', 1, 'Tax changed.<br/><br/>Tax Calculation: Additive -> Inclusive<br/>', 2, '2026-03-26 16:13:44'),
+(70, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-26 09:02:10 -> 2026-03-27 08:24:45<br/>', 1, '2026-03-27 08:24:45'),
+(71, 'discount_type', 2, 'Discount type created.', 2, '2026-03-27 16:51:08'),
+(72, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-27 08:24:45 -> 2026-03-28 16:46:46<br/>', 1, '2026-03-28 16:46:46'),
+(73, 'discount_type', 3, 'Discount type created.', 2, '2026-03-28 18:45:58'),
+(74, 'discount_type', 4, 'Discount type created.', 2, '2026-03-28 18:46:27'),
+(75, 'charge_type', 2, 'Charge type created.', 2, '2026-03-28 23:03:33'),
+(76, 'charge_type', 2, 'Charge type changed.<br/><br/>Tax Type: Vatable -> Non Vatable<br/>', 2, '2026-03-28 23:03:38');
 
 -- --------------------------------------------------------
 
@@ -10520,7 +10661,8 @@ CREATE TABLE `charge_type` (
   `value_type` enum('Percentage','Fixed Amount') DEFAULT 'Percentage',
   `charge_value` decimal(15,2) DEFAULT 0.00,
   `is_variable` enum('Yes','No') DEFAULT 'No',
-  `affects_tax` enum('Yes','No') DEFAULT 'No',
+  `application_order` enum('Before Tax','After Tax') DEFAULT 'After Tax',
+  `tax_type` enum('Vatable','Non Vatable') DEFAULT 'Non Vatable',
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -10530,8 +10672,9 @@ CREATE TABLE `charge_type` (
 -- Dumping data for table `charge_type`
 --
 
-INSERT INTO `charge_type` (`charge_type_id`, `charge_type_name`, `value_type`, `charge_value`, `is_variable`, `affects_tax`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Service Charge', 'Percentage', 0.00, 'Yes', 'Yes', '2026-03-23 22:09:36', '2026-03-23 22:09:36', 2);
+INSERT INTO `charge_type` (`charge_type_id`, `charge_type_name`, `value_type`, `charge_value`, `is_variable`, `application_order`, `tax_type`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Service Charge', 'Percentage', 5.00, 'No', 'Before Tax', 'Non Vatable', '2026-03-26 14:24:28', '2026-03-26 14:24:28', 2),
+(2, 'Corkage Fee', 'Fixed Amount', 100.00, 'No', 'Before Tax', 'Non Vatable', '2026-03-28 23:03:33', '2026-03-28 23:03:38', 2);
 
 --
 -- Triggers `charge_type`
@@ -10567,8 +10710,12 @@ CREATE TRIGGER `trg_charge_type_update` AFTER UPDATE ON `charge_type` FOR EACH R
         SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
     END IF;
 
-    IF NEW.affects_tax <> OLD.affects_tax THEN
-        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    IF NEW.application_order <> OLD.application_order THEN
+        SET audit_log = CONCAT(audit_log, "Application Order: ", OLD.application_order, " -> ", NEW.application_order, "<br/>");
+    END IF;
+
+    IF NEW.tax_type <> OLD.tax_type THEN
+        SET audit_log = CONCAT(audit_log, "Tax Type: ", OLD.tax_type, " -> ", NEW.tax_type, "<br/>");
     END IF;
     
     IF audit_log <> 'Charge type changed.<br/><br/>' THEN
@@ -14977,7 +15124,8 @@ CREATE TABLE `discount_type` (
   `value_type` enum('Percentage','Fixed Amount') DEFAULT 'Percentage',
   `discount_value` decimal(15,2) DEFAULT 0.00,
   `is_variable` enum('Yes','No') DEFAULT 'No',
-  `affects_tax` enum('Yes','No') DEFAULT 'No',
+  `application_order` enum('Before Tax','After Tax') DEFAULT 'After Tax',
+  `is_vat_exempt` enum('Yes','No') DEFAULT 'No',
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -14987,9 +15135,11 @@ CREATE TABLE `discount_type` (
 -- Dumping data for table `discount_type`
 --
 
-INSERT INTO `discount_type` (`discount_type_id`, `discount_type_name`, `value_type`, `discount_value`, `is_variable`, `affects_tax`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(3, 'Senior Citizen', 'Percentage', 20.00, 'No', 'Yes', '2026-03-23 21:46:26', '2026-03-23 21:46:26', 2),
-(4, 'Employee Discount', 'Percentage', 0.00, 'Yes', 'No', '2026-03-23 21:46:59', '2026-03-23 21:46:59', 2);
+INSERT INTO `discount_type` (`discount_type_id`, `discount_type_name`, `value_type`, `discount_value`, `is_variable`, `application_order`, `is_vat_exempt`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Senior Citizen', 'Percentage', 20.00, 'No', 'Before Tax', 'Yes', '2026-03-26 12:03:22', '2026-03-26 12:03:22', 2),
+(2, 'PWD', 'Percentage', 20.00, 'No', 'Before Tax', 'Yes', '2026-03-27 16:51:08', '2026-03-27 16:51:08', 2),
+(3, 'Employee Discount', 'Fixed Amount', 0.00, 'Yes', 'After Tax', 'Yes', '2026-03-28 18:45:58', '2026-03-28 18:45:58', 2),
+(4, 'VIP Discount', 'Percentage', 0.00, 'Yes', 'Before Tax', 'Yes', '2026-03-28 18:46:27', '2026-03-28 18:46:27', 2);
 
 --
 -- Triggers `discount_type`
@@ -15025,8 +15175,12 @@ CREATE TRIGGER `trg_discount_type_update` AFTER UPDATE ON `discount_type` FOR EA
         SET audit_log = CONCAT(audit_log, "Is Variable: ", OLD.is_variable, " -> ", NEW.is_variable, "<br/>");
     END IF;
 
-    IF NEW.affects_tax <> OLD.affects_tax THEN
-        SET audit_log = CONCAT(audit_log, "Affects Tax: ", OLD.affects_tax, " -> ", NEW.affects_tax, "<br/>");
+    IF NEW.application_order <> OLD.application_order THEN
+        SET audit_log = CONCAT(audit_log, "Application Order: ", OLD.application_order, " -> ", NEW.application_order, "<br/>");
+    END IF;
+
+    IF NEW.is_vat_exempt <> OLD.is_vat_exempt THEN
+        SET audit_log = CONCAT(audit_log, "Is VAT Exempt: ", OLD.is_vat_exempt, " -> ", NEW.is_vat_exempt, "<br/>");
     END IF;
     
     IF audit_log <> 'Discount type changed.<br/><br/>' THEN
@@ -16747,7 +16901,11 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (34, NULL, 'l.agulto@cjristianmotors.ph', '::1', '2026-03-23 21:17:29', 0, '2026-03-23 21:17:29', '2026-03-23 21:17:29', 1),
 (35, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-23 21:17:31', 1, '2026-03-23 21:17:31', '2026-03-23 21:17:31', 1),
 (36, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-24 09:42:22', 1, '2026-03-24 09:42:22', '2026-03-24 09:42:22', 1),
-(37, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-24 20:24:04', 1, '2026-03-24 20:24:04', '2026-03-24 20:24:04', 1);
+(37, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-24 20:24:04', 1, '2026-03-24 20:24:04', '2026-03-24 20:24:04', 1),
+(38, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-25 11:01:54', 1, '2026-03-25 11:01:54', '2026-03-25 11:01:54', 1),
+(39, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-26 09:02:10', 1, '2026-03-26 09:02:10', '2026-03-26 09:02:10', 1),
+(40, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-27 08:24:45', 1, '2026-03-27 08:24:45', '2026-03-27 08:24:45', 1),
+(41, 2, 'l.agulto@christianmotors.ph', '::1', '2026-03-28 16:46:46', 1, '2026-03-28 16:46:46', '2026-03-28 16:46:46', 1);
 
 -- --------------------------------------------------------
 
@@ -17563,6 +17721,7 @@ CREATE TABLE `product` (
   `quantity_on_hand` decimal(15,4) DEFAULT 0.0000,
   `cost` decimal(15,4) DEFAULT 0.0000,
   `sales_price` decimal(15,4) DEFAULT 0.0000,
+  `tax_classification` enum('Vatable','Zero Rated','VAT Exempt') NOT NULL DEFAULT 'Vatable',
   `is_variant` enum('Yes','No') DEFAULT 'No',
   `is_sellable` enum('Yes','No') DEFAULT 'Yes',
   `is_purchasable` enum('Yes','No') DEFAULT 'Yes',
@@ -17582,9 +17741,9 @@ CREATE TABLE `product` (
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2),
-(3, 'Fries', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 12.0000, 12.0000, 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-11 22:41:59', '2026-03-11 22:42:55', 2);
+INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `tax_classification`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2),
+(3, 'Fries', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 12.0000, 10.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-11 22:41:59', '2026-03-26 10:07:22', 2);
 
 --
 -- Triggers `product`
@@ -17642,6 +17801,10 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
 
     IF NEW.sales_price <> OLD.sales_price THEN
         SET audit_log = CONCAT(audit_log, "Sales Price: ", OLD.sales_price, " -> ", NEW.sales_price, "<br/>");
+    END IF;
+
+    IF NEW.tax_classification <> OLD.tax_classification THEN
+        SET audit_log = CONCAT(audit_log, "Tax Classification: ", OLD.tax_classification, " -> ", NEW.tax_classification, "<br/>");
     END IF;
 
     IF NEW.is_variant <> OLD.is_variant THEN
@@ -18052,8 +18215,7 @@ CREATE TABLE `product_tax` (
 --
 
 INSERT INTO `product_tax` (`product_tax_id`, `product_id`, `product_name`, `tax_id`, `tax_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 3, 'Fries', 2, 'Test 8%', '2026-03-21 23:07:49', '2026-03-21 23:07:49', 2),
-(3, 3, 'Fries', 1, 'VAT (12%)', '2026-03-21 23:07:49', '2026-03-21 23:07:49', 2);
+(16, 3, 'Fries', 1, 'VAT (12%)', '2026-03-26 14:31:48', '2026-03-26 14:31:48', 2);
 
 --
 -- Triggers `product_tax`
@@ -18860,7 +19022,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$7u1RCrNmh8j/OCAN2fMQeu8SlY4ZpGQd0HeJ8QLrESigfjiY/o7gm', '2026-02-27 14:52:10', '2026-03-24 20:24:04', 1);
+(1, 2, '$2y$10$s9CqPfe5VpVXx2usGEM07uGVZ60XYAxLewgtSxgBTWfixUre4qFUe', '2026-02-27 14:52:10', '2026-03-28 16:46:46', 1);
 
 -- --------------------------------------------------------
 
@@ -19023,7 +19185,8 @@ CREATE TABLE `shop_charges` (
 --
 
 INSERT INTO `shop_charges` (`shop_charges_id`, `shop_id`, `shop_name`, `charge_type_id`, `charge_type_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 1, 'Service Charge', '2026-03-24 16:18:05', '2026-03-24 16:18:05', 2);
+(2, 4, 'Cashier', 1, 'Service Charge', '2026-03-26 14:32:19', '2026-03-26 14:32:19', 2),
+(3, 4, 'Cashier', 2, 'Corkage Fee', '2026-03-28 23:03:58', '2026-03-28 23:03:58', 2);
 
 -- --------------------------------------------------------
 
@@ -19048,8 +19211,10 @@ CREATE TABLE `shop_discounts` (
 --
 
 INSERT INTO `shop_discounts` (`shop_discounts_id`, `shop_id`, `shop_name`, `discount_type_id`, `discount_type_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 4, 'Employee Discount', '2026-03-24 15:41:57', '2026-03-24 15:41:57', 2),
-(5, 4, 'Cashier', 3, 'Senior Citizen', '2026-03-24 16:15:56', '2026-03-24 16:15:56', 2);
+(6, 4, 'Cashier', 1, 'Senior Citizen', '2026-03-26 14:32:15', '2026-03-26 14:32:15', 2),
+(7, 4, 'Cashier', 2, 'PWD', '2026-03-27 16:51:37', '2026-03-27 16:51:37', 2),
+(8, 4, 'Cashier', 3, 'Employee Discount', '2026-03-28 18:46:39', '2026-03-28 18:46:39', 2),
+(9, 4, 'Cashier', 4, 'VIP Discount', '2026-03-28 18:46:39', '2026-03-28 18:46:39', 2);
 
 -- --------------------------------------------------------
 
@@ -19133,16 +19298,15 @@ CREATE TABLE `shop_order` (
   `cancelled_date` datetime DEFAULT NULL,
   `cancelled_reason` varchar(500) DEFAULT NULL,
   `refund_date` datetime DEFAULT NULL,
-  `transaction_discount_type` enum('Percentage','Fixed Amount') DEFAULT NULL,
-  `transaction_discount_value` decimal(15,2) DEFAULT 0.00,
-  `transaction_discount_amount` decimal(15,2) DEFAULT 0.00,
-  `subtotal` decimal(15,2) DEFAULT 0.00,
-  `order_discount_amount` decimal(15,2) DEFAULT 0.00,
-  `taxable_amount` decimal(15,2) DEFAULT 0.00,
-  `subtotal_price` decimal(15,2) DEFAULT 0.00,
-  `inclusive_tax_total` decimal(15,2) DEFAULT 0.00,
+  `gross_sales` decimal(15,2) DEFAULT 0.00,
+  `vat_amount` decimal(15,2) DEFAULT 0.00,
+  `vat_sales` decimal(15,2) DEFAULT 0.00,
+  `vat_exempt_sales` decimal(15,2) DEFAULT 0.00,
+  `zero_rated_sales` decimal(15,2) DEFAULT 0.00,
+  `total_discount_amount` decimal(15,2) DEFAULT 0.00,
   `additive_tax_total` decimal(15,2) DEFAULT 0.00,
-  `total_price` decimal(15,2) GENERATED ALWAYS AS (`taxable_amount` - `transaction_discount_amount` + `additive_tax_total`) STORED,
+  `total_charge_amount` decimal(15,2) DEFAULT 0.00,
+  `total_amount_due` decimal(15,2) DEFAULT 0.00,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -19152,9 +19316,10 @@ CREATE TABLE `shop_order` (
 -- Dumping data for table `shop_order`
 --
 
-INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `transaction_discount_type`, `transaction_discount_value`, `transaction_discount_amount`, `subtotal`, `order_discount_amount`, `taxable_amount`, `subtotal_price`, `inclusive_tax_total`, `additive_tax_total`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 'Percentage', 0.00, 0.00, 120.00, 0.00, 120.00, 144.00, 0.00, 24.00, '2026-03-21 23:46:53', '2026-03-24 22:27:56', 2),
-(2, 4, 'Cashier', NULL, NULL, 'Test', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 'Percentage', 100.00, 12.00, 12.00, 0.00, 12.00, 14.40, 0.00, 2.40, '2026-03-21 23:56:36', '2026-03-22 00:37:10', 2);
+INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `gross_sales`, `vat_amount`, `vat_sales`, `vat_exempt_sales`, `zero_rated_sales`, `total_discount_amount`, `additive_tax_total`, `total_charge_amount`, `total_amount_due`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Cancelled', NULL, NULL, NULL, '2026-03-27 14:40:51', 'asdasd', NULL, 100.00, 10.71, 89.29, 0.00, 0.00, 0.00, 0.00, 0.00, 100.00, '2026-03-27 13:58:54', '2026-03-27 14:40:51', 2),
+(2, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-03-27 14:43:27', '2026-03-27 14:43:27', 2),
+(3, 4, 'Cashier', 7, 6, NULL, 'Pickup', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 510.00, 54.64, 455.36, 0.00, 0.00, 0.00, 0.00, 0.00, 510.00, '2026-03-27 14:54:44', '2026-03-28 21:50:10', 2);
 
 -- --------------------------------------------------------
 
@@ -19170,6 +19335,7 @@ CREATE TABLE `shop_order_applied_charges` (
   `charge_name` varchar(100) DEFAULT NULL,
   `applied_value` decimal(15,2) DEFAULT NULL,
   `calculated_amount` decimal(15,2) DEFAULT NULL,
+  `tax_type` enum('Vatable','Non Vatable') DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -19189,6 +19355,7 @@ CREATE TABLE `shop_order_applied_discounts` (
   `discount_name` varchar(100) DEFAULT NULL,
   `applied_value` decimal(15,2) DEFAULT NULL,
   `calculated_amount` decimal(15,2) DEFAULT NULL,
+  `application_order` enum('Before Tax','After Tax') DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -19206,17 +19373,15 @@ CREATE TABLE `shop_order_details` (
   `shop_order_id` int(10) UNSIGNED NOT NULL,
   `product_id` int(10) UNSIGNED NOT NULL,
   `product_name` varchar(200) NOT NULL,
+  `order_status` enum('Pending','Kitchen','Preparing','To Serve','Completed','Cancelled') DEFAULT 'Pending',
   `quantity` decimal(15,4) DEFAULT 1.0000,
-  `base_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `base_price` decimal(15,2) NOT NULL,
   `inclusive_rate` decimal(10,6) DEFAULT 0.000000,
   `additive_rate` decimal(10,6) DEFAULT 0.000000,
-  `inclusive_tax_per_unit` decimal(15,2) DEFAULT 0.00,
-  `additive_tax_per_unit` decimal(15,2) DEFAULT 0.00,
-  `inclusive_tax_total` decimal(15,2) GENERATED ALWAYS AS (round(`inclusive_tax_per_unit`,2) * `quantity`) STORED,
-  `additive_tax_total` decimal(15,2) GENERATED ALWAYS AS (round(`additive_tax_per_unit`,2) * `quantity`) STORED,
-  `subtotal` decimal(15,2) GENERATED ALWAYS AS (round(`base_price` * `quantity`,2)) STORED,
-  `total_price` decimal(15,2) GENERATED ALWAYS AS (round(`subtotal` + `additive_tax_total`,2)) STORED,
-  `order_status` enum('Pending','Kitchen','Preparing','To Serve','Completed','Cancelled') DEFAULT 'Pending',
+  `subtotal` decimal(15,2) DEFAULT 0.00,
+  `inclusive_tax_amount` decimal(15,2) DEFAULT 0.00,
+  `additive_tax_amount` decimal(15,2) DEFAULT 0.00,
+  `net_sales` decimal(15,2) DEFAULT 0.00,
   `note` varchar(500) DEFAULT NULL,
   `sent_to_kitchen` datetime DEFAULT NULL,
   `preparing_date` datetime DEFAULT NULL,
@@ -19232,9 +19397,10 @@ CREATE TABLE `shop_order_details` (
 -- Dumping data for table `shop_order_details`
 --
 
-INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `quantity`, `base_price`, `inclusive_rate`, `additive_rate`, `inclusive_tax_per_unit`, `additive_tax_per_unit`, `order_status`, `note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `cancelled_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(16, 1, 3, 'Fries', 10.0000, 12.00, 0.000000, 0.200000, 0.00, 2.40, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-24 22:19:48', '2026-03-24 22:27:50', 2),
-(17, 1, 2, 'Burger', 4.0000, 0.00, 0.000000, 0.000000, 0.00, 0.00, 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-24 22:19:49', '2026-03-24 22:27:49', 2);
+INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `order_status`, `quantity`, `base_price`, `inclusive_rate`, `additive_rate`, `subtotal`, `inclusive_tax_amount`, `additive_tax_amount`, `net_sales`, `note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `cancelled_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(7, 1, 3, 'Fries', 'Cancelled', 10.0000, 10.00, 0.120000, 0.000000, 100.00, 10.71, 0.00, 89.29, NULL, NULL, NULL, NULL, NULL, '2026-03-27 14:40:51', '2026-03-27 13:58:56', '2026-03-27 14:40:51', 2),
+(9, 3, 3, 'Fries', 'Pending', 51.0000, 10.00, 0.120000, 0.000000, 510.00, 54.64, 0.00, 455.36, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-27 16:51:49', '2026-03-28 21:50:10', 2),
+(10, 3, 2, 'Burger', 'Pending', 2.0000, 0.00, 0.000000, 0.000000, 0.00, 0.00, 0.00, 0.00, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-28 21:50:07', '2026-03-28 21:50:15', 2);
 
 -- --------------------------------------------------------
 
@@ -19848,8 +20014,7 @@ CREATE TABLE `tax` (
 --
 
 INSERT INTO `tax` (`tax_id`, `tax_name`, `tax_rate`, `tax_calculation`, `tax_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'VAT (12%)', 12.00, 'Additive', 'Active', '2026-03-21 18:08:45', '2026-03-21 19:32:01', 2),
-(2, 'Test 8%', 8.00, 'Additive', 'Active', '2026-03-21 23:07:37', '2026-03-21 23:07:37', 2);
+(1, 'VAT (12%)', 12.00, 'Inclusive', 'Active', '2026-03-21 18:08:45', '2026-03-26 16:13:44', 2);
 
 --
 -- Triggers `tax`
@@ -20268,7 +20433,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-24 20:24:04', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-24 20:24:04', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-03-28 16:46:46', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-03-28 16:46:46', 1);
 
 --
 -- Triggers `user_account`
@@ -20650,7 +20815,8 @@ ALTER TABLE `charge_type`
   ADD PRIMARY KEY (`charge_type_id`),
   ADD KEY `idx_charge_type_value_type` (`value_type`),
   ADD KEY `idx_charge_type_is_variable` (`is_variable`),
-  ADD KEY `idx_charge_type_affects_tax` (`affects_tax`);
+  ADD KEY `idx_charge_type_application_order` (`application_order`),
+  ADD KEY `idx_charge_type_tax_type` (`tax_type`);
 
 --
 -- Indexes for table `city`
@@ -20730,7 +20896,8 @@ ALTER TABLE `discount_type`
   ADD PRIMARY KEY (`discount_type_id`),
   ADD KEY `idx_discount_type_value_type` (`value_type`),
   ADD KEY `idx_discount_type_is_variable` (`is_variable`),
-  ADD KEY `idx_discount_type_affects_tax` (`affects_tax`);
+  ADD KEY `idx_discount_type_application_order` (`application_order`),
+  ADD KEY `idx_discount_type_is_vat_exempt` (`is_vat_exempt`);
 
 --
 -- Indexes for table `educational_stage`
@@ -21218,7 +21385,8 @@ ALTER TABLE `shop_order_applied_charges`
   ADD PRIMARY KEY (`shop_order_applied_charges_id`),
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_shop_order_applied_charges_shop_order_id` (`shop_order_id`),
-  ADD KEY `idx_shop_order_applied_charges_charge_type_id` (`charge_type_id`);
+  ADD KEY `idx_shop_order_applied_charges_charge_type_id` (`charge_type_id`),
+  ADD KEY `idx_shop_order_applied_charges_tax_type` (`tax_type`);
 
 --
 -- Indexes for table `shop_order_applied_discounts`
@@ -21227,16 +21395,15 @@ ALTER TABLE `shop_order_applied_discounts`
   ADD PRIMARY KEY (`shop_order_applied_discounts_id`),
   ADD KEY `last_log_by` (`last_log_by`),
   ADD KEY `idx_shop_order_applied_discounts_shop_order_id` (`shop_order_id`),
-  ADD KEY `idx_shop_order_applied_discounts_discount_type_id` (`discount_type_id`);
+  ADD KEY `idx_shop_order_applied_discounts_discount_type_id` (`discount_type_id`),
+  ADD KEY `idx_shop_order_applied_discounts_application_order` (`application_order`);
 
 --
 -- Indexes for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
   ADD PRIMARY KEY (`shop_order_details_id`),
-  ADD KEY `shop_order_id` (`shop_order_id`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `last_log_by` (`last_log_by`);
+  ADD KEY `shop_order_id` (`shop_order_id`);
 
 --
 -- Indexes for table `shop_payment_method`
@@ -21421,7 +21588,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -21445,7 +21612,7 @@ ALTER TABLE `blood_type`
 -- AUTO_INCREMENT for table `charge_type`
 --
 ALTER TABLE `charge_type`
-  MODIFY `charge_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `charge_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `city`
@@ -21625,7 +21792,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -21721,7 +21888,7 @@ ALTER TABLE `product_pricelist`
 -- AUTO_INCREMENT for table `product_tax`
 --
 ALTER TABLE `product_tax`
-  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `product_variant`
@@ -21805,13 +21972,13 @@ ALTER TABLE `shop_access`
 -- AUTO_INCREMENT for table `shop_charges`
 --
 ALTER TABLE `shop_charges`
-  MODIFY `shop_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `shop_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `shop_discounts`
 --
 ALTER TABLE `shop_discounts`
-  MODIFY `shop_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `shop_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `shop_floor_plan`
@@ -21823,7 +21990,7 @@ ALTER TABLE `shop_floor_plan`
 -- AUTO_INCREMENT for table `shop_order`
 --
 ALTER TABLE `shop_order`
-  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `shop_order_applied_charges`
@@ -21841,7 +22008,7 @@ ALTER TABLE `shop_order_applied_discounts`
 -- AUTO_INCREMENT for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`
@@ -22448,9 +22615,7 @@ ALTER TABLE `shop_order_applied_discounts`
 -- Constraints for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  ADD CONSTRAINT `shop_order_details_ibfk_1` FOREIGN KEY (`shop_order_id`) REFERENCES `shop_order` (`shop_order_id`),
-  ADD CONSTRAINT `shop_order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
-  ADD CONSTRAINT `shop_order_details_ibfk_3` FOREIGN KEY (`last_log_by`) REFERENCES `user_account` (`user_account_id`);
+  ADD CONSTRAINT `shop_order_details_ibfk_1` FOREIGN KEY (`shop_order_id`) REFERENCES `shop_order` (`shop_order_id`);
 
 --
 -- Constraints for table `shop_payment_method`
