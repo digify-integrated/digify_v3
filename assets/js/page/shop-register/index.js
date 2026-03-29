@@ -406,13 +406,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const $container = $('#discount-lists');
 
-        const toggles = [];
-        const inputs = [];
+        const quick = [];
+        const manual = [];
 
-        data.discounts.forEach((discount) => {
+        data.discounts.forEach(discount => {
 
             const isPercentage = discount.valueType === 'Percentage';
-            const isAction = discount.isVariable === 'No'; // action button now
+            const isFixed = discount.isVariable === 'No';
             const isApplied = !!discount.isApplied;
 
             const symbol = isPercentage ? '%' : '₱';
@@ -424,113 +424,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const remarksValue = discount.remarks ?? '';
 
-            // 🔥 ACTION TYPE (REPLACED TOGGLE)
-            if (isAction) {
-                toggles.push(`
-                    <div class="row mb-3 align-items-center">
-
-                        <div class="col-12 col-lg-5 mb-2 mb-lg-0">
-                            <label class="fw-semibold">
-                                ${discount.discountName}
-                                <div class="text-muted small">${formattedValue}</div>
-                            </label>
-                        </div>
-
-                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
-                            <input 
-                                type="text"
-                                class="form-control form-control-sm"
-                                value="${formattedValue}"
-                                disabled
-                            >
-                        </div>
-
-                        <div class="col-12 col-lg-3 mb-2 mb-lg-0">
-                            <input 
-                                type="text"
-                                class="form-control form-control-sm discount-remarks"
-                                placeholder="Remarks..."
-                                value="${remarksValue}"
-                                data-id="${discount.discountTypeId}"
-                            >
-                        </div>
-
-                        <div class="col-12 col-lg-2 text-lg-end">
-                            <button 
-                                class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} toggle-discount-btn"
-                                data-id="${discount.discountTypeId}"
-                                data-applied="${isApplied ? 1 : 0}"
-                            >
-                                ${isApplied ? 'Remove' : 'Apply'}
-                            </button>
-                        </div>
-
-                    </div>
-                `);
-                return;
-            }
-
-            // 🔥 INPUT TYPE
-            inputs.push(`
+            const row = `
                 <div class="row mb-3 align-items-center">
 
-                    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
+                    <!-- NAME -->
+                    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
                         <label class="fw-semibold">
                             ${discount.discountName}
+                            ${isFixed ? `<div class="text-muted small">${formattedValue}</div>` : ''}
                         </label>
                     </div>
 
-                    <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                    <!-- VALUE -->
+                    <div class="col-4 col-lg-3 mb-2 mb-lg-0">
                         <div class="input-group input-group-sm">
                             ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
                             <input 
                                 type="number"
-                                class="form-control discount-input"
+                                class="form-control ${isFixed ? '' : 'discount-input'}"
                                 value="${discount.appliedValue ?? 0}"
                                 min="0"
                                 step="0.01"
                                 ${maxAttr}
                                 data-id="${discount.discountTypeId}"
                                 data-type="${discount.valueType}"
+                                ${isFixed ? 'disabled' : ''}
                             >
                             ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-3 mb-2 mb-lg-0">
+                    <!-- REMARKS -->
+                    <div class="col-5 col-lg-3 mb-2 mb-lg-0">
                         <input 
                             type="text"
                             class="form-control form-control-sm discount-remarks"
                             placeholder="Remarks..."
                             value="${remarksValue}"
                             data-id="${discount.discountTypeId}"
+                            ${isApplied ? 'readonly' : ''}
                         >
                     </div>
 
-                    <div class="col-12 col-lg-2 text-lg-end">
+                    <!-- ACTION -->
+                    <div class="col-3 col-lg-2 text-lg-end">
                         <button 
-                            class="btn btn-sm btn-primary w-100 w-lg-auto apply-discount-btn"
+                            class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} discount-action-btn"
                             data-id="${discount.discountTypeId}"
+                            data-applied="${isApplied ? 1 : 0}"
+                            data-fixed="${isFixed ? 1 : 0}"
                         >
-                            Apply
+                            ${isApplied ? 'Remove' : 'Apply'}
                         </button>
                     </div>
 
                 </div>
-            `);
+            `;
+
+            if (isFixed) {
+                quick.push(row);
+            } else {
+                manual.push(row);
+            }
         });
 
-        const hasBoth = toggles.length && inputs.length;
+        const hasBoth = quick.length && manual.length;
 
         const html = `
-            ${toggles.length ? `
+            ${quick.length ? `
                 <div class="mb-2 fs-2 fw-bold">Quick Discounts</div>
-                ${toggles.join('')}
+                ${quick.join('')}
             ` : ''}
 
-            ${inputs.length ? `
+            ${manual.length ? `
                 <div class="mb-2 ${hasBoth ? 'mt-4' : ''} fs-2 fw-bold">Manual Discounts</div>
-                ${inputs.join('')}
+                ${manual.join('')}
             ` : ''}
         `;
 
@@ -547,13 +515,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const $container = $('#charge-lists');
 
-        const toggles = [];
-        const inputs = [];
+        const quick = [];
+        const manual = [];
 
-        data.charges.forEach((charge) => {
+        data.charges.forEach(charge => {
 
             const isPercentage = charge.valueType === 'Percentage';
-            const isAction = charge.isVariable === 'No';
+            const isFixed = charge.isVariable === 'No';
             const isApplied = !!charge.isApplied;
 
             const symbol = isPercentage ? '%' : '₱';
@@ -565,113 +533,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const remarksValue = charge.remarks ?? '';
 
-            // 🔥 ACTION TYPE
-            if (isAction) {
-                toggles.push(`
-                    <div class="row mb-3 align-items-center">
-
-                        <div class="col-12 col-lg-5 mb-2 mb-lg-0">
-                            <label class="fw-semibold">
-                                ${charge.chargeName}
-                                <div class="text-muted small">${formattedValue}</div>
-                            </label>
-                        </div>
-
-                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
-                            <input 
-                                type="text"
-                                class="form-control form-control-sm"
-                                value="${formattedValue}"
-                                disabled
-                            >
-                        </div>
-
-                        <div class="col-12 col-lg-3 mb-2 mb-lg-0">
-                            <input 
-                                type="text"
-                                class="form-control form-control-sm charge-remarks"
-                                placeholder="Remarks..."
-                                value="${remarksValue}"
-                                data-id="${charge.chargeTypeId}"
-                            >
-                        </div>
-
-                        <div class="col-12 col-lg-2 text-lg-end">
-                            <button 
-                                class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} toggle-charge-btn"
-                                data-id="${charge.chargeTypeId}"
-                                data-applied="${isApplied ? 1 : 0}"
-                            >
-                                ${isApplied ? 'Remove' : 'Apply'}
-                            </button>
-                        </div>
-
-                    </div>
-                `);
-                return;
-            }
-
-            // 🔥 INPUT TYPE
-            inputs.push(`
+            const row = `
                 <div class="row mb-3 align-items-center">
 
-                    <div class="col-12 col-lg-5 mb-2 mb-lg-0">
+                    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
                         <label class="fw-semibold">
                             ${charge.chargeName}
+                            ${isFixed ? `<div class="text-muted small">${formattedValue}</div>` : ''}
                         </label>
                     </div>
 
-                    <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                    <div class="col-4 col-lg-3 mb-2 mb-lg-0">
                         <div class="input-group input-group-sm">
                             ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
                             <input 
                                 type="number"
-                                class="form-control charge-input"
+                                class="form-control ${isFixed ? '' : 'charge-input'}"
                                 value="${charge.appliedValue ?? 0}"
                                 min="0"
                                 step="0.01"
                                 ${maxAttr}
                                 data-id="${charge.chargeTypeId}"
                                 data-type="${charge.valueType}"
+                                ${isFixed ? 'disabled' : ''}
                             >
                             ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-3 mb-2 mb-lg-0">
+                    <div class="col-5 col-lg-3 mb-2 mb-lg-0">
                         <input 
                             type="text"
                             class="form-control form-control-sm charge-remarks"
                             placeholder="Remarks..."
                             value="${remarksValue}"
                             data-id="${charge.chargeTypeId}"
+                            ${isApplied ? 'readonly' : ''}
                         >
                     </div>
 
-                    <div class="col-12 col-lg-2 text-lg-end">
+                    <div class="col-3 col-lg-2 text-lg-end">
                         <button 
-                            class="btn btn-sm btn-primary w-100 w-lg-auto apply-charge-btn"
+                            class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} charge-action-btn"
                             data-id="${charge.chargeTypeId}"
+                            data-applied="${isApplied ? 1 : 0}"
+                            data-fixed="${isFixed ? 1 : 0}"
                         >
-                            Apply
+                            ${isApplied ? 'Remove' : 'Apply'}
                         </button>
                     </div>
 
                 </div>
-            `);
+            `;
+
+            if (isFixed) {
+                quick.push(row);
+            } else {
+                manual.push(row);
+            }
         });
 
-        const hasBoth = toggles.length && inputs.length;
+        const hasBoth = quick.length && manual.length;
 
         const html = `
-            ${toggles.length ? `
+            ${quick.length ? `
                 <div class="mb-2 fs-2 fw-bold">Quick Charges</div>
-                ${toggles.join('')}
+                ${quick.join('')}
             ` : ''}
 
-            ${inputs.length ? `
+            ${manual.length ? `
                 <div class="mb-2 ${hasBoth ? 'mt-4' : ''} fs-2 fw-bold">Manual Charges</div>
-                ${inputs.join('')}
+                ${manual.join('')}
             ` : ''}
         `;
 
@@ -993,46 +925,185 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    $(document).on('click', '.toggle-discount-btn', function () {
+    $(document).on('click', '.discount-action-btn', async function () {
         const $btn = $(this);
         const id = $btn.data('id');
         const isApplied = $btn.data('applied') === 1;
+        const isFixed = $btn.data('fixed') === 1;
+
         const newState = !isApplied;
+        const $row = $btn.closest('.row');
 
+        const $remarksInput = $row.find('.discount-remarks');
+        const $input = $row.find('.discount-input');
+
+        const value = isFixed 
+            ? null 
+            : (parseFloat($input.val()) || 0);
+
+        const type = $input.data('type');
+        const remarks = $remarksInput.val() || '';
+
+        // 🔒 Validation
+        if (!isFixed) {
+            if (type === 'Percentage' && value > 100) {
+                alert('Percentage cannot exceed 100%');
+                return;
+            }
+
+            if (value < 0) {
+                alert('Value cannot be negative');
+                return;
+            }
+        }
+
+        // 🔄 UI update (button)
         $btn
-            .toggleClass('btn-danger btn-outline-primary')
+            .toggleClass('btn-danger btn-primary')
             .text(newState ? 'Remove' : 'Apply')
-            .data('applied', newState ? 1 : 0);
+            .data('applied', newState ? 1 : 0)
+            .prop('disabled', true);
 
-        $(`.discount-remarks[data-id="${id}"]`)
-            .prop('disabled', !newState)
-            .focus();
+        if (newState) {
+            $remarksInput.prop('readonly', 'readonly', true);
 
-        apiRequest('toggle discount', {
-            discount_type_id: id,
-            is_applied: newState ? 1 : 0
-        });
+            if (!isFixed) {
+                $input.prop('readonly', true);
+            }
+
+        } else {
+            // ✅ REMOVE
+            $remarksInput.val('').prop('readonly', false).focus();
+
+            if (!isFixed) {
+                $input
+                    .prop('readonly', false)
+                    .val('0.00'); // 🔥 clear value
+            }
+        }
+
+        /*try {
+            const res = await apiRequest('apply discount unified', {
+                discount_type_id: id,
+                shop_order_id: getOrderId(),
+                is_applied: newState ? 1 : 0,
+                value,
+                remarks
+            });
+
+            if (!res?.success) throw new Error();
+
+        } catch (err) {
+            console.error(err);
+
+            // ❌ revert UI
+            $btn
+                .toggleClass('btn-danger btn-primary')
+                .text(isApplied ? 'Remove' : 'Apply')
+                .data('applied', isApplied ? 1 : 0);
+
+            $remarksInput.prop('readonly', isApplied);
+
+            if (!isFixed) {
+                $input.prop('readonly', isApplied);
+            }
+
+            alert('Failed to update discount');
+        } finally {
+            $btn.prop('disabled', false);
+        }*/
+       $btn.prop('disabled', false);
     });
 
-    $(document).on('click', '.toggle-discount-btn', function () {
+    $(document).on('click', '.charge-action-btn', async function () {
         const $btn = $(this);
         const id = $btn.data('id');
         const isApplied = $btn.data('applied') === 1;
+        const isFixed = $btn.data('fixed') === 1;
+
         const newState = !isApplied;
+        const $row = $btn.closest('.row');
 
+        const $remarksInput = $row.find('.charge-remarks');
+        const $input = $row.find('.charge-input');
+
+        const value = isFixed 
+            ? null 
+            : (parseFloat($input.val()) || 0);
+
+        const type = $input.data('type');
+        const remarks = $remarksInput.val() || '';
+
+        // 🔒 Validation
+        if (!isFixed) {
+            if (type === 'Percentage' && value > 100) {
+                alert('Percentage cannot exceed 100%');
+                return;
+            }
+
+            if (value < 0) {
+                alert('Value cannot be negative');
+                return;
+            }
+        }
+
+        // 🔄 UI update
         $btn
-            .toggleClass('btn-danger btn-outline-primary')
+            .toggleClass('btn-danger btn-primary')
             .text(newState ? 'Remove' : 'Apply')
-            .data('applied', newState ? 1 : 0);
+            .data('applied', newState ? 1 : 0)
+            .prop('disabled', true);
 
-        $(`.discount-remarks[data-id="${id}"]`)
-            .prop('disabled', !newState)
-            .focus();
+        if (newState) {
+            $remarksInput.prop('readonly', 'readonly', true);
+            
+            if (!isFixed) {
+                $input.prop('readonly', true);
+            }
 
-        apiRequest('toggle discount', {
-            discount_type_id: id,
-            is_applied: newState ? 1 : 0
-        });
+        } else {
+            // ✅ REMOVE
+            $remarksInput.val('').prop('readonly', false).focus();
+
+            if (!isFixed) {
+                $input
+                    .prop('readonly', false)
+                    .val('0.00'); // 🔥 clear value
+            }
+        }
+
+        /*try {
+            const res = await apiRequest('apply charge unified', {
+                charge_type_id: id,
+                shop_order_id: getOrderId(),
+                is_applied: newState ? 1 : 0,
+                value,
+                remarks
+            });
+
+            if (!res?.success) throw new Error();
+
+        } catch (err) {
+            console.error(err);
+
+            // ❌ revert
+            $btn
+                .toggleClass('btn-danger btn-primary')
+                .text(isApplied ? 'Remove' : 'Apply')
+                .data('applied', isApplied ? 1 : 0);
+
+            $remarksInput.prop('readonly', isApplied);
+
+            if (!isFixed) {
+                $input.prop('readonly', isApplied);
+            }
+
+            alert('Failed to update charge');
+        } finally {
+            $btn.prop('disabled', false);
+        }*/
+
+             $btn.prop('disabled', false);
     });
 
     // Form Validation logic remains the same...
