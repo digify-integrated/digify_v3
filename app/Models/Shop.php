@@ -313,6 +313,84 @@ class Shop extends Model {
         ]);
     }
 
+    public function insertShopOrderAppliedDiscounts(
+        int $p_shop_order_id,
+        int $p_discount_type_id,
+        string $p_discount_name,
+        string $p_applied_value,
+        string $p_calculated_amount,
+        string $p_application_order,
+        string $p_value_type,
+        string $p_is_vat_exempt,
+        string $p_remarks,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopOrderAppliedDiscounts(
+            :p_shop_order_id,
+            :p_discount_type_id,
+            :p_discount_name,
+            :p_applied_value,
+            :p_calculated_amount,
+            :p_value_type,
+            :p_application_order,
+            :p_is_vat_exempt,
+            :p_remarks,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_discount_type_id'    => $p_discount_type_id,
+            'p_discount_name'       => $p_discount_name,
+            'p_applied_value'       => $p_applied_value,
+            'p_calculated_amount'   => $p_calculated_amount,
+            'p_value_type'          => $p_value_type,
+            'p_application_order'   => $p_application_order,
+            'p_is_vat_exempt'       => $p_is_vat_exempt,
+            'p_remarks'             => $p_remarks,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function insertShopOrderAppliedCharges(
+        int $p_shop_order_id,
+        int $p_charge_type_id,
+        string $p_charge_name,
+        string $p_applied_value,
+        string $p_calculated_amount,
+        string $p_value_type,
+        string $p_application_order,
+        string $p_tax_type,
+        string $p_remarks,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL insertShopOrderAppliedCharges(
+            :p_shop_order_id,
+            :p_charge_type_id,
+            :p_charge_name,
+            :p_applied_value,
+            :p_calculated_amount,
+            :p_value_type,
+            :p_application_order,
+            :p_tax_type,
+            :p_remarks,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_charge_type_id'      => $p_charge_type_id,
+            'p_charge_name'         => $p_charge_name,
+            'p_applied_value'       => $p_applied_value,
+            'p_calculated_amount'   => $p_calculated_amount,
+            'p_value_type'          => $p_value_type,
+            'p_application_order'   => $p_application_order,
+            'p_tax_type'            => $p_tax_type,
+            'p_remarks'             => $p_remarks,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
@@ -910,6 +988,36 @@ class Shop extends Model {
         
         return $this->query($sql, [
             'p_shop_order_details_id' => $p_shop_order_details_id
+        ]);
+    }
+
+    public function deleteShopOrderAppliedDiscounts(
+        int $p_shop_order_id,
+        int $p_discount_type_id
+    ) {
+        $sql = 'CALL deleteShopOrderAppliedDiscounts(
+            :p_shop_order_id,
+            :p_discount_type_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_discount_type_id'    => $p_discount_type_id
+        ]);
+    }
+
+    public function deleteShopOrderAppliedCharges(
+        int $p_shop_order_id,
+        int $p_charge_type_id
+    ) {
+        $sql = 'CALL deleteShopOrderAppliedCharges(
+            :p_shop_order_id,
+            :p_charge_type_id
+        )';
+        
+        return $this->query($sql, [
+            'p_shop_order_id'   => $p_shop_order_id,
+            'p_charge_type_id'  => $p_charge_type_id
         ]);
     }
 

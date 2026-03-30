@@ -8407,7 +8407,10 @@ CREATE TABLE shop_order_applied_discounts (
   discount_name VARCHAR(100),
   applied_value DECIMAL(15,2),
   calculated_amount DECIMAL(15,2),
-  application_order ENUM('Before Tax','After Tax'),
+  value_type ENUM('Percentage','Fixed Amount'),
+  application_order ENUM('Before Tax','After Tax') DEFAULT 'After Tax',
+  is_vat_exempt ENUM('Yes','No') DEFAULT 'No',
+  remarks VARCHAR(500),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8417,15 +8420,17 @@ CREATE TABLE shop_order_applied_discounts (
 );
 
 /* =============================================================================================
-  INDEX: SHOP ORDER APPLIED CHARGES
+  INDEX: SHOP ORDER APPLIED DISCOUNTS
 ============================================================================================= */
 
 CREATE INDEX idx_shop_order_applied_discounts_shop_order_id ON shop_order_applied_discounts(shop_order_id);
 CREATE INDEX idx_shop_order_applied_discounts_discount_type_id ON shop_order_applied_discounts(discount_type_id);
 CREATE INDEX idx_shop_order_applied_discounts_application_order ON shop_order_applied_discounts(application_order);
+CREATE INDEX idx_shop_order_applied_discounts_is_vat_exempt ON shop_order_applied_discounts(is_vat_exempt);
+CREATE INDEX idx_shop_order_applied_discounts_value_type ON shop_order_applied_discounts(value_type);
 
 /* =============================================================================================
-  INITIAL VALUES: SHOP ORDER APPLIED CHARGES
+  INITIAL VALUES: SHOP ORDER APPLIED DISCOUNTS
 ============================================================================================= */
 
 /* =============================================================================================
@@ -8447,7 +8452,10 @@ CREATE TABLE shop_order_applied_charges (
   charge_name VARCHAR(100),
   applied_value DECIMAL(15,2),
   calculated_amount DECIMAL(15,2),
+  value_type ENUM('Percentage','Fixed Amount'),
+  application_order ENUM('Before Tax','After Tax') DEFAULT 'After Tax',
   tax_type ENUM('Vatable','Non Vatable'),
+  remarks VARCHAR(500),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8463,6 +8471,8 @@ CREATE TABLE shop_order_applied_charges (
 CREATE INDEX idx_shop_order_applied_charges_shop_order_id ON shop_order_applied_charges(shop_order_id);
 CREATE INDEX idx_shop_order_applied_charges_charge_type_id ON shop_order_applied_charges(charge_type_id);
 CREATE INDEX idx_shop_order_applied_charges_tax_type ON shop_order_applied_charges(tax_type);
+CREATE INDEX idx_shop_order_applied_charges_application_order ON shop_order_applied_charges(application_order);
+CREATE INDEX idx_shop_order_applied_charges_value_type ON shop_order_applied_charges(value_type);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER APPLIED CHARGES

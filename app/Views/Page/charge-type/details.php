@@ -68,7 +68,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="is_variable">
-                            Is Variable?
+                            Is Variable? <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Allows the cashier to enter the charge amount during the transaction.
+
+                            Yes → Flexible amount (e.g. corkage fee)
+                            No → Uses a fixed value set by admin"></i>
                         </label>
 
                         <select id="is_variable" name="is_variable" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
@@ -83,7 +86,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="application_order">
-                            Application Order
+                            Application Order <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Controls when the charge is added to the total.
+
+                            Before Tax → Included in tax computation (rare)
+                            After Tax → Added after tax (standard use)"></i>
                         </label>
 
                         <select id="application_order" name="application_order" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
@@ -97,7 +103,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="tax_type">
-                            Tax Type
+                            Tax Type <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Determines if the charge is subject to VAT.
+
+                            Vatable → Included in VAT computation
+                            Non Vatable → Not subject to VAT (e.g. service charge)"></i>
                         </label>
 
                         <select id="tax_type" name="tax_type" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>

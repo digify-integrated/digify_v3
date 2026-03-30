@@ -441,14 +441,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
                             <input 
                                 type="number"
-                                class="form-control ${isFixed ? '' : 'discount-input'}"
+                                class="form-control discount-input"
                                 value="${discount.appliedValue ?? 0}"
                                 min="0"
                                 step="0.01"
                                 ${maxAttr}
                                 data-id="${discount.discountTypeId}"
                                 data-type="${discount.valueType}"
-                                ${isFixed ? 'disabled' : ''}
+                                ${isFixed ? 'readonly' : ''}
                             >
                             ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
                         </div>
@@ -548,14 +548,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
                             <input 
                                 type="number"
-                                class="form-control ${isFixed ? '' : 'charge-input'}"
+                                class="form-control charge-input"
                                 value="${charge.appliedValue ?? 0}"
                                 min="0"
                                 step="0.01"
                                 ${maxAttr}
                                 data-id="${charge.chargeTypeId}"
                                 data-type="${charge.valueType}"
-                                ${isFixed ? 'disabled' : ''}
+                                ${isFixed ? 'readonly' : ''}
                             >
                             ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
                         </div>
@@ -937,9 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const $remarksInput = $row.find('.discount-remarks');
         const $input = $row.find('.discount-input');
 
-        const value = isFixed 
-            ? null 
-            : (parseFloat($input.val()) || 0);
+        const value = parseFloat($input.val()) || 0;
 
         const type = $input.data('type');
         const remarks = $remarksInput.val() || '';
@@ -947,12 +945,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // 🔒 Validation
         if (!isFixed) {
             if (type === 'Percentage' && value > 100) {
-                alert('Percentage cannot exceed 100%');
+                showNotification('Apply Discount Error', 'Percentage cannot exceed 100%', 'error');
                 return;
             }
 
             if (value < 0) {
-                alert('Value cannot be negative');
+                showNotification('Apply Discount Error', 'Value cannot be negative', 'error');
                 return;
             }
         }
@@ -982,8 +980,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /*try {
-            const res = await apiRequest('apply discount unified', {
+        try {
+            const res = await apiRequest('save shop order discount', {
                 discount_type_id: id,
                 shop_order_id: getOrderId(),
                 is_applied: newState ? 1 : 0,
@@ -1008,11 +1006,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $input.prop('readonly', isApplied);
             }
 
-            alert('Failed to update discount');
+            showNotification('Apply Discount Error', 'Failed to update discount', 'error');
         } finally {
             $btn.prop('disabled', false);
-        }*/
-       $btn.prop('disabled', false);
+        }
     });
 
     $(document).on('click', '.charge-action-btn', async function () {
@@ -1027,9 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const $remarksInput = $row.find('.charge-remarks');
         const $input = $row.find('.charge-input');
 
-        const value = isFixed 
-            ? null 
-            : (parseFloat($input.val()) || 0);
+        const value = parseFloat($input.val()) || 0;
 
         const type = $input.data('type');
         const remarks = $remarksInput.val() || '';
@@ -1037,12 +1032,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // 🔒 Validation
         if (!isFixed) {
             if (type === 'Percentage' && value > 100) {
-                alert('Percentage cannot exceed 100%');
+                showNotification('Apply Charge Error', 'Percentage cannot exceed 100%', 'error');
                 return;
             }
 
             if (value < 0) {
-                alert('Value cannot be negative');
+                showNotification('Apply Charge Error', 'Value cannot be negative', 'error');
                 return;
             }
         }
@@ -1072,8 +1067,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /*try {
-            const res = await apiRequest('apply charge unified', {
+        try {
+            const res = await apiRequest('save shop order charge', {
                 charge_type_id: id,
                 shop_order_id: getOrderId(),
                 is_applied: newState ? 1 : 0,
@@ -1098,12 +1093,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $input.prop('readonly', isApplied);
             }
 
-            alert('Failed to update charge');
+            showNotification('Apply Charge Error', 'Failed to update charge', 'error');
         } finally {
             $btn.prop('disabled', false);
-        }*/
-
-             $btn.prop('disabled', false);
+        }
     });
 
     // Form Validation logic remains the same...

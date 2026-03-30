@@ -69,7 +69,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="is_variable">
-                            Is Variable?
+                            Is Variable? <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Allows the cashier to enter the discount value during the transaction. 
+
+                            Yes → Cashier can input any value (e.g. 10%, ₱50)
+                            No → Uses a fixed value set by admin"></i>
                         </label>
 
                         <select id="is_variable" name="is_variable" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
@@ -84,7 +87,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="application_order">
-                            Application Order
+                            Application Order <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Controls when the discount is applied in relation to tax.
+
+                            Before Tax → Applied to VAT-exclusive amount (required for SC/PWD)
+                            After Tax → Applied to the final amount (for promos and internal discounts)"></i>
                         </label>
 
                         <select id="application_order" name="application_order" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>
@@ -97,7 +103,10 @@
                 <div class="col">
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold required form-label mt-3" for="is_vat_exempt">
-                            Is VAT Exempt?
+                            Is VAT Exempt? <i class="ki-outline ki-information-2" data-bs-toggle="tooltip" title="Determines if VAT is removed before applying the discount.
+
+                            Yes → VAT is removed first (used for Senior Citizen / PWD)
+                            No → VAT remains unchanged"></i>
                         </label>
 
                         <select id="is_vat_exempt" name="is_vat_exempt" class="form-select" data-control="select2" data-allow-clear="false" <?php echo $disabled; ?>>

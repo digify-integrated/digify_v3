@@ -106,6 +106,8 @@ class ShopController {
             'save shop product'                     => $this->saveShopProduct($lastLogBy),
             'save shop discounts'                   => $this->saveShopDiscounts($lastLogBy),
             'save shop charges'                     => $this->saveShopCharges($lastLogBy),
+            'save shop order discount'              => $this->saveShopOrderDiscount($lastLogBy),
+            'save shop order charge'                => $this->saveShopOrderCharge($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
@@ -125,7 +127,7 @@ class ShopController {
             'delete shop discounts'                 => $this->deleteShopDiscounts(),
             'delete shop charges'                   => $this->deleteShopCharges(),
             'delete multiple shop'                  => $this->deleteMultipleShop(),
-            'delete shop order details'             => $this->deleteShopOrderDetails(),
+            'delete shop order details'             => $this->deleteShopOrderDetails($lastLogBy),
             'fetch shop details'                    => $this->fetchShopDetails(),
             'fetch shop register table details'     => $this->fetchShopRegisterTableDetails(),
             'fetch shop order total'                => $this->fetchShopOrderTotal(),
@@ -421,6 +423,112 @@ class ShopController {
                 $lastLogBy
             );
         }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Shop Charges Success',
+            'The shop charges has been saved successfully.'
+        );
+    }
+
+    public function saveShopOrderDiscount(
+        int $lastLogBy
+    ) {
+        $shopOrderId    = $_POST['shop_order_id'] ?? null;
+        $discountTypeId = $_POST['discount_type_id'] ?? null;
+        $isApplied      = $_POST['is_applied'] ?? null;
+        $appliedValue   = $_POST['value'] ?? 0;
+        $remarks        = $_POST['remarks'] ?? null;
+
+        if ($isApplied && $appliedValue > 0) {
+
+            $order = $this->shop->fetchShopOrderTotal($shopOrderId);
+
+            $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+
+            $base = ($discountType['application_order'] === 'Before Tax')
+                ? $order['vat_sales']
+                : $order['gross_sales'];
+
+            if ($discountType['value_type'] === 'Percentage') {
+                $calculatedAmount = round(($appliedValue / 100) * $base, 2);
+            } else {
+                $calculatedAmount = round($appliedValue, 2);
+            }
+
+            $this->shop->insertShopOrderAppliedDiscounts(
+                $shopOrderId,
+                $discountTypeId,
+                $discountType['discount_type_name'],
+                $appliedValue,
+                $calculatedAmount,
+                $discountType['value_type'],
+                $discountType['application_order'],
+                $discountType['is_vat_exempt'],
+                $remarks,
+                $lastLogBy
+            );
+
+        } else {
+            $this->shop->deleteShopOrderAppliedDiscounts(
+                $shopOrderId,
+                $discountTypeId
+            );
+        }
+
+        $this->shop->updateShopOrderTotal($shopOrderId, $lastLogBy);
+
+        $this->systemHelper::sendSuccessResponse(
+            'Save Shop Charges Success',
+            'The shop charges has been saved successfully.'
+        );
+    }
+
+    public function saveShopOrderCharge(
+        int $lastLogBy
+    ) {
+        $shopOrderId  = $_POST['shop_order_id'] ?? null;
+        $chargeTypeId = $_POST['charge_type_id'] ?? null;
+        $isApplied    = $_POST['is_applied'] ?? null;
+        $appliedValue = $_POST['value'] ?? 0;
+        $remarks      = $_POST['remarks'] ?? null;
+
+        if ($isApplied && $appliedValue > 0) {
+
+            $order = $this->shop->fetchShopOrderTotal($shopOrderId);
+
+            $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
+
+            $base = ($chargeType['application_order'] === 'Before Tax')
+                ? $order['vat_sales']
+                : $order['gross_sales'];
+
+            if ($chargeType['value_type'] === 'Percentage') {
+                $calculatedAmount = round(($appliedValue / 100) * $base, 2);
+            } else {
+                $calculatedAmount = round($appliedValue, 2);
+            }
+
+            $this->shop->insertShopOrderAppliedCharges(
+                $shopOrderId,
+                $chargeTypeId,
+                $chargeType['charge_type_name'],
+                $appliedValue,
+                $calculatedAmount,
+                $chargeType['value_type'],
+                $chargeType['application_order'],
+                $chargeType['tax_type'],
+                $remarks,
+                $lastLogBy
+            );
+
+        } else {
+            $this->shop->deleteShopOrderAppliedCharges(
+                $shopOrderId,
+                $chargeTypeId
+            );
+        }
+
+        $this->shop->updateShopOrderTotal($shopOrderId, $lastLogBy);
 
         $this->systemHelper::sendSuccessResponse(
             'Save Shop Charges Success',
@@ -999,10 +1107,20 @@ class ShopController {
         );
     }
 
-    public function deleteShopOrderDetails() {
+    public function deleteShopOrderDetails(
+        int $lastLogBy
+    ) {
         $shopOrderDetailsId = $_POST['shop_order_details_id'] ?? null;
 
+        $details        = $this->shop->fetchShopOrderDetailDetails($shopOrderDetailsId);
+        $shopOrderId    = $details['shop_order_id'];
+
         $this->shop->deleteShopOrderDetails($shopOrderDetailsId);
+
+        $this->shop->updateShopOrderTotal(
+            $shopOrderId,
+            $lastLogBy
+        );
 
         $this->systemHelper::sendSuccessResponse(
             '',
