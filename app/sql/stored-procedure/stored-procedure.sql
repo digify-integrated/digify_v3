@@ -14148,6 +14148,52 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS updateShopDiscountApplication//
+
+CREATE PROCEDURE updateShopDiscountApplication(
+	IN p_shop_discounts_id INT, 
+	IN p_automatic_application ENUM('Yes', 'No'), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_discounts
+    SET automatic_application   = p_automatic_application,
+        last_log_by             = p_last_log_by
+    WHERE shop_discounts_id     = p_shop_discounts_id;
+
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS updateShopChargeApplication//
+
+CREATE PROCEDURE updateShopChargeApplication(
+	IN p_shop_charges_id INT, 
+	IN p_automatic_application ENUM('Yes', 'No'), 
+	IN p_last_log_by INT
+)
+BEGIN
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE shop_charges
+    SET automatic_application   = p_automatic_application,
+        last_log_by             = p_last_log_by
+    WHERE shop_charges_id       = p_shop_charges_id;
+
+    COMMIT;
+END //
+
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
@@ -14351,7 +14397,7 @@ BEGIN
     SELECT *
     FROM shop_order_applied_discounts
     WHERE shop_order_id = p_shop_order_id
-      AND discount_type_id = p_discount_type_id
+    AND discount_type_id = p_discount_type_id
     LIMIT 1;
 END //
 
@@ -14718,7 +14764,7 @@ CREATE PROCEDURE generateShopDiscountsTable(
     IN p_shop_id INT
 )
 BEGIN
-	SELECT shop_discounts_id, discount_type_id, discount_type_name
+	SELECT shop_discounts_id, discount_type_id, discount_type_name, automatic_application
     FROM shop_discounts 
     WHERE shop_id = p_shop_id
     ORDER BY discount_type_name;
@@ -14730,7 +14776,7 @@ CREATE PROCEDURE generateShopChargesTable(
     IN p_shop_id INT
 )
 BEGIN
-	SELECT shop_charges_id, charge_type_id, charge_type_name
+	SELECT shop_charges_id, charge_type_id, charge_type_name, automatic_application
     FROM shop_charges 
     WHERE shop_id = p_shop_id
     ORDER BY charge_type_name;
@@ -15063,6 +15109,11 @@ CREATE PROCEDURE updateShopOrderTotal(
     IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_vat_sales DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_before_discount DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_after_discount_base DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_gross_sales DECIMAL(15,2) DEFAULT 0;
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -15071,10 +15122,10 @@ BEGIN
     START TRANSACTION;
 
     -- =========================
-    -- 🔹 STEP 1: ITEM TOTALS
+    -- 🔹 STEP 1: ITEM TOTALS (FIXED FOR EMPTY CART)
     -- =========================
     UPDATE shop_order o
-    JOIN (
+    LEFT JOIN (
         SELECT 
             shop_order_id,
             SUM(subtotal) AS gross_sales,
@@ -15082,81 +15133,144 @@ BEGIN
             SUM(additive_tax_amount) AS additive_tax_total
         FROM shop_order_details
         WHERE shop_order_id = in_shop_order_id
+          AND quantity > 0
         GROUP BY shop_order_id
     ) d ON o.shop_order_id = d.shop_order_id
     SET 
-        o.gross_sales = IFNULL(d.gross_sales,0),
-        o.vat_amount = IFNULL(d.vat_amount,0),
-        o.vat_sales = IFNULL(d.gross_sales - d.vat_amount,0),
-        o.additive_tax_total = IFNULL(d.additive_tax_total,0);
+        o.gross_sales = IFNULL(d.gross_sales, 0),
+        o.vat_amount = IFNULL(d.vat_amount, 0),
+        o.vat_sales = ROUND(IFNULL(d.gross_sales, 0) - IFNULL(d.vat_amount, 0), 2),
+        o.additive_tax_total = IFNULL(d.additive_tax_total, 0);
 
     -- =========================
-    -- 🔥 STEP 2: RECALCULATE DISCOUNTS
+    -- 🔹 STEP 2: GET CURRENT VALUES
     -- =========================
-    UPDATE shop_order_applied_discounts d
-    JOIN shop_order o ON o.shop_order_id = d.shop_order_id
-    SET d.calculated_amount =
-        CASE
-            WHEN d.value_type = 'Percentage' AND d.application_order = 'Before Tax'
-                THEN ROUND((d.applied_value / 100) * o.vat_sales, 2)
-
-            WHEN d.value_type = 'Percentage' AND d.application_order = 'After Tax'
-                THEN ROUND((d.applied_value / 100) * o.gross_sales, 2)
-
-            ELSE ROUND(d.applied_value, 2)
-        END
-    WHERE d.shop_order_id = in_shop_order_id;
+    SELECT 
+        gross_sales,
+        vat_sales
+    INTO 
+        v_gross_sales,
+        v_vat_sales
+    FROM shop_order
+    WHERE shop_order_id = in_shop_order_id;
 
     -- =========================
-    -- 🔥 STEP 3: RECALCULATE CHARGES
+    -- 🔥 STEP 3: HANDLE EMPTY ORDER
     -- =========================
-    UPDATE shop_order_applied_charges c
-    JOIN shop_order o ON o.shop_order_id = c.shop_order_id
-    SET c.calculated_amount =
-        CASE
-            WHEN c.value_type = 'Percentage' AND c.application_order = 'Before Tax'
-                THEN ROUND((c.applied_value / 100) * o.vat_sales, 2)
+    IF v_gross_sales = 0 THEN
 
-            WHEN c.value_type = 'Percentage' AND c.application_order = 'After Tax'
-                THEN ROUND((c.applied_value / 100) * o.gross_sales, 2)
+        -- Reset discounts
+        UPDATE shop_order_applied_discounts
+        SET calculated_amount = 0
+        WHERE shop_order_id = in_shop_order_id;
 
-            ELSE ROUND(c.applied_value, 2)
-        END
-    WHERE c.shop_order_id = in_shop_order_id;
+        -- Reset charges
+        UPDATE shop_order_applied_charges
+        SET calculated_amount = 0
+        WHERE shop_order_id = in_shop_order_id;
 
-    -- =========================
-    -- 🔹 STEP 4: AGGREGATE
-    -- =========================
-    UPDATE shop_order o
-    LEFT JOIN (
-        SELECT shop_order_id, SUM(calculated_amount) total_discount
+        -- Reset totals
+        UPDATE shop_order
+        SET 
+            total_discount_amount = 0,
+            total_charge_amount = 0,
+            total_amount_due = 0,
+            last_log_by = p_last_log_by
+        WHERE shop_order_id = in_shop_order_id;
+
+    ELSE
+
+        -- =========================
+        -- 🔥 STEP 4: BEFORE TAX DISCOUNTS
+        -- =========================
+        UPDATE shop_order_applied_discounts d
+        SET d.calculated_amount =
+            CASE
+                WHEN d.value_type = 'Percentage'
+                    THEN ROUND((d.applied_value / 100) * v_vat_sales, 2)
+                ELSE ROUND(d.applied_value, 2)
+            END
+        WHERE d.shop_order_id = in_shop_order_id
+          AND d.application_order = 'Before Tax';
+
+        -- =========================
+        -- 🔹 STEP 5: SUM BEFORE TAX DISCOUNTS
+        -- =========================
+        SELECT IFNULL(SUM(calculated_amount), 0)
+        INTO v_before_discount
         FROM shop_order_applied_discounts
         WHERE shop_order_id = in_shop_order_id
-    ) d ON o.shop_order_id = d.shop_order_id
+          AND application_order = 'Before Tax';
 
-    LEFT JOIN (
-        SELECT shop_order_id, SUM(calculated_amount) total_charge
-        FROM shop_order_applied_charges
-        WHERE shop_order_id = in_shop_order_id
-    ) c ON o.shop_order_id = c.shop_order_id
+        -- =========================
+        -- 🔹 STEP 6: BASE FOR AFTER TAX
+        -- =========================
+        SET v_after_discount_base = v_gross_sales - v_before_discount;
 
-    SET 
-        o.total_discount_amount = IFNULL(d.total_discount, 0),
-        o.total_charge_amount = IFNULL(c.total_charge, 0),
+        -- =========================
+        -- 🔥 STEP 7: AFTER TAX DISCOUNTS
+        -- =========================
+        UPDATE shop_order_applied_discounts d
+        SET d.calculated_amount =
+            CASE
+                WHEN d.value_type = 'Percentage'
+                    THEN ROUND((d.applied_value / 100) * v_after_discount_base, 2)
+                ELSE ROUND(d.applied_value, 2)
+            END
+        WHERE d.shop_order_id = in_shop_order_id
+          AND d.application_order = 'After Tax';
 
-        o.total_amount_due = ROUND(
-            o.gross_sales
-            - IFNULL(d.total_discount, 0)
-            + o.additive_tax_total
-            + IFNULL(c.total_charge, 0),
-        2),
+        -- =========================
+        -- 🔥 STEP 8: CHARGES
+        -- =========================
+        UPDATE shop_order_applied_charges c
+        SET c.calculated_amount =
+            CASE
+                WHEN c.value_type = 'Percentage'
+                    THEN ROUND(
+                        (c.applied_value / 100) * (v_vat_sales - v_before_discount),
+                    2)
+                ELSE ROUND(c.applied_value, 2)
+            END
+        WHERE c.shop_order_id = in_shop_order_id;
 
-        o.last_log_by = p_last_log_by;
+        -- =========================
+        -- 🔹 STEP 9: FINAL AGGREGATION
+        -- =========================
+        UPDATE shop_order o
+        LEFT JOIN (
+            SELECT shop_order_id, SUM(calculated_amount) total_discount
+            FROM shop_order_applied_discounts
+            WHERE shop_order_id = in_shop_order_id
+        ) d ON o.shop_order_id = d.shop_order_id
+
+        LEFT JOIN (
+            SELECT shop_order_id, SUM(calculated_amount) total_charge
+            FROM shop_order_applied_charges
+            WHERE shop_order_id = in_shop_order_id
+        ) c ON o.shop_order_id = c.shop_order_id
+
+        SET 
+            o.total_discount_amount = IFNULL(d.total_discount, 0),
+            o.total_charge_amount = IFNULL(c.total_charge, 0),
+
+            -- 🔥 FINAL TOTAL (SAFE: NO NEGATIVE)
+            o.total_amount_due = GREATEST(
+                ROUND(
+                    v_gross_sales
+                    - IFNULL(d.total_discount, 0)
+                    + o.additive_tax_total
+                    + IFNULL(c.total_charge, 0),
+                2),
+            0),
+
+            o.last_log_by = p_last_log_by;
+
+    END IF;
 
     COMMIT;
 
 END //
-
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
@@ -15252,6 +15366,22 @@ BEGIN
     FROM shop_order_details
     WHERE shop_order_id = p_shop_order_id
     AND product_id = p_product_id;
+END //
+
+DROP PROCEDURE IF EXISTS checkExistingVatExemptDiscount//
+
+CREATE PROCEDURE checkExistingVatExemptDiscount(
+    IN p_shop_order_id INT
+)
+BEGIN
+    SELECT 
+        shop_order_applied_discounts_id,
+        discount_type_id,
+        discount_name
+    FROM shop_order_applied_discounts
+    WHERE shop_order_id = p_shop_order_id
+      AND is_vat_exempt = 'Yes'
+    LIMIT 1;
 END //
 
 /* =============================================================================================

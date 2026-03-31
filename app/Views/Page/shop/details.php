@@ -353,6 +353,7 @@
                                 <th>Discount</th>
                                 <th>Value Type</th>
                                 <th>Discount Value</th>
+                                <th>Automatic Application</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -394,6 +395,7 @@
                                 <th>Charge</th>
                                 <th>Value Type</th>
                                 <th>Charge Value</th>
+                                <th>Automatic Application</th>
                                 <th></th>
                             </tr>
                         </thead>

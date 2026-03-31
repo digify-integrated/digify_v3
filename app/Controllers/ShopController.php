@@ -119,6 +119,8 @@ class ShopController {
             'update shop order preset'              => $this->updateShopOrderPreset($lastLogBy),
             'update shop order note'                => $this->updateShopOrderNote($lastLogBy),
             'update shop order quantity'            => $this->updateShopOrderQuantity($lastLogBy),
+            'update shop discount application'      => $this->updateShopDiscountApplication($lastLogBy),
+            'update shop charge application'        => $this->updateShopChargeApplication($lastLogBy),
             'delete shop'                           => $this->deleteShop(),
             'delete shop payment method'            => $this->deleteShopPaymentMethod(),
             'delete shop floor plan'                => $this->deleteShopFloorPlan(),
@@ -439,28 +441,30 @@ class ShopController {
         $appliedValue   = $_POST['value'] ?? 0;
         $remarks        = $_POST['remarks'] ?? null;
 
+        $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+
         if ($isApplied && $appliedValue > 0) {
 
-            $order = $this->shop->fetchShopOrderTotal($shopOrderId);
+            // 🔴 Prevent SC + PWD stacking
+            if ($discountType['is_vat_exempt'] === 'Yes') {
 
-            $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+                $existing = $this->shop->checkExistingVatExemptDiscount($shopOrderId);
 
-            $base = ($discountType['application_order'] === 'Before Tax')
-                ? $order['vat_sales']
-                : $order['gross_sales'];
-
-            if ($discountType['value_type'] === 'Percentage') {
-                $calculatedAmount = round(($appliedValue / 100) * $base, 2);
-            } else {
-                $calculatedAmount = round($appliedValue, 2);
+                if ($existing && $existing['discount_type_id'] != $discountTypeId) {
+                    $this->systemHelper::sendErrorResponse(
+                        'Apply Discount Error',
+                        'Only one VAT-exempt discount can be applied.'
+                    );
+                }
             }
 
+            // 🔥 IMPORTANT: DO NOT CALCULATE HERE
             $this->shop->insertShopOrderAppliedDiscounts(
                 $shopOrderId,
                 $discountTypeId,
                 $discountType['discount_type_name'],
                 $appliedValue,
-                $calculatedAmount,
+                0, // calculated in SQL
                 $discountType['value_type'],
                 $discountType['application_order'],
                 $discountType['is_vat_exempt'],
@@ -478,8 +482,8 @@ class ShopController {
         $this->shop->updateShopOrderTotal($shopOrderId, $lastLogBy);
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Shop Charges Success',
-            'The shop charges has been saved successfully.'
+            'Success',
+            'Discount updated successfully.'
         );
     }
 
@@ -492,28 +496,17 @@ class ShopController {
         $appliedValue = $_POST['value'] ?? 0;
         $remarks      = $_POST['remarks'] ?? null;
 
+        $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
+
         if ($isApplied && $appliedValue > 0) {
 
-            $order = $this->shop->fetchShopOrderTotal($shopOrderId);
-
-            $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
-
-            $base = ($chargeType['application_order'] === 'Before Tax')
-                ? $order['vat_sales']
-                : $order['gross_sales'];
-
-            if ($chargeType['value_type'] === 'Percentage') {
-                $calculatedAmount = round(($appliedValue / 100) * $base, 2);
-            } else {
-                $calculatedAmount = round($appliedValue, 2);
-            }
-
+            // 🔥 NO CALCULATION HERE
             $this->shop->insertShopOrderAppliedCharges(
                 $shopOrderId,
                 $chargeTypeId,
                 $chargeType['charge_type_name'],
                 $appliedValue,
-                $calculatedAmount,
+                0, // calculated in SQL
                 $chargeType['value_type'],
                 $chargeType['application_order'],
                 $chargeType['tax_type'],
@@ -531,8 +524,8 @@ class ShopController {
         $this->shop->updateShopOrderTotal($shopOrderId, $lastLogBy);
 
         $this->systemHelper::sendSuccessResponse(
-            'Save Shop Charges Success',
-            'The shop charges has been saved successfully.'
+            'Success',
+            'Charge updated successfully.'
         );
     }
 
@@ -612,6 +605,56 @@ class ShopController {
             $lastLogBy
         );
 
+        $shopDiscounts = $this->shop->fetchShopDiscounts($shopId);
+
+        foreach ($shopDiscounts as $row) {
+            $discountTypeId         = $row['discount_type_id'];
+            $automaticApplication   = $row['automatic_application'] ?? 'No';
+
+            if($automaticApplication == 'Yes') {
+                $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+                $discountValue = $discountType['discount_value'] ?? 0;
+
+                $this->shop->insertShopOrderAppliedDiscounts(
+                    $shopOrderId,
+                    $discountTypeId,
+                    $discountType['discount_type_name'],
+                    $discountValue,
+                    0,
+                    $discountType['value_type'],
+                    $discountType['application_order'],
+                    $discountType['is_vat_exempt'],
+                    '',
+                    $lastLogBy
+                );
+            }
+        }
+
+        $shopCharges = $this->shop->fetchShopCharges($shopId);
+
+        foreach ($shopCharges as $row) {
+            $chargeTypeId           = $row['charge_type_id'];
+            $automaticApplication   = $row['automatic_application'] ?? 'No';
+
+            if($automaticApplication == 'Yes') {
+                $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
+                $chargeValue = $chargeType['charge_value'] ?? 0;
+
+                $this->shop->insertShopOrderAppliedCharges(
+                    $shopOrderId,
+                    $chargeTypeId,
+                    $chargeType['charge_type_name'],
+                    $chargeValue,
+                    0,
+                    $chargeType['value_type'],
+                    $chargeType['application_order'],
+                    $chargeType['tax_type'],
+                    '',
+                    $lastLogBy
+                );
+            }
+        }
+
         $this->systemHelper::sendSuccessResponse(
             '',
             '',
@@ -637,6 +680,56 @@ class ShopController {
                 null,
                 $lastLogBy
             );
+
+            $shopDiscounts = $this->shop->fetchShopDiscounts($shopId);
+
+            foreach ($shopDiscounts as $row) {
+                $discountTypeId         = $row['discount_type_id'];
+                $automaticApplication   = $row['automatic_application'] ?? 'No';
+
+                if($automaticApplication == 'Yes') {
+                    $discountType = $this->discountType->fetchDiscountType($discountTypeId);
+                    $discountValue = $discountType['discount_value'] ?? 0;
+
+                    $this->shop->insertShopOrderAppliedDiscounts(
+                        $shopOrderId,
+                        $discountTypeId,
+                        $discountType['discount_type_name'],
+                        $discountValue,
+                        0,
+                        $discountType['value_type'],
+                        $discountType['application_order'],
+                        $discountType['is_vat_exempt'],
+                        '',
+                        $lastLogBy
+                    );
+                }
+            }
+
+            $shopCharges = $this->shop->fetchShopCharges($shopId);
+
+            foreach ($shopCharges as $row) {
+                $chargeTypeId           = $row['charge_type_id'];
+                $automaticApplication   = $row['automatic_application'] ?? 'No';
+
+                if($automaticApplication == 'Yes') {
+                    $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
+                    $chargeValue = $chargeType['charge_value'] ?? 0;
+
+                    $this->shop->insertShopOrderAppliedCharges(
+                        $shopOrderId,
+                        $chargeTypeId,
+                        $chargeType['charge_type_name'],
+                        $chargeValue,
+                        0,
+                        $chargeType['value_type'],
+                        $chargeType['application_order'],
+                        $chargeType['tax_type'],
+                        '',
+                        $lastLogBy
+                    );
+                }
+            }
         }
 
         $productDetails = $this->product->fetchProduct($productId);
@@ -880,6 +973,42 @@ class ShopController {
 
         $this->shop->updateShopOrderTotal(
             $shopOrderId,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopDiscountApplication(
+        int $lastLogBy
+    ) {
+        $shopDiscountsId        = $_POST['shop_discounts_id'] ?? null;
+        $automaticApplication   = $_POST['automatic_application'] ?? 'No';
+
+        $this->shop->updateShopDiscountApplication(
+            $shopDiscountsId,
+            $automaticApplication,
+            $lastLogBy
+        );
+
+        $this->systemHelper::sendSuccessResponse(
+            '',
+            ''
+        );
+    }
+   
+    public function updateShopChargeApplication(
+        int $lastLogBy
+    ) {
+        $shopChargesId        = $_POST['shop_charges_id'] ?? null;
+        $automaticApplication   = $_POST['automatic_application'] ?? 'No';
+
+        $this->shop->updateShopChargeApplication(
+            $shopChargesId,
+            $automaticApplication,
             $lastLogBy
         );
 
@@ -1376,13 +1505,15 @@ class ShopController {
         $shopDiscounts = $this->shop->generateShopDiscountsTable($shopId);
 
         foreach ($shopDiscounts as $row) {
-            $shopDiscountsId    = $row['shop_discounts_id'];
-            $discountTypeId     = $row['discount_type_id'];
-            $discountTypeName   = $row['discount_type_name'];
+            $shopDiscountsId        = $row['shop_discounts_id'];
+            $discountTypeId         = $row['discount_type_id'];
+            $discountTypeName       = $row['discount_type_name'];
+            $automaticApplication   = $row['automatic_application'];
 
             $discountTypeDetails    = $this->discountType->fetchDiscountType($discountTypeId);
             $valueType              = $discountTypeDetails['value_type'] ?? 0;
             $discountValue          = $discountTypeDetails['discount_value'] ?? 0;
+            $isVariable             = $discountTypeDetails['is_variable'] ?? 'No';
 
             $deleteButton = '';
             if($writeAccess > 0){
@@ -1398,15 +1529,24 @@ class ShopController {
                             </button>';
             }
 
+            $checked = ($automaticApplication === 'Yes') ? 'checked' : '';
+
+            $toggle = $isVariable === 'No' ?  '
+                <div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
+                    <input class="form-check-input update-discount-application" type="checkbox" data-shop-discounts-id="' . $shopDiscountsId . '" ' . $checked . '/>
+                </div>
+            ' : '';
+
             $response[] = [
-                'DISCOUNT'          => $discountTypeName,
-                'VALUE_TYPE'        => $valueType,
-                'DISCOUNT_VALUE'    => number_format($discountValue, 2),
-                'ACTION'            => '<div class="d-flex justify-content-end gap-3">
-                                            '. $logNotes .'
-                                            '. $deleteButton .'
-                                        </div>'
-            ];
+                'DISCOUNT'              => $discountTypeName,
+                'VALUE_TYPE'            => $valueType,
+                'DISCOUNT_VALUE'        => number_format($discountValue, 2),
+                'AUTOMATIC_APPLICATION' => $toggle,
+                'ACTION'                => '<div class="d-flex justify-content-end gap-3">
+                                                '. $logNotes .'
+                                                '. $deleteButton .'
+                                            </div>'
+                ];
         }
 
         echo json_encode($response);
@@ -1425,13 +1565,15 @@ class ShopController {
         $shopCharges = $this->shop->generateShopChargesTable($shopId);
 
         foreach ($shopCharges as $row) {
-            $shopChargesId  = $row['shop_charges_id'];
-            $chargeTypeId   = $row['charge_type_id'];
-            $chargeTypeName = $row['charge_type_name'];
+            $shopChargesId          = $row['shop_charges_id'];
+            $chargeTypeId           = $row['charge_type_id'];
+            $chargeTypeName         = $row['charge_type_name'];
+            $automaticApplication   = $row['automatic_application'];
 
             $chargeTypeDetails  = $this->chargeType->fetchChargeType($chargeTypeId);
             $valueType          = $chargeTypeDetails['value_type'] ?? 0;
             $chargeValue        = $chargeTypeDetails['charge_value'] ?? 0;
+            $isVariable         = $chargeTypeDetails['is_variable'] ?? 'No';
 
             $deleteButton = '';
             if($writeAccess > 0){
@@ -1447,10 +1589,19 @@ class ShopController {
                             </button>';
             }
 
+            $checked = ($automaticApplication === 'Yes') ? 'checked' : '';
+
+            $toggle = $isVariable === 'No' ?  '
+                <div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
+                    <input class="form-check-input update-charge-application" type="checkbox" data-shop-charges-id="' . $shopChargesId . '" ' . $checked . '/>
+                </div>
+            ' : '';
+
             $response[] = [
                 'CHARGES'       => $chargeTypeName,
                 'VALUE_TYPE'    => $valueType,
                 'CHARGE_VALUE'  => number_format($chargeValue, 2),
+                'AUTOMATIC_APPLICATION' => $toggle,
                 'ACTION'        => '<div class="d-flex justify-content-end gap-3">
                                         '. $logNotes .'
                                         '. $deleteButton .'
@@ -1493,27 +1644,26 @@ class ShopController {
         $data = [];
 
         foreach ($shopDiscounts as $row) {
-            $discountTypeId = $row['discount_type_id'];
 
+            $discountTypeId = $row['discount_type_id'];
             $discountType = $this->discountType->fetchDiscountType($discountTypeId);
 
-            // 🔹 Check if already applied
             $applied = $this->shop->fetchAppliedDiscount($shopOrderId, $discountTypeId);
 
-            // 🔥 VALUE LOGIC
-            $appliedValue = $applied['applied_value'] 
+            $appliedValue = $applied['applied_value']
                 ?? $discountType['discount_value'];
 
-            $isApplied = $applied['applied_value'] ?? 0 > 0 ? true : false;
+            $isApplied = !empty($applied);
 
             $data[] = [
-                'discountTypeId'   => $discountTypeId,
-                'discountName'     => $discountType['discount_type_name'],
-                'valueType'        => $discountType['value_type'],
-                'discountValue'    => $discountType['discount_value'],
-                'appliedValue'     => $appliedValue,
-                'isVariable'       => $discountType['is_variable'],
-                'isApplied'        => $isApplied
+                'discountTypeId' => $discountTypeId,
+                'discountName'   => $discountType['discount_type_name'],
+                'valueType'      => $discountType['value_type'],
+                'discountValue'  => $discountType['discount_value'],
+                'appliedValue'   => $appliedValue,
+                'isVariable'     => $discountType['is_variable'],
+                'isApplied'      => $isApplied,
+                'remarks'        => $applied['remarks'] ?? ''
             ];
         }
 
@@ -1531,27 +1681,26 @@ class ShopController {
         $data = [];
 
         foreach ($shopCharges as $row) {
-            $chargeTypeId = $row['charge_type_id'];
 
+            $chargeTypeId = $row['charge_type_id'];
             $chargeType = $this->chargeType->fetchChargeType($chargeTypeId);
 
-            // 🔹 Check if already applied
             $applied = $this->shop->fetchAppliedCharge($shopOrderId, $chargeTypeId);
 
-            // 🔥 VALUE LOGIC
-            $appliedValue = $applied['applied_value'] 
+            $appliedValue = $applied['applied_value']
                 ?? $chargeType['charge_value'];
 
-            $isApplied = $applied['applied_value'] ?? 0 > 0 ? true : false;
+            $isApplied = !empty($applied);
 
             $data[] = [
-                'chargeTypeId'  => $chargeTypeId,
-                'chargeName'    => $chargeType['charge_type_name'],
-                'valueType'     => $chargeType['value_type'],
-                'chargeValue'   => $chargeType['charge_value'],
-                'appliedValue'  => $appliedValue,
-                'isVariable'    => $chargeType['is_variable'],
-                'isApplied'     => $isApplied
+                'chargeTypeId' => $chargeTypeId,
+                'chargeName'   => $chargeType['charge_type_name'],
+                'valueType'    => $chargeType['value_type'],
+                'chargeValue'  => $chargeType['charge_value'],
+                'appliedValue' => $appliedValue,
+                'isVariable'   => $chargeType['is_variable'],
+                'isApplied'    => $isApplied,
+                'remarks'      => $applied['remarks'] ?? ''
             ];
         }
 

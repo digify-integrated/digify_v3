@@ -232,13 +232,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'DISCOUNT' },
             { data: 'VALUE_TYPE' },
             { data: 'DISCOUNT_VALUE' },
+            { data: 'AUTOMATIC_APPLICATION' },
             { data: 'ACTION' }
         ],
         columnDefs: [
             { width: 'auto', targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
             { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 }
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 }
         ],
         order : [[0, 'asc']]
     });
@@ -254,13 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'CHARGES' },
             { data: 'VALUE_TYPE' },
             { data: 'CHARGE_VALUE' },
+            { data: 'AUTOMATIC_APPLICATION' },
             { data: 'ACTION' }
         ],
         columnDefs: [
             { width: 'auto', targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
             { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', bSortable: false, targets: 3, responsivePriority: 4 }
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', bSortable: false, targets: 4, responsivePriority: 5 }
         ],
         order : [[0, 'asc']]
     });
@@ -1258,6 +1262,76 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
                 }
             });
+        }
+
+        if (event.target.closest('.update-discount-application')){
+            const transaction           = 'update shop discount application';
+            const button                = event.target.closest('.update-discount-application');
+            const shop_discounts_id     = button.dataset.shopDiscountsId;
+            const automatic_application = button.checked ? 'Yes' : 'No';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_discounts_id', shop_discounts_id);
+                formData.append('automatic_application', automatic_application);
+
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Update shop discount application failed: ${error.message}`);
+            }
+        }
+
+        if (event.target.closest('.update-charge-application')){
+            const transaction           = 'update shop charge application';
+            const button                = event.target.closest('.update-charge-application');
+            const shop_charges_id       = button.dataset.shopChargesId;
+            const automatic_application = button.checked ? 'Yes' : 'No';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_charges_id', shop_charges_id);
+                formData.append('automatic_application', automatic_application);
+
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                    }
+                }
+            } catch (error) {
+                handleSystemError(error, 'fetch_failed', `Update shop discount application failed: ${error.message}`);
+            }
         }
     });
 });

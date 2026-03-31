@@ -52,12 +52,12 @@
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <button class="btn btn-light-success w-100 p-4 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
-                            Discount
+                            Discounts
                         </button>
 
                         
-                        <button class="btn btn-light-danger w-100 p-4 d-none" id="charges-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
-                            Extra Charges
+                        <button class="btn btn-light-danger w-100 p-4 d-none" id="charge-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
+                            Charges
                         </button>
                     </div>
 
@@ -198,7 +198,7 @@
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Discount</h3>
+                <h3 class="modal-title">Discounts</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>

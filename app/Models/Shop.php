@@ -319,8 +319,8 @@ class Shop extends Model {
         string $p_discount_name,
         string $p_applied_value,
         string $p_calculated_amount,
-        string $p_application_order,
         string $p_value_type,
+        string $p_application_order,
         string $p_is_vat_exempt,
         string $p_remarks,
         int $p_last_log_by
@@ -644,6 +644,42 @@ class Shop extends Model {
         ]);
     }
 
+    public function updateShopDiscountApplication(
+        int $p_shop_discounts_id,
+        string $p_automatic_application,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopDiscountApplication(
+            :p_shop_discounts_id,
+            :p_automatic_application,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_discounts_id'   => $p_shop_discounts_id,
+            'p_automatic_application'   => $p_automatic_application,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
+    public function updateShopChargeApplication(
+        int $p_shop_charges_id,
+        string $p_automatic_application,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopChargeApplication(
+            :p_shop_charges_id,
+            :p_automatic_application,
+            :p_last_log_by
+        )';
+
+        return $this->query($sql, [
+            'p_shop_charges_id'   => $p_shop_charges_id,
+            'p_automatic_application'   => $p_automatic_application,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
+
     /* =============================================================================================
         SECTION 4: FETCH METHODS
     ============================================================================================= */
@@ -780,7 +816,7 @@ class Shop extends Model {
     ) {
         $sql = 'CALL fetchAppliedDiscount(
             :p_shop_order_id,
-            :p_discount_type_id,
+            :p_discount_type_id
         )';
         
         return $this->fetch($sql, [
@@ -795,7 +831,7 @@ class Shop extends Model {
     ) {
         $sql = 'CALL fetchAppliedCharge(
             :p_shop_order_id,
-            :p_charge_type_id,
+            :p_charge_type_id
         )';
         
         return $this->fetch($sql, [
@@ -1049,6 +1085,18 @@ class Shop extends Model {
         return $this->fetch($sql, [
             'p_shop_id'     => $p_shop_id,
             'p_product_id'  => $p_product_id
+        ]);
+    }
+
+    public function checkExistingVatExemptDiscount(
+        int $p_shop_order_id
+    ) {
+        $sql = 'CALL checkExistingVatExemptDiscount(
+            :p_shop_order_id
+        )';
+        
+        return $this->fetch($sql, [
+            'p_shop_order_id' => $p_shop_order_id
         ]);
     }
 

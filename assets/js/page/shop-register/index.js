@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadOrderDiscount = async () => {
-        const data = await apiRequest('generate shop discounts list', { 
+        const data = await apiRequest('generate shop discounts list', {
             shop_id: getShopId(),
             shop_order_id: getOrderId()
         });
@@ -418,95 +418,74 @@ document.addEventListener('DOMContentLoaded', () => {
             const symbol = isPercentage ? '%' : '₱';
             const maxAttr = isPercentage ? 'max="100"' : '';
 
-            const formattedValue = isPercentage
-                ? `${discount.appliedValue}${symbol}`
-                : `${symbol}${discount.appliedValue}`;
-
             const remarksValue = discount.remarks ?? '';
 
             const row = `
-                <div class="row mb-3 align-items-center">
+            <div class="row mb-3 align-items-center">
 
-                    <!-- NAME -->
-                    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
-                        <label class="fw-semibold">
-                            ${discount.discountName}
-                            ${isFixed ? `<div class="text-muted small">${formattedValue}</div>` : ''}
-                        </label>
-                    </div>
-
-                    <!-- VALUE -->
-                    <div class="col-4 col-lg-3 mb-2 mb-lg-0">
-                        <div class="input-group input-group-sm">
-                            ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
-                            <input 
-                                type="number"
-                                class="form-control discount-input"
-                                value="${discount.appliedValue ?? 0}"
-                                min="0"
-                                step="0.01"
-                                ${maxAttr}
-                                data-id="${discount.discountTypeId}"
-                                data-type="${discount.valueType}"
-                                ${isFixed ? 'readonly' : ''}
-                            >
-                            ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
-                        </div>
-                    </div>
-
-                    <!-- REMARKS -->
-                    <div class="col-5 col-lg-3 mb-2 mb-lg-0">
-                        <input 
-                            type="text"
-                            class="form-control form-control-sm discount-remarks"
-                            placeholder="Remarks..."
-                            value="${remarksValue}"
-                            data-id="${discount.discountTypeId}"
-                            ${isApplied ? 'readonly' : ''}
-                        >
-                    </div>
-
-                    <!-- ACTION -->
-                    <div class="col-3 col-lg-2 text-lg-end">
-                        <button 
-                            class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} discount-action-btn"
-                            data-id="${discount.discountTypeId}"
-                            data-applied="${isApplied ? 1 : 0}"
-                            data-fixed="${isFixed ? 1 : 0}"
-                        >
-                            ${isApplied ? 'Remove' : 'Apply'}
-                        </button>
-                    </div>
-
+                <div class="col-12 col-lg-4 mb-2 mb-lg-0">
+                    <label class="fw-semibold">
+                        ${discount.discountName}
+                    </label>
                 </div>
+
+                <div class="col-4 col-lg-3 mb-2 mb-lg-0">
+                    <div class="input-group input-group-sm">
+                        ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
+
+                        <input 
+                            type="number"
+                            class="form-control discount-input"
+                            value="${discount.appliedValue ?? 0}"
+                            min="0"
+                            step="0.01"
+                            ${maxAttr}
+                            data-id="${discount.discountTypeId}"
+                            data-type="${discount.valueType}"
+                            ${(isFixed || isApplied) ? 'readonly' : ''}
+                        >
+
+                        ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="col-5 col-lg-3 mb-2 mb-lg-0">
+                    <input 
+                        type="text"
+                        class="form-control form-control-sm discount-remarks"
+                        placeholder="Remarks..."
+                        value="${remarksValue}"
+                        data-id="${discount.discountTypeId}"
+                        ${isApplied ? 'readonly' : ''}
+                    >
+                </div>
+
+                <div class="col-3 col-lg-2 text-lg-end">
+                    <button 
+                        class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} discount-action-btn"
+                        data-id="${discount.discountTypeId}"
+                        data-applied="${isApplied ? 1 : 0}"
+                        data-fixed="${isFixed ? 1 : 0}"
+                    >
+                        ${isApplied ? 'Remove' : 'Apply'}
+                    </button>
+                </div>
+
+            </div>
             `;
 
-            if (isFixed) {
-                quick.push(row);
-            } else {
-                manual.push(row);
-            }
+            if (isFixed) quick.push(row);
+            else manual.push(row);
         });
 
-        const hasBoth = quick.length && manual.length;
-
-        const html = `
-            ${quick.length ? `
-                <div class="mb-2 fs-2 fw-bold">Quick Discounts</div>
-                ${quick.join('')}
-            ` : ''}
-
-            ${manual.length ? `
-                <div class="mb-2 ${hasBoth ? 'mt-4' : ''} fs-2 fw-bold">Manual Discounts</div>
-                ${manual.join('')}
-            ` : ''}
-        `;
-
-        $container.html(html);
+        $container.html(`
+            ${quick.length ? `<div class="fw-bold fs-5 mb-2">Quick Discounts</div>${quick.join('')}` : ''}
+            ${manual.length ? `<div class="fw-bold fs-5 mt-3 mb-2">Manual Discounts</div>${manual.join('')}` : ''}
+        `);
     };
 
     const loadOrderCharge = async () => {
-        const data = await apiRequest('generate shop charges list', { 
+        const data = await apiRequest('generate shop charges list', {
             shop_id: getShopId(),
             shop_order_id: getOrderId()
         });
@@ -524,90 +503,69 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFixed = charge.isVariable === 'No';
             const isApplied = !!charge.isApplied;
 
-            const symbol = isPercentage ? '%' : '₱';
-            const maxAttr = isPercentage ? 'max="100"' : '';
-
-            const formattedValue = isPercentage
-                ? `${charge.appliedValue}${symbol}`
-                : `${symbol}${charge.appliedValue}`;
-
             const remarksValue = charge.remarks ?? '';
 
             const row = `
-                <div class="row mb-3 align-items-center">
+            <div class="row mb-3 align-items-center">
 
-                    <div class="col-12 col-lg-4 mb-2 mb-lg-0">
-                        <label class="fw-semibold">
-                            ${charge.chargeName}
-                            ${isFixed ? `<div class="text-muted small">${formattedValue}</div>` : ''}
-                        </label>
-                    </div>
-
-                    <div class="col-4 col-lg-3 mb-2 mb-lg-0">
-                        <div class="input-group input-group-sm">
-                            ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
-                            <input 
-                                type="number"
-                                class="form-control charge-input"
-                                value="${charge.appliedValue ?? 0}"
-                                min="0"
-                                step="0.01"
-                                ${maxAttr}
-                                data-id="${charge.chargeTypeId}"
-                                data-type="${charge.valueType}"
-                                ${isFixed ? 'readonly' : ''}
-                            >
-                            ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="col-5 col-lg-3 mb-2 mb-lg-0">
-                        <input 
-                            type="text"
-                            class="form-control form-control-sm charge-remarks"
-                            placeholder="Remarks..."
-                            value="${remarksValue}"
-                            data-id="${charge.chargeTypeId}"
-                            ${isApplied ? 'readonly' : ''}
-                        >
-                    </div>
-
-                    <div class="col-3 col-lg-2 text-lg-end">
-                        <button 
-                            class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} charge-action-btn"
-                            data-id="${charge.chargeTypeId}"
-                            data-applied="${isApplied ? 1 : 0}"
-                            data-fixed="${isFixed ? 1 : 0}"
-                        >
-                            ${isApplied ? 'Remove' : 'Apply'}
-                        </button>
-                    </div>
-
+                <div class="col-12 col-lg-4 mb-2 mb-lg-0">
+                    <label class="fw-semibold">
+                        ${charge.chargeName}
+                    </label>
                 </div>
+
+                <div class="col-4 col-lg-3 mb-2 mb-lg-0">
+                    <div class="input-group input-group-sm">
+                        ${!isPercentage ? `<span class="input-group-text">₱</span>` : ''}
+
+                        <input 
+                            type="number"
+                            class="form-control charge-input"
+                            value="${charge.appliedValue ?? 0}"
+                            min="0"
+                            step="0.01"
+                            data-id="${charge.chargeTypeId}"
+                            data-type="${charge.valueType}"
+                            ${(isFixed || isApplied) ? 'readonly' : ''}
+                        >
+
+                        ${isPercentage ? `<span class="input-group-text">%</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="col-5 col-lg-3 mb-2 mb-lg-0">
+                    <input 
+                        type="text"
+                        class="form-control form-control-sm charge-remarks"
+                        placeholder="Remarks..."
+                        value="${remarksValue}"
+                        data-id="${charge.chargeTypeId}"
+                        ${isApplied ? 'readonly' : ''}
+                    >
+                </div>
+
+                <div class="col-3 col-lg-2 text-lg-end">
+                    <button 
+                        class="btn btn-sm w-100 w-lg-auto ${isApplied ? 'btn-danger' : 'btn-primary'} charge-action-btn"
+                        data-id="${charge.chargeTypeId}"
+                        data-applied="${isApplied ? 1 : 0}"
+                        data-fixed="${isFixed ? 1 : 0}"
+                    >
+                        ${isApplied ? 'Remove' : 'Apply'}
+                    </button>
+                </div>
+
+            </div>
             `;
 
-            if (isFixed) {
-                quick.push(row);
-            } else {
-                manual.push(row);
-            }
+            if (isFixed) quick.push(row);
+            else manual.push(row);
         });
 
-        const hasBoth = quick.length && manual.length;
-
-        const html = `
-            ${quick.length ? `
-                <div class="mb-2 fs-2 fw-bold">Quick Charges</div>
-                ${quick.join('')}
-            ` : ''}
-
-            ${manual.length ? `
-                <div class="mb-2 ${hasBoth ? 'mt-4' : ''} fs-2 fw-bold">Manual Charges</div>
-                ${manual.join('')}
-            ` : ''}
-        `;
-
-        $container.html(html);
+        $container.html(`
+            ${quick.length ? `<div class="fw-bold fs-5 mb-2">Quick Charges</div>${quick.join('')}` : ''}
+            ${manual.length ? `<div class="fw-bold fs-5 mt-3 mb-2">Manual Charges</div>${manual.join('')}` : ''}
+        `);
     };
 
     const refreshRegisterUI = async (orderId) => {
@@ -721,14 +679,14 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charges-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         loadRegisterTables();
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charges-button, #order-preset').removeClass('d-none');
+        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #order-preset').removeClass('d-none');
     };
 
     const traverseTab = (target) => {
@@ -745,8 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRegisterTables();
     loadRegisterProductCategories();
     loadRegisterProducts();
-    loadOrderDiscount(getOrderId());
-    loadOrderCharge(getOrderId());
 
     /**
      * EVENT DELEGATION
@@ -913,7 +869,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
                 }
             });
-                }
+        }
+
+        if (target.closest('#discount-button')){
+            loadOrderDiscount(getOrderId());
+        }
+
+        if (target.closest('#charge-button')){
+            loadOrderCharge(getOrderId());
+        }
     });
 
     document.querySelectorAll('.order-preset-option').forEach((radio) => {
@@ -943,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const remarks = $remarksInput.val() || '';
 
         // 🔒 Validation
-        if (!isFixed) {
+        if(newState){
             if (type === 'Percentage' && value > 100) {
                 showNotification('Apply Discount Error', 'Percentage cannot exceed 100%', 'error');
                 return;
@@ -951,6 +915,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (value < 0) {
                 showNotification('Apply Discount Error', 'Value cannot be negative', 'error');
+                return;
+            }
+
+            if (value === 0) {
+                showNotification('Apply Discount Error', 'Value cannot be zero', 'error');
                 return;
             }
         }
@@ -989,8 +958,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 remarks
             });
 
-            if (!res?.success) throw new Error();
+            if (res?.success){
+                await refreshRegisterUI(getOrderId());
+            }
+            else{
+                showNotification(res.title, res.message, res.message_type);
 
+                $btn
+                    .toggleClass('btn-danger btn-primary')
+                    .text(isApplied ? 'Remove' : 'Apply')
+                    .data('applied', isApplied ? 1 : 0);
+
+                $remarksInput.prop('readonly', isApplied);
+
+                if (!isFixed) {
+                    $input.prop('readonly', isApplied);
+                }
+            }
         } catch (err) {
             console.error(err);
 
@@ -1030,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const remarks = $remarksInput.val() || '';
 
         // 🔒 Validation
-        if (!isFixed) {
+        if(newState){
             if (type === 'Percentage' && value > 100) {
                 showNotification('Apply Charge Error', 'Percentage cannot exceed 100%', 'error');
                 return;
@@ -1038,6 +1022,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (value < 0) {
                 showNotification('Apply Charge Error', 'Value cannot be negative', 'error');
+                return;
+            }
+
+            if (value === 0) {
+                showNotification('Apply Charge Error', 'Value cannot be zero', 'error');
                 return;
             }
         }
@@ -1076,7 +1065,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 remarks
             });
 
-            if (!res?.success) throw new Error();
+            if (res?.success){
+                await refreshRegisterUI(getOrderId());
+            }
+            else{
+                showNotification(res.title, res.message, res.message_type);
+
+                $btn
+                    .toggleClass('btn-danger btn-primary')
+                    .text(isApplied ? 'Remove' : 'Apply')
+                    .data('applied', isApplied ? 1 : 0);
+
+                $remarksInput.prop('readonly', isApplied);
+
+                if (!isFixed) {
+                    $input.prop('readonly', isApplied);
+                }
+            }
 
         } catch (err) {
             console.error(err);
