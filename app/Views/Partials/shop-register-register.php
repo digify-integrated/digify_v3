@@ -2,11 +2,11 @@
     <div class="col-lg-8" id="">
         <div class="row nav nav-pills nav-pills-custom" id="shop-product-category-container"></div>
 
-        <div class="row mt-3" id="shop-products-container"></div>
+        <div class="row" id="shop-products-container"></div>
     </div>
     
     <div class="col-lg-4">
-        <div class="card card-flush bg-body"> 
+        <div class="card bg-body"> 
             <div class="card-header">
                 <h3 class="card-title">
                     <span class="fw-bold text-gray-900">Order Details</span>
@@ -19,36 +19,45 @@
                 </div>
             </div>
 
-            <div class="card-body pt-3">
+            <div class="card-body pt-3 ">
+                
+
+                    <div class="nav-group nav-group-outline w-100 mb-4 d-none d-flex gap-3"
+                        id="order-preset"
+                        data-kt-buttons="true"
+                        data-kt-buttons-target="[data-kt-button]">
+
+                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 active flex-fill text-center" data-kt-button="true">
+                            <input class="btn-check order-preset-option" type="radio" name="method" value="On-Site"/>
+                            On-Site
+                        </label>
+
+                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 flex-fill text-center" data-kt-button="true">
+                            <input class="btn-check order-preset-option" type="radio" name="method" checked value="Pickup"/>
+                            Pickup
+                        </label>
+
+                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 flex-fill text-center" data-kt-button="true">
+                            <input class="btn-check order-preset-option" type="radio" name="method" value="Delivery"/>
+                            Delivery
+                        </label>
+                    </div>
                 <div class="hover-scroll-overlay-y pe-6 me-n9" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
                         <div class="p-6">
                             <div id="order-summary-list"></div>
 
+                            <div class="separator separator-dashed mb-4 mt-4"></div>
+
                             <div class="d-flex flex-stack mt-4">
-                                <div class="fs-4 fw-bold">AMOUNT DUE</div>
+                                <div class="fs-4 fw-bold">Total</div>
                                 <div class="fs-2 fw-bold" id="shop-order-total">₱ 0.00</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="separator separator-dashed mb-4"></div>
-
-                    <div class="btn-group w-100 mb-4 d-none" id="order-preset" data-kt-buttons="true" data-kt-buttons-target="[data-kt-button]">
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4 active" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" value="On-Site"/>
-                            On-Site
-                        </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Pickup"/>
-                            Pickup
-                        </label>
-                        <label class="btn btn-outline btn-color-muted btn-active-primary p-4" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" checked="checked" value="Delivery"/>
-                            Delivery
-                        </label>
-                    </div>
 
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
                         <button class="btn btn-light-success w-100 p-4 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">

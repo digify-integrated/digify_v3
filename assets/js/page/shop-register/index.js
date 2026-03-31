@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const formatTotal = (total) => {
-            return Number(total) === 0 ? 'Free' : `&#8369; ${total}`;
+            return Number(total) === 0 ? 'Free' : `<span class="text-muted fw-normal me-1">Total:</span> &#8369; ${total}`;
         };
 
         // =========================
@@ -106,80 +106,81 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
         };
 
-        const buildNoteHTML = (note) => {
-            return `
-                <div class="row mb-0">
-                    <div class="col-12">
-                        <span class="badge badge-warning text-wrap text-start">
-                            Note: ${note}
-                        </span>
-                    </div>
-                </div>`;
-        };
-
-        const buildDetailsHTML = (order) => {
-            const noteValid = isValidNote(order.note);
-            if (!noteValid) return '';
-
-            let html = '<div class="separator separator-dashed mb-4 mt-4"></div>';
-            html += buildNoteHTML(order.note);
-
-            return html;
-        };
-
         const buildOrderHTML = (order) => {
+            const noteValid = isValidNote(order.note);
             return `
-                <div class="border border-dashed border-gray-300 rounded px-7 py-3 mb-2">
-                    <div class="row align-items-center g-3">
-                        
-                        <div class="col-md-3 col-12">
-                            <div class="fs-6 text-gray-900 fw-semibold text-truncate" title="${order.product_name}">
-                                ${order.product_name}
-                            </div>
-                        </div>
+                <div class="card p-4 p-md-5 mb-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md">
+                            <div class="row align-items-start g-2">
+                                <div class="col-8">
+                                    <h3 class="mb-1 text-truncate" title="${order.product_name}">
+                                        ${order.product_name}
+                                    </h3>
 
-                        <div class="col-md-4 col-6 d-flex justify-content-center">
-                            <div class="position-relative w-100 order-quantity" 
-                                style="max-width: 180px;"
-                                data-kt-dialer="true" 
-                                data-kt-dialer-min="0.01" 
-                                data-kt-dialer-step="1" 
-                                data-kt-dialer-decimals="2">
+                                    ${
+                                        noteValid
+                                        ? `<div class="text-muted small">
+                                                <span class="fw-semibold">Note:</span> ${order.note}
+                                        </div>`
+                                        : ''
+                                    }
+                                </div>
                                 
-                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 start-0" data-kt-dialer-control="decrease">
-                                    <i class="ki-outline ki-minus-circle fs-1"></i>
-                                </button>
-
-                                <input type="text" class="form-control form-control-solid border-0 ps-12 pe-12 text-center fs-6 fw-bold" 
-                                    data-kt-dialer-control="input" 
-                                    placeholder="Amount" 
-                                    data-shop-order-details-id="${order.shop_order_details_id}" 
-                                    value="${order.formatted_qty.trim()}"/>
-
-                                <button type="button" class="btn btn-icon btn-active-color-gray-700 position-absolute translate-middle-y top-50 end-0" data-kt-dialer-control="increase">
-                                    <i class="ki-outline ki-plus-circle fs-1"></i>
-                                </button>
+                                <div class="col-4 text-end">
+                                    <div class="fw-bold fs-5">
+                                        ${formatTotal(order.formatted_total)}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="col-md-3 col-3 text-end">
-                            <div class="fs-6 text-gray-900 fw-semibold">
-                                ${formatTotal(order.formatted_total)}
-                            </div>
-                        </div>
+                            <div class="row align-items-center mt-3 g-2">
+                                <div class="col-8 col-md">
+                                    <div class="position-relative d-flex align-items-center order-quantity flex-wrap flex-sm-nowrap gap-2"
+                                        data-kt-dialer="true"
+                                        data-kt-dialer-min="0.01"
+                                        data-kt-dialer-step="1"
+                                        data-kt-dialer-decimals="2">
 
-                        <div class="col-md-2 col-3 text-end">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="#" class="btn btn-icon btn-active-light-warning w-35px h-35px shop-order-notes" data-shop-order-details-id="${order.shop_order_details_id}" data-bs-toggle="modal" data-bs-target="#order-notes-modal">
-                                    <i class="ki-outline ki-notepad-edit fs-2"></i>
-                                </a>
-                                <a href="#" class="btn btn-icon btn-active-light-danger w-35px h-35px delete-order-details" data-shop-order-details-id="${order.shop_order_details_id}">
-                                    <i class="ki-outline ki-trash fs-2"></i>
-                                </a>
+                                        <button type="button"
+                                                class="btn btn-icon btn-sm btn-light"
+                                                data-kt-dialer-control="decrease">
+                                            <i class="ki-outline ki-minus fs-2"></i>
+                                        </button>
+
+                                        <input type="text"
+                                            class="form-control text-center fw-bold fs-7 border-0 bg-light rounded w-75px"
+                                            data-kt-dialer-control="input"
+                                            data-shop-order-details-id="${order.shop_order_details_id}"
+                                            value="${order.formatted_qty.trim()}"/>
+
+                                        <button type="button"
+                                                class="btn btn-icon btn-sm btn-light"
+                                                data-kt-dialer-control="increase">
+                                            <i class="ki-outline ki-plus fs-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="d-flex justify-content-start justify-content-end gap-2 mt-2 mt-md-0">
+                                        <a href="#"
+                                        class="btn btn-icon btn-active-light-warning btn-sm shop-order-notes"
+                                        data-shop-order-details-id="${order.shop_order_details_id}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#order-notes-modal">
+                                            <i class="ki-outline ki-notepad-edit fs-2"></i>
+                                        </a>
+                                        <a href="#"
+                                        class="btn btn-icon btn-active-light-danger btn-sm delete-order-details"
+                                        data-shop-order-details-id="${order.shop_order_details_id}">
+                                            <i class="ki-outline ki-trash fs-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    ${buildDetailsHTML(order)}
                 </div>`;
         };
 
@@ -334,32 +335,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data?.success && data.categories) {
             const $container = $('#shop-product-category-container');
             
-            // Start with the "All" category
-            let categoriesHtml = `
-                <div class="col-4 col-lg-2 mb-4">
-                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg active product-category-filter" 
-                    data-bs-toggle="pill" 
-                    data-product-filter="">
-                        <div>
-                            <span class="text-gray-800 fw-bold fs-3 d-block">All</span>
-                        </div>
-                    </a>
-                </div>`;
-
             // Map the rest of the dynamic categories
             const dynamicHtml = data.categories.map(cat => `
-                <div class="col-4 col-lg-2 mb-4">
-                    <a class="nav-link nav-link-border-solid btn btn-outline btn-flex btn-active-color-primary flex-column flex-stack w-100 p-5 page-bg product-category-filter" 
-                    data-bs-toggle="pill" 
-                    data-product-filter="${cat.id}">
-                        <div>
-                            <span class="text-gray-800 fw-bold fs-3 d-block">${cat.name}</span>
-                        </div>
-                    </a>
-                </div>
+                <div class="col-6 col-md-4 col-lg-4 mb-5">
+                        <a href="javascript:void(0)" class="card nav-link nav-link-border-solid product-category-filter btn-active-primary w-100" data-bs-toggle="pill" data-product-filter="${cat.id}">
+                            <div class="card-body p-4">
+                                <div class="fw-bold fs-1 mb-2 text-dark">           
+                                    ${cat.name}
+                                </div>
+
+                                <div class="fw-semibold fs-5 text-dark">
+                                    ${cat.items}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
             `).join('');
 
-            $container.html(categoriesHtml + dynamicHtml);
+            $container.html(dynamicHtml);
         }
     };
     
@@ -373,20 +366,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const $container = $('#shop-products-container');
             
             const html = data.products.map(product => `
-                <div class="col-6 col-lg-3 mb-5">
-                    <div class="card card-flush flex-row-fluid p-0 w-100 border border-hover-primary cursor-pointer add-shop-order" 
-                        data-product-id="${product.id}" 
-                        data-shop-id="${data.shopId}">
-                        <div class="card-body text-center">
-                            <img src="${product.image}" 
-                                class="rounded-3 mb-4 w-100 h-120px" 
-                                alt="${product.name}" 
-                                loading="lazy" />  <div class="mb-2">
-                                <div class="text-center">
-                                    <span class="fw-bold text-gray-800 fs-3 fs-xl-1">${product.name}</span>
-                                </div>
+                <div class="col-6 col-lg-4 mb-5">
+                    <div class="card h-100">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}" style="object-fit: cover; height: 200px;">
+                        <div class="card-body px-5 d-flex flex-column">
+                            <h5 class="fs-1 fw-bold ">${product.name}</h5>
+                            <p class="fs-4 fw-semibold text-success mb-3">&#8369;${product.formatted_price}</p>
+                            <div class="mt-auto">
+                                <button class="btn btn-outline btn-outline-primary w-100 add-shop-order" data-product-id="${product.id}" data-shop-id="${data.shopId}">+ Add to Cart</button>
                             </div>
-                            <span class="text-success text-end fw-bold fs-2">&#8369; ${product.formatted_price}</span>
                         </div>
                     </div>
                 </div>
@@ -634,9 +622,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 🔹 Charges (ONLY if exist)
         if (data.charges.length > 0) {
+            html += `<div class="fs-4 fw-bold mt-2">Charges</div>`;
             data.charges.forEach(charge => {
                 html += `
-                    <div class="d-flex flex-stack mb-2 text-primary">
+                    <div class="d-flex flex-stack mb-2">
                         <span>${charge.name}</span>
                         <span>${formatPeso(charge.amount)}</span>
                     </div>
@@ -646,9 +635,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 🔹 Discounts (ONLY if exist)
         if (data.discounts.length > 0) {
+            html += `<div class="fs-4 fw-bold mt-2">Discounts</div>`;
             data.discounts.forEach(discount => {
                 html += `
-                    <div class="d-flex flex-stack mb-2 text-danger">
+                    <div class="d-flex flex-stack mb-2">
                         <span>${discount.name}</span>
                         <span>-${formatPeso(discount.amount)}</span>
                     </div>
@@ -702,7 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRegisterTabs();
     loadRegisterTables();
     loadRegisterProductCategories();
-    loadRegisterProducts();
 
     /**
      * EVENT DELEGATION

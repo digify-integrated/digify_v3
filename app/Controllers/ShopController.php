@@ -1800,9 +1800,17 @@ class ShopController {
         $orders = $this->shop->fetchShopOrderList($shopOrderId);
 
         foreach ($orders as &$row) {
+            $productDetails = $this->product->fetchProduct($row['product_id']);
+
             $row['formatted_total'] = number_format($row['subtotal'], 2);
-            $row['formatted_qty'] = number_format($row['quantity'], 2);
+            $row['formatted_qty']   = number_format($row['quantity'], 2);
+
+            $row['product_image'] = $this->systemHelper->checkImageExist(
+                $productDetails['product_image'] ?? null,
+                'product'
+            );
         }
+        unset($row); // good practice after reference loop
 
         echo json_encode([
             'success' => true,
