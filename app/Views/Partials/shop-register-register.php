@@ -8,40 +8,52 @@
     <div class="col-lg-4">
         <div class="card bg-body"> 
             <div class="card-header">
-                <h3 class="card-title">
-                    <span class="fw-bold text-gray-900">Order Details</span>
+                <h3 class="card-title mt-5 align-items-start flex-column">
+                    <span class="text-dark fw-bold fs-3 mb-2" id="order-details-title"></span>
+                    <span class="text-muted fw-semibold fs-7">Order ID: <span id="order-id">-</span>
                 </h3>
 
                 <div class="card-toolbar">
-                    <div class="d-flex justify-content-end fs-4 text-warning" data-kt-customer-table-toolbar="base">
-                        <span class="text-primary fw-bold fs-5" id="order-details-title"></span>
+                    <div class="me-0">
+                        <button class="btn btn-sm btn-icon btn-bg-light btn-light d-none" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" id="order-actions-menu">
+                            <i class="ki-outline ki-gear fs-3"></i>
+                        </button>
+
+                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px py-3" data-kt-menu="true">                            
+                            <div class="menu-item px-3">
+                                <a href="JavaScript:void(0);" class="menu-link px-3" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
+                                    Cancel Order
+                                </a>
+                            </div>
+                            <div class="menu-item px-3">
+                                <a href="JavaScript:void(0);" class="menu-link px-3" id="new-order-button">
+                                    New Order
+                                </a>
+                            </div>
+                            
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card-body pt-3 ">
-                
+                <div class="d-flex flex-equal gap-3 px-0 mb-3">
+                    <?php if ($floorPlanCount > 0): ?>
+                        <button class="btn btn-light-primary w-100 p-3 d-none" id="set-table-button">
+                            Set Table
+                        </button>
+                    <?php endif; ?>
 
-                    <div class="nav-group nav-group-outline w-100 mb-4 d-none d-flex gap-3"
-                        id="order-preset"
-                        data-kt-buttons="true"
-                        data-kt-buttons-target="[data-kt-button]">
+                    <button class="btn btn-light-primary w-100 p-3 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
+                        Set Tab
+                    </button>
 
-                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 active flex-fill text-center" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" value="On-Site"/>
-                            On-Site
-                        </label>
-
-                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 flex-fill text-center" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" checked value="Pickup"/>
-                            Pickup
-                        </label>
-
-                        <label class="btn btn-color-gray-500 btn-active btn-active-primary p-4 flex-fill text-center" data-kt-button="true">
-                            <input class="btn-check order-preset-option" type="radio" name="method" value="Delivery"/>
-                            Delivery
-                        </label>
-                    </div>
+                    <select class="form-select form-select-solid p-3 d-none" id="order-preset" data-control="select2" data-hide-search="true">
+                        <option value="On-Site">On-Site</option>
+                        <option value="Pickup">Pickup</option>
+                        <option value="Delivery">Delivery</option>
+                    </select>
+                </div>
                 <div class="hover-scroll-overlay-y pe-6 me-n9" style="max-height: 320px" id="shop-order-list"></div>
                 <div class="mt-4">
                     <div class="border border-dashed border-gray-300 rounded mb-5">
@@ -56,21 +68,21 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="separator separator-dashed mb-4"></div>
-
                     <div class="d-flex flex-equal gap-3 px-0 mb-3">
+                        <button class="btn btn-secondary w-100 p-4 d-none" id="print-bill">
+                            Print Bill
+                        </button>
+
                         <button class="btn btn-light-success w-100 p-4 d-none" id="discount-button" data-bs-toggle="modal" data-bs-target="#discount-modal" id="discount-button">
                             Discounts
                         </button>
 
-                        
                         <button class="btn btn-light-danger w-100 p-4 d-none" id="charge-button" data-bs-toggle="modal" data-bs-target="#charges-modal" id="charges-button">
                             Charges
                         </button>
                     </div>
 
-                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
+                    <div class="d-flex flex-equal gap-3 px-0">
                         <?php if ($floorPlanCount > 0): ?>               
                             <button class="btn btn-warning w-100 p-4 d-none" id="send-kitchen-button">
                                 Send To Kitchen
@@ -80,29 +92,8 @@
                                 Set Table
                             </button>
                         <?php endif; ?>
-
-                        <button class="btn btn-light-primary w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#set-tab-modal" id="set-tab-button">
-                            Set Tab
-                        </button>
-                    </div>
-
-                    <div class="d-flex flex-equal gap-3 px-0 mb-3">
-                        <button class="btn btn-secondary w-100 p-4 d-none" id="print-bill">
-                            Print Bill
-                        </button>
-
                         <button class="btn btn-success w-100 p-4 d-none" id="payment-button">
                             Payment
-                        </button>
-                    </div>
-
-                    <div class="d-flex flex-equal gap-3 px-0 mb-0">
-                        <button class="btn btn-light-danger w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#cancel-order-modal" id="cancel-order-button">
-                            Cancel Order
-                        </button>
-
-                        <button class="btn btn-warning w-100 p-4 d-none" id="new-order-button">
-                            New Order
                         </button>
                     </div>
                 </div>

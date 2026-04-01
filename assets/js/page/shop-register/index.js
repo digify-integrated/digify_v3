@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const formatTotal = (total) => {
-            return Number(total) === 0 ? 'Free' : `<span class="text-muted fw-normal me-1">Total:</span> &#8369; ${total}`;
+            return Number(total) === 0 ? 'Free' : `&#8369; ${total}`;
         };
 
         // =========================
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md">
                             <div class="row align-items-start g-2">
-                                <div class="col-8">
+                                <div class="col-7">
                                     <h3 class="mb-1 text-truncate" title="${order.product_name}">
                                         ${order.product_name}
                                     </h3>
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     }
                                 </div>
                                 
-                                <div class="col-4 text-end">
+                                <div class="col-5 text-end">
                                     <div class="fw-bold fs-5">
                                         ${formatTotal(order.formatted_total)}
                                     </div>
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             class="form-control text-center fw-bold fs-7 border-0 bg-light rounded w-75px"
                                             data-kt-dialer-control="input"
                                             data-shop-order-details-id="${order.shop_order_details_id}"
-                                            value="${order.formatted_qty.trim()}"/>
+                                            value="${order.formatted_qty.trim()}" readonly/>
 
                                         <button type="button"
                                                 class="btn btn-icon btn-sm btn-light"
@@ -337,15 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Map the rest of the dynamic categories
             const dynamicHtml = data.categories.map(cat => `
-                <div class="col-6 col-md-4 col-lg-4 mb-5">
+                <div class="col-6 col-md-3 mb-5">
                         <a href="javascript:void(0)" class="card nav-link nav-link-border-solid product-category-filter btn-active-primary w-100" data-bs-toggle="pill" data-product-filter="${cat.id}">
                             <div class="card-body p-4">
-                                <div class="fw-bold fs-1 mb-2 text-dark">           
+                                <div class="fw-bold fs-2 text-dark text-center">           
                                     ${cat.name}
-                                </div>
-
-                                <div class="fw-semibold fs-5 text-dark">
-                                    ${cat.items}
                                 </div>
                             </div>
                         </a>
@@ -370,8 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card h-100">
                         <img src="${product.image}" class="card-img-top" alt="${product.name}" style="object-fit: cover; height: 200px;">
                         <div class="card-body px-5 d-flex flex-column">
-                            <h5 class="fs-1 fw-bold ">${product.name}</h5>
-                            <p class="fs-4 fw-semibold text-success mb-3">&#8369;${product.formatted_price}</p>
+                            <h5 class="fs-2 fw-bold ">${product.name}</h5>
+                            <p class="fs-5 fw-semibold text-success mb-3">&#8369;${product.formatted_price}</p>
                             <div class="mt-auto">
                                 <button class="btn btn-outline btn-outline-primary w-100 add-shop-order" data-product-id="${product.id}" data-shop-id="${data.shopId}">+ Add to Cart</button>
                             </div>
@@ -578,12 +574,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await apiRequest('fetch shop register table details', { shop_id: getShopId(), shop_order_id });
         if (data?.success) {
             $('#order-details-title').text(data.title);
+            $('#order-id').text(shop_order_id);
             const showSetButtons = (shop_order_id != null && data.tableNumber == null && data.orderFor == null);
             const showTableOnly = (shop_order_id != null && data.tableNumber != null && data.orderFor == null);
             $('#set-table-button').toggleClass('d-none', !(showSetButtons || showTableOnly));
             $('#set-tab-button').toggleClass('d-none', !showSetButtons);
 
-            document.querySelector(`.order-preset-option[value="${data.orderPreset}"]`)?.click();
+            $('#order-preset').val(data.orderPreset || '').trigger('change');
         }
     };
 
@@ -599,35 +596,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // 🔹 Subtotal
         html += `
             <div class="d-flex flex-stack mb-2">
-                <span>Subtotal</span>
-                <span>${formatPeso(data.subtotal)}</span>
+                <span class="text-muted">Subtotal</span>
+                <span class="fw-bold">${formatPeso(data.subtotal)}</span>
             </div>
         `;
 
         // 🔹 VAT Sales
         html += `
             <div class="d-flex flex-stack mb-2">
-                <span>VAT Sales</span>
-                <span>${formatPeso(data.vat_sales)}</span>
+                <span class="text-muted">VAT Sales</span>
+                <span class="fw-bold">${formatPeso(data.vat_sales)}</span>
             </div>
         `;
 
         // 🔹 VAT
         html += `
             <div class="d-flex flex-stack mb-2">
-                <span>VAT (12%)</span>
-                <span>${formatPeso(data.vat_amount)}</span>
+                <span class="text-muted">VAT (12%)</span>
+                <span class="fw-bold">${formatPeso(data.vat_amount)}</span>
             </div>
         `;
 
         // 🔹 Charges (ONLY if exist)
         if (data.charges.length > 0) {
-            html += `<div class="fs-4 fw-bold mt-2">Charges</div>`;
+            html += `<div class="fs-6 fw-bold mt-2">Charges</div>`;
             data.charges.forEach(charge => {
                 html += `
                     <div class="d-flex flex-stack mb-2">
-                        <span>${charge.name}</span>
-                        <span>${formatPeso(charge.amount)}</span>
+                        <span class="text-muted">${charge.name}</span>
+                        <span class="fw-bold">${formatPeso(charge.amount)}</span>
                     </div>
                 `;
             });
@@ -635,12 +632,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 🔹 Discounts (ONLY if exist)
         if (data.discounts.length > 0) {
-            html += `<div class="fs-4 fw-bold mt-2">Discounts</div>`;
+            html += `<div class="fs-6 fw-bold mt-2">Discounts</div>`;
             data.discounts.forEach(discount => {
                 html += `
                     <div class="d-flex flex-stack mb-2">
-                        <span>${discount.name}</span>
-                        <span>-${formatPeso(discount.amount)}</span>
+                        <span class="text-muted">${discount.name}</span>
+                        <span class="fw-bold">-${formatPeso(discount.amount)}</span>
                     </div>
                 `;
             });
@@ -669,14 +666,26 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#order-details-title').text('');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #set-table-button, #set-tab-button, .set-shop-table-order, #order-preset').addClass('d-none');
+        $('#order-actions-menu, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #set-table-button, #set-tab-button, .set-shop-table-order').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
+        $('#order-preset')
+            .removeClass('d-none')
+            .select2('destroy')
+            .select2({
+                minimumResultsForSearch: -1
+            });
         loadRegisterTables();
         enableTab();
     };
 
     const initializeRegister = () => {
-        $('#new-order-button, #cancel-order-button, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #order-preset').removeClass('d-none');
+        $('#order-actions-menu, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button').removeClass('d-none');
+        $('#order-preset')
+            .removeClass('d-none')
+            .select2('destroy')
+            .select2({
+                minimumResultsForSearch: -1
+            });
     };
 
     const traverseTab = (target) => {
@@ -869,12 +878,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.querySelectorAll('.order-preset-option').forEach((radio) => {
-        radio.addEventListener('change', async function () {
-            await apiRequest('update shop order preset', {
-                shop_order_id: getOrderId(),
-                order_preset: this.value
-            });
+    $(document).on('change', '#order-preset', async function () {
+        await apiRequest('update shop order preset', {
+            shop_order_id: getOrderId(),
+            order_preset: this.value
         });
     });
 

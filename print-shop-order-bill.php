@@ -71,19 +71,12 @@ function renderReceiptContent($pdf, $data) {
 
     $pdf->SetFont('courier', '', 9);
     $html = '<table cellpadding="2">
-                <thead>
-                    <tr>
-                        <td width="15%"><b>QTY</b></td>
-                        <td width="55%"><b>ITEM</b></td>
-                        <td width="30%" align="right"><b>PRICE</b></td>
-                    </tr>
-                </thead>
                 <tbody>';
 
     foreach ($data['orders'] as $order) {
         $qty     = number_format($order['quantity'] ?? 1);
         $itemName = htmlspecialchars($order['product_name'] ?? 'Item');
-        $price    = number_format($order['total_price'] ?? 0, 2);
+        $price    = number_format($order['subtotal'] ?? 0, 2);
         $html .= '<tr>
                     <td width="15%">' . $qty . '</td>
                     <td width="55%">' . $itemName . '</td>
@@ -96,13 +89,26 @@ function renderReceiptContent($pdf, $data) {
     $pdf->Ln(-3);
     
     // Totals Section
-    $pdf->MultiCell(0, 4, 'Subtotal: P' . number_format($data['subtotal'], 2), 0, 'R');
-    $pdf->MultiCell(0, 4, 'Taxes: P' . number_format($data['additiveTaxTotal'], 2), 0, 'R');
-    $pdf->MultiCell(0, 4, 'Discount: P' . number_format($data['totalDiscount'], 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'Subtotal: P' . number_format($data['gross_sales'] ?? 0, 2), 0, 'R');
+
+    foreach ($data['charges'] as $charge) {
+        $pdf->MultiCell(0, 4, $charge['name'] . ': P' . number_format($charge['amount'] ?? 0, 2), 0, 'R');
+    }
+
+    foreach ($data['discounts'] as $discount) {
+        $pdf->MultiCell(0, 4, $discount['name'] . ': P ' . number_format($discount['amount'] ?? 0, 2), 0, 'R');
+    }
 
     $pdf->SetFont('courier', 'B', 9);
-    $pdf->MultiCell(0, 4, 'AMOUNT DUE: P' . number_format($data['totalPrice'], 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'AMOUNT DUE: P' . number_format($data['total_amount_due'], 2), 0, 'R');
+
     $pdf->SetFont('courier', '', 9);
+
+    $pdf->Ln(3);
+    $pdf->MultiCell(0, 4, 'VATable Sales: P' . number_format($data['vat_sales'] ?? 0, 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'VAT-Exempt Sales: P' . number_format($data['vat_exempt_sales'] ?? 0, 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'VAT Zero-Rated Sales: P' . number_format($data['zero_rated_sales'] ?? 0, 2), 0, 'R');
+    $pdf->MultiCell(0, 4, 'VAT Amount: P' . number_format($data['vat_amount'] ?? 0, 2), 0, 'R');
 
     $pdf->Ln(3);
     $footerText = "Thank you for your purchase.\nThis is NOT an OFFICIAL RECEIPT";
@@ -121,12 +127,18 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     $data['tableNumber']        = $shopOrderDetails['table_number'] ?? null;
     $floorPlanTableId           = $shopOrderDetails['floor_plan_table_id'] ?? null;
     $data['orderFor']           = $shopOrderDetails['order_for'] ?? null;
-    $data['subtotal']           = $shopOrderDetails['subtotal'] ?? null;
-    $data['additiveTaxTotal']   = $shopOrderDetails['additive_tax_total'] ?? null;
-    $orderDiscountAmount        = $shopOrderDetails['order_discount_amount'] ?? 0;
-    $transactionDiscountAmount  = $shopOrderTotal['transaction_discount_amount'] ?? 0;
-    $data['totalDiscount']      = $orderDiscountAmount + $transactionDiscountAmount;
-    $data['totalPrice']         = $shopOrderDetails['total_price'] ?? 0;
+    $data['gross_sales']        = $shopOrderDetails['gross_sales'] ?? 0;
+    $data['vat_sales']          = $shopOrderDetails['vat_sales'] ?? 0;
+    $data['vat_amount']         = $shopOrderDetails['vat_amount'] ?? 0;
+    $data['vat_exempt_sales']   = $shopOrderDetails['vat_exempt_sales'] ?? 0;
+    $data['zero_rated_sales']   = $shopOrderDetails['zero_rated_sales'] ?? 0;
+    $data['additiveTaxTotal']   = $shopOrderDetails['additive_tax_total'] ?? 0;
+    $data['total_amount_due']   = $shopOrderDetails['total_amount_due'] ?? 0;
+
+    $charges            = $shop->fetchOrderCharges($shopOrderId) ?? [];
+    $discounts          = $shop->fetchOrderDiscounts($shopOrderId) ?? [];
+    $data['charges']    = $charges;
+    $data['discounts']  = $discounts;
 
     if(!empty($floorPlanTableId)){
         $floorPlanTableDetails = $floorPlan->fetchFloorPlanTable($floorPlanTableId);

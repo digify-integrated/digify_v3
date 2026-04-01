@@ -15109,10 +15109,18 @@ CREATE PROCEDURE updateShopOrderTotal(
     IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_gross_sales DECIMAL(15,2) DEFAULT 0;
     DECLARE v_vat_sales DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_vat_amount DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_additive_tax_total DECIMAL(15,2) DEFAULT 0;
+
     DECLARE v_before_discount DECIMAL(15,2) DEFAULT 0;
     DECLARE v_after_discount_base DECIMAL(15,2) DEFAULT 0;
-    DECLARE v_gross_sales DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_charge_base DECIMAL(15,2) DEFAULT 0;
+
+    -- New variables for proper BIR math
+    DECLARE v_exempted_vat DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_vat_exempt_sales DECIMAL(15,2) DEFAULT 0;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -15122,11 +15130,11 @@ BEGIN
     START TRANSACTION;
 
     -- =========================
-    -- 🔹 STEP 1: ITEM TOTALS (FIXED FOR EMPTY CART)
+    -- 🔹 STEP 1: ITEM TOTALS 
     -- =========================
     UPDATE shop_order o
     LEFT JOIN (
-        SELECT 
+        SELECT
             shop_order_id,
             SUM(subtotal) AS gross_sales,
             SUM(inclusive_tax_amount) AS vat_amount,
@@ -15136,21 +15144,27 @@ BEGIN
           AND quantity > 0
         GROUP BY shop_order_id
     ) d ON o.shop_order_id = d.shop_order_id
-    SET 
+    SET
         o.gross_sales = IFNULL(d.gross_sales, 0),
         o.vat_amount = IFNULL(d.vat_amount, 0),
         o.vat_sales = ROUND(IFNULL(d.gross_sales, 0) - IFNULL(d.vat_amount, 0), 2),
-        o.additive_tax_total = IFNULL(d.additive_tax_total, 0);
+        o.additive_tax_total = IFNULL(d.additive_tax_total, 0),
+        o.vat_exempt_sales = 0,
+        o.zero_rated_sales = 0;
 
     -- =========================
-    -- 🔹 STEP 2: GET CURRENT VALUES
+    -- 🔹 STEP 2: LOAD VALUES
     -- =========================
-    SELECT 
+    SELECT
         gross_sales,
-        vat_sales
-    INTO 
+        vat_sales,
+        vat_amount,
+        additive_tax_total
+    INTO
         v_gross_sales,
-        v_vat_sales
+        v_vat_sales,
+        v_vat_amount,
+        v_additive_tax_total
     FROM shop_order
     WHERE shop_order_id = in_shop_order_id;
 
@@ -15159,35 +15173,28 @@ BEGIN
     -- =========================
     IF v_gross_sales = 0 THEN
 
-        -- Reset discounts
-        UPDATE shop_order_applied_discounts
-        SET calculated_amount = 0
-        WHERE shop_order_id = in_shop_order_id;
+        UPDATE shop_order_applied_discounts SET calculated_amount = 0 WHERE shop_order_id = in_shop_order_id;
+        UPDATE shop_order_applied_charges SET calculated_amount = 0 WHERE shop_order_id = in_shop_order_id;
 
-        -- Reset charges
-        UPDATE shop_order_applied_charges
-        SET calculated_amount = 0
-        WHERE shop_order_id = in_shop_order_id;
-
-        -- Reset totals
         UPDATE shop_order
-        SET 
-            total_discount_amount = 0,
-            total_charge_amount = 0,
-            total_amount_due = 0,
-            last_log_by = p_last_log_by
+        SET total_discount_amount = 0, total_charge_amount = 0, total_amount_due = 0,
+            vat_exempt_sales = 0, zero_rated_sales = 0, vat_sales = 0, vat_amount = 0, last_log_by = p_last_log_by
         WHERE shop_order_id = in_shop_order_id;
 
     ELSE
 
         -- =========================
-        -- 🔥 STEP 4: BEFORE TAX DISCOUNTS
+        -- 🔥 STEP 4: BEFORE TAX DISCOUNTS & EXEMPTIONS
         -- =========================
         UPDATE shop_order_applied_discounts d
         SET d.calculated_amount =
             CASE
-                WHEN d.value_type = 'Percentage'
+                -- BIR Statutory (SC/PWD): 20% is based on VAT-exclusive sales
+                WHEN d.value_type = 'Percentage' AND d.is_vat_exempt = 'Yes'
                     THEN ROUND((d.applied_value / 100) * v_vat_sales, 2)
+                -- Regular Marketing Promos: Percentages are typically based on Gross Sales
+                WHEN d.value_type = 'Percentage' AND d.is_vat_exempt = 'No'
+                    THEN ROUND((d.applied_value / 100) * v_gross_sales, 2)
                 ELSE ROUND(d.applied_value, 2)
             END
         WHERE d.shop_order_id = in_shop_order_id
@@ -15199,43 +15206,73 @@ BEGIN
         SELECT IFNULL(SUM(calculated_amount), 0)
         INTO v_before_discount
         FROM shop_order_applied_discounts
-        WHERE shop_order_id = in_shop_order_id
-          AND application_order = 'Before Tax';
+        WHERE shop_order_id = in_shop_order_id AND application_order = 'Before Tax';
 
         -- =========================
-        -- 🔹 STEP 6: BASE FOR AFTER TAX
+        -- 🔥 STEP 6: CALCULATE VAT EXEMPTION DEDUCTION
         -- =========================
-        SET v_after_discount_base = v_gross_sales - v_before_discount;
+        -- Determine how much VAT should be subtracted from the final bill.
+        -- NOTE: This assumes the entire order is for the SC/PWD. If pro-rating (e.g., 1 SC out of 5 diners), 
+        -- this logic should be shifted to calculate exemption per line-item in shop_order_details.
+        SELECT IFNULL(SUM(
+            CASE 
+                WHEN is_vat_exempt = 'Yes' THEN v_vat_amount 
+                ELSE 0 
+            END
+        ), 0)
+        INTO v_exempted_vat
+        FROM shop_order_applied_discounts
+        WHERE shop_order_id = in_shop_order_id AND is_vat_exempt = 'Yes' LIMIT 1;
+
+        -- Reclassify the Sales amounts for BIR Reporting
+        IF v_exempted_vat > 0 THEN
+            SET v_vat_exempt_sales = v_vat_sales; -- Shift vatable sales to exempt sales
+            SET v_vat_sales = 0;                  -- Zero out regular vatable sales
+            SET v_vat_amount = 0;                 -- Zero out output VAT
+        END IF;
+
+        UPDATE shop_order
+        SET vat_exempt_sales = v_vat_exempt_sales,
+            vat_sales = v_vat_sales,
+            vat_amount = v_vat_amount
+        WHERE shop_order_id = in_shop_order_id;
 
         -- =========================
-        -- 🔥 STEP 7: AFTER TAX DISCOUNTS
+        -- 🔹 STEP 7: BASE FOR AFTER TAX DISCOUNTS
+        -- =========================
+        SET v_after_discount_base = v_gross_sales - v_before_discount - v_exempted_vat;
+
+        -- =========================
+        -- 🔥 STEP 8: AFTER TAX DISCOUNTS
         -- =========================
         UPDATE shop_order_applied_discounts d
         SET d.calculated_amount =
             CASE
-                WHEN d.value_type = 'Percentage'
-                    THEN ROUND((d.applied_value / 100) * v_after_discount_base, 2)
+                WHEN d.value_type = 'Percentage' THEN ROUND((d.applied_value / 100) * v_after_discount_base, 2)
                 ELSE ROUND(d.applied_value, 2)
             END
-        WHERE d.shop_order_id = in_shop_order_id
-          AND d.application_order = 'After Tax';
+        WHERE d.shop_order_id = in_shop_order_id AND d.application_order = 'After Tax';
 
         -- =========================
-        -- 🔥 STEP 8: CHARGES
+        -- 🔥 STEP 9: CHARGES (BIR COMPLIANT BASE)
         -- =========================
+        -- Service charge base depends on whether it's an SC/PWD or a regular transaction.
+        IF v_exempted_vat > 0 THEN
+            SET v_charge_base = v_vat_exempt_sales; -- SC/PWD: Charge is based on VAT EXCLUSIVE amount
+        ELSE
+            SET v_charge_base = v_gross_sales;      -- Regular: Charge is based on GROSS amount
+        END IF;
+
         UPDATE shop_order_applied_charges c
         SET c.calculated_amount =
             CASE
-                WHEN c.value_type = 'Percentage'
-                    THEN ROUND(
-                        (c.applied_value / 100) * (v_vat_sales - v_before_discount),
-                    2)
+                WHEN c.value_type = 'Percentage' THEN ROUND((c.applied_value / 100) * v_charge_base, 2)
                 ELSE ROUND(c.applied_value, 2)
             END
         WHERE c.shop_order_id = in_shop_order_id;
 
         -- =========================
-        -- 🔹 STEP 9: FINAL AGGREGATION
+        -- 🔹 STEP 10: FINAL AGGREGATION & MATH FIX
         -- =========================
         UPDATE shop_order o
         LEFT JOIN (
@@ -15250,17 +15287,18 @@ BEGIN
             WHERE shop_order_id = in_shop_order_id
         ) c ON o.shop_order_id = c.shop_order_id
 
-        SET 
+        SET
             o.total_discount_amount = IFNULL(d.total_discount, 0),
             o.total_charge_amount = IFNULL(c.total_charge, 0),
 
-            -- 🔥 FINAL TOTAL (SAFE: NO NEGATIVE)
+            -- 🔥 CRITICAL BIR MATH FIX: Deduct the exempted VAT from the final calculation!
             o.total_amount_due = GREATEST(
                 ROUND(
-                    v_gross_sales
-                    - IFNULL(d.total_discount, 0)
-                    + o.additive_tax_total
-                    + IFNULL(c.total_charge, 0),
+                    o.gross_sales 
+                    - v_exempted_vat                 -- Removes VAT from the SC/PWD bill
+                    - IFNULL(d.total_discount, 0)    -- Deduct the computed discount
+                    + o.additive_tax_total           -- Add any local/additive taxes
+                    + IFNULL(c.total_charge, 0),     -- Add the service charge
                 2),
             0),
 
@@ -15271,6 +15309,7 @@ BEGIN
     COMMIT;
 
 END //
+
 /* =============================================================================================
    SECTION 4: FETCH PROCEDURES
 ============================================================================================= */
