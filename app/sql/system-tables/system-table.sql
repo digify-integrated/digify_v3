@@ -8194,96 +8194,29 @@ CREATE TABLE shop_order (
   shop_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   shop_id INT UNSIGNED NOT NULL,
   shop_name VARCHAR(200) NOT NULL,
-
   floor_plan_table_id INT UNSIGNED,
   table_number INT,
   order_for VARCHAR(500),
   order_preset ENUM('On-Site', 'Pickup', 'Delivery') DEFAULT 'On-Site',
-
-  -- =========================
-  -- 🔹 ORDER STATUS
-  -- =========================
-  shop_order_status ENUM('Active', 'Paid', 'Voided', 'Refunded', 'Cancelled') DEFAULT 'Active',
+  shop_order_status ENUM('Active', 'Paid', 'Void', 'Refunded', 'Cancelled') DEFAULT 'Active',
   paid_date DATETIME,
   void_date DATETIME,
   void_reason VARCHAR(500),
   cancelled_date DATETIME,
   cancelled_reason VARCHAR(500),
   refund_date DATETIME,
-
-  -- =========================
-  -- 🔹 SALES BREAKDOWN
-  -- =========================
-
-  -- Formula: SUM(shop_order_details.subtotal)
-  -- Description: Total of all items (VAT-INCLUSIVE price)
   gross_sales DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(shop_order_details.inclusive_tax_amount)
-  -- Description: Extracted VAT from gross_sales
   vat_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: gross_sales - vat_amount
-  -- Description: VAT-exclusive sales (BIR: VAT Sales)
   vat_sales DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(subtotal WHERE product is VAT-EXEMPT)
-  -- Description: Sales not subject to VAT
   vat_exempt_sales DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula: SUM(subtotal WHERE product is ZERO-RATED)
-  -- Description: Sales with 0% VAT
   zero_rated_sales DECIMAL(15,2) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 DISCOUNTS
-  -- =========================
-
-  -- Formula: SUM(shop_order_applied_discounts.calculated_amount)
-  -- Description: Total of ALL discounts (before + after tax combined)
   total_discount_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 TAXES
-  -- =========================
-
-  -- Formula: SUM(shop_order_details.additive_tax_amount)
-  -- Description: Taxes added on top of selling price (non-VAT)
   additive_tax_total DECIMAL(15,2) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 CHARGES
-  -- =========================
-
-  -- Formula: SUM(shop_order_applied_charges.calculated_amount)
-  -- Description: All additional charges (service charge, delivery, etc.)
   total_charge_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 FINAL TOTAL
-  -- =========================
-
-  -- FINAL FORMULA:
-  -- total_amount_due =
-  --   gross_sales
-  -- - total_discount_amount
-  -- + additive_tax_total
-  -- + total_charge_amount
-  --
-  -- Description:
-  -- Final payable amount after discounts, taxes, and charges
   total_amount_due DECIMAL(15,2) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 AUDIT
-  -- =========================
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-
-  -- =========================
-  -- 🔹 FOREIGN KEYS
-  -- =========================
   FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
   FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
@@ -8318,59 +8251,31 @@ DROP TABLE IF EXISTS shop_order_details;
 CREATE TABLE shop_order_details (
   shop_order_details_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   shop_order_id INT UNSIGNED NOT NULL,
-
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
-  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled') DEFAULT 'Pending',
-
+  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled', 'Void') DEFAULT 'Pending',
   quantity DECIMAL(15,4) DEFAULT 1,
+  quantity_sent DECIMAL(15,4) DEFAULT 0,
   base_price DECIMAL(15,2) NOT NULL,
-
-  -- =========================
-  -- 🔹 TAX SNAPSHOT
-  -- =========================
-
-  -- Formula: SUM(inclusive taxes)
   inclusive_rate DECIMAL(10,6) DEFAULT 0,
-
-  -- Formula: SUM(additive taxes)
   additive_rate DECIMAL(10,6) DEFAULT 0,
-
-  -- =========================
-  -- 🔹 COMPUTED VALUES
-  -- =========================
-
-  -- Formula: base_price × quantity
   subtotal DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula:
-  -- subtotal × (inclusive_rate / (1 + inclusive_rate))
   inclusive_tax_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula:
-  -- (subtotal - inclusive_tax_amount) × additive_rate
   additive_tax_amount DECIMAL(15,2) DEFAULT 0,
-
-  -- Formula:
-  -- subtotal - inclusive_tax_amount
   net_sales DECIMAL(15,2) DEFAULT 0,
-
   note VARCHAR(500),
-
+  last_sent_note VARCHAR(500),
   sent_to_kitchen DATETIME,
   preparing_date DATETIME,
   to_serve_date DATETIME,
   completed_date DATETIME,
   cancelled_date DATETIME,
-
-  -- =========================
-  -- AUDIT
-  -- =========================
+  void_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-
-  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id)
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
 );
 
 /* =============================================================================================
@@ -8478,6 +8383,94 @@ CREATE INDEX idx_shop_order_applied_charges_value_type ON shop_order_applied_cha
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: KITCHEN TICKETS
+============================================================================================= */
+
+DROP TABLE IF EXISTS kitchen_tickets;
+
+CREATE TABLE kitchen_tickets (
+  kitchen_ticket_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_order_id INT UNSIGNED NOT NULL,
+  ticket_number VARCHAR(100),
+  ticket_status ENUM('Pending', 'In Progress', 'Completed', 'Void') DEFAULT 'Pending',
+  in_progress_date DATETIME,
+  completed_date DATETIME,
+  void_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: KITCHEN TICKETS
+============================================================================================= */
+
+CREATE INDEX idx_kitchen_tickets_shop_order_id ON kitchen_tickets(shop_order_id);
+CREATE INDEX idx_kitchen_tickets_ticket_status ON kitchen_tickets(ticket_status);
+
+/* =============================================================================================
+  INITIAL VALUES: KITCHEN TICKETS
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: KITCHEN TICKETS
+============================================================================================= */
+
+DROP TABLE IF EXISTS kitchen_ticket_items;
+
+CREATE TABLE kitchen_ticket_items (
+  kitchen_ticket_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  kitchen_ticket_id INT UNSIGNED NOT NULL,
+  shop_order_details_id INT UNSIGNED NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  product_name VARCHAR(200) NOT NULL,
+  quantity_change DECIMAL(15,4) NOT NULL,
+  quantity_before DECIMAL(15,4) DEFAULT 0,
+  quantity_after DECIMAL(15,4) DEFAULT 0,
+  item_status ENUM('Sent', 'Preparing', 'Ready', 'Served', 'Cancelled') DEFAULT 'Sent',
+  note VARCHAR(500),
+  void_reason VARCHAR(500),
+  preparing_date DATETIME,
+  ready_date DATETIME,
+  served_date DATETIME,
+  cancelled_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED DEFAULT 1,
+  FOREIGN KEY (kitchen_ticket_id) REFERENCES kitchen_tickets(kitchen_ticket_id),
+  FOREIGN KEY (shop_order_details_id) REFERENCES shop_order_details(shop_order_details_id),
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: KITCHEN TICKETS
+============================================================================================= */
+
+CREATE INDEX idx_kitchen_ticket_items_kitchen_ticket_id ON kitchen_ticket_items(kitchen_ticket_id);
+CREATE INDEX idx_kitchen_ticket_items_shop_order_details_id ON kitchen_ticket_items(shop_order_details_id);
+CREATE INDEX idx_kitchen_ticket_items_product_id ON kitchen_ticket_items(product_id);
+CREATE INDEX idx_kitchen_ticket_items_item_status ON kitchen_ticket_items(item_status);
+
+/* =============================================================================================
+  INITIAL VALUES: KITCHEN TICKETS
 ============================================================================================= */
 
 /* =============================================================================================

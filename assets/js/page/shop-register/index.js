@@ -869,6 +869,60 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        if (target.closest('#send-kitchen-button')){
+            const transaction = 'save kitchen ticket';
+                
+            Swal.fire({
+                title: 'Confirm Order Sending',
+                text: 'Are you sure you want to send these orders to the kitchen?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Send',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-primary mt-2',
+                    cancelButton: 'btn btn-secondary ms-2 mt-2'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (!result.value) return;
+                
+                const formData = new URLSearchParams();
+                formData.append('transaction', transaction);
+                formData.append('shop_order_id', getOrderId());
+                
+                try {
+                    disableButton('send-kitchen-button');
+                    const response = await fetch('./app/Controllers/ShopController.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                
+                    if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+                
+                    const data = await response.json();
+                
+                    if (data.success) {
+                        showNotification(data.title, data.message, data.message_type);
+                        enableButton('send-kitchen-button');
+                        resetRegister();
+                        traverseToTablesTab();
+                    }
+                    else if (data.invalid_session) {
+                        setNotification(data.title, data.message, data.message_type);
+                        window.location.href = data.redirect_link;
+                    }
+                    else {
+                        showNotification(data.title, data.message, data.message_type);
+                        enableButton('send-kitchen-button');
+                    }
+                } catch (error) {
+                    handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+                    enableButton('send-kitchen-button');
+                }
+            });
+        }
+
         if (target.closest('#discount-button')){
             loadOrderDiscount(getOrderId());
         }

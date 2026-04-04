@@ -1210,6 +1210,25 @@ class Shop extends Model {
     }
 
     /* =============================================================================================
+        SECTION 8: CUSTOM METHODS
+    ============================================================================================= */
+
+    public function processKitchenTicket(
+        int $shopOrderId,
+        int $lastLogBy
+    ) {
+        $sql = 'CALL processKitchenTicket(
+            :p_shop_order_id,
+            :p_last_log_by
+        )';
+
+        return $this->fetch($sql, [
+            'p_shop_order_id' => $shopOrderId,
+            'p_last_log_by'   => $lastLogBy
+        ]);
+    }
+
+    /* =============================================================================================
         END OF METHODS
     ============================================================================================= */
     

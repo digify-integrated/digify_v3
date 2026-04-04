@@ -108,6 +108,7 @@ class ShopController {
             'save shop charges'                     => $this->saveShopCharges($lastLogBy),
             'save shop order discount'              => $this->saveShopOrderDiscount($lastLogBy),
             'save shop order charge'                => $this->saveShopOrderCharge($lastLogBy),
+            'save kitchen ticket'                   => $this->saveKitchenTicket($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
@@ -134,7 +135,6 @@ class ShopController {
             'fetch shop register table details'     => $this->fetchShopRegisterTableDetails(),
             'fetch shop order total'                => $this->fetchShopOrderTotal(),
             'fetch shop order details'              => $this->fetchShopOrderDetailDetails(),
-            'fetch shop order discount details'     => $this->fetchShopOrdeDiscountDetails(),
             'generate shop table'                   => $this->generateShopTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
@@ -527,6 +527,45 @@ class ShopController {
             'Success',
             'Charge updated successfully.'
         );
+    }
+
+    public function saveKitchenTicket(
+        int $lastLogBy
+    ) {
+        // Get the ID from the POST request
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
+
+        if (!$shopOrderId) {
+            $this->systemHelper::sendErrorResponse('Missing Data', 'Order ID is required.');
+            return;
+        }
+
+        // Call the model method that triggers the Stored Procedure
+        $result = $this->shop->processKitchenTicket((int)$shopOrderId, $lastLogBy);
+
+        // Handle the response from the Stored Procedure
+        if ($result && ($result['response_code'] === 'SUCCESS' || $result['response_code'] === 'NO_CHANGES')) {            
+            if($result['response_code'] === 'SUCCESS'){
+                $this->systemHelper::sendSuccessResponse(
+                    'Sent to Kitchen',
+                    "Ticket <strong>{$result['ticket_number']}</strong> has been successfully dispatched."
+                );
+            }
+            
+            if($result['response_code'] === 'NO_CHANGES'){
+                $this->systemHelper::sendSuccessResponse(
+                    'No New Changes',
+                    'All items are already sent to the kitchen. No updates were found.'
+                );
+            }
+            
+
+        } else {
+            $this->systemHelper::sendErrorResponse(
+                'System Error',
+                'An unexpected error occurred while processing the kitchen ticket.'
+            );
+        }
     }
 
     /* =============================================================================================
@@ -1093,23 +1132,6 @@ class ShopController {
             'discountType'  => $discountType,
             'discountValue' => $discountValue,
             'note'          => $note
-        ];
-
-        echo json_encode($response);
-        exit;
-    }
-
-    public function fetchShopOrdeDiscountDetails() {
-        $shopOrderId = $_POST['shop_order_id'] ?? null;
-
-        $shopOrderDetails           = $this->shop->fetchShopOrderDetails($shopOrderId);
-        $transactionDiscountType    = $shopOrderDetails['transaction_discount_type'] ?? '';
-        $transactionDiscountValue   = $shopOrderDetails['transaction_discount_value'] ?? 0;
-
-        $response = [
-            'success'                   => true,
-            'transactionDiscountType'   => $transactionDiscountType,
-            'transactionDiscountValue'  => $transactionDiscountValue
         ];
 
         echo json_encode($response);
