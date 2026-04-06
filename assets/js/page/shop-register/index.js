@@ -552,6 +552,67 @@ document.addEventListener('DOMContentLoaded', () => {
         `);
     };
 
+    const loadPaymentForm = async () => {
+        const data = await apiRequest('generate shop payment methods', {
+            shop_id: getShopId(),
+            shop_order_id: getOrderId()
+        });
+
+        if (!data?.success) return;
+
+        const totalDue = parseFloat(data.total_amount_due);
+        const $container = $('#payment-methods-container');
+        
+        let html = `
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Total Amount Due:</span>
+                <span class="fs-4 fw-bold" id="display-total-due">₱${totalDue.toLocaleString()}</span>
+            </div>
+            <div class="list-group mb-3">`;
+
+        data.methods.forEach(method => {
+            const needsRef = !['Cash'].includes(method.payment_method_name);
+            html += `
+                <div class="list-group-item p-3 payment-row" data-id="${method.payment_method_id}">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 fw-bold">${method.payment_method_name}</div>
+                        <div class="col-md-4">
+                            <input type="number" class="form-control payment-input" 
+                                placeholder="Amount" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            ${needsRef ? `<input type="text" class="form-control ref-input" placeholder="Ref/Check #">` : ''}
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        html += `</div>
+            <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Change:</span>
+                <span class="fs-4 fw-bold text-success" id="display-change">₱0.00</span>
+            </div>
+            <button id="btn-process-payment" class="btn btn-primary btn-lg w-100 mt-2" disabled>
+                Process Payment
+            </button>`;
+
+        $container.html(html);
+
+        // Change Calculation Logic
+        $(document).on('input', '.payment-input', function() {
+            let totalTendered = 0;
+            $('.payment-input').each(function() {
+                totalTendered += parseFloat($(this).val()) || 0;
+            });
+
+            const change = totalTendered - totalDue;
+            $('#display-change').text(`₱${Math.max(0, change).toLocaleString()}`);
+            
+            // Enable button only if amount is sufficient
+            $('#btn-process-payment').prop('disabled', totalTendered < totalDue);
+        });
+    };
+
     const refreshRegisterUI = async (orderId) => {
         loadOrderList(orderId);
 

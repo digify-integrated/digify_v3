@@ -15521,6 +15521,65 @@ BEGIN
 
 END //
 
+DROP PROCEDURE IF EXISTS processOrderPayment//
+
+CREATE PROCEDURE processOrderPayment(
+    IN p_shop_order_id INT,
+    IN p_payment_method_id INT,
+    IN p_amount_tendered DECIMAL(15,2),
+    IN p_reference_number VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_total_due DECIMAL(15,2);
+    DECLARE v_change DECIMAL(15,2) DEFAULT 0;
+    DECLARE v_payment_name VARCHAR(200);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- 1. Get the total amount due
+    SELECT total_amount_due INTO v_total_due 
+    FROM shop_order WHERE shop_order_id = p_shop_order_id;
+
+    -- 2. Validate "No Partial Payment"
+    IF p_amount_tendered < v_total_due THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insufficient payment amount.';
+    END IF;
+
+    -- 3. Calculate Change
+    SET v_change = p_amount_tendered - v_total_due;
+
+    -- 4. Get Payment Method Name
+    SELECT payment_method_name INTO v_payment_name 
+    FROM payment_method WHERE payment_method_id = p_payment_method_id;
+
+    -- 5. Record Payment
+    INSERT INTO shop_order_payment (
+        shop_order_id, payment_method_id, payment_method_name, 
+        amount_paid, reference_number, change_amount, last_log_by
+    ) VALUES (
+        p_shop_order_id, p_payment_method_id, v_payment_name, 
+        p_amount_tendered, p_reference_number, v_change, p_last_log_by
+    );
+
+    -- 6. Update Order Status
+    UPDATE shop_order SET 
+        shop_order_status = 'Paid',
+        paid_date = NOW(),
+        last_log_by = p_last_log_by
+    WHERE shop_order_id = p_shop_order_id;
+
+    COMMIT;
+
+    SELECT v_change AS change_amount, 'SUCCESS' AS response_code;
+END //
+
 /* =============================================================================================
    END OF PROCEDURES
 ============================================================================================= */

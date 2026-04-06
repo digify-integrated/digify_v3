@@ -1892,6 +1892,22 @@ class ShopController {
         ];
     }
 
+    public function processPayment() {
+        $orderId = $_POST['order_id'];
+        $methodId = $_POST['method_id']; // Usually from the active input row
+        $amount = $_POST['amount'];
+        $ref = $_POST['reference_number'] ?? null;
+        $userId = $this->session->get('user_id');
+
+        $result = $this->model->savePayment($orderId, $methodId, $amount, $ref, $userId);
+
+        if ($result['response_code'] === 'SUCCESS') {
+            $this->systemHelper::sendSuccessResponse('Paid', "Change: ₱" . $result['change_amount']);
+        } else {
+            $this->systemHelper::sendErrorResponse('Payment Failed', $result['response_code']);
+        }
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */

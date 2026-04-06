@@ -8253,7 +8253,7 @@ CREATE TABLE shop_order_details (
   shop_order_id INT UNSIGNED NOT NULL,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
-  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled', 'Void') DEFAULT 'Pending',
+  order_status ENUM('Pending', 'Kitchen', 'Preparing', 'To Serve', 'Completed', 'Cancelled', 'Paid', 'Void') DEFAULT 'Pending',
   quantity DECIMAL(15,4) DEFAULT 1,
   quantity_sent DECIMAL(15,4) DEFAULT 0,
   base_price DECIMAL(15,2) NOT NULL,
@@ -8270,6 +8270,7 @@ CREATE TABLE shop_order_details (
   to_serve_date DATETIME,
   completed_date DATETIME,
   cancelled_date DATETIME,
+  paid_date DATETIME,
   void_date DATETIME,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -8380,6 +8381,46 @@ CREATE INDEX idx_shop_order_applied_charges_charge_type_id ON shop_order_applied
 CREATE INDEX idx_shop_order_applied_charges_tax_type ON shop_order_applied_charges(tax_type);
 CREATE INDEX idx_shop_order_applied_charges_application_order ON shop_order_applied_charges(application_order);
 CREATE INDEX idx_shop_order_applied_charges_value_type ON shop_order_applied_charges(value_type);
+
+/* =============================================================================================
+  INITIAL VALUES: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+/* =============================================================================================
+  END OF TABLE DEFINITIONS
+============================================================================================= */
+
+
+
+/* =============================================================================================
+  TABLE: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+DROP TABLE IF EXISTS shop_order_payment;
+
+CREATE TABLE shop_order_payment (
+  shop_order_payment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  shop_order_id INT UNSIGNED NOT NULL,
+  payment_method_id INT UNSIGNED NOT NULL,
+  payment_method_name VARCHAR(200) NOT NULL, -- Snapshot for reporting
+  amount_paid DECIMAL(15,2) NOT NULL DEFAULT 0,
+  reference_number VARCHAR(100), -- For GCash/Checks/Cards
+  change_amount DECIMAL(15,2) DEFAULT 0,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_log_by INT UNSIGNED NOT NULL,
+  FOREIGN KEY (shop_order_id) REFERENCES shop_order(shop_order_id),
+  FOREIGN KEY (payment_method_id) REFERENCES payment_method(payment_method_id),
+  FOREIGN KEY (last_log_by) REFERENCES user_account(user_account_id)
+);
+
+/* =============================================================================================
+  INDEX: SHOP ORDER APPLIED CHARGES
+============================================================================================= */
+
+CREATE INDEX idx_shop_order_payment_charges_shop_order_id ON shop_order_payment(shop_order_id);
+CREATE INDEX idx_shop_order_payment_charges_payment_method_id ON shop_order_payment(payment_method_id);
+CREATE INDEX idx_shop_order_payment_charges_reference_number ON shop_order_payment(reference_number);
 
 /* =============================================================================================
   INITIAL VALUES: SHOP ORDER APPLIED CHARGES

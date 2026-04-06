@@ -1228,6 +1228,21 @@ class Shop extends Model {
         ]);
     }
 
+    public function getShopPaymentMethods(int $shopId, int $orderId) {
+        // Get total due from order
+        $order = $this->fetch("SELECT total_amount_due FROM shop_order WHERE shop_order_id = ?", [$orderId]);
+        
+        // Get methods assigned to this shop
+        $methods = $this->fetchAll("SELECT payment_method_id, payment_method_name 
+                                    FROM shop_payment_method WHERE shop_id = ?", [$shopId]);
+        
+        return ['total_due' => $order['total_amount_due'], 'methods' => $methods];
+    }
+
+    public function savePayment($orderId, $methodId, $amount, $ref, $userId) {
+        return $this->fetch("CALL processOrderPayment(?, ?, ?, ?, ?)", [$orderId, $methodId, $amount, $ref, $userId]);
+    }
+
     /* =============================================================================================
         END OF METHODS
     ============================================================================================= */
