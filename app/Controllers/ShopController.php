@@ -109,6 +109,7 @@ class ShopController {
             'save shop order discount'              => $this->saveShopOrderDiscount($lastLogBy),
             'save shop order charge'                => $this->saveShopOrderCharge($lastLogBy),
             'save kitchen ticket'                   => $this->saveKitchenTicket($lastLogBy),
+            'save shop payment'                     => $this->saveShopPayment($lastLogBy),
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
@@ -149,6 +150,7 @@ class ShopController {
             'generate shop order list'              => $this->generateShopOrderList(),
             'generate shop discounts list'          => $this->generateShopDiscountList(),
             'generate shop charges list'            => $this->generateShopChargeList(),
+            'generate shop payment methods list'    => $this->generateShopPaymentMethodsList(),
             'generate shop options'                 => $this->generateShopOptions(),
             default                                 => $this->systemHelper::sendErrorResponse(
                                                         'Transaction Failed',
@@ -541,7 +543,7 @@ class ShopController {
         }
 
         // Call the model method that triggers the Stored Procedure
-        $result = $this->shop->processKitchenTicket((int)$shopOrderId, $lastLogBy);
+        $result = $this->shop->saveKitchenTicket((int)$shopOrderId, $lastLogBy);
 
         // Handle the response from the Stored Procedure
         if ($result && ($result['response_code'] === 'SUCCESS' || $result['response_code'] === 'NO_CHANGES')) {            
@@ -564,6 +566,58 @@ class ShopController {
             $this->systemHelper::sendErrorResponse(
                 'System Error',
                 'An unexpected error occurred while processing the kitchen ticket.'
+            );
+        }
+    }
+
+    public function saveShopPayment(int $lastLogBy) {
+        $shopOrderId = $_POST['shop_order_id'] ?? null;        
+        $paymentsRaw = $_POST['payments'] ?? '[]';
+        $payments = json_decode($paymentsRaw, true);
+
+        if (!$shopOrderId || empty($payments)) {
+            $this->systemHelper::sendErrorResponse('Missing Data', 'Order ID and payment details are required.');
+            return;
+        }
+
+        $allSuccessful = true;
+        $errors = [];
+
+        foreach ($payments as $payment) {
+            $paymentMethodId    = (int)$payment['method_id'];
+            $amountPaid         = (float)$payment['amount'];
+            $reference          = $payment['reference'] ?? '';
+
+            $paymentMethodDetails  = $this->paymentMethod->fetchPaymentMethod($paymentMethodId);
+            $paymentMethodName     = $paymentMethodDetails['payment_method_name'] ?? null;
+
+            // Trigger your model method that calls the Stored Procedure
+            $result = $this->shop->saveShopPayment(
+                $shopOrderId, 
+                $paymentMethodId, 
+                $paymentMethodName, 
+                $amountPaid, 
+                $reference, 
+                $lastLogBy
+            );
+
+            // Check the response from your Stored Procedure
+            if (!$result || $result['response_code'] !== 'SUCCESS') {
+                $allSuccessful = false;
+                $errors[] = $result['message'] ?? "Error processing payment method: $paymentMethodName";
+            }
+        }
+
+        // 4. Final System Response
+        if ($allSuccessful) {
+            $this->systemHelper::sendSuccessResponse(
+                'Payment Recorded',
+                "All payments have been successfully processed and the order status updated."
+            );
+        } else {
+            $this->systemHelper::sendErrorResponse(
+                'Transaction Warning',
+                "Some payments failed to record: <br>" . implode('<br>', $errors)
             );
         }
     }
@@ -1732,6 +1786,33 @@ class ShopController {
         ]);
     }
     
+    public function generateShopPaymentMethodsList() {
+        $shopId = $_POST['shop_id'] ?? null;
+        $shopOrderId = $_POST['shop_order_id'] ?? null;
+
+        // Get the total from your model
+        $order = $this->shop->fetchShopOrderTotal($shopOrderId);
+        $totalAmountDue = $order['total_amount_due'] ?? 0;
+
+        // Get the methods for this shop
+        $shopPaymentMethods = $this->shop->generateShopPaymentMethodTable($shopId);
+        
+        $methods = [];
+        foreach ($shopPaymentMethods as $row) {
+            $methods[] = [
+                // Using snake_case to match your DB and JS expectations
+                'payment_method_id'   => $row['payment_method_id'],
+                'payment_method_name' => $row['payment_method_name']
+            ];
+        }
+
+        echo json_encode([
+            'success'        => true,
+            'totalAmountDue' => (float)$totalAmountDue,
+            'methods'        => $methods // Changed from 'charges' to 'methods'
+        ]);
+    }
+    
     public function generateShopRegisterTables() {
         $shopId = $_POST['shop_id'] ?? null;
         $floorPlans = $this->shop->fetchShopFloorPlans($shopId);
@@ -1890,22 +1971,6 @@ class ShopController {
             'net_sales' => $netSales,
             'additive_tax' => $additiveTaxAmount
         ];
-    }
-
-    public function processPayment() {
-        $orderId = $_POST['order_id'];
-        $methodId = $_POST['method_id']; // Usually from the active input row
-        $amount = $_POST['amount'];
-        $ref = $_POST['reference_number'] ?? null;
-        $userId = $this->session->get('user_id');
-
-        $result = $this->model->savePayment($orderId, $methodId, $amount, $ref, $userId);
-
-        if ($result['response_code'] === 'SUCCESS') {
-            $this->systemHelper::sendSuccessResponse('Paid', "Change: ₱" . $result['change_amount']);
-        } else {
-            $this->systemHelper::sendErrorResponse('Payment Failed', $result['response_code']);
-        }
     }
 
     /* =============================================================================================

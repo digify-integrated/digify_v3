@@ -14716,7 +14716,7 @@ CREATE PROCEDURE generateShopPaymentMethodTable(
     IN p_shop_id INT
 )
 BEGIN
-	SELECT shop_payment_method_id, payment_method_name
+	SELECT shop_payment_method_id, payment_method_id, payment_method_name
     FROM shop_payment_method 
     WHERE shop_id = p_shop_id
     ORDER BY payment_method_name;
@@ -14806,6 +14806,161 @@ END //
 /* =============================================================================================
    SECTION 1: SAVE PROCEDURES
 ============================================================================================= */
+
+DROP PROCEDURE IF EXISTS saveKitchenTicket//
+
+CREATE PROCEDURE saveKitchenTicket(
+    IN p_shop_order_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_kitchen_ticket_id INT DEFAULT 0;
+    DECLARE v_ticket_count INT;
+    DECLARE v_ticket_number VARCHAR(100);
+    DECLARE v_change_count INT DEFAULT 0;
+
+    -- Return full error details to PHP if something fails
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 @p1 = RETURNED_SQLSTATE, @p2 = MESSAGE_TEXT;
+        ROLLBACK;
+        SELECT 0 AS kitchen_ticket_id, @p1 AS ticket_number, @p2 AS response_code;
+    END;
+
+    START TRANSACTION;
+
+    -- 1. Identify if any items have a delta (Quantity or Note change)
+    SELECT COUNT(*) INTO v_change_count
+    FROM shop_order_details
+    WHERE shop_order_id = p_shop_order_id 
+      AND (
+          IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) 
+          OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, ''))
+      );
+
+    IF v_change_count > 0 THEN
+        
+        -- 2. Generate Ticket Header
+        SELECT COUNT(*) + 1 INTO v_ticket_count 
+        FROM kitchen_tickets WHERE shop_order_id = p_shop_order_id;
+        
+        SET v_ticket_number = CONCAT('TKT-', p_shop_order_id, '-', v_ticket_count);
+
+        INSERT INTO kitchen_tickets (
+            shop_order_id, ticket_number, ticket_status, last_log_by
+        ) VALUES (
+            p_shop_order_id, v_ticket_number, 'Pending', p_last_log_by
+        );
+
+        SET v_kitchen_ticket_id = LAST_INSERT_ID();
+
+        -- 3. Insert Items with Context (Odoo-Style Snapshot)
+        INSERT INTO kitchen_ticket_items (
+            kitchen_ticket_id, shop_order_details_id, product_id, product_name,
+            quantity_before, quantity_change, quantity_after,
+            item_status, note, void_reason, last_log_by
+        )
+        SELECT 
+            v_kitchen_ticket_id, shop_order_details_id, product_id, product_name,
+            IFNULL(quantity_sent, 0),                            -- BEFORE
+            (IFNULL(quantity, 0) - IFNULL(quantity_sent, 0)),    -- CHANGE (The Delta)
+            IFNULL(quantity, 0),                                 -- AFTER (New Total)
+            CASE WHEN (quantity - quantity_sent) < 0 THEN 'Cancelled' ELSE 'Sent' END,
+            note,
+            CASE WHEN (quantity - quantity_sent) < 0 THEN 'Reduced' ELSE NULL END,
+            p_last_log_by
+        FROM shop_order_details
+        WHERE shop_order_id = p_shop_order_id 
+          AND (IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, '')));
+
+        -- 4. Sync the main order details table
+        UPDATE shop_order_details
+        SET quantity_sent = quantity,
+            last_sent_note = IFNULL(note, ''),
+            sent_to_kitchen = IFNULL(sent_to_kitchen, NOW()),
+            order_status = CASE 
+                WHEN quantity <= 0 THEN 'Cancelled'
+                WHEN order_status = 'Pending' THEN 'Kitchen'
+                ELSE order_status
+            END,
+            last_log_by = p_last_log_by
+        WHERE shop_order_id = p_shop_order_id 
+          AND (IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, '')));
+
+        COMMIT;
+        SELECT v_kitchen_ticket_id AS kitchen_ticket_id, v_ticket_number AS ticket_number, 'SUCCESS' AS response_code;
+    
+    ELSE
+        ROLLBACK;
+        SELECT 0 AS kitchen_ticket_id, 'NONE' AS ticket_number, 'NO_CHANGES' AS response_code;
+    END IF;
+
+END //
+
+DROP PROCEDURE IF EXISTS saveShopPayment//
+
+CREATE PROCEDURE saveShopPayment(
+    IN p_shop_order_id INT,
+    IN p_payment_method_id INT,
+    IN p_payment_method_name VARCHAR(100),
+    IN p_amount_paid DECIMAL(18, 2),
+    IN p_reference_number VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_total_due DECIMAL(18, 2);
+    DECLARE v_new_total_paid DECIMAL(18, 2);
+    
+    -- Error Handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'ERROR' AS response_code, 'Database transaction failed' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- 1. Insert the payment record
+    INSERT INTO shop_order_payment (
+        shop_order_id, 
+        payment_method_id, 
+        payment_method_name, 
+        amount_paid, 
+        reference_number, 
+        last_log_by
+    ) VALUES (
+        p_shop_order_id, 
+        p_payment_method_id, 
+        p_payment_method_name, 
+        p_amount_paid, 
+        p_reference_number, 
+        p_last_log_by
+    );
+
+    -- 2. Fetch the Order Total and calculate the sum of ALL payments for this order
+    SELECT total_amount_due INTO v_total_due FROM shop_order WHERE shop_order_id = p_shop_order_id;
+    SELECT SUM(amount_paid) INTO v_new_total_paid FROM shop_order_payment WHERE shop_order_id = p_shop_order_id;
+
+    -- 3. Strict Validation: Must be Equal or Greater (for change)
+    IF v_new_total_paid >= v_total_due THEN
+        UPDATE shop_order 
+        SET 
+            shop_order_status   = 'Paid',
+            paid_date           = NOW(),
+            total_amount_paid   = v_new_total_paid,
+            total_change        = (v_new_total_paid - v_total_due),
+            last_log_by         = p_last_log_by
+        WHERE shop_order_id     = p_shop_order_id;
+        
+        COMMIT;
+        SELECT 'SUCCESS' AS response_code, 'Payment processed successfully' AS message;
+    ELSE
+        -- PARTIAL PAYMENT DETECTED: Undo the INSERT and throw error
+        ROLLBACK;
+        SELECT 'ERROR' AS response_code, 'Partial payments are not allowed. Please collect the full amount.' AS message;
+    END IF;
+
+END //
 
 /* =============================================================================================
    SECTION 2: INSERT PROCEDURES
@@ -15430,155 +15585,6 @@ END //
 /* =============================================================================================
    SECTION 8: CUSTOM PROCEDURES
 ============================================================================================= */
-
-DROP PROCEDURE IF EXISTS processKitchenTicket//
-
-CREATE PROCEDURE processKitchenTicket(
-    IN p_shop_order_id INT,
-    IN p_last_log_by INT
-)
-BEGIN
-    DECLARE v_kitchen_ticket_id INT DEFAULT 0;
-    DECLARE v_ticket_count INT;
-    DECLARE v_ticket_number VARCHAR(100);
-    DECLARE v_change_count INT DEFAULT 0;
-
-    -- Return full error details to PHP if something fails
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        GET DIAGNOSTICS CONDITION 1 @p1 = RETURNED_SQLSTATE, @p2 = MESSAGE_TEXT;
-        ROLLBACK;
-        SELECT 0 AS kitchen_ticket_id, @p1 AS ticket_number, @p2 AS response_code;
-    END;
-
-    START TRANSACTION;
-
-    -- 1. Identify if any items have a delta (Quantity or Note change)
-    SELECT COUNT(*) INTO v_change_count
-    FROM shop_order_details
-    WHERE shop_order_id = p_shop_order_id 
-      AND (
-          IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) 
-          OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, ''))
-      );
-
-    IF v_change_count > 0 THEN
-        
-        -- 2. Generate Ticket Header
-        SELECT COUNT(*) + 1 INTO v_ticket_count 
-        FROM kitchen_tickets WHERE shop_order_id = p_shop_order_id;
-        
-        SET v_ticket_number = CONCAT('TKT-', p_shop_order_id, '-', v_ticket_count);
-
-        INSERT INTO kitchen_tickets (
-            shop_order_id, ticket_number, ticket_status, last_log_by
-        ) VALUES (
-            p_shop_order_id, v_ticket_number, 'Pending', p_last_log_by
-        );
-
-        SET v_kitchen_ticket_id = LAST_INSERT_ID();
-
-        -- 3. Insert Items with Context (Odoo-Style Snapshot)
-        INSERT INTO kitchen_ticket_items (
-            kitchen_ticket_id, shop_order_details_id, product_id, product_name,
-            quantity_before, quantity_change, quantity_after,
-            item_status, note, void_reason, last_log_by
-        )
-        SELECT 
-            v_kitchen_ticket_id, shop_order_details_id, product_id, product_name,
-            IFNULL(quantity_sent, 0),                            -- BEFORE
-            (IFNULL(quantity, 0) - IFNULL(quantity_sent, 0)),    -- CHANGE (The Delta)
-            IFNULL(quantity, 0),                                 -- AFTER (New Total)
-            CASE WHEN (quantity - quantity_sent) < 0 THEN 'Cancelled' ELSE 'Sent' END,
-            note,
-            CASE WHEN (quantity - quantity_sent) < 0 THEN 'Reduced' ELSE NULL END,
-            p_last_log_by
-        FROM shop_order_details
-        WHERE shop_order_id = p_shop_order_id 
-          AND (IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, '')));
-
-        -- 4. Sync the main order details table
-        UPDATE shop_order_details
-        SET quantity_sent = quantity,
-            last_sent_note = IFNULL(note, ''),
-            sent_to_kitchen = IFNULL(sent_to_kitchen, NOW()),
-            order_status = CASE 
-                WHEN quantity <= 0 THEN 'Cancelled'
-                WHEN order_status = 'Pending' THEN 'Kitchen'
-                ELSE order_status
-            END,
-            last_log_by = p_last_log_by
-        WHERE shop_order_id = p_shop_order_id 
-          AND (IFNULL(quantity, 0) != IFNULL(quantity_sent, 0) OR (quantity > 0 AND IFNULL(note, '') != IFNULL(last_sent_note, '')));
-
-        COMMIT;
-        SELECT v_kitchen_ticket_id AS kitchen_ticket_id, v_ticket_number AS ticket_number, 'SUCCESS' AS response_code;
-    
-    ELSE
-        ROLLBACK;
-        SELECT 0 AS kitchen_ticket_id, 'NONE' AS ticket_number, 'NO_CHANGES' AS response_code;
-    END IF;
-
-END //
-
-DROP PROCEDURE IF EXISTS processOrderPayment//
-
-CREATE PROCEDURE processOrderPayment(
-    IN p_shop_order_id INT,
-    IN p_payment_method_id INT,
-    IN p_amount_tendered DECIMAL(15,2),
-    IN p_reference_number VARCHAR(100),
-    IN p_last_log_by INT
-)
-BEGIN
-    DECLARE v_total_due DECIMAL(15,2);
-    DECLARE v_change DECIMAL(15,2) DEFAULT 0;
-    DECLARE v_payment_name VARCHAR(200);
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
-
-    START TRANSACTION;
-
-    -- 1. Get the total amount due
-    SELECT total_amount_due INTO v_total_due 
-    FROM shop_order WHERE shop_order_id = p_shop_order_id;
-
-    -- 2. Validate "No Partial Payment"
-    IF p_amount_tendered < v_total_due THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insufficient payment amount.';
-    END IF;
-
-    -- 3. Calculate Change
-    SET v_change = p_amount_tendered - v_total_due;
-
-    -- 4. Get Payment Method Name
-    SELECT payment_method_name INTO v_payment_name 
-    FROM payment_method WHERE payment_method_id = p_payment_method_id;
-
-    -- 5. Record Payment
-    INSERT INTO shop_order_payment (
-        shop_order_id, payment_method_id, payment_method_name, 
-        amount_paid, reference_number, change_amount, last_log_by
-    ) VALUES (
-        p_shop_order_id, p_payment_method_id, v_payment_name, 
-        p_amount_tendered, p_reference_number, v_change, p_last_log_by
-    );
-
-    -- 6. Update Order Status
-    UPDATE shop_order SET 
-        shop_order_status = 'Paid',
-        paid_date = NOW(),
-        last_log_by = p_last_log_by
-    WHERE shop_order_id = p_shop_order_id;
-
-    COMMIT;
-
-    SELECT v_change AS change_amount, 'SUCCESS' AS response_code;
-END //
 
 /* =============================================================================================
    END OF PROCEDURES

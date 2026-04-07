@@ -553,63 +553,128 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadPaymentForm = async () => {
-        const data = await apiRequest('generate shop payment methods', {
+        const data = await apiRequest('generate shop payment methods list', {
             shop_id: getShopId(),
             shop_order_id: getOrderId()
         });
 
-        if (!data?.success) return;
+        if (!data?.success || !data.methods) return;
 
-        const totalDue = parseFloat(data.total_amount_due);
-        const $container = $('#payment-methods-container');
+        const totalDue = parseFloat(String(data.totalAmountDue).replace(/[^0-9.-]+/g, ""));
+        const $container = $('#payment-lists');
         
         let html = `
-            <div class="alert alert-info d-flex justify-content-between align-items-center">
-                <span class="fw-bold">Total Amount Due:</span>
-                <span class="fs-4 fw-bold" id="display-total-due">₱${totalDue.toLocaleString()}</span>
+            <div class="text-center mb-4 py-3">
+                <span class="text-uppercase tracking-widest opacity-75 fs-5 fw-bold">Amount to Collect</span>
+                <h1 class="display-2 fw-black mb-0">₱ ${totalDue.toLocaleString(undefined, {minimumFractionDigits: 2})}</h1>
             </div>
-            <div class="list-group mb-3">`;
+
+            <div class="payment-methods-stack">`;
 
         data.methods.forEach(method => {
-            const needsRef = !['Cash'].includes(method.payment_method_name);
             html += `
-                <div class="list-group-item p-3 payment-row" data-id="${method.payment_method_id}">
-                    <div class="row align-items-center">
-                        <div class="col-md-4 fw-bold">${method.payment_method_name}</div>
-                        <div class="col-md-4">
-                            <input type="number" class="form-control payment-input" 
-                                placeholder="Amount" step="0.01" min="0">
+                <div class="card mb-3 border-0 payment-card transition-all" 
+                    id="card-${method.payment_method_id}" 
+                    style="border-radius: 1rem;">
+                    <div class="card-body px-8 py-4">
+                        <div class="row align-items-center">
+                            <div class="col-12 col-sm-6 mb-3 mb-sm-0">
+                                <h4 class="mb-0 fw-bold text-emphasis">${method.payment_method_name}</h4>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-0 bg-body">₱</span>
+                                    <input type="number" 
+                                        class="form-control border-0 bg-body fw-bold payment-input" 
+                                        placeholder="0.00" 
+                                        min="0"
+                                        step="0.01"
+                                        data-id="${method.payment_method_id}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            ${needsRef ? `<input type="text" class="form-control ref-input" placeholder="Ref/Check #">` : ''}
+                        
+                        <div class="mt-4 pt-3 border-top d-none animate__animated animate__fadeIn" 
+                            id="extra-${method.payment_method_id}">
+                            <div class="form-floating">
+                                <input type="text" 
+                                    class="form-control border-0 bg-body ref-input" 
+                                    id="ref-${method.payment_method_id}"
+                                    placeholder="Reference Number"
+                                    data-id="${method.payment_method_id}">
+                                <label for="ref-${method.payment_method_id}" class="text-muted">Transaction Details (Ref #, Check #, etc.)</label>
+                            </div>
                         </div>
                     </div>
                 </div>`;
         });
 
-        html += `</div>
-            <div class="alert alert-secondary d-flex justify-content-between align-items-center">
-                <span class="fw-bold">Change:</span>
-                <span class="fs-4 fw-bold text-success" id="display-change">₱0.00</span>
-            </div>
-            <button id="btn-process-payment" class="btn btn-primary btn-lg w-100 mt-2" disabled>
-                Process Payment
-            </button>`;
+        html += `
+            </div> 
+
+            <div id="payment-status-alert" class="card mt-5 border-0 shadow-lg bg-warning text-white">
+                <div class="card-body p-5 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 id="status-label" class="mb-0 fw-bold text-white">Remaining</h3>
+                        <p id="status-subtext" class="small mb-0 opacity-75">Awaiting entry...</p>
+                    </div>
+                    <div class="text-end">
+                        <h2 id="status-value" class="display-6 fw-bold mb-0 text-white">₱ ${totalDue.toLocaleString(undefined, {minimumFractionDigits: 2})}</h2>
+                    </div>
+                </div>
+            </div>`;
 
         $container.html(html);
 
-        // Change Calculation Logic
-        $(document).on('input', '.payment-input', function() {
+        $container.off('input', '.payment-input').on('input', '.payment-input', function() {
             let totalTendered = 0;
+            const currentInput = $(this);
+            const methodId = currentInput.data('id');
+            const val = parseFloat(currentInput.val());
+
+            const $extra = $(`#extra-${methodId}`);
+            const $card = $(`#card-${methodId}`);
+
+            if (!isNaN(val) && val > 0) {
+                $extra.removeClass('d-none');
+                $card.addClass('bg-body shadow-lg border-start border-4 border-success')
+                    .css('transform', 'scale(1.02)');
+            } else {
+                $extra.addClass('d-none');
+                $card.removeClass('shadow-lg border-start border-4 border-success')
+                    .css('transform', 'scale(1)');
+            }
+
             $('.payment-input').each(function() {
-                totalTendered += parseFloat($(this).val()) || 0;
+                const v = parseFloat($(this).val());
+                if (!isNaN(v)) totalTendered += v;
             });
 
-            const change = totalTendered - totalDue;
-            $('#display-change').text(`₱${Math.max(0, change).toLocaleString()}`);
-            
-            // Enable button only if amount is sufficient
-            $('#btn-process-payment').prop('disabled', totalTendered < totalDue);
+            const diff = totalTendered - totalDue;
+            const $statusCard = $('#payment-status-alert');
+            const $statusLabel = $('#status-label');
+            const $statusValue = $('#status-value');
+            const $statusSub = $('#status-subtext');
+
+            if (totalDue <= 0 || totalTendered < totalDue) {
+                const remaining = totalDue - totalTendered;
+                $statusCard.removeClass('bg-success').addClass('bg-warning');
+                $statusLabel.text('Remaining');
+                $statusSub.text('Collect balance');
+                $statusValue.text(`₱ ${remaining.toLocaleString(undefined, {minimumFractionDigits: 2})}`);
+                $('#submit-payment').prop('disabled', true);
+            } else {
+                $statusCard.removeClass('bg-warning').addClass('bg-success');
+                $statusLabel.text('Change');
+                $statusSub.text('Payment Satisfied');
+                
+                const changeAmount = Math.abs(diff);
+                const sign = diff > 0 ? '- ' : ''; 
+
+                $statusValue.text(`${sign}₱ ${changeAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}`);
+                
+                $('#submit-payment').prop('disabled', false);
+            }
         });
     };
 
@@ -763,9 +828,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRegisterTables();
     loadRegisterProductCategories();
 
-    /**
-     * EVENT DELEGATION
-     */
     document.addEventListener('click', async (event) => {
         const target = event.target;
 
@@ -879,6 +941,10 @@ document.addEventListener('DOMContentLoaded', () => {
             loadOrderCharge(getOrderId());
         }
 
+        if (target.closest('#payment-button')) {
+            loadPaymentForm();
+        }
+
         if (target.closest('.delete-order-details')){
             const transaction           = 'delete shop order details';
             const button                = event.target.closest('.delete-order-details');
@@ -985,11 +1051,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (target.closest('#discount-button')){
-            loadOrderDiscount(getOrderId());
+            loadOrderDiscount();
         }
 
         if (target.closest('#charge-button')){
-            loadOrderCharge(getOrderId());
+            loadOrderCharge();
         }
     });
 
@@ -1215,7 +1281,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Form Validation logic remains the same...
+    $('#submit-payment').off('click').on('click', async function() {
+        const $btn = $(this);
+        const payments = [];
+        let totalTendered = 0; // Initialize as a number
+        
+        // Loop through all payment inputs to collect data
+        $('.payment-input').each(function() {
+            const rawValue = this.value; 
+            const amount = parseFloat(rawValue);
+            const methodId = $(this).data('id');
+            
+            if (!isNaN(amount) && amount > 0) {
+                totalTendered += amount; // Proper math addition
+                const reference = $(`.ref-input[data-id="${methodId}"]`).val();
+                
+                payments.push({
+                    "method_id": parseInt(methodId),
+                    "amount": amount.toFixed(2),
+                    "reference": reference || ''
+                });
+            }
+        });
+
+        if (payments.length === 0) {
+            showNotification('Validate Payment Error', 'Please enter at least one payment amount', 'error');
+            return;
+        }
+
+        // Prepare the payload
+        const payload = {
+            shop_id: getShopId(),
+            shop_order_id: getOrderId(),
+            // IMPORTANT: Stringify the array so URLSearchParams doesn't break it
+            payments: JSON.stringify(payments), 
+            total_tendered: totalTendered.toFixed(2)
+        };
+
+        // UI Feedback
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Validating...');
+
+        try {
+            const response = await apiRequest('save shop payment', payload);
+            
+            if (response && response.success) {
+                $('#payment-modal').modal('hide');
+                showNotification(response.title, response.message, response.message_type);
+                resetRegister();
+                loadRegisterTables();
+                traverseToTablesTab();
+                $btn.prop('disabled', false).text('Validate');
+            } else {
+                throw new Error(response.message || "Payment failed");
+            }
+        } catch (error) {
+            showNotification('Validate Payment Error', error.message, 'error');
+            $btn.prop('disabled', false).text('Validate');
+        }
+    });
+
     $('#set_tab_form').validate({
         rules: { order_for: { required: true } },
         messages: { order_for: { required: 'Enter the name' } },

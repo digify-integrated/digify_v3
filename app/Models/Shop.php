@@ -40,6 +40,48 @@ class Shop extends Model {
 
         return $row['new_shop_id'] ?? null;
     }
+
+    public function saveKitchenTicket(
+        int $p_shop_order_id,
+        int $p_last_log_by
+    ) {
+        $sql = 'CALL saveKitchenTicket(
+            :p_shop_order_id,
+            :p_last_log_by
+        )';
+
+        return $this->fetch($sql, [
+            'p_shop_order_id' => $p_shop_order_id,
+            'p_last_log_by'   => $p_last_log_by
+        ]);
+    }
+
+    public function saveShopPayment(
+        int $p_shop_order_id,
+        int $p_payment_method_id,
+        string $p_payment_method_name,
+        string $p_amount_paid,
+        string $p_reference_number,
+        int $p_last_log_by
+    ) {
+        $sql = 'CALL saveShopPayment(
+            :p_shop_order_id,
+            :p_payment_method_id,
+            :p_payment_method_name,
+            :p_amount_paid,
+            :p_reference_number,
+            :p_last_log_by
+        )';
+
+        return $this->fetch($sql, [
+            'p_shop_order_id'       => $p_shop_order_id,
+            'p_payment_method_id'   => $p_payment_method_id,
+            'p_payment_method_name' => $p_payment_method_name,
+            'p_amount_paid'         => $p_amount_paid,
+            'p_reference_number'    => $p_reference_number,
+            'p_last_log_by'         => $p_last_log_by
+        ]);
+    }
     
     /* =============================================================================================
         SECTION 2: INSERT METHODS
@@ -1212,21 +1254,6 @@ class Shop extends Model {
     /* =============================================================================================
         SECTION 8: CUSTOM METHODS
     ============================================================================================= */
-
-    public function processKitchenTicket(
-        int $shopOrderId,
-        int $lastLogBy
-    ) {
-        $sql = 'CALL processKitchenTicket(
-            :p_shop_order_id,
-            :p_last_log_by
-        )';
-
-        return $this->fetch($sql, [
-            'p_shop_order_id' => $shopOrderId,
-            'p_last_log_by'   => $lastLogBy
-        ]);
-    }
 
     public function getShopPaymentMethods(int $shopId, int $orderId) {
         // Get total due from order

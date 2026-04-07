@@ -92,7 +92,7 @@
                                 Set Table
                             </button>
                         <?php endif; ?>
-                        <button class="btn btn-success w-100 p-4 d-none" id="payment-button">
+                        <button class="btn btn-success w-100 p-4 d-none" data-bs-toggle="modal" data-bs-target="#payment-modal" id="payment-button">
                             Payment
                         </button>
                     </div>
@@ -233,6 +233,21 @@
                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     Close
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="payment-modal" class="modal fade" tabindex="-1" aria-labelledby="payment-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="payment-lists"></div>
+                <div class="mt-4">                   
+                    <button type="button" class="btn btn-danger p-5 fs-3 w-100" id="submit-payment" disabled>
+                        Validate
+                    </button>
+                </div>
             </div>
         </div>
     </div>

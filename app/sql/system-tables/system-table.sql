@@ -8214,6 +8214,8 @@ CREATE TABLE shop_order (
   additive_tax_total DECIMAL(15,2) DEFAULT 0,
   total_charge_amount DECIMAL(15,2) DEFAULT 0,
   total_amount_due DECIMAL(15,2) DEFAULT 0,
+  total_amount_paid DECIMAL(15,2) DEFAULT 0,
+  total_change DECIMAL(15,2) DEFAULT 0,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -8402,10 +8404,9 @@ CREATE TABLE shop_order_payment (
   shop_order_payment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   shop_order_id INT UNSIGNED NOT NULL,
   payment_method_id INT UNSIGNED NOT NULL,
-  payment_method_name VARCHAR(200) NOT NULL, -- Snapshot for reporting
+  payment_method_name VARCHAR(200) NOT NULL,
   amount_paid DECIMAL(15,2) NOT NULL DEFAULT 0,
-  reference_number VARCHAR(100), -- For GCash/Checks/Cards
-  change_amount DECIMAL(15,2) DEFAULT 0,
+  reference_number VARCHAR(100),
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED NOT NULL,
