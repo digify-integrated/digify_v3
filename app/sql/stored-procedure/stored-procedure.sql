@@ -14710,6 +14710,18 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+DROP PROCEDURE IF EXISTS generateShopOrderTable//
+
+CREATE PROCEDURE generateShopOrderTable(
+    IN p_shop_id INT
+)
+BEGIN
+    SELECT *
+    FROM shop_order
+    WHERE shop_id = p_shop_id AND shop_order_status NOT IN ('Cancelled')
+    ORDER BY shop_order_id;
+END //
+
 DROP PROCEDURE IF EXISTS generateShopPaymentMethodTable//
 
 CREATE PROCEDURE generateShopPaymentMethodTable(

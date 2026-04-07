@@ -1167,6 +1167,18 @@ class Shop extends Model {
         ]);
     }
 
+    public function generateShopOrderTable(
+        int $p_shop_id,
+    ) {
+        $sql = 'CALL generateShopOrderTable(
+            :p_shop_id
+        )';
+        
+        return $this->fetchAll($sql, [
+            'p_shop_id' => $p_shop_id,
+        ]);
+    }
+
     public function generateShopPaymentMethodTable(
         null|string $p_shop_id
     ) {

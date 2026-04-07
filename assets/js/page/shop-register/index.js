@@ -1,3 +1,4 @@
+import { initializeDatatable, initializeDatatableControls, reloadDatatable } from '../../utilities/datatable.js';
 import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 import { disableButton, enableButton, resetForm } from '../../utilities/form-utilities.js';
@@ -8,10 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const getShopId = () => $shopIdInput.val();
     const getOrderId = () => sessionStorage.getItem('shop_order_id');
 
-    /**
-     * REAL-TIME UI UPDATER
-     * Manages totals AND list quantities instantly without waiting for PHP.
-     */
     const updateUIOptimistically = (productId, price, name) => {
         // 1. Update Totals
         const $totalEl = $('#shop-order-total');
@@ -685,7 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchOrderTotal(orderId),
             fetchRegisterDetails(orderId)
         ]);
-
+        
+        reloadDatatable('#orders-table');
         initializeRegister();
         disableTab();
         traverseToRegisterTab();
@@ -790,6 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetRegister = () => {
         $('#shop-order-subtotal, #shop-order-discounts, #shop-order-total').html('&#8369; 0.00');
         $('#order-details-title').text('');
+        $('#order-id').text('-');
         $('#shop-order-list').empty();
         sessionStorage.removeItem('shop_order_id');
         $('#order-actions-menu, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #set-table-button, #set-tab-button, .set-shop-table-order').addClass('d-none');
@@ -819,14 +818,70 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tabEl) new bootstrap.Tab(tabEl).show();
     };
 
+    const bill = (shopOrderId) => {
+        const width = 800;
+        const height = 600;
+
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        const url = `print-shop-order-bill.php?id=${shopOrderId}`;
+
+        window.open(
+            url,
+            '_blank',
+            `width=${width},height=${height},top=${top},left=${left}`
+        );
+    }
+
     const traverseToTablesTab = () => traverseTab("#tables_tab");
     const traverseToRegisterTab = () => traverseTab("#register_tab");
 
-    // Initial Load
     setTab();
     loadRegisterTabs();
     loadRegisterTables();
     loadRegisterProductCategories();
+
+    initializeDatatable({
+        selector: '#orders-table',
+        ajaxUrl: './app/Controllers/ShopController.php',
+        transaction: 'generate shop order table',
+        ajaxData: {
+            shop_id: getShopId(),
+        },
+        columns: [
+            { data: 'ORDER_ID' },
+            { data: 'TABLE' },
+            { data: 'TAB' },
+            { data: 'AMOUNT_DUE' },
+            { data: 'AMOUNT_PAID' },
+            { data: 'CHANGE' },
+            { data: 'STATUS_BADGE' },
+        ],
+        columnDefs: [
+            { width: 'auto', targets: 0, responsivePriority: 1 },
+            { width: 'auto', targets: 1, responsivePriority: 2 },
+            { width: 'auto', targets: 2, responsivePriority: 3 },
+            { width: 'auto', targets: 3, responsivePriority: 4 },
+            { width: 'auto', targets: 4, responsivePriority: 5 },
+            { width: 'auto', targets: 5, responsivePriority: 6 },
+            { width: 'auto', targets: 6, responsivePriority: 7 },
+        ],
+        onRowClick: (rowData) => {
+            const orderId = rowData?.ORDER_ID;
+            const status = rowData?.STATUS;
+
+            if(status === 'Active') {
+                sessionStorage.setItem('shop_order_id', orderId);
+                refreshRegisterUI(orderId);
+            }
+            else{
+                bill(orderId);
+            }            
+        }
+    });
+
+    initializeDatatableControls('#orders-table');
 
     document.addEventListener('click', async (event) => {
         const target = event.target;
@@ -872,7 +927,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Add/Set Table Order
         const tableBtn = target.closest('.add-shop-table-order, .set-shop-table-order');
         if (tableBtn) {
             const isUpdate = tableBtn.classList.contains('set-shop-table-order');
@@ -889,7 +943,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // View Existing Table Order
         const viewOrderBtn = target.closest('.view-shop-table-orders');
         if (viewOrderBtn) {
             const orderId = viewOrderBtn.dataset.shopOrderId;
@@ -910,19 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (target.closest('#print-bill')) {
-            const width = 800;
-            const height = 600;
-
-            const left = (screen.width - width) / 2;
-            const top = (screen.height - height) / 2;
-
-            const url = `print-shop-order-bill.php?id=${getOrderId()}`;
-
-            window.open(
-                url,
-                '_blank',
-                `width=${width},height=${height},top=${top},left=${left}`
-            );
+            bill(getOrderId());
         }
 
         if (target.closest('#set-table-button')) {
@@ -1284,16 +1325,15 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#submit-payment').off('click').on('click', async function() {
         const $btn = $(this);
         const payments = [];
-        let totalTendered = 0; // Initialize as a number
+        let totalTendered = 0;
         
-        // Loop through all payment inputs to collect data
         $('.payment-input').each(function() {
             const rawValue = this.value; 
             const amount = parseFloat(rawValue);
             const methodId = $(this).data('id');
             
             if (!isNaN(amount) && amount > 0) {
-                totalTendered += amount; // Proper math addition
+                totalTendered += amount;
                 const reference = $(`.ref-input[data-id="${methodId}"]`).val();
                 
                 payments.push({
@@ -1309,16 +1349,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Prepare the payload
         const payload = {
             shop_id: getShopId(),
             shop_order_id: getOrderId(),
-            // IMPORTANT: Stringify the array so URLSearchParams doesn't break it
             payments: JSON.stringify(payments), 
             total_tendered: totalTendered.toFixed(2)
         };
 
-        // UI Feedback
         $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Validating...');
 
         try {

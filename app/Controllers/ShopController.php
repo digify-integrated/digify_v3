@@ -137,6 +137,7 @@ class ShopController {
             'fetch shop order total'                => $this->fetchShopOrderTotal(),
             'fetch shop order details'              => $this->fetchShopOrderDetailDetails(),
             'generate shop table'                   => $this->generateShopTable(),
+            'generate shop order table'             => $this->generateShopOrderTable(),
             'generate shop payment method table'    => $this->generateShopPaymentMethodTable($lastLogBy, $pageId),
             'generate shop floor plan table'        => $this->generateShopFloorPlanTable($lastLogBy, $pageId),
             'generate shop access table'            => $this->generateShopAccessTable($lastLogBy, $pageId),
@@ -1385,6 +1386,55 @@ class ShopController {
         echo json_encode($response);
     }
 
+    public function generateShopOrderTable() {
+        $shopId     = $_POST['shop_id'] ?? null;
+        $response   = [];
+
+        $shopOrders = $this->shop->generateShopOrderTable(
+            $shopId
+        );
+
+        foreach ($shopOrders as $row) {
+            $shopOrderId        = $row['shop_order_id'];
+            $floorPlanTableId   = $row['floor_plan_table_id'];
+            $tableNumber        = $row['table_number'];
+            $orderFor           = $row['order_for'] ?? '-';
+            $shopOrderStatus    = $row['shop_order_status'];
+            $totalAmountDue     = $row['total_amount_due'];
+            $totalAmountPaid    = $row['total_amount_paid'];
+            $totalChange        = $row['total_change'];
+
+            $badgeClass = match ($shopOrderStatus) {
+                'Paid' => 'badge-light-success',
+                'Active' => 'badge-light-primary',
+                'Void', 'Refunded' => 'badge-light-danger',
+                default => 'badge-light-warning',
+            };
+
+            if(!empty($floorPlanTableId) && !empty($tableNumber)){
+                $floorPlanTableDetails  = $this->floorPlan->fetchFloorPlanTable($floorPlanTableId);
+                $floorPlanName          = $floorPlanTableDetails['floor_plan_name'] ?? '';
+                $table = $floorPlanName . ' (' . $tableNumber . ')';
+            }
+            else{
+                $table = '-';
+            }            
+
+            $response[] = [
+                'ORDER_ID'      => $shopOrderId,
+                'TABLE'         => $table,
+                'TAB'           => $orderFor,
+                'AMOUNT_DUE'    => number_format($totalAmountDue, 2),
+                'AMOUNT_PAID'   => number_format($totalAmountPaid, 2),
+                'CHANGE'        => number_format($totalChange, 2),
+                'STATUS'        => $shopOrderStatus,
+                'STATUS_BADGE'  => '<div class="badge '. $badgeClass .'">'. $shopOrderStatus .'</div>'
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
     public function generateShopPaymentMethodTable(
         int $userId,
         int $pageId
@@ -1913,7 +1963,7 @@ class ShopController {
                 'product'
             );
         }
-        unset($row); // good practice after reference loop
+        unset($row);
 
         echo json_encode([
             'success' => true,
