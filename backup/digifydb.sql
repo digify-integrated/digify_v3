@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 07, 2026 at 06:08 PM
+-- Generation Time: Apr 08, 2026 at 09:50 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -8652,6 +8652,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveTax` (IN `p_tax_id` INT, IN `p_
         ROLLBACK;
     END;
 
+
     START TRANSACTION;
 
     IF p_tax_id IS NULL OR NOT EXISTS (SELECT 1 FROM tax WHERE tax_id = p_tax_id) THEN
@@ -10308,6 +10309,43 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopOrderTotal` (IN `in_shop_
 
 END$$
 
+DROP PROCEDURE IF EXISTS `updateShopSession`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopSession` (IN `p_shop_id` INT, IN `p_shop_name` VARCHAR(5000), IN `p_open_remarks` VARCHAR(5000), IN `p_file_as` VARCHAR(300), IN `p_last_log_by` INT)   BEGIN
+    DECLARE v_session_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT shop_session_id INTO v_session_id
+    FROM shop_session
+    WHERE shop_id = p_shop_id
+      AND close_time IS NULL
+    LIMIT 1;
+
+    UPDATE shop_session
+    SET close_time = NOW(),
+        close_amount = 0,
+        close_remarks = p_open_remarks,
+        close_user_id = p_last_log_by,
+        close_file_as = p_file_as,
+        session_status = 'Completed',
+        last_log_by = p_last_log_by
+    WHERE shop_session_id = v_session_id;
+    
+    UPDATE shop
+    SET register_status = 'Closed',
+        last_log_by = p_last_log_by
+    WHERE shop_id   = p_shop_id;
+
+    COMMIT;
+
+    SELECT v_session_id AS updated_shop_session_id;
+END$$
+
 DROP PROCEDURE IF EXISTS `updateShopUnarchive`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateShopUnarchive` (IN `p_shop_id` INT, IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -10778,100 +10816,6 @@ CREATE TABLE `audit_log` (
   `changed_by` int(10) UNSIGNED DEFAULT 1,
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `audit_log`
---
-
-INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
-(1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-13 13:35:40 -> 2026-03-15 13:13:01<br/>', 1, '2026-03-15 13:13:01'),
-(2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-15 13:13:01 -> 2026-03-16 11:19:10<br/>', 1, '2026-03-16 11:19:10'),
-(3, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-16 11:19:10 -> 2026-03-16 21:09:16<br/>', 1, '2026-03-16 21:09:16'),
-(4, 'shop', 4, 'Shop changed.<br/><br/>Shop Name: Test -> Cashier<br/>', 2, '2026-03-17 00:13:22'),
-(5, 'shop_floor_plan', 1, 'Shop floor plan created.', 2, '2026-03-17 00:13:30'),
-(6, 'shop_floor_plan', 2, 'Shop floor plan created.', 2, '2026-03-17 00:13:30'),
-(7, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-16 21:09:16 -> 2026-03-18 10:19:38<br/>', 1, '2026-03-18 10:19:38'),
-(8, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-18 10:19:38 -> 2026-03-19 13:33:24<br/>', 1, '2026-03-19 13:33:24'),
-(9, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-19 13:33:24 -> 2026-03-20 09:18:12<br/>', 1, '2026-03-20 09:18:12'),
-(10, 'company', 1, 'Company changed.<br/><br/>Address: Talavera -> Maharlika Highway, Lomboy<br/>Tax ID:  -> 490-693-381-00000<br/>', 2, '2026-03-20 15:00:04'),
-(11, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-20 09:18:12 -> 2026-03-21 01:08:04<br/>', 1, '2026-03-21 01:08:04'),
-(12, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-21 01:08:04 -> 2026-03-21 16:02:50<br/>', 1, '2026-03-21 16:02:50'),
-(13, 'tax', 1, 'Tax created.', 2, '2026-03-21 18:08:45'),
-(14, 'tax', 1, 'Tax changed.<br/><br/>Tax Calculation: Additive -> Inclusive<br/>', 2, '2026-03-21 18:09:17'),
-(15, 'tax', 1, 'Tax changed.<br/><br/>Tax Calculation: Inclusive -> Additive<br/>', 2, '2026-03-21 18:09:20'),
-(16, 'product_tax', 1, 'Product tax created.', 2, '2026-03-21 19:31:43'),
-(17, 'product_tax', 1, 'Product tax changed.<br/><br/>Tax: VAT -> VAT (12%)<br/>', 2, '2026-03-21 19:32:01'),
-(18, 'tax', 1, 'Tax changed.<br/><br/>Tax Name: VAT -> VAT (12%)<br/>', 2, '2026-03-21 19:32:01'),
-(19, 'tax', 2, 'Tax created.', 2, '2026-03-21 23:07:37'),
-(20, 'product_tax', 2, 'Product tax created.', 2, '2026-03-21 23:07:49'),
-(21, 'product_tax', 3, 'Product tax created.', 2, '2026-03-21 23:07:49'),
-(22, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-21 16:02:50 -> 2026-03-23 10:17:39<br/>', 1, '2026-03-23 10:17:39'),
-(23, 'menu_item', 81, 'Menu item created.', 2, '2026-03-23 15:03:53'),
-(24, 'role_permission', 81, 'Role permission created.', 2, '2026-03-23 15:03:57'),
-(25, 'role_permission', 81, 'Role permission changed.<br/><br/>Read Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:00'),
-(26, 'role_permission', 81, 'Role permission changed.<br/><br/>Create Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:00'),
-(27, 'role_permission', 81, 'Role permission changed.<br/><br/>Write Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:01'),
-(28, 'role_permission', 81, 'Role permission changed.<br/><br/>Delete Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:01'),
-(29, 'role_permission', 81, 'Role permission changed.<br/><br/>Import Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:02'),
-(30, 'role_permission', 81, 'Role permission changed.<br/><br/>Export Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:02'),
-(31, 'role_permission', 81, 'Role permission changed.<br/><br/>Log Notes Access: 0 -> 1<br/>', 2, '2026-03-23 15:04:03'),
-(32, 'menu_item', 82, 'Menu item created.', 2, '2026-03-23 15:08:02'),
-(33, 'role_permission', 82, 'Role permission created.', 2, '2026-03-23 15:10:37'),
-(34, 'role_permission', 82, 'Role permission changed.<br/><br/>Read Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:39'),
-(35, 'role_permission', 82, 'Role permission changed.<br/><br/>Create Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:40'),
-(36, 'role_permission', 82, 'Role permission changed.<br/><br/>Write Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:40'),
-(37, 'role_permission', 82, 'Role permission changed.<br/><br/>Delete Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:41'),
-(38, 'role_permission', 82, 'Role permission changed.<br/><br/>Import Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:41'),
-(39, 'role_permission', 82, 'Role permission changed.<br/><br/>Export Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:42'),
-(40, 'role_permission', 82, 'Role permission changed.<br/><br/>Log Notes Access: 0 -> 1<br/>', 2, '2026-03-23 15:10:43'),
-(41, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-23 10:17:39 -> 2026-03-23 21:17:31<br/>', 1, '2026-03-23 21:17:31'),
-(42, 'charge_type', 1, 'Charge type created.', 2, '2026-03-23 22:09:36'),
-(43, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-23 21:17:31 -> 2026-03-24 09:42:22<br/>', 1, '2026-03-24 09:42:22'),
-(44, 'shop_payment_method', 6, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
-(45, 'shop_payment_method', 7, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
-(46, 'shop_payment_method', 8, 'Shop payment method created.', 2, '2026-03-24 15:29:41'),
-(47, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 09:42:22 -> 2026-03-24 20:24:04<br/>', 1, '2026-03-24 20:24:04'),
-(48, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-24 20:24:04 -> 2026-03-25 11:01:54<br/>', 1, '2026-03-25 11:01:54'),
-(49, 'tax', 2, 'Tax changed.<br/><br/>Tax Calculation: Additive -> Inclusive<br/>', 2, '2026-03-25 14:22:41'),
-(50, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-25 11:01:54 -> 2026-03-26 09:02:10<br/>', 1, '2026-03-26 09:02:10'),
-(51, 'product', 3, 'Product changed.<br/><br/>Sales Price: 12.0000 -> 10.0000<br/>', 2, '2026-03-26 09:20:08'),
-(52, 'product_tax', 4, 'Product tax created.', 2, '2026-03-26 09:20:08'),
-(53, 'product_tax', 5, 'Product tax created.', 2, '2026-03-26 09:20:08'),
-(54, 'product_tax', 6, 'Product tax created.', 2, '2026-03-26 10:02:47'),
-(55, 'product_tax', 7, 'Product tax created.', 2, '2026-03-26 10:02:47'),
-(56, 'product', 3, 'Product changed.<br/><br/>Tax Classification: Vatable -> Vat Exempt<br/>', 2, '2026-03-26 10:02:54'),
-(57, 'product_tax', 8, 'Product tax created.', 2, '2026-03-26 10:02:54'),
-(58, 'product_tax', 9, 'Product tax created.', 2, '2026-03-26 10:02:54'),
-(59, 'product_tax', 10, 'Product tax created.', 2, '2026-03-26 10:03:53'),
-(60, 'product_tax', 11, 'Product tax created.', 2, '2026-03-26 10:03:53'),
-(61, 'product', 3, 'Product changed.<br/><br/>Tax Classification: VAT Exempt -> Zero Rated<br/>', 2, '2026-03-26 10:03:57'),
-(62, 'product_tax', 12, 'Product tax created.', 2, '2026-03-26 10:03:57'),
-(63, 'product_tax', 13, 'Product tax created.', 2, '2026-03-26 10:03:57'),
-(64, 'product', 3, 'Product changed.<br/><br/>Tax Classification: Zero Rated -> Vatable<br/>', 2, '2026-03-26 10:07:22'),
-(65, 'product_tax', 14, 'Product tax created.', 2, '2026-03-26 10:07:22'),
-(66, 'product_tax', 15, 'Product tax created.', 2, '2026-03-26 10:07:22'),
-(67, 'charge_type', 1, 'Charge type created.', 2, '2026-03-26 14:24:28'),
-(68, 'product_tax', 16, 'Product tax created.', 2, '2026-03-26 14:31:48'),
-(69, 'tax', 1, 'Tax changed.<br/><br/>Tax Calculation: Additive -> Inclusive<br/>', 2, '2026-03-26 16:13:44'),
-(70, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-26 09:02:10 -> 2026-03-27 08:24:45<br/>', 1, '2026-03-27 08:24:45'),
-(71, 'discount_type', 2, 'Discount type created.', 2, '2026-03-27 16:51:08'),
-(72, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-27 08:24:45 -> 2026-03-28 16:46:46<br/>', 1, '2026-03-28 16:46:46'),
-(73, 'discount_type', 3, 'Discount type created.', 2, '2026-03-28 18:45:58'),
-(74, 'discount_type', 4, 'Discount type created.', 2, '2026-03-28 18:46:27'),
-(75, 'charge_type', 2, 'Charge type created.', 2, '2026-03-28 23:03:33'),
-(76, 'charge_type', 2, 'Charge type changed.<br/><br/>Tax Type: Vatable -> Non Vatable<br/>', 2, '2026-03-28 23:03:38'),
-(77, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-28 16:46:46 -> 2026-03-30 09:34:29<br/>', 1, '2026-03-30 09:34:29'),
-(78, 'discount_type', 3, 'Discount type changed.<br/><br/>Value Type: Fixed Amount -> Percentage<br/>Is VAT Exempt: Yes -> No<br/>', 2, '2026-03-30 17:02:45'),
-(79, 'discount_type', 4, 'Discount type changed.<br/><br/>Value Type: Percentage -> Fixed Amount<br/>Application Order: Before Tax -> After Tax<br/>Is VAT Exempt: Yes -> No<br/>', 2, '2026-03-30 17:03:34'),
-(80, 'charge_type', 2, 'Charge type changed.<br/><br/>Charge Value: 100.00 -> 0.00<br/>Is Variable: No -> Yes<br/>Application Order: Before Tax -> After Tax<br/>', 2, '2026-03-30 17:03:58'),
-(81, 'charge_type', 1, 'Charge type changed.<br/><br/>Charge Value: 5.00 -> 15.00<br/>Application Order: Before Tax -> After Tax<br/>', 2, '2026-03-30 17:04:15'),
-(82, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-30 09:34:29 -> 2026-03-31 08:56:30<br/>', 1, '2026-03-31 08:56:30'),
-(83, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-03-31 08:56:30 -> 2026-04-01 09:53:09<br/>', 1, '2026-04-01 09:53:09'),
-(84, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-01 09:53:09 -> 2026-04-03 13:24:37<br/>', 1, '2026-04-03 13:24:37'),
-(85, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-03 13:24:37 -> 2026-04-04 09:41:16<br/>', 1, '2026-04-04 09:41:16'),
-(86, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-04 09:41:16 -> 2026-04-06 11:21:33<br/>', 1, '2026-04-06 11:21:33'),
-(87, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-06 11:21:33 -> 2026-04-07 09:54:24<br/>', 1, '2026-04-07 09:54:24'),
-(88, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-07 09:54:24 -> 2026-04-07 21:03:54<br/>', 1, '2026-04-07 21:03:54');
 
 -- --------------------------------------------------------
 
@@ -17421,7 +17365,8 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (46, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-04 09:41:16', 1, '2026-04-04 09:41:16', '2026-04-04 09:41:16', 1),
 (47, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-06 11:21:33', 1, '2026-04-06 11:21:33', '2026-04-06 11:21:33', 1),
 (48, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-07 09:54:24', 1, '2026-04-07 09:54:24', '2026-04-07 09:54:24', 1),
-(49, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-07 21:03:54', 1, '2026-04-07 21:03:54', '2026-04-07 21:03:54', 1);
+(49, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-07 21:03:54', 1, '2026-04-07 21:03:54', '2026-04-07 21:03:54', 1),
+(50, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-08 10:06:42', 1, '2026-04-08 10:06:42', '2026-04-08 10:06:42', 1);
 
 -- --------------------------------------------------------
 
@@ -19333,7 +19278,8 @@ CREATE TABLE `role_user_account` (
 
 INSERT INTO `role_user_account` (`role_user_account_id`, `role_id`, `role_name`, `user_account_id`, `file_as`, `date_assigned`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 1, 'Super Admin', 1, 'Bot', '2026-02-27 14:51:41', '2026-02-27 14:51:41', '2026-02-27 14:51:41', 1),
-(2, 1, 'Super Admin', 2, 'Lawrence Agulto', '2026-02-27 14:51:41', '2026-02-27 14:51:41', '2026-02-27 14:51:41', 1);
+(2, 1, 'Super Admin', 2, 'Lawrence Agulto', '2026-02-27 14:51:41', '2026-02-27 14:51:41', '2026-02-27 14:51:41', 1),
+(3, 1, 'Super Admin', 3, 'Reyanna Arceñas', '2026-04-08 15:48:26', '2026-04-08 15:48:26', '2026-04-08 15:48:26', 2);
 
 --
 -- Triggers `role_user_account`
@@ -19538,7 +19484,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$HVdSmBRktH89Fd7CcfsLyuVJGY5tFEpVugRWWgmBn.Wvgtd8iG2fq', '2026-02-27 14:52:10', '2026-04-07 21:03:54', 1);
+(1, 2, '$2y$10$sREowIkV8bC9KR609iKkmuTRkIC0w6B06LFMhybuL2IISwN4clCrO', '2026-02-27 14:52:10', '2026-04-08 10:06:42', 1);
 
 -- --------------------------------------------------------
 
@@ -19567,7 +19513,7 @@ CREATE TABLE `shop` (
 --
 
 INSERT INTO `shop` (`shop_id`, `shop_name`, `company_id`, `company_name`, `shop_type_id`, `shop_type_name`, `shop_status`, `register_status`, `archived_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(4, 'Cashier', 1, 'Jabs', 7, 'Bookstore', 'Active', 'Open', NULL, '2026-03-03 00:53:48', '2026-03-17 00:13:22', 2);
+(4, 'Cashier', 1, 'Jabs', 7, 'Bookstore', 'Active', 'Closed', NULL, '2026-03-03 00:53:48', '2026-04-08 15:43:57', 2);
 
 --
 -- Triggers `shop`
@@ -19697,14 +19643,6 @@ CREATE TABLE `shop_charges` (
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `shop_charges`
---
-
-INSERT INTO `shop_charges` (`shop_charges_id`, `shop_id`, `shop_name`, `charge_type_id`, `charge_type_name`, `automatic_application`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 4, 'Cashier', 1, 'Service Charge', 'Yes', '2026-03-26 14:32:19', '2026-03-31 16:47:17', 2),
-(3, 4, 'Cashier', 2, 'Corkage Fee', 'No', '2026-03-28 23:03:58', '2026-03-31 17:27:48', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -19723,16 +19661,6 @@ CREATE TABLE `shop_discounts` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `shop_discounts`
---
-
-INSERT INTO `shop_discounts` (`shop_discounts_id`, `shop_id`, `shop_name`, `discount_type_id`, `discount_type_name`, `automatic_application`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(6, 4, 'Cashier', 1, 'Senior Citizen', 'No', '2026-03-26 14:32:15', '2026-03-31 17:24:49', 2),
-(7, 4, 'Cashier', 2, 'PWD', 'No', '2026-03-27 16:51:37', '2026-03-31 17:24:49', 2),
-(8, 4, 'Cashier', 3, 'Employee Discount', 'No', '2026-03-28 18:46:39', '2026-03-31 17:25:01', 2),
-(9, 4, 'Cashier', 4, 'VIP Discount', 'No', '2026-03-28 18:46:39', '2026-03-31 17:25:04', 2);
 
 -- --------------------------------------------------------
 
@@ -19832,17 +19760,6 @@ CREATE TABLE `shop_order` (
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `shop_order`
---
-
-INSERT INTO `shop_order` (`shop_order_id`, `shop_id`, `shop_name`, `floor_plan_table_id`, `table_number`, `order_for`, `order_preset`, `shop_order_status`, `paid_date`, `void_date`, `void_reason`, `cancelled_date`, `cancelled_reason`, `refund_date`, `gross_sales`, `vat_amount`, `vat_sales`, `vat_exempt_sales`, `zero_rated_sales`, `total_discount_amount`, `additive_tax_total`, `total_charge_amount`, `total_amount_due`, `total_amount_paid`, `total_change`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Cancelled', NULL, NULL, NULL, '2026-04-07 17:17:45', 'asd', NULL, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-04-07 17:16:55', '2026-04-07 17:17:45', 2),
-(2, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Paid', '2026-04-07 17:18:10', NULL, NULL, NULL, NULL, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 23.00, 0.00, '2026-04-07 17:18:00', '2026-04-07 21:04:01', 2),
-(3, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Paid', '2026-04-07 21:04:41', NULL, NULL, NULL, NULL, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100.00, 77.00, '2026-04-07 21:03:58', '2026-04-07 21:04:55', 2),
-(4, 4, 'Cashier', 6, 5, NULL, 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 20.00, 2.14, 17.86, 0.00, 0.00, 0.00, 0.00, 3.00, 23.00, 0.00, 0.00, '2026-04-07 21:04:52', '2026-04-07 22:20:46', 2),
-(5, 4, 'Cashier', NULL, NULL, 'Test', 'On-Site', 'Active', NULL, NULL, NULL, NULL, NULL, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-04-07 21:20:05', '2026-04-07 22:20:46', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -19865,17 +19782,6 @@ CREATE TABLE `shop_order_applied_charges` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `shop_order_applied_charges`
---
-
-INSERT INTO `shop_order_applied_charges` (`shop_order_applied_charges_id`, `shop_order_id`, `charge_type_id`, `charge_name`, `applied_value`, `calculated_amount`, `value_type`, `application_order`, `tax_type`, `remarks`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, 1, 'Service Charge', 15.00, 0.00, 'Percentage', 'After Tax', 'Non Vatable', '', '2026-04-07 17:16:55', '2026-04-07 17:17:15', 2),
-(2, 2, 1, 'Service Charge', 15.00, 3.00, 'Percentage', 'After Tax', 'Non Vatable', '', '2026-04-07 17:18:00', '2026-04-07 17:18:02', 2),
-(3, 3, 1, 'Service Charge', 15.00, 3.00, 'Percentage', 'After Tax', 'Non Vatable', '', '2026-04-07 21:03:59', '2026-04-07 21:04:02', 2),
-(4, 4, 1, 'Service Charge', 15.00, 3.00, 'Percentage', 'After Tax', 'Non Vatable', '', '2026-04-07 21:04:52', '2026-04-07 22:20:46', 2),
-(5, 5, 1, 'Service Charge', 15.00, 1.50, 'Percentage', 'After Tax', 'Non Vatable', '', '2026-04-07 21:20:05', '2026-04-07 21:20:05', 2);
 
 -- --------------------------------------------------------
 
@@ -19936,16 +19842,6 @@ CREATE TABLE `shop_order_details` (
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `shop_order_details`
---
-
-INSERT INTO `shop_order_details` (`shop_order_details_id`, `shop_order_id`, `product_id`, `product_name`, `order_status`, `quantity`, `quantity_sent`, `base_price`, `inclusive_rate`, `additive_rate`, `subtotal`, `inclusive_tax_amount`, `additive_tax_amount`, `net_sales`, `note`, `last_sent_note`, `sent_to_kitchen`, `preparing_date`, `to_serve_date`, `completed_date`, `cancelled_date`, `paid_date`, `void_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(3, 2, 3, 'Fries', 'Pending', 2.0000, 0.0000, 10.00, 0.120000, 0.000000, 20.00, 2.14, 0.00, 17.86, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-07 17:18:01', '2026-04-07 17:18:02', 2),
-(4, 3, 3, 'Fries', 'Pending', 2.0000, 0.0000, 10.00, 0.120000, 0.000000, 20.00, 2.14, 0.00, 17.86, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-07 21:04:01', '2026-04-07 21:04:02', 2),
-(5, 4, 3, 'Fries', 'Pending', 2.0000, 0.0000, 10.00, 0.120000, 0.000000, 20.00, 2.14, 0.00, 17.86, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-07 21:04:55', '2026-04-07 22:20:46', 2),
-(6, 5, 3, 'Fries', 'Pending', 1.0000, 0.0000, 10.00, 0.120000, 0.000000, 10.00, 1.07, 0.00, 8.93, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-07 21:20:05', '2026-04-07 21:20:05', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -19964,14 +19860,6 @@ CREATE TABLE `shop_order_payment` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `shop_order_payment`
---
-
-INSERT INTO `shop_order_payment` (`shop_order_payment_id`, `shop_order_id`, `payment_method_id`, `payment_method_name`, `amount_paid`, `reference_number`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, 1, 'Cash', 23.00, '', '2026-04-07 17:18:10', '2026-04-07 17:18:10', 2),
-(2, 3, 1, 'Cash', 100.00, '', '2026-04-07 21:04:41', '2026-04-07 21:04:41', 2);
 
 -- --------------------------------------------------------
 
@@ -20122,13 +20010,6 @@ CREATE TABLE `shop_session` (
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `shop_session`
---
-
-INSERT INTO `shop_session` (`shop_session_id`, `shop_id`, `shop_name`, `open_time`, `open_amount`, `open_remarks`, `open_user_id`, `open_file_as`, `close_time`, `close_amount`, `close_remarks`, `close_user_id`, `close_file_as`, `session_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 4, 'Test', '2026-03-04 14:58:53', 1886.91, '', 2, 'Lawrence Agulto', NULL, NULL, NULL, NULL, '', 'Active', '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -20147,26 +20028,6 @@ CREATE TABLE `shop_session_denomination` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `shop_session_denomination`
---
-
-INSERT INTO `shop_session_denomination` (`session_denomination_id`, `shop_session_id`, `count_type`, `denomination_value`, `quantity`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 1, 'Open', 1000.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(2, 1, 'Open', 500.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(3, 1, 'Open', 200.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(4, 1, 'Open', 100.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(5, 1, 'Open', 50.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(6, 1, 'Open', 20.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(7, 1, 'Open', 10.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(8, 1, 'Open', 5.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(9, 1, 'Open', 1.00, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(10, 1, 'Open', 0.50, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(11, 1, 'Open', 0.25, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(12, 1, 'Open', 0.10, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(13, 1, 'Open', 0.05, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2),
-(14, 1, 'Open', 0.01, 1, '2026-03-04 14:58:53', '2026-03-04 14:58:53', 2);
 
 -- --------------------------------------------------------
 
@@ -21004,7 +20865,8 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-04-07 21:03:54', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-04-07 21:03:54', 1);
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-04-08 10:06:42', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-04-08 10:06:42', 1),
+(3, 'Reyanna Arceñas', 'rpcmarcenas@gmail.com', '$2y$10$NugNBcQPCPzLgleru4F/meqOAXZWM7kCFGVCzOOUHodGw3ONwZ5Hi', '', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-04-08 15:48:18', '2026-04-08 15:48:28', 2);
 
 --
 -- Triggers `user_account`
@@ -22201,7 +22063,7 @@ ALTER TABLE `attribute_value`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -22417,7 +22279,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -22561,7 +22423,7 @@ ALTER TABLE `role_system_action_permission`
 -- AUTO_INCREMENT for table `role_user_account`
 --
 ALTER TABLE `role_user_account`
-  MODIFY `role_user_account_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `role_user_account_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `scrap`
@@ -22597,13 +22459,13 @@ ALTER TABLE `shop_access`
 -- AUTO_INCREMENT for table `shop_charges`
 --
 ALTER TABLE `shop_charges`
-  MODIFY `shop_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `shop_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_discounts`
 --
 ALTER TABLE `shop_discounts`
-  MODIFY `shop_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `shop_discounts_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_floor_plan`
@@ -22615,13 +22477,13 @@ ALTER TABLE `shop_floor_plan`
 -- AUTO_INCREMENT for table `shop_order`
 --
 ALTER TABLE `shop_order`
-  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `shop_order_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_order_applied_charges`
 --
 ALTER TABLE `shop_order_applied_charges`
-  MODIFY `shop_order_applied_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `shop_order_applied_charges_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_order_applied_discounts`
@@ -22633,13 +22495,13 @@ ALTER TABLE `shop_order_applied_discounts`
 -- AUTO_INCREMENT for table `shop_order_details`
 --
 ALTER TABLE `shop_order_details`
-  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `shop_order_details_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_order_payment`
 --
 ALTER TABLE `shop_order_payment`
-  MODIFY `shop_order_payment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `shop_order_payment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_payment_method`
@@ -22657,13 +22519,13 @@ ALTER TABLE `shop_product`
 -- AUTO_INCREMENT for table `shop_session`
 --
 ALTER TABLE `shop_session`
-  MODIFY `shop_session_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `shop_session_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_session_denomination`
 --
 ALTER TABLE `shop_session_denomination`
-  MODIFY `session_denomination_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `session_denomination_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_type`
@@ -22723,7 +22585,7 @@ ALTER TABLE `upload_setting_file_extension`
 -- AUTO_INCREMENT for table `user_account`
 --
 ALTER TABLE `user_account`
-  MODIFY `user_account_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_account_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `warehouse`

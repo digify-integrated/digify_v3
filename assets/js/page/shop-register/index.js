@@ -676,17 +676,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const refreshRegisterUI = async (orderId) => {
-        loadOrderList(orderId);
+        await loadOrderList(orderId);
 
         await Promise.all([
             fetchOrderTotal(orderId),
             fetchRegisterDetails(orderId)
         ]);
         
-        reloadDatatable('#orders-table');
         initializeRegister();
         disableTab();
         traverseToRegisterTab();
+        setTimeout(() => {
+            reloadDatatable('#orders-table');
+        }, 100);
     };
 
     const setTab = () => {
@@ -786,15 +788,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const disableTab = () => $('.nav-line-tabs .nav-link').addClass('disabled');
 
     const resetRegister = () => {
+        sessionStorage.removeItem('shop_order_id');
+        
         $('#shop-order-subtotal, #shop-order-discounts, #shop-order-total').html('&#8369; 0.00');
         $('#order-details-title').text('');
         $('#order-id').text('-');
         $('#shop-order-list').empty();
-        sessionStorage.removeItem('shop_order_id');
+        $('#order-summary-list').empty();
         $('#order-actions-menu, #send-kitchen-button, #payment-button, #print-bill, #discount-button, #charge-button, #set-table-button, #set-tab-button, .set-shop-table-order').addClass('d-none');
         $('.add-shop-table-order').removeClass('d-none');
         $('#order-preset')
-            .removeClass('d-none')
+            .addClass('d-none')
             .select2('destroy')
             .select2({
                 minimumResultsForSearch: -1
@@ -1367,6 +1371,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resetRegister();
                 loadRegisterTables();
                 traverseToTablesTab();
+                reloadDatatable('#orders-table');
                 $btn.prop('disabled', false).text('Validate');
             } else {
                 throw new Error(response.message || "Payment failed");
@@ -1517,4 +1522,121 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return true;
     }, "Percentage discount cannot exceed 100%");
+
+    const DENOMS_CENTAVOS = new Map([
+        ["close_1000", 100000],
+        ["close_500",   50000],
+        ["close_200",   20000],
+        ["close_100",   10000],
+        ["close_50",     5000],
+        ["close_20",     2000],
+        ["close_10",     1000],
+        ["close_5",       500],
+        ["close_1",       100],
+        ["close_0_50",     50],
+        ["close_0_25",     25],
+        ["close_0_10",     10],
+        ["close_0_05",      5],
+        ["close_0_01",      1],
+    ]);
+
+    const form = document.getElementById('close_register_form');
+    if (!form) return;
+
+    const totalEl = form.querySelector('#close_total');
+    if (!totalEl) return;
+
+    const toCount = (value) => {
+        const n = Number.parseInt(String(value ?? '').trim(), 10);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+    };
+
+    const calculateTotal = () => {
+        let totalCentavos = 0;
+
+        DENOMS_CENTAVOS.forEach((denomCentavos, id) => {
+        const input = form.querySelector(`#${CSS.escape(id)}`);
+        if (!input) return;
+            totalCentavos += toCount(input.value) * denomCentavos;
+        });
+
+        totalEl.value = (totalCentavos / 100).toLocaleString(undefined, {minimumFractionDigits: 2});
+    };
+
+    const onNumberInput = (e) => {
+        const el = e.target;
+        if (!(el instanceof HTMLInputElement)) return;
+        if (el.type !== 'number') return;
+        if (!DENOMS_CENTAVOS.has(el.id)) return;
+
+        calculateTotal();
+    };
+
+    form.addEventListener('input', onNumberInput);
+    form.addEventListener('change', onNumberInput);
+
+    calculateTotal();
+
+    $('#close_register_form').validate({
+        errorPlacement: (error, element) => {
+            showNotification('Action Needed: Issue Detected', error.text(), 'error', 2500);
+        },
+        highlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.addClass('is-invalid');
+        },
+         unhighlight: (element) => {
+            const $element = $(element);
+            const $target = $element.hasClass('select2-hidden-accessible')
+                ? $element.next().find('.select2-selection')
+                : $element;
+            $target.removeClass('is-invalid');
+        },
+        submitHandler: async (form, event) => {
+            event.preventDefault();
+  
+            const transaction   = 'update shop session';
+            const shopId        = getShopId();
+  
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('transaction', transaction);
+            formData.append('shop_id', shopId);
+  
+            disableButton('submit-data');
+  
+            try {
+                const response = await fetch('./app/Controllers/ShopController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+  
+                if (!response.ok) {
+                    throw new Error(`Save shop session failed with status: ${response.status}`);
+                }
+  
+                const data = await response.json();
+  
+                if (data.success) {
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location = `point-of-sale.php?app_module_id=HJpXrpuWrrTpZ%2BUUiuF1YMokV4ftLwZAGVHjqULCb%2FA%3D&page_id=9lPwccxvf4X6%2BBglUUQVdADcFUz5uVU1WFAccTVfYxU%3D`;
+                }
+                else if(data.invalid_session){
+                    setNotification(data.title, data.message, data.message_type);
+                    window.location.href = data.redirect_link;
+                }
+                else{
+                    showNotification(data.title, data.message, data.message_type);
+                    enableButton('submit-data');
+                }
+            } catch (error) {
+                enableButton('submit-data');
+                handleSystemError(error, 'fetch_failed', `Fetch request failed: ${error.message}`);
+            }
+  
+            return false;
+        }
+    });
 });

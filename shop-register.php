@@ -4,7 +4,7 @@ $pageTitle = 'Shop Register';
 
 require_once './app/Views/Partials/required-files.php';
 
-$shopId = $_GET['shop_id'] ?? null;
+$shopId = $_GET['id'] ?? null;
 
 if(empty($shopId)) {
     $systemHelper->redirect('apps.php');
@@ -54,17 +54,17 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
                     </div>
                     <div class="d-flex align-items-center justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
                         <div></div>
-                        <a href="#" class="btn btn-light-primary btn-flex btn-center btn-active-light-primary show menu-dropdown align-self-center" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                        <a href="#" class="btn btn-primary btn-flex btn-center show menu-dropdown align-self-center" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                             Actions
                         </a>
                         <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true" style="z-index: 107; position: fixed; inset: 0px 0px auto auto; margin: 0px; transform: translate(-60px, 539px);" data-popper-placement="bottom-end">
                             <div class="menu-item px-3">
-                                <a href="apps.php" class="menu-link px-3">
+                                <a href="point-of-sale.php?app_module_id=hst0rdswN8qoe2Ay65e8IZkbQ5QceGO7UtiE22bGUdQ%3D&page_id=CSvFIEWIqWL2wEIfVGjnSeyuA51jjQ7rXjGI%2Bxgkzq8%3D" class="menu-link px-3">
                                     Backend
                                 </a>
                             </div>
                             <div class="menu-item px-3">
-                                <a href="javascript:void(0);" class="menu-link px-3" id="closer-register">
+                                <a href="javascript:void(0);" class="menu-link px-3" data-bs-toggle="modal" data-bs-target="#close-shop-modal" id="closer-register">
                                     Close Register
                                 </a>
                             </div>
@@ -85,6 +85,89 @@ $floorPlanCount = $shop->fetchShopFloorPlanCount($shopId)['total'] ?? 0;
             </div>
         </div>
     </div>
+
+    <div id="close-shop-modal" class="modal fade" tabindex="-1" aria-labelledby="close-shop-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="close_register_form" method="post" action="#">
+                        <?= $security->csrfInput('close_register_form'); ?>
+
+                        <div class="d-flex align-items-center mb-5">
+                            <h2 class="fw-bold mb-0">Cash Count</h2>
+                            <div class="ms-auto badge py-3 px-4 fs-7 badge-light-primary">Register Closing</div>
+                        </div>
+
+                        <div class="row g-5">
+                            <div class="col-md-6">
+                                <h5 class="text-muted text-uppercase fs-7 fw-bold mb-4 border-bottom pb-2">Bills</h5>
+                                
+                                <?php 
+                                $bills = [
+                                    '1000' => '1,000.00', '500' => '500.00', '200' => '200.00', 
+                                    '100' => '100.00', '50' => '50.00', '20' => '20.00'
+                                ];
+                                foreach ($bills as $id => $label): ?>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <label class="fw-semibold fs-6 w-100px mb-0" for="close_<?= $id ?>">&#8369; <?= $label ?></label>
+                                    <input type="number" id="close_<?= $id ?>" name="close_<?= $id ?>" 
+                                            class="form-control form-control-solid border-start-0" min="0" step="1" />
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h5 class="text-muted text-uppercase fs-7 fw-bold mb-4 border-bottom pb-2">Coins</h5>
+                                
+                                <?php 
+                                $coins = [
+                                    '10' => '10.00', '5' => '5.00', '1' => '1.00', 
+                                    '0_50' => '0.50', '0_25' => '0.25', '0_10' => '0.10', 
+                                    '0_05' => '0.05', '0_01' => '0.01'
+                                ];
+                                foreach ($coins as $id => $label): ?>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <label class="fw-semibold fs-6 w-100px mb-0" for="close_<?= $id ?>">&#8369; <?= $label ?></label>
+                                    <input type="number" id="close_<?= $id ?>" name="close_<?= $id ?>" 
+                                            class="form-control form-control-solid border-start-0" min="0" step="1" />
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <hr class="my-8 border-secondary-subtle">
+
+                        <div class="row g-5">
+                            <div class="col-md-7">
+                                <label class="fw-semibold fs-6 mb-2" for="close_remarks">Closing Note / Remarks</label>
+                                <textarea class="form-control form-control-solid" id="close_remarks" name="close_remarks" 
+                                        placeholder="Any discrepancies or notes..." maxlength="1000" rows="6"></textarea>
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <div class="p-5 rounded bg-light-primary border border-primary border-dashed">
+                                    <label class="fw-bold fs-4 text-primary mb-2" for="close_total">Grand Total</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-0 bg-transparent fs-2 fw-bold text-primary">&#8369;</span>
+                                        <input type="text" id="close_total" name="close_total" 
+                                            class="form-control form-control-flush fs-1 fw-bolder text-primary" 
+                                            value="0.00" readonly/>
+                                    </div>
+                                    <div class="fs-7 text-muted mt-2 italic">* Automatically calculated based on quantities</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="close_register_form" class="btn btn-success" id="submit-data">Close Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php
     require_once './app/Views/Partials/error-modal.php';

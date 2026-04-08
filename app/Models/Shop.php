@@ -246,7 +246,7 @@ class Shop extends Model {
             :p_last_log_by
         )';
 
-         $row = $this->fetch($sql, [
+        $row = $this->fetch($sql, [
             'p_shop_id'         => $p_shop_id,
             'p_shop_name'       => $p_shop_name,
             'p_open_remarks'    => $p_open_remarks,
@@ -436,6 +436,32 @@ class Shop extends Model {
     /* =============================================================================================
         SECTION 3: UPDATE METHODS
     =============================================================================================  */
+
+    public function updateShopSession(
+        int $p_shop_id,
+        string $p_shop_name,
+        string $p_open_remarks,
+        string $p_file_as,
+        int $p_last_log_by
+    )    {
+        $sql = 'CALL updateShopSession(
+            :p_shop_id,
+            :p_shop_name,
+            :p_open_remarks,
+            :p_file_as,
+            :p_last_log_by
+        )';
+
+        $row = $this->fetch($sql, [
+            'p_shop_id'         => $p_shop_id,
+            'p_shop_name'       => $p_shop_name,
+            'p_open_remarks'    => $p_open_remarks,
+            'p_file_as'         => $p_file_as,
+            'p_last_log_by'     => $p_last_log_by
+        ]);
+
+        return $row['updated_shop_session_id'] ?? null;
+    }
 
     public function updateShopUnarchive(
         int $p_shop_id,

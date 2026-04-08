@@ -14103,6 +14103,51 @@ END //
    SECTION 3: UPDATE PROCEDURES
 =============================================================================================  */
 
+DROP PROCEDURE IF EXISTS updateShopSession//
+
+CREATE PROCEDURE updateShopSession(
+    IN p_shop_id INT, 
+    IN p_shop_name VARCHAR(5000),
+    IN p_open_remarks VARCHAR(5000),
+    IN p_file_as VARCHAR(300),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_session_id INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT shop_session_id INTO v_session_id
+    FROM shop_session
+    WHERE shop_id = p_shop_id
+      AND close_time IS NULL
+    LIMIT 1;
+
+    UPDATE shop_session
+    SET close_time = NOW(),
+        close_amount = 0,
+        close_remarks = p_open_remarks,
+        close_user_id = p_last_log_by,
+        close_file_as = p_file_as,
+        session_status = 'Completed',
+        last_log_by = p_last_log_by
+    WHERE shop_session_id = v_session_id;
+    
+    UPDATE shop
+    SET register_status = 'Closed',
+        last_log_by = p_last_log_by
+    WHERE shop_id   = p_shop_id;
+
+    COMMIT;
+
+    SELECT v_session_id AS updated_shop_session_id;
+END //
+
 DROP PROCEDURE IF EXISTS updateShopUnarchive//
 
 CREATE PROCEDURE updateShopUnarchive(

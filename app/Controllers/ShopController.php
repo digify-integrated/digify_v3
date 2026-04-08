@@ -113,6 +113,7 @@ class ShopController {
             'insert shop session'                   => $this->insertShopSession($lastLogBy),
             'insert shop order'                     => $this->insertShopOrder($lastLogBy),
             'insert shop order product'             => $this->insertShopOrderProduct($lastLogBy),
+            'update shop session'                   => $this->updateShopSession($lastLogBy),
             'update shop archive'                   => $this->updateShopArchive($lastLogBy),
             'update shop unarchive'                 => $this->updateShopUnarchive($lastLogBy),
             'update shop order table'               => $this->updateShopOrderTable($lastLogBy),
@@ -900,6 +901,57 @@ class ShopController {
         SECTION 3: UPDATE METHOD
     ============================================================================================= */
 
+    public function updateShopSession(
+        int $lastLogBy
+    ) {
+        $shopId         = $_POST['shop_id'] ?? null;
+        $closeRemarks   = $_POST['close_remarks'] ?? null;
+
+        $shopDetails    = $this->shop->fetchShop($shopId);
+        $shopName       = $shopDetails['shop_name'] ?? '';
+
+        $userAccountDetails = $this->userAccount->fetchUserAccount($lastLogBy);
+        $fileAs             = $userAccountDetails['file_as'] ?? null;
+        
+        $denoms = [
+            ['value' => 1000, 'field' => 'close_1000'],
+            ['value' => 500,  'field' => 'close_500'],
+            ['value' => 200,  'field' => 'close_200'],
+            ['value' => 100,  'field' => 'close_100'],
+            ['value' => 50,   'field' => 'close_50'],
+            ['value' => 20,   'field' => 'close_20'],
+            ['value' => 10,   'field' => 'close_10'],
+            ['value' => 5,    'field' => 'close_5'],
+            ['value' => 1,    'field' => 'close_1'],
+            ['value' => 0.50, 'field' => 'close_0_50'],
+            ['value' => 0.25, 'field' => 'close_0_25'],
+            ['value' => 0.10, 'field' => 'close_0_10'],
+            ['value' => 0.05, 'field' => 'close_0_05'],
+            ['value' => 0.01, 'field' => 'close_0_01'],
+        ];
+
+        $shopSessionId = $this->shop->updateShopSession($shopId, $shopName, $closeRemarks, $fileAs, $lastLogBy);
+        
+        foreach ($denoms as $denom) {
+            $count = (int)($_POST[$denom['field']] ?? 0);
+
+            if ($count > 0) {
+                $this->shop->insertShopSessionDenomination(
+                    $shopSessionId,
+                    'Close',
+                    $denom['value'],
+                    $count,
+                    $lastLogBy
+                );
+            }
+        }
+
+        $this->systemHelper::sendSuccessResponse(
+            'Close Register Success',
+            'The register has been closed successfully.'
+        );
+    }
+    
     public function updateShopUnarchive(
         int $lastLogBy
     ) {

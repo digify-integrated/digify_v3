@@ -85,8 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
   
             const transaction   = 'insert shop session';
-            const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
-            const shopId = $('#shop_id').val();
+            const shopId        = $('#shop_id').val();
   
             const formData = new URLSearchParams(new FormData(form));
             formData.append('transaction', transaction);
