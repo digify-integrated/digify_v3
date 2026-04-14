@@ -13,7 +13,6 @@ class Attribute extends Model {
         null|int $p_attribute_id,
         string $p_attribute_name,
         string $p_attribute_description,
-        string $p_variant_creation,
         string $p_display_type,
         int $p_last_log_by
     )    {
@@ -21,7 +20,6 @@ class Attribute extends Model {
             :p_attribute_id,
             :p_attribute_name,
             :p_attribute_description,
-            :p_variant_creation,
             :p_display_type,
             :p_last_log_by
         )';
@@ -30,7 +28,6 @@ class Attribute extends Model {
             'p_attribute_id'            => $p_attribute_id,
             'p_attribute_name'          => $p_attribute_name,
             'p_attribute_description'   => $p_attribute_description,
-            'p_variant_creation'        => $p_variant_creation,
             'p_display_type'            => $p_display_type,
             'p_last_log_by'             => $p_last_log_by
         ]);
@@ -161,16 +158,13 @@ class Attribute extends Model {
     ============================================================================================= */
 
     public function generateAttributeTable(
-        null|string $p_filter_by_variant_creation,
         null|string $p_filter_by_display_type
     ) {
         $sql = 'CALL generateAttributeTable(
-            :p_filter_by_variant_creation,
             :p_filter_by_display_type
         )';
         
         return $this->fetchAll($sql, [
-            'p_filter_by_variant_creation'  => $p_filter_by_variant_creation,
             'p_filter_by_display_type'      => $p_filter_by_display_type
         ]);
     }

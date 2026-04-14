@@ -2801,10 +2801,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Attribute Description: ", OLD.attribute_description, " -> ", NEW.attribute_description, "<br/>");
     END IF;
 
-    IF NEW.variant_creation <> OLD.variant_creation THEN
-        SET audit_log = CONCAT(audit_log, "Variant Creation: ", OLD.variant_creation, " -> ", NEW.variant_creation, "<br/>");
-    END IF;
-
     IF NEW.display_type <> OLD.display_type THEN
         SET audit_log = CONCAT(audit_log, "Display Type: ", OLD.display_type, " -> ", NEW.display_type, "<br/>");
     END IF;
@@ -3443,6 +3439,10 @@ BEGIN
 
     IF NEW.product_status <> OLD.product_status THEN
         SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
+    END IF;
+
+    IF NEW.expiration_date <> OLD.expiration_date THEN
+        SET audit_log = CONCAT(audit_log, "Expiration Date: ", OLD.expiration_date, " -> ", NEW.expiration_date, "<br/>");
     END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN

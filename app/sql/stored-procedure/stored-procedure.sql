@@ -8768,7 +8768,6 @@ CREATE PROCEDURE saveAttribute(
     IN p_attribute_id INT, 
     IN p_attribute_name VARCHAR(100), 
     IN p_attribute_description VARCHAR(500), 
-    IN p_variant_creation ENUM('Instantly','Never'), 
     IN p_display_type ENUM('Radio','Checkbox'), 
     IN p_last_log_by INT
 )
@@ -8786,14 +8785,12 @@ BEGIN
         INSERT INTO attribute (
             attribute_name,
             attribute_description,
-            variant_creation,
             display_type,
             last_log_by
         ) 
         VALUES(
             p_attribute_name,
             p_attribute_description,
-            p_variant_creation,
             p_display_type,
             p_last_log_by
         );
@@ -8818,7 +8815,6 @@ BEGIN
         UPDATE attribute
         SET attribute_name          = p_attribute_name,
             attribute_description   = p_attribute_description,
-            variant_creation        = p_variant_creation,
             display_type            = p_display_type,
             last_log_by             = p_last_log_by
         WHERE attribute_id          = p_attribute_id;
@@ -8991,25 +8987,16 @@ END //
 DROP PROCEDURE IF EXISTS generateAttributeTable//
 
 CREATE PROCEDURE generateAttributeTable(
-    IN p_filter_by_variant_creation TEXT,
     IN p_filter_by_display_type TEXT
 )
 BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT attribute_id, attribute_name, attribute_description, variant_creation, display_type 
+    SET query = 'SELECT attribute_id, attribute_name, attribute_description, display_type 
                 FROM attribute ';
 
-    IF p_filter_by_variant_creation IS NOT NULL AND p_filter_by_variant_creation <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' variant_creation IN (', p_filter_by_variant_creation, ')');
-    END IF;
-
-    IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN
-        IF filter_conditions <> '' THEN
-            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
-        END IF;
-        
+    IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN        
         SET filter_conditions = CONCAT(filter_conditions, ' display_type IN (', p_filter_by_display_type, ')');
     END IF;
 
@@ -11081,6 +11068,7 @@ CREATE PROCEDURE updateProductInventory(
 	IN p_barcode VARCHAR(200), 
 	IN p_product_type ENUM('Goods','Services', 'Combo'), 
 	IN p_quantity_on_hand DECIMAL(15,4),
+	IN p_expiration_date DATE,
 	IN p_last_log_by INT
 )
 BEGIN
@@ -11096,6 +11084,7 @@ BEGIN
         barcode             = p_barcode,
         product_type        = p_product_type,
         quantity_on_hand    = p_quantity_on_hand,
+        expiration_date     = p_expiration_date,
         last_log_by         = p_last_log_by
     WHERE product_id        = p_product_id;
 
@@ -11369,7 +11358,7 @@ DROP PROCEDURE IF EXISTS fetchAllProductAttributes//
 
 CREATE PROCEDURE fetchAllProductAttributes(
 	IN p_product_id INT,
-    IN p_creation_type ENUM('Instantly','Never')
+	IN p_display_type VARCHAR(10)
 )
 BEGIN
 	SELECT 
@@ -11380,7 +11369,7 @@ BEGIN
     FROM product_attribute pa
     JOIN attribute a ON pa.attribute_id = a.attribute_id
     WHERE pa.product_id = p_product_id
-    AND a.variant_creation = p_creation_type
+    AND a.display_type = p_display_type
     ORDER BY pa.attribute_id;
 END //
 

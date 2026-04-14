@@ -286,6 +286,7 @@ class Product extends Model {
         null|string $p_barcode,
         string $p_product_type,
         float $p_quantity_on_hand,
+        null|string $p_expiration_date,
         int $p_last_log_by
     ) {
         $sql = 'CALL updateProductInventory(
@@ -294,6 +295,7 @@ class Product extends Model {
             :p_barcode,
             :p_product_type,
             :p_quantity_on_hand,
+            :p_expiration_date,
             :p_last_log_by
         )';
         
@@ -303,6 +305,7 @@ class Product extends Model {
             'p_barcode'             => $p_barcode,
             'p_product_type'        => $p_product_type,
             'p_quantity_on_hand'    => $p_quantity_on_hand,
+            'p_expiration_date'     => $p_expiration_date,
             'p_last_log_by'         => $p_last_log_by
         ]);
     }
@@ -523,16 +526,16 @@ class Product extends Model {
 
     public function fetchAllProductAttributes(
         int $p_product_id,
-        string $p_creation_type
+        string $p_display_type
     ) {
         $sql = 'CALL fetchAllProductAttributes(
             :p_product_id,
-            :p_creation_type
+            :p_display_type
         )';
         
         return $this->fetchAll($sql, [
             'p_product_id'      => $p_product_id,
-            'p_creation_type'   => $p_creation_type
+            'p_display_type'    => $p_display_type
         ]);
     }
 

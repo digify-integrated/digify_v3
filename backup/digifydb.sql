@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 08, 2026 at 09:50 AM
+-- Generation Time: Apr 14, 2026 at 11:25 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1923,7 +1923,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAllEmployeeDocument` (IN `p_em
 END$$
 
 DROP PROCEDURE IF EXISTS `fetchAllProductAttributes`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAllProductAttributes` (IN `p_product_id` INT, IN `p_creation_type` ENUM('Instantly','Never'))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAllProductAttributes` (IN `p_product_id` INT, IN `p_display_type` VARCHAR(10))   BEGIN
 	SELECT 
         pa.attribute_id AS attribute_id,
         pa.attribute_name AS attribute_name,
@@ -1932,7 +1932,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fetchAllProductAttributes` (IN `p_p
     FROM product_attribute pa
     JOIN attribute a ON pa.attribute_id = a.attribute_id
     WHERE pa.product_id = p_product_id
-    AND a.variant_creation = p_creation_type
+    AND a.display_type = p_display_type
     ORDER BY pa.attribute_id;
 END$$
 
@@ -2831,22 +2831,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAttributeOptions` ()   BEGI
 END$$
 
 DROP PROCEDURE IF EXISTS `generateAttributeTable`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAttributeTable` (IN `p_filter_by_variant_creation` TEXT, IN `p_filter_by_display_type` TEXT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAttributeTable` (IN `p_filter_by_display_type` TEXT)   BEGIN
     DECLARE query TEXT;
     DECLARE filter_conditions TEXT DEFAULT '';
 
-    SET query = 'SELECT attribute_id, attribute_name, attribute_description, variant_creation, display_type 
+    SET query = 'SELECT attribute_id, attribute_name, attribute_description, display_type 
                 FROM attribute ';
 
-    IF p_filter_by_variant_creation IS NOT NULL AND p_filter_by_variant_creation <> '' THEN
-        SET filter_conditions = CONCAT(filter_conditions, ' variant_creation IN (', p_filter_by_variant_creation, ')');
-    END IF;
-
-    IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN
-        IF filter_conditions <> '' THEN
-            SET filter_conditions = CONCAT(filter_conditions, ' AND ');
-        END IF;
-        
+    IF p_filter_by_display_type IS NOT NULL AND p_filter_by_display_type <> '' THEN        
         SET filter_conditions = CONCAT(filter_conditions, ' display_type IN (', p_filter_by_display_type, ')');
     END IF;
 
@@ -5792,7 +5784,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAppModule` (IN `p_app_module_id
 END$$
 
 DROP PROCEDURE IF EXISTS `saveAttribute`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAttribute` (IN `p_attribute_id` INT, IN `p_attribute_name` VARCHAR(100), IN `p_attribute_description` VARCHAR(500), IN `p_variant_creation` ENUM('Instantly','Never'), IN `p_display_type` ENUM('Radio','Checkbox'), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAttribute` (IN `p_attribute_id` INT, IN `p_attribute_name` VARCHAR(100), IN `p_attribute_description` VARCHAR(500), IN `p_display_type` ENUM('Radio','Checkbox'), IN `p_last_log_by` INT)   BEGIN
     DECLARE v_new_attribute_id INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -5806,14 +5798,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAttribute` (IN `p_attribute_id`
         INSERT INTO attribute (
             attribute_name,
             attribute_description,
-            variant_creation,
             display_type,
             last_log_by
         ) 
         VALUES(
             p_attribute_name,
             p_attribute_description,
-            p_variant_creation,
             p_display_type,
             p_last_log_by
         );
@@ -5824,7 +5814,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAttribute` (IN `p_attribute_id`
         SET attribute_name  = p_attribute_name,
             last_log_by     = p_last_log_by
         WHERE attribute_id  = p_attribute_id;
-
 
         UPDATE product_attribute
         SET attribute_name  = p_attribute_name,
@@ -5839,7 +5828,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `saveAttribute` (IN `p_attribute_id`
         UPDATE attribute
         SET attribute_name          = p_attribute_name,
             attribute_description   = p_attribute_description,
-            variant_creation        = p_variant_creation,
             display_type            = p_display_type,
             last_log_by             = p_last_log_by
         WHERE attribute_id          = p_attribute_id;
@@ -9727,7 +9715,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductImage` (IN `p_product_
 END$$
 
 DROP PROCEDURE IF EXISTS `updateProductInventory`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductInventory` (IN `p_product_id` INT, IN `p_sku` VARCHAR(200), IN `p_barcode` VARCHAR(200), IN `p_product_type` ENUM('Goods','Services','Combo'), IN `p_quantity_on_hand` DECIMAL(15,4), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductInventory` (IN `p_product_id` INT, IN `p_sku` VARCHAR(200), IN `p_barcode` VARCHAR(200), IN `p_product_type` ENUM('Goods','Services','Combo'), IN `p_quantity_on_hand` DECIMAL(15,4), IN `p_expiration_date` DATE, IN `p_last_log_by` INT)   BEGIN
  	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -9740,6 +9728,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateProductInventory` (IN `p_prod
         barcode             = p_barcode,
         product_type        = p_product_type,
         quantity_on_hand    = p_quantity_on_hand,
+        expiration_date    = p_expiration_date,
         last_log_by         = p_last_log_by
     WHERE product_id        = p_product_id;
 
@@ -10701,12 +10690,19 @@ CREATE TABLE `attribute` (
   `attribute_id` int(10) UNSIGNED NOT NULL,
   `attribute_name` varchar(100) NOT NULL,
   `attribute_description` varchar(500) DEFAULT NULL,
-  `variant_creation` enum('Instantly','Never') DEFAULT 'Instantly',
   `display_type` enum('Radio','Checkbox') DEFAULT 'Radio',
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `attribute`
+--
+
+INSERT INTO `attribute` (`attribute_id`, `attribute_name`, `attribute_description`, `display_type`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Size', '', 'Radio', '2026-04-14 10:17:31', '2026-04-14 10:17:31', 2),
+(2, 'Add-on', '', 'Checkbox', '2026-04-14 10:52:14', '2026-04-14 10:52:14', 2);
 
 --
 -- Triggers `attribute`
@@ -10732,10 +10728,6 @@ CREATE TRIGGER `trg_attribute_update` AFTER UPDATE ON `attribute` FOR EACH ROW B
 
     IF NEW.attribute_description <> OLD.attribute_description THEN
         SET audit_log = CONCAT(audit_log, "Attribute Description: ", OLD.attribute_description, " -> ", NEW.attribute_description, "<br/>");
-    END IF;
-
-    IF NEW.variant_creation <> OLD.variant_creation THEN
-        SET audit_log = CONCAT(audit_log, "Variant Creation: ", OLD.variant_creation, " -> ", NEW.variant_creation, "<br/>");
     END IF;
 
     IF NEW.display_type <> OLD.display_type THEN
@@ -10766,6 +10758,17 @@ CREATE TABLE `attribute_value` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `attribute_value`
+--
+
+INSERT INTO `attribute_value` (`attribute_value_id`, `attribute_value_name`, `attribute_id`, `attribute_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Small', 1, 'Size', '2026-04-14 10:17:37', '2026-04-14 10:17:37', 2),
+(2, 'Regular', 1, 'Size', '2026-04-14 10:17:40', '2026-04-14 10:17:54', 2),
+(3, 'Large', 1, 'Size', '2026-04-14 10:17:47', '2026-04-14 10:17:47', 2),
+(4, 'Extra Gravy', 2, 'Add-on', '2026-04-14 10:52:22', '2026-04-14 10:52:22', 2),
+(5, 'Extra Rice', 2, 'Add-on', '2026-04-14 10:52:27', '2026-04-14 10:52:27', 2);
 
 --
 -- Triggers `attribute_value`
@@ -10816,6 +10819,55 @@ CREATE TABLE `audit_log` (
   `changed_by` int(10) UNSIGNED DEFAULT 1,
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_log`
+--
+
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(1, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-08 10:06:42 -> 2026-04-10 10:56:18<br/>', 1, '2026-04-10 10:56:18'),
+(2, 'user_account', 2, 'User account changed.<br/><br/>Last Connection: 2026-04-10 10:56:18 -> 2026-04-14 10:06:16<br/>', 1, '2026-04-14 10:06:16'),
+(3, 'attribute', 1, 'Attribute created.', 2, '2026-04-14 10:17:31'),
+(4, 'attribute_value', 1, 'Attribute value created.', 2, '2026-04-14 10:17:37'),
+(5, 'attribute_value', 2, 'Attribute value created.', 2, '2026-04-14 10:17:40'),
+(6, 'attribute_value', 3, 'Attribute value created.', 2, '2026-04-14 10:17:47'),
+(7, 'attribute_value', 2, 'Attribute value changed.<br/><br/>Attribute Value Name: Medium -> Regular<br/>', 2, '2026-04-14 10:17:54'),
+(8, 'attribute', 2, 'Attribute created.', 2, '2026-04-14 10:52:14'),
+(9, 'attribute_value', 4, 'Attribute value created.', 2, '2026-04-14 10:52:22'),
+(10, 'attribute_value', 5, 'Attribute value created.', 2, '2026-04-14 10:52:27'),
+(11, 'product_attribute', 1, 'Product attribute created.', 2, '2026-04-14 10:52:52'),
+(12, 'product_attribute', 2, 'Product attribute created.', 2, '2026-04-14 10:52:52'),
+(13, 'product_attribute', 3, 'Product attribute created.', 2, '2026-04-14 10:52:52'),
+(14, 'product_attribute', 4, 'Product attribute created.', 2, '2026-04-14 10:52:52'),
+(15, 'product', 1, 'Product created.', 2, '2026-04-14 10:57:54'),
+(16, 'product_category', 1, 'Product category created.', 2, '2026-04-14 11:00:09'),
+(17, 'product', 2, 'Product created.', 2, '2026-04-14 11:01:51'),
+(18, 'product', 2, 'Product changed.<br/><br/>Cost: 0.0000 -> 50.0000<br/>Sales Price: 0.0000 -> 100.0000<br/>', 2, '2026-04-14 11:18:20'),
+(19, 'product_tax', 1, 'Product tax created.', 2, '2026-04-14 11:18:20'),
+(20, 'product_category_map', 1, 'Product category map created.', 2, '2026-04-14 11:18:27'),
+(21, 'product', 2, 'Product changed.<br/><br/>Product Status: Draft -> Active<br/>', 2, '2026-04-14 11:18:29'),
+(22, 'product_attribute', 1, 'Product attribute created.', 2, '2026-04-14 11:22:59'),
+(23, 'product_attribute', 2, 'Product attribute created.', 2, '2026-04-14 11:22:59'),
+(24, 'product_attribute', 3, 'Product attribute created.', 2, '2026-04-14 11:23:00'),
+(25, 'product_attribute', 4, 'Product attribute created.', 2, '2026-04-14 11:23:00'),
+(26, 'product_attribute', 5, 'Product attribute created.', 2, '2026-04-14 11:34:41'),
+(27, 'product_attribute', 6, 'Product attribute created.', 2, '2026-04-14 11:34:41'),
+(29, 'product_attribute', 7, 'Product attribute created.', 2, '2026-04-14 12:22:42'),
+(30, 'product_attribute', 8, 'Product attribute created.', 2, '2026-04-14 12:22:42'),
+(31, 'product_attribute', 9, 'Product attribute created.', 2, '2026-04-14 12:22:42'),
+(32, 'product_attribute', 10, 'Product attribute created.', 2, '2026-04-14 12:22:42'),
+(35, 'product_attribute', 11, 'Product attribute created.', 2, '2026-04-14 12:22:49'),
+(36, 'product_attribute', 12, 'Product attribute created.', 2, '2026-04-14 12:22:49'),
+(37, 'product_attribute', 13, 'Product attribute created.', 2, '2026-04-14 12:22:49'),
+(38, 'product_attribute', 14, 'Product attribute created.', 2, '2026-04-14 12:22:49'),
+(41, 'product_attribute', 15, 'Product attribute created.', 2, '2026-04-14 12:24:41'),
+(42, 'product_attribute', 16, 'Product attribute created.', 2, '2026-04-14 12:24:41'),
+(43, 'product_attribute', 17, 'Product attribute created.', 2, '2026-04-14 12:24:41'),
+(44, 'product_attribute', 18, 'Product attribute created.', 2, '2026-04-14 12:24:41'),
+(47, 'product_attribute', 19, 'Product attribute created.', 2, '2026-04-14 12:30:15'),
+(48, 'product_attribute', 20, 'Product attribute created.', 2, '2026-04-14 12:30:15'),
+(49, 'product_attribute', 21, 'Product attribute created.', 2, '2026-04-14 12:30:15'),
+(50, 'product_attribute', 22, 'Product attribute created.', 2, '2026-04-14 12:30:15');
 
 -- --------------------------------------------------------
 
@@ -17366,7 +17418,9 @@ INSERT INTO `login_attempts` (`login_attempts_id`, `user_account_id`, `email`, `
 (47, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-06 11:21:33', 1, '2026-04-06 11:21:33', '2026-04-06 11:21:33', 1),
 (48, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-07 09:54:24', 1, '2026-04-07 09:54:24', '2026-04-07 09:54:24', 1),
 (49, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-07 21:03:54', 1, '2026-04-07 21:03:54', '2026-04-07 21:03:54', 1),
-(50, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-08 10:06:42', 1, '2026-04-08 10:06:42', '2026-04-08 10:06:42', 1);
+(50, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-08 10:06:42', 1, '2026-04-08 10:06:42', '2026-04-08 10:06:42', 1),
+(51, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-10 10:56:18', 1, '2026-04-10 10:56:18', '2026-04-10 10:56:18', 1),
+(52, 2, 'l.agulto@christianmotors.ph', '::1', '2026-04-14 10:06:16', 1, '2026-04-14 10:06:16', '2026-04-14 10:06:16', 1);
 
 -- --------------------------------------------------------
 
@@ -18193,6 +18247,7 @@ CREATE TABLE `product` (
   `length` decimal(10,4) DEFAULT 0.0000,
   `variant_signature` varchar(500) DEFAULT NULL,
   `product_status` enum('Draft','Active','Archived') DEFAULT 'Draft',
+  `expiration_date` date DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
@@ -18202,9 +18257,9 @@ CREATE TABLE `product` (
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `tax_classification`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 'Burger', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-03 00:55:25', '2026-03-03 00:55:36', 2),
-(3, 'Fries', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 12.0000, 10.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', '2026-03-11 22:41:59', '2026-03-26 10:07:22', 2);
+INSERT INTO `product` (`product_id`, `product_name`, `product_description`, `parent_product_id`, `parent_product_name`, `product_image`, `product_type`, `sku`, `barcode`, `track_inventory`, `quantity_on_hand`, `cost`, `sales_price`, `tax_classification`, `is_variant`, `is_sellable`, `is_purchasable`, `show_on_pos`, `weight`, `width`, `height`, `length`, `variant_signature`, `product_status`, `expiration_date`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(1, 'Fried Chicken', '', NULL, NULL, NULL, 'Goods', NULL, NULL, 'No', 0.0000, 0.0000, 0.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Draft', NULL, '2026-04-14 10:57:54', '2026-04-14 10:57:54', 2),
+(2, 'Fried Chicken', '', NULL, NULL, NULL, 'Goods', '', '', 'No', 0.0000, 50.0000, 100.0000, 'Vatable', 'No', 'Yes', 'Yes', 'Yes', 0.0000, 0.0000, 0.0000, 0.0000, NULL, 'Active', NULL, '2026-04-14 11:01:51', '2026-04-14 11:18:29', 2);
 
 --
 -- Triggers `product`
@@ -18307,6 +18362,10 @@ CREATE TRIGGER `trg_product_update` AFTER UPDATE ON `product` FOR EACH ROW BEGIN
     IF NEW.product_status <> OLD.product_status THEN
         SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
+
+    IF NEW.expiration_date <> OLD.expiration_date THEN
+        SET audit_log = CONCAT(audit_log, "Expiration Date: ", OLD.expiration_date, " -> ", NEW.expiration_date, "<br/>");
+    END IF;
     
     IF audit_log <> 'Product changed.<br/><br/>' THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -18335,6 +18394,16 @@ CREATE TABLE `product_attribute` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_attribute`
+--
+
+INSERT INTO `product_attribute` (`product_attribute_id`, `product_id`, `product_name`, `attribute_id`, `attribute_name`, `attribute_value_id`, `attribute_value_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
+(19, 2, 'Fried Chicken', 2, 'Add-on', 4, 'Extra Gravy', '2026-04-14 12:30:15', '2026-04-14 12:30:15', 2),
+(20, 2, 'Fried Chicken', 2, 'Add-on', 5, 'Extra Rice', '2026-04-14 12:30:15', '2026-04-14 12:30:15', 2),
+(21, 2, 'Fried Chicken', 1, 'Size', 3, 'Large', '2026-04-14 12:30:15', '2026-04-14 12:30:15', 2),
+(22, 2, 'Fried Chicken', 1, 'Size', 2, 'Regular', '2026-04-14 12:30:15', '2026-04-14 12:30:15', 2);
 
 --
 -- Triggers `product_attribute`
@@ -18470,8 +18539,7 @@ CREATE TABLE `product_category` (
 --
 
 INSERT INTO `product_category` (`product_category_id`, `product_category_name`, `parent_category_id`, `parent_category_name`, `costing_method`, `display_order`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 'Appetizer', 0, '', 'Average Cost', 1, '2026-03-02 22:43:07', '2026-03-02 22:43:07', 2),
-(2, 'Fries', 0, '', 'Average Cost', 12, '2026-03-11 22:42:17', '2026-03-11 22:42:17', 2);
+(1, 'Main Course', 0, '', 'Average Cost', 1, '2026-04-14 11:00:09', '2026-04-14 11:00:09', 2);
 
 --
 -- Triggers `product_category`
@@ -18539,8 +18607,7 @@ CREATE TABLE `product_category_map` (
 --
 
 INSERT INTO `product_category_map` (`product_category_map_id`, `product_id`, `product_name`, `product_category_id`, `product_category_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(2, 2, 'Burger', 1, 'Appetizer', '2026-03-03 00:55:28', '2026-03-03 00:55:28', 2),
-(3, 3, 'Fries', 2, 'Fries', '2026-03-11 22:42:28', '2026-03-11 22:42:28', 2);
+(1, 2, 'Fried Chicken', 1, 'Main Course', '2026-04-14 11:18:27', '2026-04-14 11:18:27', 2);
 
 --
 -- Triggers `product_category_map`
@@ -18676,7 +18743,7 @@ CREATE TABLE `product_tax` (
 --
 
 INSERT INTO `product_tax` (`product_tax_id`, `product_id`, `product_name`, `tax_id`, `tax_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(16, 3, 'Fries', 1, 'VAT (12%)', '2026-03-26 14:31:48', '2026-03-26 14:31:48', 2);
+(1, 2, 'Fried Chicken', 1, 'VAT (12%)', '2026-04-14 11:18:20', '2026-04-14 11:18:20', 2);
 
 --
 -- Triggers `product_tax`
@@ -19484,7 +19551,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`session_id`, `user_account_id`, `session_token`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(1, 2, '$2y$10$sREowIkV8bC9KR609iKkmuTRkIC0w6B06LFMhybuL2IISwN4clCrO', '2026-02-27 14:52:10', '2026-04-08 10:06:42', 1);
+(1, 2, '$2y$10$ZQa./GPd.BPp76dDyA1EMO2YG50/RN68/8DpEx4pf7BH/kZJnTSSu', '2026-02-27 14:52:10', '2026-04-14 10:06:16', 1);
 
 -- --------------------------------------------------------
 
@@ -19940,14 +20007,6 @@ CREATE TABLE `shop_product` (
   `last_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `last_log_by` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `shop_product`
---
-
-INSERT INTO `shop_product` (`shop_product_id`, `shop_id`, `shop_name`, `product_id`, `product_name`, `created_date`, `last_updated`, `last_log_by`) VALUES
-(6, 4, 'Test', 2, 'Burger', '2026-03-03 00:55:43', '2026-03-03 00:55:43', 2),
-(7, 4, 'Test', 3, 'Fries', '2026-03-11 22:43:15', '2026-03-11 22:43:15', 2);
 
 --
 -- Triggers `shop_product`
@@ -20865,7 +20924,7 @@ CREATE TABLE `user_account` (
 
 INSERT INTO `user_account` (`user_account_id`, `file_as`, `email`, `password`, `phone`, `profile_picture`, `active`, `two_factor_auth`, `multiple_session`, `last_connection_date`, `last_failed_connection_date`, `last_password_change`, `last_password_reset_request`, `created_date`, `last_updated`, `last_log_by`) VALUES
 (1, 'Bot', 'bot@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-02-27 14:51:39', 1),
-(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-04-08 10:06:42', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-04-08 10:06:42', 1),
+(2, 'Lawrence Agulto', 'l.agulto@christianmotors.ph', '$2y$10$Qu3TEV2u0SBF1jdb2DzB6.OcMChTDStXHEOdX47Y01sOGkl4UnOaK', '123-456-7890', NULL, 'Yes', 'No', 'No', '2026-04-14 10:06:16', NULL, NULL, NULL, '2026-02-27 14:51:39', '2026-04-14 10:06:16', 1),
 (3, 'Reyanna Arceñas', 'rpcmarcenas@gmail.com', '$2y$10$NugNBcQPCPzLgleru4F/meqOAXZWM7kCFGVCzOOUHodGw3ONwZ5Hi', '', NULL, 'Yes', 'No', 'No', NULL, NULL, NULL, NULL, '2026-04-08 15:48:18', '2026-04-08 15:48:28', 2);
 
 --
@@ -21200,7 +21259,8 @@ ALTER TABLE `app_module`
 --
 ALTER TABLE `attribute`
   ADD PRIMARY KEY (`attribute_id`),
-  ADD KEY `last_log_by` (`last_log_by`);
+  ADD KEY `last_log_by` (`last_log_by`),
+  ADD KEY `idx_attribute_display_type` (`display_type`);
 
 --
 -- Indexes for table `attribute_value`
@@ -22051,19 +22111,19 @@ ALTER TABLE `app_module`
 -- AUTO_INCREMENT for table `attribute`
 --
 ALTER TABLE `attribute`
-  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `attribute_value`
 --
 ALTER TABLE `attribute_value`
-  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `attribute_value_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -22279,7 +22339,7 @@ ALTER TABLE `language_proficiency`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `login_attempts_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
@@ -22339,13 +22399,13 @@ ALTER TABLE `physical_inventory`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `product_attribute`
 --
 ALTER TABLE `product_attribute`
-  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `product_attribute_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `product_bom`
@@ -22357,13 +22417,13 @@ ALTER TABLE `product_bom`
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_category_map`
 --
 ALTER TABLE `product_category_map`
-  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `product_category_map_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `product_pricelist`
@@ -22375,7 +22435,7 @@ ALTER TABLE `product_pricelist`
 -- AUTO_INCREMENT for table `product_tax`
 --
 ALTER TABLE `product_tax`
-  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `product_tax_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_variant`
@@ -22513,7 +22573,7 @@ ALTER TABLE `shop_payment_method`
 -- AUTO_INCREMENT for table `shop_product`
 --
 ALTER TABLE `shop_product`
-  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `shop_product_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_session`

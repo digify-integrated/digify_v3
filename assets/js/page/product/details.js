@@ -5,6 +5,7 @@ import { handleSystemError } from '../../modules/system-errors.js';
 import { showNotification, setNotification } from '../../modules/notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const page_link     = document.getElementById('page-link').getAttribute('href') || 'apps.php';
     const product_id    = document.getElementById('details-id')?.textContent.trim() || '';
     const page_id       = document.getElementById('page-id')?.value || '';
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#width').val(data.width || 0);
                 $('#height').val(data.height || 0);
                 $('#length').val(data.length || 0);
+                $('#expiration_date').val(data.expirationDate || 0);
 
                 $('#product_type').val(data.productType || '').trigger('change');
                 $('#tax_classification').val(data.taxClassification || '').trigger('change');
@@ -349,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeSubDatatableControls('#product-bom-datatable-search', '#product-bom-datatable-length', '#product-bom-table');
     initializeDatePicker('#validity_start_date');
     initializeDatePicker('#validity_end_date');
+    initializeDatePicker('#expiration_date');
     attachLogNotesHandler('#log-notes-main', '#details-id', 'product');
 
     $('#product_category_form').validate({

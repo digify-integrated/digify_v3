@@ -8,20 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: './app/Controllers/AttributeController.php',
         transaction: 'generate attribute table',
         ajaxData: {
-            variant_creation_filter: $('#variant_creation_filter').val(),
             display_type_filter: $('#display_type_filter').val()
         },
         columns: [
             { data: 'CHECK_BOX' },
             { data: 'ATTRIBUTE_NAME' },
-            { data: 'VARIANT_CREATION' },
             { data: 'DISPLAY_TYPE' }
         ],
         columnDefs: [
             { width: '5%', bSortable: false, targets: 0, responsivePriority: 1 },
             { width: 'auto', targets: 1, responsivePriority: 2 },
-            { width: 'auto', targets: 2, responsivePriority: 3 },
-            { width: 'auto', targets: 3, responsivePriority: 4 }
+            { width: 'auto', targets: 2, responsivePriority: 3 }
         ],
         onRowClick: (rowData) => {
             if (rowData?.LINK) window.open(rowData.LINK, '_blank');
@@ -38,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (event.target.closest('#reset-filter')) {
-            $('#variant_creation_filter').val(null).trigger('change');
             $('#display_type_filter').val(null).trigger('change');
 
             initializeDatatable(datatableConfig());

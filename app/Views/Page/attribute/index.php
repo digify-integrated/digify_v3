@@ -43,13 +43,6 @@
                         <div class="separator border-gray-200"></div>
                         <div class="px-7 py-5">
                             <div class="mb-10">
-                                <label class="form-label fs-6 fw-semibold" for="variant_creation_filter">Variant Creation:</label>
-                                <select id="variant_creation_filter" name="variant_creation_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
-                                    <option value="Instantly">Instantly</option>
-                                    <option value="Never">Never</option>
-                                </select>
-                            </div>
-                            <div class="mb-10">
                                 <label class="form-label fs-6 fw-semibold" for="display_type_filter">Display Type:</label>
                                 <select id="display_type_filter" name="display_type_filter" multiple="multiple" class="form-select" data-control="select2" data-allow-clear="false">
                                     <option value="Radio">Radio</option>
@@ -77,7 +70,6 @@
                             </div>
                         </th>
                         <th>Attribute</th>
-                        <th>Variant Creation</th>
                         <th>Display Type</th>
                     </tr>
                 </thead>

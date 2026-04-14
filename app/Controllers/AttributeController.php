@@ -106,14 +106,12 @@ class AttributeController {
         $attributeId            = $_POST['attribute_id'] ?? null;
         $attributeName          = $_POST['attribute_name'] ?? null;
         $attributeDescription   = $_POST['attribute_description'] ?? null;
-        $variantCreation        = $_POST['variant_creation'] ?? null;
         $displayType            = $_POST['display_type'] ?? null;
 
         $attributeId = $this->attribute->saveAttribute(
             $attributeId,
             $attributeName,
             $attributeDescription,
-            $variantCreation,
             $displayType,
             $lastLogBy
         );
@@ -191,7 +189,6 @@ class AttributeController {
             'success'               => true,
             'attributeName'         => $attributeDetails['attribute_name'] ?? null,
             'attributeDescription'  => $attributeDetails['attribute_description'] ?? null,
-            'variantCreation'       => $attributeDetails['variant_creation'] ?? null,
             'displayType'           => $attributeDetails['display_type'] ?? null,
         ];
 
@@ -272,12 +269,10 @@ class AttributeController {
 
     public function generateAttributeTable() {
         $pageLink               = $_POST['page_link'] ?? null;
-        $variantCreationFilter  = $this->systemHelper->checkFilter($_POST['variant_creation_filter'] ?? null);
         $displayTypeFilter      = $this->systemHelper->checkFilter($_POST['display_type_filter'] ?? null);
         $response               = [];
 
         $attributes = $this->attribute->generateAttributeTable(
-            $variantCreationFilter,
             $displayTypeFilter
         );
 
@@ -285,7 +280,6 @@ class AttributeController {
             $attributeId            = $row['attribute_id'];
             $attributeName          = $row['attribute_name'];
             $attributeDescription   = $row['attribute_description'];
-            $variantCreation        = $row['variant_creation'];
             $displayType            = $row['display_type'];
             $attributeIdEncrypted   = $this->security->encryptData($attributeId);
 
@@ -297,7 +291,6 @@ class AttributeController {
                                             <span class="text-gray-800 fw-bold mb-1">'. $attributeName .'</span>
                                             <small class="text-gray-600">'. $attributeDescription .'</small>
                                         </div>',
-                'VARIANT_CREATION'  => $variantCreation,
                 'DISPLAY_TYPE'      => $displayType,
                 'LINK'              => $pageLink .'&id='. $attributeIdEncrypted
             ];

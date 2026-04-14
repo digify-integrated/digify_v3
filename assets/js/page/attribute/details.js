@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('attribute_name').value         = data.attributeName || '';
                 document.getElementById('attribute_description').value  = data.attributeDescription || '';
 
-                $('#variant_creation').val(data.variantCreation || '').trigger('change');
                 $('#display_type').val(data.displayType || '').trigger('change');
             }
             else if (data.notExist) {
@@ -110,12 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#attribute_form').validate({
         rules: {
             attribute_name: { required: true },
-            variant_creation: { required: true },
             display_type: { required: true }
         },
         messages: {
             attribute_name: { required: 'Enter the display name' },
-            variant_creation: { required: 'Choose the variant creation' },
             display_type: { required: 'Choose the display type' }
         },
         errorPlacement: (error, element) => {

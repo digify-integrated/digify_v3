@@ -227,100 +227,10 @@ class ProductController {
             $lastLogBy
         );
         
-        $productAttributesInstantly = $this->product->fetchAllProductAttributes(
+        $productAttributesRadio = $this->product->fetchAllProductAttributes(
             $productId,
-            'Instantly'
+            'Radio'
         );
-
-        $groupedAttributes = [];
-
-        foreach ($productAttributesInstantly as $row) {
-            $attributeName  = $row['attribute_name'];
-            $attributeId    = $row['attribute_id'];
-
-            $groupedAttributes[$attributeName]['attribute_id'] = $attributeId;
-            $groupedAttributes[$attributeName]['values'][] = [
-                'attribute_value_id'    => $row['attribute_value_id'],
-                'attribute_value_name'  => $row['attribute_value_name']
-            ];
-        }
-
-        if (!empty($groupedAttributes)) {
-            $combinations = $this->generateCombinations($groupedAttributes);
-
-            foreach ($combinations as $combination) {
-                $attributeValueIds = array_column($combination, 'attribute_value_id');
-                sort($attributeValueIds);
-                $variantSignature = sha1($productId . '-' . implode('-', $attributeValueIds));
-
-                $variantName = $productName . ' - ' . implode(' - ', array_column($combination, 'attribute_value_name'));
-
-                $subproductId = $this->product->saveSubProductAndVariants(
-                    $productId,
-                    $productName,
-                    $variantName,
-                    $variantSignature,
-                    $lastLogBy
-                );
-
-                foreach ($combination as $attr) {
-                    $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attr['attribute_value_id']);   
-
-                    if ($checkProductVariantExists['total'] == 0) {
-                        $this->product->insertProductVariant(
-                            $productId,
-                            $productName,
-                            $subproductId,
-                            $variantName,
-                            $attr['attribute_id'],
-                            $attr['attribute_name'],
-                            $attr['attribute_value_id'],
-                            $attr['attribute_value_name'],
-                            $lastLogBy
-                        );
-                    }
-                }
-            }
-        }
-
-        $productAttributesNever = $this->product->fetchAllProductAttributes(
-            $productId,
-            'Never'
-        );
-
-        foreach ($productAttributesNever as $row) {
-            $attributeId            = $row['attribute_id'];
-            $attributeName          = $row['attribute_name'];
-            $attributeValueId       = $row['attribute_value_id'];
-            $attributeValueName     = $row['attribute_value_name'];
-
-            $variantSignature   = sha1($productId . '-' . $attributeValueId);
-            $variantName        = $productName . ' - ' . $attributeValueName;
-
-            $subproductId = $this->product->saveSubProductAndVariants(
-                $productId,
-                $productName,
-                $variantName,
-                $variantSignature,
-                $lastLogBy
-            );
-
-            $checkProductVariantExists = $this->product->checkProductVariantExists($subproductId, $attributeValueId);   
-
-            if ($checkProductVariantExists['total'] == 0) {
-                $this->product->insertProductVariant(
-                    $productId,
-                    $productName,
-                    $subproductId,
-                    $variantName,
-                    $attributeId,
-                    $attributeName,
-                    $attributeValueId,
-                    $attributeValueName,
-                    $lastLogBy
-                );
-            }
-        }
 
         $this->systemHelper::sendSuccessResponse(
             'Save Product Attribute Success',
@@ -557,11 +467,12 @@ class ProductController {
             );
         }
 
-        $productId          = $_POST['product_id'] ?? null;
-        $sku                = $_POST['sku'] ?? null;
-        $barcode            = $_POST['barcode'] ?? null;
-        $productType        = $_POST['product_type'] ?? null;
-        $quantityOnHand     = $_POST['quantity_on_hand'] ?? 0;
+        $productId      = $_POST['product_id'] ?? null;
+        $sku            = $_POST['sku'] ?? null;
+        $barcode        = $_POST['barcode'] ?? null;
+        $productType    = $_POST['product_type'] ?? null;
+        $quantityOnHand = $_POST['quantity_on_hand'] ?? 0;
+        $expirationDate = $this->systemHelper->checkDate('empty', $_POST['expiration_date'], '', 'Y-m-d', '');
         
         if(!empty($sku)){
             $checkProductSKUExist   = $this->product->checkProductSKUExist($productId, $sku);
@@ -593,6 +504,7 @@ class ProductController {
             $barcode,
             $productType,
             $quantityOnHand,
+            $expirationDate,
             $lastLogBy
         );
 
@@ -908,6 +820,7 @@ class ProductController {
             'width'                 => $productDetails['width'] ?? 0,
             'height'                => $productDetails['height'] ?? 0,
             'length'                => $productDetails['length'] ?? 0,
+            'expirationDate'        => $this->systemHelper->checkDate('summary', $productDetails['expiration_date'] ?? null, '', 'd M Y', ''),
             'productImage'          => $productImage
         ];
 

@@ -329,6 +329,18 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="fv-row">
+                                    <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">  
+                                        <div class="col">
+                                            <div class="fv-row">
+                                                <label class="form-label" for="product_type">Expiration Date</label>
+                                                <div class="d-flex gap-3">
+                                                     <input class="form-control mb-3 mb-lg-0 datepicker" id="expiration_date" name="expiration_date" type="text" <?php echo $disabled; ?>>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                         <?php
@@ -381,7 +393,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4 d-none">
+                    <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Attributes</h2>
@@ -421,7 +433,7 @@
                         </div>
                     </div>
 
-                    <div class="card card-flush py-4 d-none">
+                    <div class="card card-flush py-4">
                         <div class="card-header">
                             <div class="card-title">
                                 <h2 class="me-4">Variation</h2>

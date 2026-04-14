@@ -6778,7 +6778,6 @@ CREATE TABLE attribute (
   attribute_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   attribute_name VARCHAR(100) NOT NULL,
   attribute_description VARCHAR(500),
-  variant_creation ENUM('Instantly','Never') DEFAULT 'Instantly',
   display_type ENUM('Radio','Checkbox') DEFAULT 'Radio',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6789,6 +6788,8 @@ CREATE TABLE attribute (
 /* =============================================================================================
   INDEX: ATTRIBUTE
 ============================================================================================= */
+
+CREATE INDEX idx_attribute_display_type ON attribute(display_type);
 
 /* =============================================================================================
   INITIAL VALUES: ATTRIBUTE
@@ -7193,6 +7194,7 @@ CREATE TABLE product (
   length DECIMAL(10,4) DEFAULT 0,
   variant_signature VARCHAR(500) NULL,
   product_status ENUM('Draft', 'Active','Archived') DEFAULT 'Draft',
+  expiration_date DATE NULL,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -7236,12 +7238,9 @@ CREATE TABLE product_bom (
   product_bom_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(100) NOT NULL,
-  bom_product_id INT UNSIGNED NOT NULL,
-  bom_product_name VARCHAR(100) NOT NULL,
+  component_product_id  INT UNSIGNED NOT NULL,
+  component_product_name VARCHAR(100) NOT NULL,
   quantity_required DECIMAL(15,4) DEFAULT 0,
-  stock_policy ENUM('Strict','Non-Blocking','Allow Negative') DEFAULT 'Strict',
-  is_required ENUM('Yes','No') DEFAULT 'Yes',
-  can_be_omitted ENUM('Yes','No') DEFAULT 'No',
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
@@ -7255,10 +7254,7 @@ CREATE TABLE product_bom (
 ============================================================================================= */
 
 CREATE INDEX idx_product_bom_product_id ON product_bom(product_id);
-CREATE INDEX idx_product_bom_bom_product_id ON product_bom(bom_product_id);
-CREATE INDEX idx_product_bom_stock_policy ON product_bom(stock_policy);
-CREATE INDEX idx_product_bom_is_required ON product_bom(is_required);
-CREATE INDEX idx_product_bom_can_be_omitted ON product_bom(can_be_omitted);
+CREATE INDEX idx_product_bom_component_product_id ON product_bom(component_product_id);
 
 /* =============================================================================================
   INITIAL VALUES: PRODUCT BOM
@@ -7386,15 +7382,14 @@ CREATE INDEX idx_product_attribute_attribute_value_id ON product_attribute(attri
 
 
 /* =============================================================================================
-  TABLE: PRODUCT VARIANT
+  TABLE: PRODUCT VARIANT OPTION
 ============================================================================================= */
 
 DROP TABLE IF EXISTS product_variant;
+DROP TABLE IF EXISTS product_variant_option;
 
-CREATE TABLE product_variant (
-  product_variant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  parent_product_id INT UNSIGNED NOT NULL,
-  parent_product_name VARCHAR(200) NOT NULL,
+CREATE TABLE product_variant_option (
+  product_variant_option_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   product_id INT UNSIGNED NOT NULL,
   product_name VARCHAR(200) NOT NULL,
   attribute_id INT UNSIGNED NOT NULL,
@@ -7404,7 +7399,6 @@ CREATE TABLE product_variant (
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_log_by INT UNSIGNED DEFAULT 1,
-  FOREIGN KEY (parent_product_id) REFERENCES product(product_id),
   FOREIGN KEY (product_id) REFERENCES product(product_id),
   FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
   FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(attribute_value_id),
@@ -7413,16 +7407,15 @@ CREATE TABLE product_variant (
 );
 
 /* =============================================================================================
-  INDEX: PRODUCT VARIANT
+  INDEX: PRODUCT VARIANT OPTION
 ============================================================================================= */
 
-CREATE INDEX idx_product_variant_parent_product_id ON product_variant(parent_product_id);
 CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
 CREATE INDEX idx_product_variant_attribute_id ON product_variant(attribute_id);
 CREATE INDEX idx_product_variant_attribute_value_id ON product_variant(attribute_value_id);
 
 /* =============================================================================================
-  INITIAL VALUES: PRODUCT VARIANT
+  INITIAL VALUES: PRODUCT VARIANT OPTION
 ============================================================================================= */
 
 /* =============================================================================================
